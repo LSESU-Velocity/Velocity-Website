@@ -22,12 +22,14 @@ export const Button: React.FC<ButtonProps> = ({
   href,
   ...props 
 }) => {
-  const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center";
+  const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden";
   
   const variants = {
     primary: `
-      bg-velocity-red border-velocity-red text-white 
-      hover:bg-transparent hover:text-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.4)]
+      bg-velocity-darkRed/20 border-velocity-red/50 text-white 
+      shadow-[0_0_20px_rgba(255,31,31,0.15)] backdrop-blur-sm
+      hover:bg-velocity-red hover:border-velocity-red hover:text-white 
+      hover:shadow-[0_0_50px_rgba(255,31,31,0.6)]
     `,
     outline: `
       bg-transparent border-white/30 text-white 
@@ -47,6 +49,11 @@ export const Button: React.FC<ButtonProps> = ({
           <span className="absolute top-0 left-0 w-1 h-1 bg-white opacity-50" />
           <span className="absolute bottom-0 right-0 w-1 h-1 bg-white opacity-50" />
         </>
+      )}
+      
+      {/* Subtle sheen for primary button */}
+      {variant === 'primary' && (
+         <span className="absolute inset-0 opacity-20 bg-gradient-to-br from-transparent via-white/10 to-transparent pointer-events-none" />
       )}
     </>
   );
