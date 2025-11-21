@@ -3,7 +3,7 @@ import { Github, Twitter, Instagram } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-white/10 bg-velocity-black py-12 px-6">
+    <footer id="join" className="border-t border-white/10 bg-velocity-black py-12 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
         
         <div className="flex flex-col items-center md:items-start">

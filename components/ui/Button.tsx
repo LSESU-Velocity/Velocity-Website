@@ -10,15 +10,19 @@ function cn(...inputs: ClassValue[]) {
 interface ButtonProps extends HTMLMotionProps<"button"> {
   variant?: 'primary' | 'outline' | 'ghost';
   children: React.ReactNode;
+  href?: string;
+  target?: string;
+  rel?: string;
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
   className, 
   variant = 'primary', 
   children, 
+  href,
   ...props 
 }) => {
-  const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none";
+  const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center";
   
   const variants = {
     primary: `
@@ -34,6 +38,49 @@ export const Button: React.FC<ButtonProps> = ({
     `
   };
 
+  const content = (
+    <>
+      {children}
+      {/* Decorative corner accents for the 'tech' feel */}
+      {variant !== 'ghost' && (
+        <>
+          <span className="absolute top-0 left-0 w-1 h-1 bg-white opacity-50" />
+          <span className="absolute bottom-0 right-0 w-1 h-1 bg-white opacity-50" />
+        </>
+      )}
+    </>
+  );
+
+  if (href) {
+    const isInternal = href.startsWith('#');
+    
+    return (
+      <motion.a
+        href={href}
+        onClick={(e) => {
+          if (isInternal) {
+            e.preventDefault();
+            const element = document.querySelector(href);
+            if (element) {
+              element.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+          // Allow external onClick props to fire if provided
+          if (props.onClick) {
+            props.onClick(e as any);
+          }
+        }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={cn(baseStyles, variants[variant], className)}
+        style={{ borderRadius: '0px' }}
+        {...(props as any)}
+      >
+        {content}
+      </motion.a>
+    );
+  }
+
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
@@ -42,15 +89,7 @@ export const Button: React.FC<ButtonProps> = ({
       style={{ borderRadius: '0px' }} // Razor sharp
       {...props}
     >
-      {children}
-      
-      {/* Decorative corner accents for the 'tech' feel */}
-      {variant !== 'ghost' && (
-        <>
-          <span className="absolute top-0 left-0 w-1 h-1 bg-white opacity-50" />
-          <span className="absolute bottom-0 right-0 w-1 h-1 bg-white opacity-50" />
-        </>
-      )}
+      {content}
     </motion.button>
   );
 };

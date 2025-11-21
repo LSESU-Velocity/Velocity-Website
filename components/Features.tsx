@@ -71,7 +71,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ title, subtitle, icon: Icon, 
 
 export const Features: React.FC = () => {
     return (
-        <section className="py-32 px-6 relative z-10">
+        <section id="builders" className="py-32 px-6 relative z-10">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-16 md:text-center max-w-3xl mx-auto">
                     <h2 className="font-sans font-bold text-3xl md:text-5xl tracking-tight mb-6">Why Join Velocity?</h2>
