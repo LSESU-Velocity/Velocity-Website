@@ -93,10 +93,16 @@ export const Hero: React.FC = () => {
           transition={{ delay: 1.6, duration: 0.6 }}
           className="flex flex-col md:flex-row gap-6 w-full md:w-auto mb-8"
         >
-          <Button variant="primary" className="group flex items-center justify-center gap-3 px-10 py-5 text-base">
-            Apply Now 
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <a 
+            href="https://www.lsesu.com/communities/societies/group/21219/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+          >
+            <Button variant="primary" className="group flex items-center justify-center gap-3 px-10 py-5 text-base w-full md:w-auto">
+              Apply Now 
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </a>
           <Button variant="outline" className="flex items-center justify-center gap-3 px-10 py-5 text-base">
             <Code2 className="w-5 h-5" />
             View Roadmap
