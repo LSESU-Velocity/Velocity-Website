@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const tools = ["CURSOR", "V0", "CLAUDE 3.5", "VERCEL", "REACT", "SUPABASE", "OPENAI", "TAILWIND", "NEXT.JS", "ANTHROPIC"];
+const tools = ["CURSOR", "V0", "CLAUDE", "VERCEL", "REACT", "SUPABASE", "OPENAI", "TAILWIND", "NEXT.JS"];
 
 export const TechStack: React.FC = () => {
   return (

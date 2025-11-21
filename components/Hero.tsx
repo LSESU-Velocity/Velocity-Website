@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Button } from './ui/Button';
 import { ArrowRight, Code2 } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const AnimatedText = ({
   className?: string, 
   delay?: number
 }) => {
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     visible: (i = 1) => ({
       opacity: 1,
@@ -20,7 +20,7 @@ const AnimatedText = ({
     })
   };
 
-  const child = {
+  const child: Variants = {
     visible: {
       opacity: 1,
       y: 0,
@@ -83,9 +83,8 @@ export const Hero: React.FC = () => {
           transition={{ delay: 1.4, duration: 0.6 }}
           className="font-mono text-sm md:text-lg text-gray-400 max-w-2xl mb-10 leading-relaxed"
         >
-          The LSE society for shipping products at the speed of AI. 
-          Stop waiting for a technical co-founder. <br className="hidden md:block" />
-          Master the new stack to turn your ideas into live applications in days, not months.
+          The LSE society for shipping products at the speed of AI. <br className="hidden md:block" />
+          Stop waiting for a technical co-founder, build an MVP now. 
         </motion.p>
 
         <motion.div 

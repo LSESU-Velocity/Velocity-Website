@@ -76,7 +76,7 @@ export const Features: React.FC = () => {
                 <div className="mb-16 md:text-center max-w-3xl mx-auto">
                     <h2 className="font-sans font-bold text-3xl md:text-5xl tracking-tight mb-6">Why Join Velocity?</h2>
                     <p className="font-mono text-gray-400 text-sm md:text-base">
-                        We provide the infrastructure, network, and pressure you need to ship.
+                        We provide the tools, network, and skills you need to ship.
                     </p>
                 </div>
 
