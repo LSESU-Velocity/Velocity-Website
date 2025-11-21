@@ -24,7 +24,7 @@ export const Navbar: React.FC = () => {
         </div>
         <div className="flex flex-col">
             <span className="font-sans font-bold text-xl tracking-tighter text-white leading-none">VELOCITY</span>
-            <span className="font-mono text-[10px] text-gray-500 tracking-[0.2em]">LSE SOCIETY</span>
+            <span className="font-mono text-[10px] text-gray-500 tracking-[0.2em]">LSESU SOCIETY</span>
         </div>
       </div>
 

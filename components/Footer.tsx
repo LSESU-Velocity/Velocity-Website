@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Twitter, Instagram } from 'lucide-react';
+import { Instagram, Linkedin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   return (
@@ -8,17 +8,24 @@ export const Footer: React.FC = () => {
         
         <div className="flex flex-col items-center md:items-start">
             <h4 className="font-sans font-bold text-lg text-white tracking-tight">VELOCITY</h4>
-            <p className="font-mono text-xs text-gray-500 mt-1">EST. 2024 // LSE</p>
+            <p className="font-mono text-xs text-gray-500 mt-1">EST. 2025 // LSE</p>
         </div>
 
         <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-500 hover:text-velocity-red transition-colors">
-                <Twitter size={20} />
+            <a 
+                href="https://www.linkedin.com/company/lsesu-velocity" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-velocity-red transition-colors"
+            >
+                <Linkedin size={20} />
             </a>
-            <a href="#" className="text-gray-500 hover:text-velocity-red transition-colors">
-                <Github size={20} />
-            </a>
-            <a href="#" className="text-gray-500 hover:text-velocity-red transition-colors">
+            <a 
+                href="https://www.instagram.com/lsesu.velocity" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-gray-500 hover:text-velocity-red transition-colors"
+            >
                 <Instagram size={20} />
             </a>
         </div>
