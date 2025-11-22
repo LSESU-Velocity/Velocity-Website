@@ -2,6 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
 
+// TODO: Paste your image URL inside the quotes below to switch from the icon to your logo.
+const LOGO_URL = "https://i.ibb.co/Ztg0qDt/resized-logo-velocity.png"; 
+
 export const Navbar: React.FC = () => {
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
@@ -18,13 +21,17 @@ export const Navbar: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm bg-velocity-black/50 border-b border-white/5"
     >
-      <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <div className="p-2 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 transition-colors">
-            <Terminal size={20} className="text-velocity-red" />
+      <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+        <div className="w-16 h-16 p-1 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 transition-colors flex items-center justify-center">
+            {LOGO_URL ? (
+                <img src={LOGO_URL} alt="Velocity Logo" className="w-full h-full object-contain" />
+            ) : (
+                <Terminal size={32} className="text-velocity-red" />
+            )}
         </div>
         <div className="flex flex-col">
-            <span className="font-sans font-bold text-xl tracking-tighter text-white leading-none">VELOCITY</span>
-            <span className="font-mono text-[10px] text-gray-500 tracking-[0.2em]">LSESU SOCIETY</span>
+            <span className="font-sans font-bold text-2xl tracking-tighter text-white leading-none">VELOCITY</span>
+            <span className="font-mono text-xs text-gray-500 tracking-[0.2em]">LSESU SOCIETY</span>
         </div>
       </div>
 

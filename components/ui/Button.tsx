@@ -7,12 +7,14 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-interface ButtonProps extends HTMLMotionProps<"button"> {
+interface ButtonProps extends Omit<HTMLMotionProps<"button">, "onClick"> {
   variant?: 'primary' | 'outline' | 'ghost';
   children: React.ReactNode;
   href?: string;
   target?: string;
   rel?: string;
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
 }
 
 export const Button: React.FC<ButtonProps> = ({ 
@@ -20,6 +22,7 @@ export const Button: React.FC<ButtonProps> = ({
   variant = 'primary', 
   children, 
   href,
+  onClick,
   ...props 
 }) => {
   const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden";
@@ -73,8 +76,8 @@ export const Button: React.FC<ButtonProps> = ({
             }
           }
           // Allow external onClick props to fire if provided
-          if (props.onClick) {
-            props.onClick(e as any);
+          if (onClick) {
+            onClick(e as any);
           }
         }}
         whileHover={{ scale: 1.02 }}
@@ -94,6 +97,7 @@ export const Button: React.FC<ButtonProps> = ({
       whileTap={{ scale: 0.98 }}
       className={cn(baseStyles, variants[variant], className)}
       style={{ borderRadius: '0px' }} // Razor sharp
+      onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
       {...props}
     >
       {content}
