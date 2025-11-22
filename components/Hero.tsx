@@ -103,7 +103,7 @@ export const Hero: React.FC = () => {
             variant="primary" 
             className="group gap-3 w-full md:w-auto"
           >
-            Apply Now 
+            Join Now 
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Button>
           
