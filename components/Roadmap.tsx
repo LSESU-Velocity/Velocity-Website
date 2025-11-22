@@ -14,7 +14,7 @@ const steps = [
   {
     timeline: 'Week 1-2',
     title: 'BUILD',
-    desc: 'Ship with Cursor, v0, Claude.',
+    desc: 'Build with Cursor, Gemini, Claude, etc.',
     icon: Code2,
     color: 'text-white',
     border: 'border-white/40'
