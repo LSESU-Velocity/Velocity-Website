@@ -43,16 +43,19 @@ const AnimatedText = ({
 
   return (
     <motion.span
-      style={{ display: "inline-block" }}
       variants={container}
       initial="hidden"
       animate="visible"
-      className={className}
+      className={`flex flex-wrap justify-center gap-x-[0.25em] ${className}`}
     >
-      {Array.from(text).map((letter, index) => (
-        <motion.span variants={child} key={index} style={{ display: "inline-block" }}>
-          {letter === " " ? "\u00A0" : letter}
-        </motion.span>
+      {text.split(" ").map((word, index) => (
+        <span key={index} className="whitespace-nowrap inline-block">
+          {Array.from(word).map((letter, i) => (
+            <motion.span variants={child} key={i} className="inline-block">
+              {letter}
+            </motion.span>
+          ))}
+        </span>
       ))}
     </motion.span>
   );
@@ -64,15 +67,15 @@ export const Hero: React.FC = () => {
       
       <div className="max-w-5xl mx-auto text-center z-10 flex flex-col items-center">
         
-        <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none">
+        <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
             <AnimatedText 
                 text="DON'T PITCH." 
-                className="font-sans font-black text-6xl md:text-8xl lg:text-9xl tracking-tighter text-white mix-blend-screen"
+                className="font-sans font-black text-5xl sm:text-6xl md:text-8xl lg:text-9xl tracking-tighter text-white mix-blend-screen"
                 delay={0.2}
             />
             <AnimatedText 
                 text="BUILD." 
-                className="font-sans font-black text-6xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-velocity-red to-velocity-darkRed pb-4"
+                className="font-sans font-black text-5xl sm:text-6xl md:text-8xl lg:text-9xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-velocity-red to-velocity-darkRed pb-4"
                 delay={0.8}
             />
         </h1>
