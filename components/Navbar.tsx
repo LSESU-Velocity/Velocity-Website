@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
 
 // TODO: Paste your image URL inside the quotes below to switch from the icon to your logo.
-const LOGO_URL = "https://i.ibb.co/Ztg0qDt/resized-logo-velocity.png"; 
+const LOGO_URL = "https://i.ibb.co/Xr05MFKx/Velocity-logo-new-black.png"; 
 
 export const Navbar: React.FC = () => {
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
