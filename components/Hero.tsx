@@ -97,7 +97,7 @@ export const Hero: React.FC = () => {
           className="flex flex-col md:flex-row gap-6 w-full md:w-auto mb-8"
         >
           <Button 
-            href="https://www.lsesu.com/communities/societies/group/21219/"
+            href="https://www.lsesu.com/communities/societies/group/Velocity/"
             target="_blank"
             rel="noopener noreferrer"
             variant="primary" 

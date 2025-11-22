@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
           </a>
         ))}
         <a 
-            href="https://www.lsesu.com/communities/societies/group/21219/"
+            href="https://www.lsesu.com/communities/societies/group/Velocity/"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 text-xs font-mono font-bold bg-white text-black hover:bg-velocity-red hover:text-white transition-colors"
