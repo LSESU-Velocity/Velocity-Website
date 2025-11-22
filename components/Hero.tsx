@@ -87,7 +87,7 @@ export const Hero: React.FC = () => {
           className="font-mono text-sm md:text-lg text-gray-400 max-w-2xl mb-10 leading-relaxed"
         >
           The LSE society for shipping products at the speed of AI. <br className="hidden md:block" />
-          Stop waiting for a technical co-founder, build an MVP now. 
+          Stop creating pitch decks, start building products. 
         </motion.p>
 
         <motion.div 
