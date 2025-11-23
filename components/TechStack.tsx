@@ -2,16 +2,15 @@ import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const tools = [
-  { name: "CURSOR", desc: "AI-first code editor designed for pair programming with LLMs." },
-  { name: "V0", desc: "Generative UI system by Vercel. Text to React code instantly." },
-  { name: "CLAUDE", desc: "Anthropic's advanced AI model, excelling in coding tasks." },
-  { name: "VERCEL", desc: "Frontend cloud platform for static and hybrid apps." },
-  { name: "REACT", desc: "The library for web and native user interfaces." },
-  { name: "SUPABASE", desc: "The open source Firebase alternative. Postgres DB." },
-  { name: "OPENAI", desc: "AI research & deployment company behind GPT-4." },
-  { name: "TAILWIND", desc: "A utility-first CSS framework for rapid UI building." },
-  { name: "NEXT.JS", desc: "The React Framework for the Web." }
+const items = [
+  { name: "MOMENTUM", desc: "Mass × Velocity. Consistent shipping creates unstoppable force." },
+  { name: "LEVERAGE", desc: "AI multiplies human potential. One engineer can now do the work of ten." },
+  { name: "AGENCY", desc: "Permissionless innovation. See a problem, build a solution." },
+  { name: "ITERATION", desc: "Perfection is the enemy of done. Ship, listen, improve." },
+  { name: "DEPLOY", desc: "Localhost doesn't count. It's not real until it has a URL." },
+  { name: "SCALE", desc: "Designing systems that handle growth from day one." },
+  { name: "ZERO_TO_ONE", desc: "The hardest phase. Creating something from nothing." },
+  { name: "BUILDERS", desc: "Talk is cheap. We communicate through code." }
 ];
 
 export const TechStack: React.FC = () => {
@@ -41,8 +40,8 @@ export const TechStack: React.FC = () => {
           style={{ width: "max-content" }}
         >
           {/* Quadruple the list for smooth looping */}
-          {[...tools, ...tools, ...tools, ...tools].map((tool, i) => (
-            <TechItem key={i} tool={tool} />
+          {[...items, ...items, ...items, ...items].map((item, i) => (
+            <MarqueeItem key={i} item={item} />
           ))}
         </div>
       </div>
@@ -50,7 +49,7 @@ export const TechStack: React.FC = () => {
   );
 };
 
-const TechItem = ({ tool }: { tool: { name: string, desc: string } }) => {
+const MarqueeItem = ({ item }: { item: { name: string, desc: string } }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [coords, setCoords] = useState({ left: 0, top: 0 });
   const itemRef = useRef<HTMLDivElement>(null);
@@ -76,11 +75,11 @@ const TechItem = ({ tool }: { tool: { name: string, desc: string } }) => {
       >
           <div className="w-1.5 h-1.5 bg-velocity-red rounded-full opacity-50 group-hover/item:scale-150 transition-transform duration-300" />
           <span className="font-mono text-lg text-gray-500 font-bold tracking-widest opacity-70 group-hover/item:opacity-100 group-hover/item:text-white group-hover/item:shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all whitespace-nowrap">
-              {tool.name}
+              {item.name}
           </span>
       </div>
       
-      <PortalTooltip isVisible={isHovered} coords={coords} tool={tool} />
+      <PortalTooltip isVisible={isHovered} coords={coords} item={item} />
     </>
   );
 };
@@ -88,11 +87,11 @@ const TechItem = ({ tool }: { tool: { name: string, desc: string } }) => {
 const PortalTooltip = ({ 
   isVisible, 
   coords, 
-  tool 
+  item 
 }: { 
   isVisible: boolean, 
   coords: { left: number, top: number }, 
-  tool: { name: string, desc: string } 
+  item: { name: string, desc: string } 
 }) => {
   if (typeof document === 'undefined') return null;
 
@@ -126,15 +125,15 @@ const PortalTooltip = ({
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 bg-velocity-red animate-pulse" />
                         <span className="font-mono text-[10px] text-velocity-red tracking-widest uppercase">
-                            SYSTEM_INFO
+                            PROTOCOL
                         </span>
                     </div>
                     <span className="font-mono text-[9px] text-gray-600">v1.0</span>
                 </div>
                 
-                <h4 className="font-sans font-bold text-white text-sm mb-1">{tool.name}</h4>
+                <h4 className="font-sans font-bold text-white text-sm mb-1">{item.name}</h4>
                 <p className="font-mono text-xs text-gray-400 leading-relaxed">
-                    {tool.desc}
+                    {item.desc}
                 </p>
             </div>
             
