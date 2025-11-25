@@ -49,7 +49,11 @@ export const TechStack: React.FC = () => {
   );
 };
 
-const MarqueeItem = ({ item }: { item: { name: string, desc: string } }) => {
+interface MarqueeItemProps {
+  item: { name: string, desc: string };
+}
+
+const MarqueeItem: React.FC<MarqueeItemProps> = ({ item }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [coords, setCoords] = useState({ left: 0, top: 0 });
   const itemRef = useRef<HTMLDivElement>(null);
