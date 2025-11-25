@@ -2,8 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
 
-// TODO: Paste your image URL inside the quotes below to switch from the icon to your logo.
-const LOGO_URL = ""; 
+// Points to the file in the /public folder
+const LOGO_URL = "/Velocity-logo-black.png"; 
 
 export const Navbar: React.FC = () => {
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
