@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const items = [
-  { name: "MOMENTUM", desc: "Mass × Velocity. Consistent shipping creates unstoppable force." },
-  { name: "LEVERAGE", desc: "AI multiplies human potential. One engineer can now do the work of ten." },
-  { name: "AGENCY", desc: "Permissionless innovation. See a problem, build a solution." },
-  { name: "ITERATION", desc: "Perfection is the enemy of done. Ship, listen, improve." },
-  { name: "DEPLOY", desc: "Localhost doesn't count. It's not real until it has a URL." },
-  { name: "SCALE", desc: "Designing systems that handle growth from day one." },
-  { name: "ZERO_TO_ONE", desc: "The hardest phase. Creating something from nothing." },
-  { name: "BUILDERS", desc: "Talk is cheap. We communicate through code." }
+  { name: "MICROSOFT '75", desc: "Micro-Soft. Writing a BASIC interpreter for the Altair." },
+  { name: "APPLE '76", desc: "The Homebrew Computer Club. Sold the calculator to buy parts." },
+  { name: "NVIDIA '93", desc: "Denny's. Three engineers dreaming of 3D graphics." },
+  { name: "AMAZON '94", desc: "A desk made of a door. Selling books from a garage." },
+  { name: "GOOGLE '98", desc: "BackRub. Two PhD dropouts and a server made of Lego." },
+  { name: "FACEBOOK '04", desc: "TheFacebook. A directory for one campus." },
+  { name: "AIRBNB '08", desc: "AirBed & Breakfast. Selling cereal boxes to survive." },
+  { name: "VELOCITY '25", desc: "LSE. You are here. Write the next chapter." }
 ];
 
 export const TechStack: React.FC = () => {
