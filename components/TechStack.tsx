@@ -10,7 +10,7 @@ const items = [
   { name: "GOOGLE '98", desc: "BackRub. Two PhD dropouts and a server made of Lego." },
   { name: "FACEBOOK '04", desc: "TheFacebook. A directory for one campus." },
   { name: "AIRBNB '08", desc: "AirBed & Breakfast. Selling cereal boxes to survive." },
-  { name: "VELOCITY '25", desc: "LSE. You are here. Write the next chapter." }
+  { name: "YOU '25", desc: "LSE. You are here. Write the next chapter." }
 ];
 
 export const TechStack: React.FC = () => {
