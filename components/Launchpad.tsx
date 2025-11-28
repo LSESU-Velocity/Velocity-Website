@@ -76,6 +76,11 @@ const generateStartupData = (idea: string) => {
       model: "Freemium Model",
       pricing: "Free tier available",
       strategies: ["Premium Analytics", "Team Seats", "Enterprise API"]
+    },
+    market: {
+      tam: { value: "15M", label: "UK Startup Founders" },
+      sam: { value: "1.2M", label: "London Tech Workers" },
+      som: { value: "~5,000", label: "LSE Students & Staff" }
     }
   };
 
@@ -91,6 +96,11 @@ const generateStartupData = (idea: string) => {
         model: "Subscription",
         pricing: "£4.99/mo Premium",
         strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"]
+      },
+      market: {
+        tam: { value: "10M", label: "UK Gym Members" },
+        sam: { value: "850K", label: "London Gym-Goers" },
+        som: { value: "~5,000", label: "LSE Students & Staff" }
       }
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
@@ -105,6 +115,11 @@ const generateStartupData = (idea: string) => {
         model: "Marketplace",
         pricing: "5% Service Fee",
         strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"]
+      },
+      market: {
+        tam: { value: "2.4M", label: "UK Pet Owners" },
+        sam: { value: "300K", label: "London Dog Owners" },
+        som: { value: "~5,000", label: "LSE Students & Staff" }
       }
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
@@ -119,6 +134,11 @@ const generateStartupData = (idea: string) => {
         model: "Freemium",
         pricing: "Free for Students",
         strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"]
+      },
+      market: {
+        tam: { value: "2.8M", label: "UK University Students" },
+        sam: { value: "400K", label: "London Students" },
+        som: { value: "~12,000", label: "LSE Students" }
       }
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
@@ -133,6 +153,11 @@ const generateStartupData = (idea: string) => {
         model: "Commission",
         pricing: "10% per Order",
         strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"]
+      },
+      market: {
+        tam: { value: "45M", label: "UK Food Delivery Users" },
+        sam: { value: "3.5M", label: "London Foodies" },
+        som: { value: "~5,000", label: "LSE Students & Staff" }
       }
     };
   }
@@ -164,7 +189,9 @@ const generateStartupData = (idea: string) => {
           "TikTok viral content strategy"
         ],
         validation: {
-          marketSize: "2.4M",
+          tam: data.market.tam,
+          sam: data.market.sam,
+          som: data.market.som,
           competitors: 3,
           competitorList: [
             { name: "Incumbent", usp: "Established user base" },
@@ -501,9 +528,28 @@ export const Launchpad: React.FC = () => {
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                       <div className="flex flex-col gap-4">
                         <Widget title="Market Signals" icon={TrendingUp} delay={0.2}>
-                          <div className="flex flex-col h-full justify-center py-1">
-                            <p className="font-sans font-bold text-3xl text-white mb-0.5">{data.validation.marketSize}</p>
-                            <p className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">Target Users</p>
+                          <div className="flex flex-col h-full justify-between py-1 space-y-2">
+                            <div className="flex items-baseline justify-between">
+                              <div>
+                                <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">TAM <span className="normal-case text-gray-600">(Total Market)</span></p>
+                                <p className="font-sans font-bold text-lg text-white leading-tight">{data.validation.tam.value}</p>
+                              </div>
+                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.tam.label}</p>
+                            </div>
+                            <div className="flex items-baseline justify-between">
+                              <div>
+                                <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">SAM <span className="normal-case text-gray-600">(Serviceable)</span></p>
+                                <p className="font-sans font-bold text-lg text-white leading-tight">{data.validation.sam.value}</p>
+                              </div>
+                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.sam.label}</p>
+                            </div>
+                            <div className="flex items-baseline justify-between">
+                              <div>
+                                <p className="font-mono text-[9px] text-velocity-red uppercase tracking-wider">SOM <span className="normal-case text-velocity-red/70">(Your Target)</span></p>
+                                <p className="font-sans font-bold text-lg text-velocity-red leading-tight">{data.validation.som.value}</p>
+                              </div>
+                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.som.label}</p>
+                            </div>
                           </div>
                         </Widget>
                         
