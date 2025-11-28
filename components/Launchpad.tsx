@@ -505,7 +505,12 @@ const generateStartupData = (idea: string) => {
         monetization: data.monetization,
         visuals: {
           logoStyle: "Minimalist",
-          appInterface: data.interface
+          appInterface: data.interface,
+          screens: [
+            { type: "map", title: "Home" },
+            { type: "feed", title: "Feed" },
+            { type: "profile", title: "Profile" }
+          ]
         },
         blueprint: {
           stack: data.stack,
@@ -600,6 +605,7 @@ export const Launchpad: React.FC = () => {
   const [riskIndex, setRiskIndex] = useState(0);
   const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
   const [domainIndex, setDomainIndex] = useState(0);
+  const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
 
   const loadingSteps = [
@@ -630,6 +636,7 @@ export const Launchpad: React.FC = () => {
     setRiskIndex(0);
     setSearchVolumeIndex(0);
     setDomainIndex(0);
+    setAppScreenIndex(0);
     setLoadingStep(0);
     
     const result = await generateStartupData(idea);
@@ -746,7 +753,31 @@ export const Launchpad: React.FC = () => {
                 
                 {/* Left Column: App Mockup & Monetization */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget title="App Mockup" icon={Smartphone} delay={0.1} className="flex-1">
+                  <Widget 
+                    title="App Mockup" 
+                    icon={Smartphone} 
+                    delay={0.1} 
+                    className="flex-1"
+                    action={
+                      <div className="flex items-center gap-1.5">
+                         <button 
+                           onClick={() => setAppScreenIndex((prev) => (prev - 1 + data.visuals.screens.length) % data.visuals.screens.length)}
+                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                         >
+                           <ChevronLeft className="w-3 h-3" />
+                         </button>
+                         <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                           {appScreenIndex + 1}/{data.visuals.screens.length}
+                         </span>
+                         <button 
+                           onClick={() => setAppScreenIndex((prev) => (prev + 1) % data.visuals.screens.length)}
+                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                         >
+                           <ChevronRight className="w-3 h-3" />
+                         </button>
+                      </div>
+                    }
+                  >
                     <div className="flex flex-col h-full">
                       {/* Phone Mockup */}
                       <div className="flex-1 flex items-center justify-center py-2">
@@ -768,13 +799,13 @@ export const Launchpad: React.FC = () => {
                               {/* App Header */}
                               <div className="px-4 py-2 flex items-center justify-between">
                                  <div className="w-6 h-6 rounded-full bg-white/10"></div>
-                                 <span className="font-sans font-bold text-white text-sm">{data.identity.name}</span>
+                                 <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.visuals.screens[appScreenIndex].title}</span>
                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
                                  </div>
                               </div>
 
-                              {/* Search Bar */}
+                              {/* Search Bar (visible on all screens for consistency or conditionally) */}
                               <div className="px-4 mb-4">
                                  <div className="w-full h-8 bg-white/5 rounded-full flex items-center px-3 border border-white/10">
                                     <div className="w-3 h-3 rounded-full border border-white/30 mr-2"></div>
@@ -782,26 +813,74 @@ export const Launchpad: React.FC = () => {
                                  </div>
                               </div>
 
-                              {/* Map/Content Mock */}
-                              <div className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5">
-                                 {/* Mock Markers */}
-                                 <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
-                                    <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                 </div>
-                                 <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
-                                    <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                 </div>
-                                 {/* Floating Action Button */}
-                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
-                                   <div className="w-16 h-2 bg-white rounded"></div>
-                                 </div>
-                              </div>
+                              {/* Dynamic Content Area */}
+                              <AnimatePresence mode="wait">
+                                <motion.div 
+                                  key={appScreenIndex}
+                                  initial={{ opacity: 0, scale: 0.95 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 1.05 }}
+                                  transition={{ duration: 0.2 }}
+                                  className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5"
+                                >
+                                  {data.visuals.screens[appScreenIndex].type === 'map' && (
+                                    <>
+                                       {/* Mock Markers */}
+                                       <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
+                                          <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                       </div>
+                                       <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
+                                          <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                       </div>
+                                       {/* Floating Action Button */}
+                                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
+                                         <div className="w-16 h-2 bg-white rounded"></div>
+                                       </div>
+                                    </>
+                                  )}
+
+                                  {data.visuals.screens[appScreenIndex].type === 'feed' && (
+                                    <div className="p-3 space-y-2 h-full overflow-hidden">
+                                      {[1, 2, 3].map((i) => (
+                                        <div key={i} className="w-full h-16 bg-white/5 rounded-lg border border-white/5 flex items-center p-2 gap-2">
+                                          <div className="w-10 h-10 rounded-md bg-white/10"></div>
+                                          <div className="flex-1 space-y-1">
+                                            <div className="w-2/3 h-2 bg-white/20 rounded"></div>
+                                            <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {data.visuals.screens[appScreenIndex].type === 'profile' && (
+                                    <div className="p-4 flex flex-col items-center h-full">
+                                      <div className="w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 mb-3">
+                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full rounded-full p-1" />
+                                      </div>
+                                      <div className="w-24 h-3 bg-white/20 rounded mb-1"></div>
+                                      <div className="w-16 h-2 bg-white/10 rounded mb-6"></div>
+                                      
+                                      <div className="w-full grid grid-cols-3 gap-2 mb-4">
+                                        {[1, 2, 3].map((i) => (
+                                          <div key={i} className="aspect-square bg-white/5 rounded-lg border border-white/5"></div>
+                                        ))}
+                                      </div>
+                                      
+                                      <div className="w-full space-y-2 mt-auto">
+                                        <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
+                                        <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </motion.div>
+                              </AnimatePresence>
 
                               {/* Bottom Nav */}
                               <div className="h-12 border-t border-white/5 flex items-center justify-around px-2">
-                                 <div className="w-6 h-6 bg-white/10 rounded-full"></div>
-                                 <div className="w-6 h-6 rounded-full border border-white/20"></div>
-                                 <div className="w-6 h-6 rounded-full border border-white/20"></div>
+                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 0 ? 'bg-white/10' : 'border border-white/20'}`}></div>
+                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 1 ? 'bg-white/10' : 'border border-white/20'}`}></div>
+                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 2 ? 'bg-white/10' : 'border border-white/20'}`}></div>
                               </div>
                               
                               {/* Home Indicator */}
