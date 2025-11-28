@@ -81,6 +81,10 @@ const generateStartupData = (idea: string) => {
       tam: { value: "15M", label: "UK Startup Founders" },
       sam: { value: "1.2M", label: "London Tech Workers" },
       som: { value: "~5,000", label: "LSE Students & Staff" }
+    },
+    riskAnalysis: {
+      risk: "Building features users don't need.",
+      mitigation: "Presell 10 licenses before coding."
     }
   };
 
@@ -101,6 +105,10 @@ const generateStartupData = (idea: string) => {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      riskAnalysis: {
+        risk: "Users match but don't meet offline.",
+        mitigation: "Host weekly group workouts to bridge online-to-offline gap."
       }
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
@@ -120,6 +128,10 @@ const generateStartupData = (idea: string) => {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      riskAnalysis: {
+        risk: "Chicken & Egg: App is empty, so no one joins.",
+        mitigation: "Do things that don't scale. Manually seed 50 profiles."
       }
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
@@ -139,6 +151,10 @@ const generateStartupData = (idea: string) => {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
         som: { value: "~12,000", label: "LSE Students" }
+      },
+      riskAnalysis: {
+        risk: "Empty platform syndrome (no content).",
+        mitigation: "Pay top students to upload notes for first 50 courses."
       }
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
@@ -158,6 +174,10 @@ const generateStartupData = (idea: string) => {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      riskAnalysis: {
+        risk: "Restaurants ignore unproven platform.",
+        mitigation: "Concierge MVP: Upload menus manually and call in orders."
       }
     };
   }
@@ -198,7 +218,7 @@ const generateStartupData = (idea: string) => {
             { name: "Startup A", usp: "Cheaper pricing" },
             { name: "Startup B", usp: "Better UI" }
           ],
-          riskiestAssumption: "Users will adopt within first week.",
+          riskAnalysis: data.riskAnalysis,
           growthData: [
             { name: 'W1', users: 0 },
             { name: 'W2', users: 45 },
@@ -598,15 +618,15 @@ export const Launchpad: React.FC = () => {
                       </Widget>
 
                       <div className="md:col-span-2">
-                         <Widget title="The Kill Switch (Risk)" icon={AlertTriangle} delay={0.4}>
+                         <Widget title="THE BIGGEST RISK" icon={AlertTriangle} delay={0.4}>
                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
-                                   <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Riskiest Assumption:</p>
-                                   <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskiestAssumption}</p>
+                                   <p className="font-mono text-[10px] text-velocity-red mb-1 uppercase tracking-widest">The Risk:</p>
+                                   <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskAnalysis.risk}</p>
                                 </div>
                                 <div>
-                                    <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Mitigation:</p>
-                                    <p className="font-sans text-gray-400 text-xs leading-relaxed">Offer insurance valid only for on-platform bookings.</p>
+                                    <p className="font-mono text-[10px] text-emerald-400 mb-1 uppercase tracking-widest">Mitigation Strategy:</p>
+                                    <p className="font-sans text-gray-400 text-xs leading-relaxed">{data.validation.riskAnalysis.mitigation}</p>
                                 </div>
                              </div>
                          </Widget>
