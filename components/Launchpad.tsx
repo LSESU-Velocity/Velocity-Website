@@ -501,7 +501,7 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Monetization Strategy" icon={Coins} delay={0.15}>
+                  <Widget title="Monetization Strategy" icon={Coins} delay={0.15} className="h-48">
                     <div className="space-y-3">
                       <div>
                         <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
