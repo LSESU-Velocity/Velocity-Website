@@ -72,24 +72,81 @@ const generateStartupData = (idea: string) => {
     domain: "velocity.app",
     stack: ["Next.js", "Supabase", "OpenAI", "Vercel"],
     interface: "Dashboard with real-time analytics",
-    monetization: {
-      model: "Freemium Model",
-      pricing: "Free tier available",
-      strategies: ["Premium Analytics", "Team Seats", "Enterprise API"]
-    },
+    monetization: [
+      {
+        model: "Freemium Model",
+        pricing: "Free tier available",
+        strategies: ["Premium Analytics", "Team Seats", "Enterprise API"]
+      },
+      {
+        model: "Subscription",
+        pricing: "$29/mo Starter",
+        strategies: ["Recurring Revenue", "Annual Discounts", "Usage-based Tiers"]
+      },
+      {
+        model: "One-time Purchase",
+        pricing: "$199 Lifetime Deal",
+        strategies: ["Quick Cash Injection", "No Recurring Costs", "Early Adopters"]
+      }
+    ],
     market: {
       tam: { value: "15M", label: "UK Startup Founders" },
       sam: { value: "1.2M", label: "London Tech Workers" },
       som: { value: "~5,000", label: "LSE Students & Staff" }
     },
-    riskAnalysis: {
-      risk: "Building features users don't need.",
-      mitigation: "Presell 10 licenses before coding."
-    },
+    riskAnalysis: [
+      {
+        risk: "Building features users don't need.",
+        mitigation: "Presell 10 licenses before coding."
+      },
+      {
+        risk: "High customer acquisition cost (CAC).",
+        mitigation: "Focus on organic content marketing and SEO."
+      },
+      {
+        risk: "Technical debt accumulating early.",
+        mitigation: "Enforce strict code reviews and modular architecture."
+      }
+    ],
     competitors: [
       { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize" },
       { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling" },
       { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug" }
+    ],
+    searchVolume: [
+      {
+        keyword: "Startup Tools",
+        data: [
+          { name: 'W1', users: 0 },
+          { name: 'W2', users: 45 },
+          { name: 'W3', users: 120 },
+          { name: 'W4', users: 350 },
+          { name: 'W5', users: 890 },
+          { name: 'W6', users: 1400 },
+        ]
+      },
+      {
+        keyword: "MVP Builder",
+        data: [
+          { name: 'W1', users: 0 },
+          { name: 'W2', users: 20 },
+          { name: 'W3', users: 60 },
+          { name: 'W4', users: 150 },
+          { name: 'W5', users: 400 },
+          { name: 'W6', users: 900 },
+        ]
+      },
+      {
+        keyword: "No-code Platforms",
+        data: [
+          { name: 'W1', users: 0 },
+          { name: 'W2', users: 80 },
+          { name: 'W3', users: 200 },
+          { name: 'W4', users: 500 },
+          { name: 'W5', users: 1200 },
+          { name: 'W6', users: 2000 },
+        ]
+      }
     ]
   };
 
@@ -101,24 +158,81 @@ const generateStartupData = (idea: string) => {
       domain: "gymsync.app",
       stack: ["FlutterFlow", "Supabase", "OpenAI API", "Stripe"],
       interface: "Swipe-based matchmaking",
-      monetization: {
-        model: "Subscription",
-        pricing: "£4.99/mo Premium",
-        strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"]
-      },
+      monetization: [
+        {
+          model: "Subscription",
+          pricing: "£4.99/mo Premium",
+          strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"]
+        },
+        {
+          model: "Ad-Supported",
+          pricing: "Free with Ads",
+          strategies: ["Supplement Ads", "Local Gym Promos", "Affiliate Links"]
+        },
+        {
+          model: "Freemium",
+          pricing: "Free Basic / £9.99 Pro",
+          strategies: ["Pro Workout Plans", "Verified Badge", "Priority Matching"]
+        }
+      ],
       market: {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
-      riskAnalysis: {
-        risk: "Users match but don't meet offline.",
-        mitigation: "Host weekly group workouts to bridge online-to-offline gap."
-      },
+      riskAnalysis: [
+        {
+          risk: "Users match but don't meet offline.",
+          mitigation: "Host weekly group workouts to bridge online-to-offline gap."
+        },
+        {
+          risk: "User safety concerns meeting strangers.",
+          mitigation: "Implement ID verification and public meeting spot suggestions."
+        },
+        {
+          risk: "High churn rate after finding a partner.",
+          mitigation: "Add social feed features to keep users engaged post-match."
+        }
+      ],
       competitors: [
         { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption" },
         { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook" },
         { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK" }
+      ],
+      searchVolume: [
+        {
+          keyword: "Gym Partner App",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 45 },
+            { name: 'W3', users: 120 },
+            { name: 'W4', users: 350 },
+            { name: 'W5', users: 890 },
+            { name: 'W6', users: 1400 },
+          ]
+        },
+        {
+          keyword: "Workout Buddy London",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 15 },
+            { name: 'W3', users: 50 },
+            { name: 'W4', users: 120 },
+            { name: 'W5', users: 300 },
+            { name: 'W6', users: 650 },
+          ]
+        },
+        {
+          keyword: "Find Gym Spotter",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 30 },
+            { name: 'W3', users: 90 },
+            { name: 'W4', users: 250 },
+            { name: 'W5', users: 600 },
+            { name: 'W6', users: 1100 },
+          ]
+        }
       ]
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
@@ -129,24 +243,81 @@ const generateStartupData = (idea: string) => {
       domain: "petpals.io",
       stack: ["React Native", "Firebase", "Cloudinary", "Stripe"],
       interface: "Location-based feed",
-      monetization: {
-        model: "Marketplace",
-        pricing: "5% Service Fee",
-        strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"]
-      },
+      monetization: [
+        {
+          model: "Marketplace",
+          pricing: "5% Service Fee",
+          strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"]
+        },
+        {
+          model: "Subscription",
+          pricing: "£9.99/mo for Owners",
+          strategies: ["Insurance Integration", "Vet Chat Access", "Emergency Support"]
+        },
+        {
+          model: "Affiliate",
+          pricing: "Product Recommendations",
+          strategies: ["Pet Food Partnerships", "Toy Sales", "Grooming Discounts"]
+        }
+      ],
       market: {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
-      riskAnalysis: {
-        risk: "Chicken & Egg: App is empty, so no one joins.",
-        mitigation: "Do things that don't scale. Manually seed 50 profiles."
-      },
+      riskAnalysis: [
+        {
+          risk: "Chicken & Egg: App is empty, so no one joins.",
+          mitigation: "Do things that don't scale. Manually seed 50 profiles."
+        },
+        {
+          risk: "Trust & Safety incidents between pets/owners.",
+          mitigation: "Mandatory verification and community guidelines."
+        },
+        {
+          risk: "Platform leakage (users meet once and exchange numbers).",
+          mitigation: "Offer value-added tools like scheduling and payment protection."
+        }
+      ],
       competitors: [
         { name: "Rover", usp: "Professional sitting services", weakness: "Paid services only, no casual playdates" },
         { name: "PawShake", usp: "Verified walkers", weakness: "Complex booking process" },
         { name: "LocalDog", usp: "Neighborhood focus", weakness: "Outdated app interface, buggy" }
+      ],
+      searchVolume: [
+        {
+          keyword: "Dog Walking App",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 50 },
+            { name: 'W3', users: 140 },
+            { name: 'W4', users: 400 },
+            { name: 'W5', users: 950 },
+            { name: 'W6', users: 1600 },
+          ]
+        },
+        {
+          keyword: "Pet Sitter London",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 25 },
+            { name: 'W3', users: 80 },
+            { name: 'W4', users: 200 },
+            { name: 'W5', users: 500 },
+            { name: 'W6', users: 1000 },
+          ]
+        },
+        {
+          keyword: "Puppy Playdates",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 60 },
+            { name: 'W3', users: 180 },
+            { name: 'W4', users: 450 },
+            { name: 'W5', users: 1100 },
+            { name: 'W6', users: 2200 },
+          ]
+        }
       ]
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
@@ -157,24 +328,81 @@ const generateStartupData = (idea: string) => {
       domain: "studysphere.edu",
       stack: ["Next.js", "Prisma", "OpenAI", "Vercel"],
       interface: "Collaborative workspace",
-      monetization: {
-        model: "Freemium",
-        pricing: "Free for Students",
-        strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"]
-      },
+      monetization: [
+        {
+          model: "Freemium",
+          pricing: "Free for Students",
+          strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"]
+        },
+        {
+          model: "Tutor Commission",
+          pricing: "15% per Session",
+          strategies: ["Video Chat Tools", "Scheduling API", "Payment Processing"]
+        },
+        {
+          model: "Content Sales",
+          pricing: "$5 per Study Guide",
+          strategies: ["User Generated Content", "Revenue Share", "Premium Notes"]
+        }
+      ],
       market: {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
         som: { value: "~12,000", label: "LSE Students" }
       },
-      riskAnalysis: {
-        risk: "Empty platform syndrome (no content).",
-        mitigation: "Pay top students to upload notes for first 50 courses."
-      },
+      riskAnalysis: [
+        {
+          risk: "Empty platform syndrome (no content).",
+          mitigation: "Pay top students to upload notes for first 50 courses."
+        },
+        {
+          risk: "Copyright issues with university materials.",
+          mitigation: "Implement strict content takedown policy and moderation."
+        },
+        {
+          risk: "Seasonality (usage drops during holidays).",
+          mitigation: "Introduce features for summer internships and career prep."
+        }
+      ],
       competitors: [
         { name: "Chegg", usp: "Massive answer database", weakness: "Expensive monthly fee, academic integrity risks" },
         { name: "Quizlet", usp: "Great flashcards", weakness: "Limited collaboration features" },
         { name: "StuDocu", usp: "Note sharing", weakness: "Upload-gated content, inconsistent quality" }
+      ],
+      searchVolume: [
+        {
+          keyword: "Study Group App",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 55 },
+            { name: 'W3', users: 150 },
+            { name: 'W4', users: 420 },
+            { name: 'W5', users: 980 },
+            { name: 'W6', users: 1700 },
+          ]
+        },
+        {
+          keyword: "Exam Notes Sharing",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 35 },
+            { name: 'W3', users: 100 },
+            { name: 'W4', users: 300 },
+            { name: 'W5', users: 750 },
+            { name: 'W6', users: 1300 },
+          ]
+        },
+        {
+          keyword: "Student Tutor Finder",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 20 },
+            { name: 'W3', users: 60 },
+            { name: 'W4', users: 180 },
+            { name: 'W5', users: 450 },
+            { name: 'W6', users: 950 },
+          ]
+        }
       ]
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
@@ -185,24 +413,81 @@ const generateStartupData = (idea: string) => {
       domain: "tastify.app",
       stack: ["React", "Node.js", "MongoDB", "Stripe"],
       interface: "Visual menu browser",
-      monetization: {
-        model: "Commission",
-        pricing: "10% per Order",
-        strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"]
-      },
+      monetization: [
+        {
+          model: "Commission",
+          pricing: "10% per Order",
+          strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"]
+        },
+        {
+          model: "Subscription (SaaS)",
+          pricing: "£49/mo for Restaurants",
+          strategies: ["Menu Management", "CRM Features", "Website Builder"]
+        },
+        {
+          model: "Consumer Premium",
+          pricing: "£7.99/mo for Foodies",
+          strategies: ["Exclusive Reservations", "Secret Menu Access", "No Booking Fees"]
+        }
+      ],
       market: {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
-      riskAnalysis: {
-        risk: "Restaurants ignore unproven platform.",
-        mitigation: "Concierge MVP: Upload menus manually and call in orders."
-      },
+      riskAnalysis: [
+        {
+          risk: "Restaurants ignore unproven platform.",
+          mitigation: "Concierge MVP: Upload menus manually and call in orders."
+        },
+        {
+          risk: "Low margins with delivery logistics.",
+          mitigation: "Start with pickup-only to avoid driver network costs."
+        },
+        {
+          risk: "Competition from giants (UberEats/Deliveroo).",
+          mitigation: "Niche down to specific cuisines or dietary needs (e.g. Vegan)."
+        }
+      ],
       competitors: [
         { name: "Yelp", usp: "Huge review database", weakness: "Trust issues with fake reviews" },
         { name: "Instagram", usp: "Visual discovery", weakness: "Not built for menus or ordering" },
         { name: "UberEats", usp: "Delivery logistics", weakness: "High fees for restaurants and users" }
+      ],
+      searchVolume: [
+        {
+          keyword: "Visual Menu App",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 35 },
+            { name: 'W3', users: 90 },
+            { name: 'W4', users: 250 },
+            { name: 'W5', users: 600 },
+            { name: 'W6', users: 1200 },
+          ]
+        },
+        {
+          keyword: "Find Food by Picture",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 60 },
+            { name: 'W3', users: 150 },
+            { name: 'W4', users: 400 },
+            { name: 'W5', users: 950 },
+            { name: 'W6', users: 1800 },
+          ]
+        },
+        {
+          keyword: "Best Dishes Near Me",
+          data: [
+            { name: 'W1', users: 0 },
+            { name: 'W2', users: 80 },
+            { name: 'W3', users: 220 },
+            { name: 'W4', users: 550 },
+            { name: 'W5', users: 1300 },
+            { name: 'W6', users: 2500 },
+          ]
+        }
       ]
     };
   }
@@ -240,14 +525,8 @@ const generateStartupData = (idea: string) => {
           competitors: 3,
           competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
-          growthData: [
-            { name: 'W1', users: 0 },
-            { name: 'W2', users: 45 },
-            { name: 'W3', users: 120 },
-            { name: 'W4', users: 350 },
-            { name: 'W5', users: 890 },
-            { name: 'W6', users: 1400 },
-          ]
+          searchVolume: data.searchVolume,
+          growthData: data.searchVolume[0].data
         },
         systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`
       });
@@ -317,6 +596,9 @@ export const Launchpad: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [data, setData] = useState<any>(null);
   const [competitorIndex, setCompetitorIndex] = useState(0);
+  const [monetizationIndex, setMonetizationIndex] = useState(0);
+  const [riskIndex, setRiskIndex] = useState(0);
+  const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
 
   const loadingSteps = [
@@ -343,6 +625,9 @@ export const Launchpad: React.FC = () => {
     setIsGenerating(true);
     setData(null);
     setCompetitorIndex(0);
+    setMonetizationIndex(0);
+    setRiskIndex(0);
+    setSearchVolumeIndex(0);
     setLoadingStep(0);
     
     const result = await generateStartupData(idea);
@@ -527,22 +812,55 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Monetization Strategy" icon={Coins} delay={0.15} className="h-48">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
-                        <p className="font-sans font-bold text-white text-sm">{data.monetization.model}</p>
-                        <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization.pricing}</p>
+                  <Widget 
+                    title="Monetization Strategy" 
+                    icon={Coins} 
+                    delay={0.15} 
+                    className="h-48"
+                    action={
+                      <div className="flex items-center gap-1.5">
+                         <button 
+                           onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
+                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                         >
+                           <ChevronLeft className="w-3 h-3" />
+                         </button>
+                         <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                           {monetizationIndex + 1}/{data.monetization.length}
+                         </span>
+                         <button 
+                           onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
+                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                         >
+                           <ChevronRight className="w-3 h-3" />
+                         </button>
                       </div>
-                      <div className="space-y-1">
-                        {data.monetization.strategies.map((strat: string, i: number) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
-                            <span className="text-xs text-gray-300">{strat}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    }
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={monetizationIndex}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-3"
+                      >
+                        <div>
+                          <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
+                          <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
+                          <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
+                        </div>
+                        <div className="space-y-1">
+                          {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
+                              <span className="text-xs text-gray-300">{strat}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
                   </Widget>
                 </div>
 
@@ -612,32 +930,74 @@ export const Launchpad: React.FC = () => {
                       </Widget>
 
                       {/* Top Right: Search Volume */}
-                      <Widget title="Search Volume" icon={BarChart3} delay={0.2} className="h-full min-h-[280px]">
+                      <Widget 
+                        title="Search Volume" 
+                        icon={BarChart3} 
+                        delay={0.2} 
+                        className="h-full min-h-[280px]"
+                        action={
+                          <div className="flex items-center gap-1.5">
+                             <button 
+                               onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronLeft className="w-3 h-3" />
+                             </button>
+                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                               {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
+                             </span>
+                             <button 
+                               onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronRight className="w-3 h-3" />
+                             </button>
+                          </div>
+                        }
+                      >
                          <div className="h-full w-full flex flex-col min-h-[140px]">
-                           <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
-                             for "{data.identity.name === 'PetPals' ? 'Pet Clinics' : data.identity.name}":<br/>
-                             <span className="text-white">High trending</span>
-                           </p>
-                           <div className="flex-1">
-                              <ResponsiveContainer width="100%" height="100%">
-                                 <AreaChart data={data.validation.growthData}>
-                                    <defs>
-                                       <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                                          <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3}/>
-                                          <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0}/>
-                                       </linearGradient>
-                                    </defs>
-                                    <XAxis dataKey="name" hide />
-                                    <YAxis hide />
-                                    <Tooltip 
-                                       contentStyle={{ backgroundColor: '#0A0A0A', borderColor: '#333', fontFamily: 'JetBrains Mono', fontSize: '12px' }}
-                                       itemStyle={{ color: '#FF1F1F' }}
-                                       cursor={{ stroke: '#333', strokeWidth: 1 }}
-                                    />
-                                    <Area type="monotone" dataKey="users" stroke="#FF1F1F" strokeWidth={2} fillOpacity={1} fill="url(#colorUsers)" />
-                                 </AreaChart>
-                              </ResponsiveContainer>
-                           </div>
+                           <AnimatePresence mode="wait">
+                             <motion.div
+                                key={searchVolumeIndex}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex flex-col h-full"
+                             >
+                               <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
+                                 for "{data.validation.searchVolume[searchVolumeIndex].keyword}":<br/>
+                                 <span className="text-white">High trending</span>
+                               </p>
+                               <div className="flex-1">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                     <AreaChart data={data.validation.searchVolume[searchVolumeIndex].data}>
+                                        <defs>
+                                           <linearGradient id={`colorUsers-${searchVolumeIndex}`} x1="0" y1="0" x2="0" y2="1">
+                                              <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3}/>
+                                              <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0}/>
+                                           </linearGradient>
+                                        </defs>
+                                        <XAxis dataKey="name" hide />
+                                        <YAxis hide />
+                                        <Tooltip 
+                                           contentStyle={{ backgroundColor: '#0A0A0A', borderColor: '#333', fontFamily: 'JetBrains Mono', fontSize: '12px' }}
+                                           itemStyle={{ color: '#FF1F1F' }}
+                                           cursor={{ stroke: '#333', strokeWidth: 1 }}
+                                        />
+                                        <Area 
+                                          type="monotone" 
+                                          dataKey="users" 
+                                          stroke="#FF1F1F" 
+                                          strokeWidth={2} 
+                                          fillOpacity={1} 
+                                          fill={`url(#colorUsers-${searchVolumeIndex})`} 
+                                        />
+                                     </AreaChart>
+                                  </ResponsiveContainer>
+                               </div>
+                             </motion.div>
+                           </AnimatePresence>
                          </div>
                       </Widget>
                         
@@ -706,16 +1066,50 @@ export const Launchpad: React.FC = () => {
                       </Widget>
 
                       {/* Bottom Right: Biggest Risk */}
-                      <Widget title="THE BIGGEST RISK" icon={AlertTriangle} delay={0.4}>
+                      <Widget 
+                        title="THE BIGGEST RISK" 
+                        icon={AlertTriangle} 
+                        delay={0.4}
+                        action={
+                          <div className="flex items-center gap-1.5">
+                             <button 
+                               onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronLeft className="w-3 h-3" />
+                             </button>
+                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                               {riskIndex + 1}/{data.validation.riskAnalysis.length}
+                             </span>
+                             <button 
+                               onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronRight className="w-3 h-3" />
+                             </button>
+                          </div>
+                        }
+                      >
                          <div className="flex flex-col gap-3 h-full justify-center">
-                            <div>
-                               <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
-                               <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis.risk}</p>
-                            </div>
-                            <div>
-                                <p className="font-mono text-[9px] text-emerald-400 mb-0.5 uppercase tracking-widest">Mitigation:</p>
-                                <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis.mitigation}</p>
-                            </div>
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={riskIndex}
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex flex-col gap-3"
+                              >
+                                <div>
+                                   <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
+                                   <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].risk}</p>
+                                </div>
+                                <div>
+                                    <p className="font-mono text-[9px] text-emerald-400 mb-0.5 uppercase tracking-widest">Mitigation:</p>
+                                    <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].mitigation}</p>
+                                </div>
+                              </motion.div>
+                            </AnimatePresence>
                          </div>
                       </Widget>
                    </div>
