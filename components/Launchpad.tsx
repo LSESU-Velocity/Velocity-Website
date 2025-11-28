@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -622,6 +622,41 @@ export const Launchpad: React.FC = () => {
   const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
+  const dashboardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+      if (data && !isGenerating) {
+        setTimeout(() => {
+          const element = dashboardRef.current;
+          if (!element) return;
+
+          const start = window.scrollY;
+          const elementTop = element.getBoundingClientRect().top;
+          const offset = 180; // Stop higher above the dashboard
+          const target = start + elementTop - offset;
+          const distance = target - start;
+          const duration = 1400; // Slower scroll (1.4s)
+          let startTime: number | null = null;
+
+          function animation(currentTime: number) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            
+            // Ease in-out cubic for smooth acceleration/deceleration
+            const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            
+            const progress = ease(Math.min(timeElapsed / duration, 1));
+            window.scrollTo(0, start + (distance * progress));
+
+            if (timeElapsed < duration) {
+              requestAnimationFrame(animation);
+            }
+          }
+
+          requestAnimationFrame(animation);
+        }, 100);
+      }
+  }, [data, isGenerating]);
 
   const loadingSteps = [
     { text: "Scanning market landscape", icon: Globe },
@@ -759,9 +794,11 @@ export const Launchpad: React.FC = () => {
         <AnimatePresence>
           {data && !isGenerating && (
             <motion.div
+              ref={dashboardRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
+              className="scroll-mt-32"
             >
               {/* Widgets Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
