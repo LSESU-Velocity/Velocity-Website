@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins } from 'lucide-react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 // Animated text component matching Hero.tsx
@@ -71,7 +71,12 @@ const generateStartupData = (idea: string) => {
     colors: ["#FF1F1F", "#0A0A0A", "#FFFFFF", "#333333"],
     domain: "velocity.app",
     stack: ["Next.js", "Supabase", "OpenAI", "Vercel"],
-    interface: "Dashboard with real-time analytics"
+    interface: "Dashboard with real-time analytics",
+    monetization: {
+      model: "Freemium Model",
+      pricing: "Free tier available",
+      strategies: ["Premium Analytics", "Team Seats", "Enterprise API"]
+    }
   };
 
   if (lowercaseIdea.includes("gym") || lowercaseIdea.includes("fitness") || lowercaseIdea.includes("workout")) {
@@ -81,7 +86,12 @@ const generateStartupData = (idea: string) => {
       colors: ["#FF1F1F", "#0A0A0A", "#FFFFFF", "#333333"],
       domain: "gymsync.app",
       stack: ["FlutterFlow", "Supabase", "OpenAI API", "Stripe"],
-      interface: "Swipe-based matchmaking"
+      interface: "Swipe-based matchmaking",
+      monetization: {
+        model: "Subscription",
+        pricing: "£4.99/mo Premium",
+        strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"]
+      }
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
     data = {
@@ -90,7 +100,12 @@ const generateStartupData = (idea: string) => {
       colors: ["#FF9F1C", "#0A0A0A", "#FFFFFF", "#2EC4B6"],
       domain: "petpals.io",
       stack: ["React Native", "Firebase", "Cloudinary", "Stripe"],
-      interface: "Location-based feed"
+      interface: "Location-based feed",
+      monetization: {
+        model: "Marketplace",
+        pricing: "5% Service Fee",
+        strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"]
+      }
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
     data = {
@@ -99,7 +114,12 @@ const generateStartupData = (idea: string) => {
       colors: ["#4361EE", "#0A0A0A", "#FFFFFF", "#F72585"],
       domain: "studysphere.edu",
       stack: ["Next.js", "Prisma", "OpenAI", "Vercel"],
-      interface: "Collaborative workspace"
+      interface: "Collaborative workspace",
+      monetization: {
+        model: "Freemium",
+        pricing: "Free for Students",
+        strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"]
+      }
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
     data = {
@@ -108,7 +128,12 @@ const generateStartupData = (idea: string) => {
       colors: ["#E63946", "#0A0A0A", "#FFFFFF", "#F4A261"],
       domain: "tastify.app",
       stack: ["React", "Node.js", "MongoDB", "Stripe"],
-      interface: "Visual menu browser"
+      interface: "Visual menu browser",
+      monetization: {
+        model: "Commission",
+        pricing: "10% per Order",
+        strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"]
+      }
     };
   }
 
@@ -122,6 +147,7 @@ const generateStartupData = (idea: string) => {
           domain: data.domain,
           available: true
         },
+        monetization: data.monetization,
         visuals: {
           logoStyle: "Minimalist",
           appInterface: data.interface
@@ -365,155 +391,260 @@ export const Launchpad: React.FC = () => {
               </motion.div>
 
               {/* Widgets Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* Brand Identity */}
-                <Widget title="Brand Identity" icon={Palette} delay={0.1}>
-                  <div className="space-y-6">
-                    <div>
-                      <p className="font-mono text-xs text-gray-500 mb-3 uppercase tracking-widest">Color Palette</p>
-                      <div className="flex gap-3">
-                        {data.identity.colors.map((color: string, i: number) => (
-                          <motion.div 
-                            key={i} 
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.2 + i * 0.1, type: "spring" }}
-                            className="w-10 h-10 border border-white/10" 
-                            style={{ backgroundColor: color }} 
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div className="pt-4 border-t border-white/5">
-                      <p className="font-mono text-xs text-gray-500 mb-2 uppercase tracking-widest">Domain</p>
-                      <div className="flex items-center gap-2">
-                        <Globe className="w-4 h-4 text-velocity-red" />
-                        <span className="font-mono text-sm text-white">{data.identity.domain}</span>
-                        <span className="font-mono text-[10px] px-2 py-0.5 bg-velocity-red/20 text-velocity-red border border-velocity-red/30">AVAILABLE</span>
-                      </div>
-                    </div>
-                  </div>
-                </Widget>
+                {/* Left Column: App Mockup & Monetization */}
+                <div className="lg:col-span-1">
+                  <Widget title="App Mockup" icon={Smartphone} delay={0.1}>
+                    <div className="flex flex-col h-full">
+                      {/* Phone Mockup */}
+                      <div className="flex-1 flex items-center justify-center py-8">
+                        <div className="relative w-full max-w-[240px] aspect-[9/19] bg-black border-[8px] border-[#1f1f1f] rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
+                           {/* Dynamic Notch */}
+                           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
+                           
+                           {/* Screen Content */}
+                           <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col">
+                              {/* Status Bar Mock */}
+                              <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
+                                 <div className="text-[8px] font-mono text-white">9:41</div>
+                                 <div className="flex gap-1">
+                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
+                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
+                                 </div>
+                              </div>
 
-                {/* Tech Stack */}
-                <Widget title="Tech Stack" icon={Cpu} delay={0.2}>
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap gap-2">
-                      {data.blueprint.stack.map((tech: string, i: number) => (
-                        <motion.span 
-                          key={i} 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.3 + i * 0.1 }}
-                          className="px-3 py-1.5 bg-white/5 border border-white/10 font-mono text-xs text-gray-300 hover:border-velocity-red/30 transition-colors cursor-default"
-                        >
-                          {tech}
-                        </motion.span>
-                      ))}
-                    </div>
-                    <div className="pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="font-mono text-xs text-gray-500 mb-1 uppercase tracking-widest">Complexity</p>
-                        <p className="font-sans font-bold text-white">{data.blueprint.complexity}</p>
-                      </div>
-                      <div>
-                        <p className="font-mono text-xs text-gray-500 mb-1 uppercase tracking-widest">Build Time</p>
-                        <p className="font-sans font-bold text-velocity-red">{data.blueprint.timeline}</p>
-                      </div>
-                    </div>
-                  </div>
-                </Widget>
+                              {/* App Header */}
+                              <div className="px-4 py-2 flex items-center justify-between">
+                                 <div className="w-6 h-6 rounded-full bg-white/10"></div>
+                                 <span className="font-sans font-bold text-white text-sm">{data.identity.name}</span>
+                                 <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
+                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
+                                 </div>
+                              </div>
 
-                {/* Quick Stats */}
-                <Widget title="Market Signals" icon={TrendingUp} delay={0.3}>
-                  <div className="grid grid-cols-2 gap-4 h-full">
-                    <div className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-center">
-                      <p className="font-sans font-bold text-2xl text-white">{data.validation.marketSize}</p>
-                      <p className="font-mono text-xs text-gray-500 mt-1 uppercase tracking-widest">Target Users</p>
-                    </div>
-                    <div className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-center">
-                      <p className="font-sans font-bold text-2xl text-velocity-red">{data.validation.competitors}</p>
-                      <p className="font-mono text-xs text-gray-500 mt-1 uppercase tracking-widest">Competitors</p>
-                    </div>
-                    <div className="col-span-2 bg-white/[0.02] border border-white/5 p-4">
-                      <p className="font-mono text-xs text-gray-500 mb-2 uppercase tracking-widest">UI Pattern</p>
-                      <p className="font-mono text-sm text-white">{data.visuals.appInterface}</p>
-                    </div>
-                  </div>
-                </Widget>
+                              {/* Search Bar */}
+                              <div className="px-4 mb-4">
+                                 <div className="w-full h-8 bg-white/5 rounded-full flex items-center px-3 border border-white/10">
+                                    <div className="w-3 h-3 rounded-full border border-white/30 mr-2"></div>
+                                    <div className="w-20 h-2 bg-white/10 rounded"></div>
+                                 </div>
+                              </div>
 
-                {/* Growth Chart */}
-                <div className="md:col-span-2 min-h-[280px]">
-                  <Widget title="Projected Growth" icon={BarChart3} delay={0.4}>
-                    <div className="h-full w-full min-h-[180px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={data.validation.growthData}>
-                          <defs>
-                            <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3}/>
-                              <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0}/>
-                            </linearGradient>
-                          </defs>
-                          <XAxis 
-                            dataKey="name" 
-                            stroke="#333" 
-                            fontSize={11} 
-                            tickLine={false} 
-                            axisLine={false}
-                            fontFamily="JetBrains Mono"
-                          />
-                          <YAxis 
-                            stroke="#333" 
-                            fontSize={11} 
-                            tickLine={false} 
-                            axisLine={false}
-                            fontFamily="JetBrains Mono"
-                          />
-                          <Tooltip 
-                            contentStyle={{ 
-                              backgroundColor: '#0A0A0A', 
-                              borderColor: '#333', 
-                              fontFamily: 'JetBrains Mono',
-                              fontSize: '12px'
-                            }}
-                            itemStyle={{ color: '#FF1F1F' }}
-                            labelStyle={{ color: '#999' }}
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="users" 
-                            stroke="#FF1F1F" 
-                            strokeWidth={2}
-                            fillOpacity={1} 
-                            fill="url(#colorUsers)" 
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
+                              {/* Map/Content Mock */}
+                              <div className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5">
+                                 {/* Mock Markers */}
+                                 <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
+                                    <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                 </div>
+                                 <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
+                                    <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                 </div>
+                                 {/* Floating Action Button */}
+                                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
+                                   <div className="w-16 h-2 bg-white rounded"></div>
+                                 </div>
+                              </div>
+
+                              {/* Bottom Nav */}
+                              <div className="h-12 border-t border-white/5 flex items-center justify-around px-2">
+                                 <div className="w-6 h-6 bg-white/10 rounded-full"></div>
+                                 <div className="w-6 h-6 rounded-full border border-white/20"></div>
+                                 <div className="w-6 h-6 rounded-full border border-white/20"></div>
+                              </div>
+                              
+                              {/* Home Indicator */}
+                              <div className="h-4 w-full flex justify-center items-start">
+                                 <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
+                              </div>
+                           </div>
+                        </div>
+                      </div>
+
+                      {/* Monetization Section */}
+                      <div className="mt-8 pt-8 border-t border-white/5">
+                         <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2 bg-white/5 border border-white/10">
+                               <Coins className="w-4 h-4 text-gray-300" />
+                            </div>
+                            <span className="font-mono text-xs text-gray-500 uppercase tracking-widest">Monetization Strategy</span>
+                         </div>
+                         
+                         <div className="space-y-4">
+                            <div>
+                               <p className="font-mono text-xs text-gray-500 mb-2 uppercase tracking-widest">Model</p>
+                               <p className="font-sans font-bold text-white text-lg">{data.monetization.model}</p>
+                               <p className="font-mono text-velocity-red text-sm mt-1">{data.monetization.pricing}</p>
+                            </div>
+                            <div className="space-y-2">
+                               <p className="font-mono text-xs text-gray-500 uppercase tracking-widest">Revenue Streams</p>
+                               {data.monetization.strategies.map((strat: string, i: number) => (
+                                  <div key={i} className="flex items-center gap-2">
+                                     <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
+                                     <span className="text-sm text-gray-300">{strat}</span>
+                                  </div>
+                               ))}
+                            </div>
+                         </div>
+                      </div>
                     </div>
                   </Widget>
                 </div>
 
-                {/* Launch Strategy */}
-                <Widget title="Day 1 Playbook" icon={Zap} delay={0.5}>
-                  <div className="space-y-3">
-                    {data.strategy.map((step: string, i: number) => (
-                      <motion.div 
-                        key={i} 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.6 + i * 0.1 }}
-                        className="flex items-start gap-3 group/item"
-                      >
-                        <div className="w-6 h-6 bg-velocity-red/10 border border-velocity-red/30 text-velocity-red flex items-center justify-center font-mono text-xs font-bold shrink-0 group-hover/item:bg-velocity-red/20 transition-colors">
-                          {i + 1}
+                {/* Right Column: Existing Widgets */}
+                <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 h-fit">
+                  {/* Brand Identity */}
+                  <Widget title="Brand Identity" icon={Palette} delay={0.3}>
+                    <div className="space-y-6">
+                      <div>
+                        <p className="font-mono text-xs text-gray-500 mb-3 uppercase tracking-widest">Color Palette</p>
+                        <div className="flex gap-3">
+                          {data.identity.colors.map((color: string, i: number) => (
+                            <motion.div 
+                              key={i} 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              transition={{ delay: 0.4 + i * 0.1, type: "spring" }}
+                              className="w-10 h-10 border border-white/10" 
+                              style={{ backgroundColor: color }} 
+                            />
+                          ))}
                         </div>
-                        <p className="font-mono text-sm text-gray-400 group-hover/item:text-gray-300 transition-colors leading-relaxed">{step}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </Widget>
+                      </div>
+                      <div className="pt-4 border-t border-white/5">
+                        <p className="font-mono text-xs text-gray-500 mb-2 uppercase tracking-widest">Domain</p>
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-velocity-red" />
+                          <span className="font-mono text-sm text-white">{data.identity.domain}</span>
+                          <span className="font-mono text-[10px] px-2 py-0.5 bg-velocity-red/20 text-velocity-red border border-velocity-red/30">AVAILABLE</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Widget>
 
+                  {/* Tech Stack */}
+                  <Widget title="Tech Stack" icon={Cpu} delay={0.4}>
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        {data.blueprint.stack.map((tech: string, i: number) => (
+                          <motion.span 
+                            key={i} 
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.5 + i * 0.1 }}
+                            className="px-3 py-1.5 bg-white/5 border border-white/10 font-mono text-xs text-gray-300 hover:border-velocity-red/30 transition-colors cursor-default"
+                          >
+                            {tech}
+                          </motion.span>
+                        ))}
+                      </div>
+                      <div className="pt-4 border-t border-white/5 grid grid-cols-2 gap-4">
+                        <div>
+                          <p className="font-mono text-xs text-gray-500 mb-1 uppercase tracking-widest">Complexity</p>
+                          <p className="font-sans font-bold text-white">{data.blueprint.complexity}</p>
+                        </div>
+                        <div>
+                          <p className="font-mono text-xs text-gray-500 mb-1 uppercase tracking-widest">Build Time</p>
+                          <p className="font-sans font-bold text-velocity-red">{data.blueprint.timeline}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </Widget>
+
+                  {/* Quick Stats */}
+                  <div className="md:col-span-2">
+                    <Widget title="Market Signals" icon={TrendingUp} delay={0.5}>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                        <div className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-center">
+                          <p className="font-sans font-bold text-2xl text-white">{data.validation.marketSize}</p>
+                          <p className="font-mono text-xs text-gray-500 mt-1 uppercase tracking-widest">Target Users</p>
+                        </div>
+                        <div className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-center">
+                          <p className="font-sans font-bold text-2xl text-velocity-red">{data.validation.competitors}</p>
+                          <p className="font-mono text-xs text-gray-500 mt-1 uppercase tracking-widest">Competitors</p>
+                        </div>
+                        <div className="bg-white/[0.02] border border-white/5 p-4 flex flex-col justify-center">
+                          <p className="font-mono text-xs text-gray-500 mb-2 uppercase tracking-widest">UI Pattern</p>
+                          <p className="font-mono text-sm text-white">{data.visuals.appInterface}</p>
+                        </div>
+                      </div>
+                    </Widget>
+                  </div>
+
+                  {/* Growth Chart */}
+                  <div className="md:col-span-2 min-h-[280px]">
+                    <Widget title="Projected Growth" icon={BarChart3} delay={0.6}>
+                      <div className="h-full w-full min-h-[180px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={data.validation.growthData}>
+                            <defs>
+                              <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3}/>
+                                <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <XAxis 
+                              dataKey="name" 
+                              stroke="#333" 
+                              fontSize={11} 
+                              tickLine={false} 
+                              axisLine={false}
+                              fontFamily="JetBrains Mono"
+                            />
+                            <YAxis 
+                              stroke="#333" 
+                              fontSize={11} 
+                              tickLine={false} 
+                              axisLine={false}
+                              fontFamily="JetBrains Mono"
+                            />
+                            <Tooltip 
+                              contentStyle={{ 
+                                backgroundColor: '#0A0A0A', 
+                                borderColor: '#333', 
+                                fontFamily: 'JetBrains Mono', 
+                                fontSize: '12px'
+                              }}
+                              itemStyle={{ color: '#FF1F1F' }}
+                              labelStyle={{ color: '#999' }}
+                            />
+                            <Area 
+                              type="monotone" 
+                              dataKey="users" 
+                              stroke="#FF1F1F" 
+                              strokeWidth={2}
+                              fillOpacity={1} 
+                              fill="url(#colorUsers)" 
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </Widget>
+                  </div>
+
+                  {/* Launch Strategy */}
+                  <div className="md:col-span-2">
+                    <Widget title="Day 1 Playbook" icon={Zap} delay={0.7}>
+                      <div className="space-y-3">
+                        {data.strategy.map((step: string, i: number) => (
+                          <motion.div 
+                            key={i} 
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.8 + i * 0.1 }}
+                            className="flex items-start gap-3 group/item"
+                          >
+                            <div className="w-6 h-6 bg-velocity-red/10 border border-velocity-red/30 text-velocity-red flex items-center justify-center font-mono text-xs font-bold shrink-0 group-hover/item:bg-velocity-red/20 transition-colors">
+                              {i + 1}
+                            </div>
+                            <p className="font-mono text-sm text-gray-400 group-hover/item:text-gray-300 transition-colors leading-relaxed">{step}</p>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </Widget>
+                  </div>
+
+                </div>
               </div>
 
               {/* CTA */}
