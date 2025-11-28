@@ -432,8 +432,8 @@ export const Launchpad: React.FC = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 
                 {/* Left Column: App Mockup & Monetization */}
-                <div className="lg:col-span-3 flex flex-col h-full">
-                  <Widget title="App Mockup" icon={Smartphone} delay={0.1} className="h-full">
+                <div className="lg:col-span-3 flex flex-col gap-4">
+                  <Widget title="App Mockup" icon={Smartphone} delay={0.1} className="flex-1">
                     <div className="flex flex-col h-full">
                       {/* Phone Mockup */}
                       <div className="flex-1 flex items-center justify-center py-2">
@@ -498,31 +498,23 @@ export const Launchpad: React.FC = () => {
                            </div>
                         </div>
                       </div>
+                    </div>
+                  </Widget>
 
-                      {/* Monetization Section */}
-                      <div className="mt-4 pt-4 border-t border-white/5">
-                         <div className="flex items-center gap-2 mb-3">
-                            <div className="p-1.5 bg-white/5 border border-white/10">
-                               <Coins className="w-3.5 h-3.5 text-gray-300" />
-                            </div>
-                            <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">Monetization Strategy</span>
-                         </div>
-                         
-                         <div className="space-y-3">
-                            <div>
-                               <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
-                               <p className="font-sans font-bold text-white text-sm">{data.monetization.model}</p>
-                               <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization.pricing}</p>
-                            </div>
-                            <div className="space-y-1">
-                               {data.monetization.strategies.map((strat: string, i: number) => (
-                                  <div key={i} className="flex items-center gap-2">
-                                     <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
-                                     <span className="text-xs text-gray-300">{strat}</span>
-                                  </div>
-                               ))}
-                            </div>
-                         </div>
+                  <Widget title="Monetization Strategy" icon={Coins} delay={0.15}>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
+                        <p className="font-sans font-bold text-white text-sm">{data.monetization.model}</p>
+                        <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization.pricing}</p>
+                      </div>
+                      <div className="space-y-1">
+                        {data.monetization.strategies.map((strat: string, i: number) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
+                            <span className="text-xs text-gray-300">{strat}</span>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </Widget>
