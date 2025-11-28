@@ -547,28 +547,48 @@ export const Launchpad: React.FC = () => {
 
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
                       <div className="flex flex-col gap-4">
-                        <Widget title="Market Signals" icon={TrendingUp} delay={0.2}>
-                          <div className="flex flex-col h-full justify-between py-1 space-y-2">
-                            <div className="flex items-baseline justify-between">
-                              <div>
-                                <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">TAM <span className="normal-case text-gray-600">(Total Market)</span></p>
-                                <p className="font-sans font-bold text-lg text-white leading-tight">{data.validation.tam.value}</p>
+                        <Widget title="Market Funnel" icon={TrendingUp} delay={0.2}>
+                          <div className="flex flex-col h-full justify-center gap-2 py-1">
+                            {/* TAM - Wide Bar */}
+                            <div className="w-full bg-[#1A1A1A] border border-white/5 p-2.5 rounded-sm hover:bg-[#222] transition-colors">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-mono text-[10px] text-gray-500 font-bold">TAM</span>
+                                    <span className="text-[9px] text-gray-600 uppercase tracking-wide">Total Market</span>
+                                  </div>
+                                  <p className="font-sans font-bold text-lg text-white leading-none">{data.validation.tam.value}</p>
+                                </div>
+                                <p className="font-mono text-[9px] text-gray-500 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
                               </div>
-                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.tam.label}</p>
                             </div>
-                            <div className="flex items-baseline justify-between">
-                              <div>
-                                <p className="font-mono text-[9px] text-gray-500 uppercase tracking-wider">SAM <span className="normal-case text-gray-600">(Serviceable)</span></p>
-                                <p className="font-sans font-bold text-lg text-white leading-tight">{data.validation.sam.value}</p>
+
+                            {/* SAM - Medium Bar */}
+                            <div className="w-[85%] mx-auto bg-[#2A2A2A] border border-white/10 p-2.5 rounded-sm hover:bg-[#333] transition-colors">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-mono text-[10px] text-gray-400 font-bold">SAM</span>
+                                    <span className="text-[9px] text-gray-500 uppercase tracking-wide">Serviceable</span>
+                                  </div>
+                                  <p className="font-sans font-bold text-lg text-gray-100 leading-none">{data.validation.sam.value}</p>
+                                </div>
+                                <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
                               </div>
-                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.sam.label}</p>
                             </div>
-                            <div className="flex items-baseline justify-between">
-                              <div>
-                                <p className="font-mono text-[9px] text-velocity-red uppercase tracking-wider">SOM <span className="normal-case text-velocity-red/70">(Your Target)</span></p>
-                                <p className="font-sans font-bold text-lg text-velocity-red leading-tight">{data.validation.som.value}</p>
+
+                            {/* SOM - Narrow Bar */}
+                            <div className="w-[70%] mx-auto bg-velocity-red shadow-[0_4px_20px_rgba(255,31,31,0.2)] border border-red-500 p-2.5 rounded-sm">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <div className="flex items-center gap-2 mb-0.5">
+                                    <span className="font-mono text-[10px] text-white font-bold">SOM</span>
+                                    <span className="text-[9px] text-white/70 uppercase tracking-wide">Target</span>
+                                  </div>
+                                  <p className="font-sans font-bold text-lg text-white leading-none">{data.validation.som.value}</p>
+                                </div>
+                                <p className="font-mono text-[9px] text-white/90 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
                               </div>
-                              <p className="font-mono text-[8px] text-gray-400 text-right max-w-[55%]">{data.validation.som.label}</p>
                             </div>
                           </div>
                         </Widget>
