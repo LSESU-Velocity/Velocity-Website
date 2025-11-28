@@ -622,17 +622,17 @@ export const Launchpad: React.FC = () => {
   const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
-  const dashboardRef = useRef<HTMLDivElement>(null);
+  const inputFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
       if (data && !isGenerating) {
         setTimeout(() => {
-          const element = dashboardRef.current;
+          const element = inputFormRef.current;
           if (!element) return;
 
           const start = window.scrollY;
           const elementTop = element.getBoundingClientRect().top;
-          const offset = 180; // Stop higher above the dashboard
+          const offset = 100; // Position the input form near the top with some padding
           const target = start + elementTop - offset;
           const distance = target - start;
           const duration = 1400; // Slower scroll (1.4s)
@@ -727,6 +727,7 @@ export const Launchpad: React.FC = () => {
 
           {/* Input Section */}
           <motion.form 
+            ref={inputFormRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.6 }}
@@ -794,11 +795,9 @@ export const Launchpad: React.FC = () => {
         <AnimatePresence>
           {data && !isGenerating && (
             <motion.div
-              ref={dashboardRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5 }}
-              className="scroll-mt-32"
             >
               {/* Widgets Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
