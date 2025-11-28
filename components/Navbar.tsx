@@ -1,16 +1,47 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
 
 // Points to the file in the /public folder
 const LOGO_URL = "/Velocity-logo-black.png"; 
 
 export const Navbar: React.FC = () => {
-  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleScroll = (e: React.MouseEvent<HTMLElement>, id: string) => {
     e.preventDefault();
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (location.pathname !== '/') {
+      navigate('/', { state: { scrollTo: id } });
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (location.pathname === '/' && location.state && (location.state as any).scrollTo) {
+      const id = (location.state as any).scrollTo;
+      const element = document.getElementById(id);
+      if (element) {
+        // Small timeout to ensure render
+        setTimeout(() => {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+      // Clear state to avoid scrolling on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
+
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+        navigate('/');
     }
   };
 
@@ -21,7 +52,7 @@ export const Navbar: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm bg-velocity-black/50 border-b border-white/5"
     >
-      <div className="flex items-center gap-4 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <div className="flex items-center gap-4 group cursor-pointer" onClick={handleLogoClick}>
         <div className="w-16 h-16 p-1 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 transition-colors flex items-center justify-center">
             {LOGO_URL ? (
                 <img src={LOGO_URL} alt="Velocity Logo" className="w-full h-full object-contain" />
@@ -36,6 +67,13 @@ export const Navbar: React.FC = () => {
       </div>
 
       <div className="hidden md:flex items-center gap-8">
+        <Link 
+          to="/launchpad" 
+          className={`font-mono text-xs uppercase tracking-widest transition-colors ${location.pathname === '/launchpad' ? 'text-velocity-red font-bold' : 'text-gray-400 hover:text-velocity-red'}`}
+        >
+          Launchpad
+        </Link>
+
         {['Manifesto', 'Roadmap', 'Builders'].map((item) => (
           <a 
             key={item} 
