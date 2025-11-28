@@ -97,15 +97,18 @@ const generateStartupData = (idea: string) => {
     riskAnalysis: [
       {
         risk: "Building features users don't need.",
-        mitigation: "Presell 10 licenses before coding."
+        mitigation: "Presell 10 licenses before coding.",
+        productFeature: "Waitlist landing page with feature voting."
       },
       {
         risk: "High customer acquisition cost (CAC).",
-        mitigation: "Focus on organic content marketing and SEO."
+        mitigation: "Focus on organic content marketing and SEO.",
+        productFeature: "Built-in SEO optimization tools and blog generator."
       },
       {
         risk: "Technical debt accumulating early.",
-        mitigation: "Enforce strict code reviews and modular architecture."
+        mitigation: "Enforce strict code reviews and modular architecture.",
+        productFeature: "Automated linting and CI/CD pipeline integration."
       }
     ],
     competitors: [
@@ -183,15 +186,18 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: [
         {
           risk: "Users match but don't meet offline.",
-          mitigation: "Host weekly group workouts to bridge online-to-offline gap."
+          mitigation: "Host weekly group workouts to bridge online-to-offline gap.",
+          productFeature: "Auto group-matching and in-app event scheduling."
         },
         {
           risk: "User safety concerns meeting strangers.",
-          mitigation: "Implement ID verification and public meeting spot suggestions."
+          mitigation: "Implement ID verification and public meeting spot suggestions.",
+          productFeature: "Identity verification badge and SOS alert system."
         },
         {
           risk: "High churn rate after finding a partner.",
-          mitigation: "Add social feed features to keep users engaged post-match."
+          mitigation: "Add social feed features to keep users engaged post-match.",
+          productFeature: "Community feed and workout streak gamification."
         }
       ],
       competitors: [
@@ -268,15 +274,18 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: [
         {
           risk: "Chicken & Egg: App is empty, so no one joins.",
-          mitigation: "Do things that don't scale. Manually seed 50 profiles."
+          mitigation: "Do things that don't scale. Manually seed 50 profiles.",
+          productFeature: "Referral bonuses and fake-user-free verification."
         },
         {
           risk: "Trust & Safety incidents between pets/owners.",
-          mitigation: "Mandatory verification and community guidelines."
+          mitigation: "Mandatory verification and community guidelines.",
+          productFeature: "Pet profile verification and sitter background checks."
         },
         {
           risk: "Platform leakage (users meet once and exchange numbers).",
-          mitigation: "Offer value-added tools like scheduling and payment protection."
+          mitigation: "Offer value-added tools like scheduling and payment protection.",
+          productFeature: "In-app payment escrow and scheduling calendar."
         }
       ],
       competitors: [
@@ -353,15 +362,18 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: [
         {
           risk: "Empty platform syndrome (no content).",
-          mitigation: "Pay top students to upload notes for first 50 courses."
+          mitigation: "Pay top students to upload notes for first 50 courses.",
+          productFeature: "Bounty system for high-demand course notes."
         },
         {
           risk: "Copyright issues with university materials.",
-          mitigation: "Implement strict content takedown policy and moderation."
+          mitigation: "Implement strict content takedown policy and moderation.",
+          productFeature: "Automated copyright detection and reporting tools."
         },
         {
           risk: "Seasonality (usage drops during holidays).",
-          mitigation: "Introduce features for summer internships and career prep."
+          mitigation: "Introduce features for summer internships and career prep.",
+          productFeature: "Career roadmap builder and internship matching."
         }
       ],
       competitors: [
@@ -438,15 +450,18 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: [
         {
           risk: "Restaurants ignore unproven platform.",
-          mitigation: "Concierge MVP: Upload menus manually and call in orders."
+          mitigation: "Concierge MVP: Upload menus manually and call in orders.",
+          productFeature: "AI menu digitization from photos."
         },
         {
           risk: "Low margins with delivery logistics.",
-          mitigation: "Start with pickup-only to avoid driver network costs."
+          mitigation: "Start with pickup-only to avoid driver network costs.",
+          productFeature: "QR code ordering for pickup optimization."
         },
         {
           risk: "Competition from giants (UberEats/Deliveroo).",
-          mitigation: "Niche down to specific cuisines or dietary needs (e.g. Vegan)."
+          mitigation: "Niche down to specific cuisines or dietary needs (e.g. Vegan).",
+          productFeature: "Dietary filter presets (Vegan, GF, Keto)."
         }
       ],
       competitors: [
@@ -1171,7 +1186,7 @@ export const Launchpad: React.FC = () => {
                           </div>
                         }
                       >
-                         <div className="flex flex-col gap-3 h-full justify-center">
+                         <div className="flex flex-col gap-2 h-full justify-center">
                             <AnimatePresence mode="wait">
                               <motion.div
                                 key={riskIndex}
@@ -1179,15 +1194,17 @@ export const Launchpad: React.FC = () => {
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -10 }}
                                 transition={{ duration: 0.2 }}
-                                className="flex flex-col gap-3"
+                                className="flex flex-col gap-2"
                               >
                                 <div>
                                    <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
                                    <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].risk}</p>
                                 </div>
                                 <div>
-                                    <p className="font-mono text-[9px] text-emerald-400 mb-0.5 uppercase tracking-widest">Mitigation:</p>
-                                    <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].mitigation}</p>
+                                    <p className="font-mono text-[9px] text-blue-400 mb-0.5 uppercase tracking-widest">Product Feature:</p>
+                                    <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">
+                                      {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
+                                    </p>
                                 </div>
                               </motion.div>
                             </AnimatePresence>
