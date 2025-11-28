@@ -85,7 +85,12 @@ const generateStartupData = (idea: string) => {
     riskAnalysis: {
       risk: "Building features users don't need.",
       mitigation: "Presell 10 licenses before coding."
-    }
+    },
+    competitors: [
+      { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize" },
+      { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling" },
+      { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug" }
+    ]
   };
 
   if (lowercaseIdea.includes("gym") || lowercaseIdea.includes("fitness") || lowercaseIdea.includes("workout")) {
@@ -109,7 +114,12 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: {
         risk: "Users match but don't meet offline.",
         mitigation: "Host weekly group workouts to bridge online-to-offline gap."
-      }
+      },
+      competitors: [
+        { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption" },
+        { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook" },
+        { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK" }
+      ]
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
     data = {
@@ -132,7 +142,12 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: {
         risk: "Chicken & Egg: App is empty, so no one joins.",
         mitigation: "Do things that don't scale. Manually seed 50 profiles."
-      }
+      },
+      competitors: [
+        { name: "Rover", usp: "Professional sitting services", weakness: "Paid services only, no casual playdates" },
+        { name: "PawShake", usp: "Verified walkers", weakness: "Complex booking process" },
+        { name: "LocalDog", usp: "Neighborhood focus", weakness: "Outdated app interface, buggy" }
+      ]
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
     data = {
@@ -155,7 +170,12 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: {
         risk: "Empty platform syndrome (no content).",
         mitigation: "Pay top students to upload notes for first 50 courses."
-      }
+      },
+      competitors: [
+        { name: "Chegg", usp: "Massive answer database", weakness: "Expensive monthly fee, academic integrity risks" },
+        { name: "Quizlet", usp: "Great flashcards", weakness: "Limited collaboration features" },
+        { name: "StuDocu", usp: "Note sharing", weakness: "Upload-gated content, inconsistent quality" }
+      ]
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
     data = {
@@ -178,7 +198,12 @@ const generateStartupData = (idea: string) => {
       riskAnalysis: {
         risk: "Restaurants ignore unproven platform.",
         mitigation: "Concierge MVP: Upload menus manually and call in orders."
-      }
+      },
+      competitors: [
+        { name: "Yelp", usp: "Huge review database", weakness: "Trust issues with fake reviews" },
+        { name: "Instagram", usp: "Visual discovery", weakness: "Not built for menus or ordering" },
+        { name: "UberEats", usp: "Delivery logistics", weakness: "High fees for restaurants and users" }
+      ]
     };
   }
 
@@ -213,11 +238,7 @@ const generateStartupData = (idea: string) => {
           sam: data.market.sam,
           som: data.market.som,
           competitors: 3,
-          competitorList: [
-            { name: "Incumbent", usp: "Established user base" },
-            { name: "Startup A", usp: "Cheaper pricing" },
-            { name: "Startup B", usp: "Better UI" }
-          ],
+          competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
           growthData: [
             { name: 'W1', users: 0 },
@@ -235,7 +256,7 @@ const generateStartupData = (idea: string) => {
 };
 
 // Widget with spotlight effect matching Features.tsx
-const Widget = ({ title, icon: Icon, children, delay = 0, className = "" }: any) => {
+const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action }: any) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -274,11 +295,14 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "" }: any)
       />
 
       <div className="relative z-10 p-4 h-full flex flex-col">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
-            <Icon className="w-3.5 h-3.5 text-gray-300 group-hover:text-velocity-red transition-colors duration-300" />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
+              <Icon className="w-3.5 h-3.5 text-gray-300 group-hover:text-velocity-red transition-colors duration-300" />
+            </div>
+            <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">{title}</span>
           </div>
-          <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">{title}</span>
+          {action}
         </div>
         <div className="flex-1">
           {children}
@@ -292,6 +316,7 @@ export const Launchpad: React.FC = () => {
   const [idea, setIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [competitorIndex, setCompetitorIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
 
   const loadingSteps = [
@@ -317,6 +342,7 @@ export const Launchpad: React.FC = () => {
     
     setIsGenerating(true);
     setData(null);
+    setCompetitorIndex(0);
     setLoadingStep(0);
     
     const result = await generateStartupData(idea);
@@ -616,17 +642,66 @@ export const Launchpad: React.FC = () => {
                       </Widget>
                         
                       {/* Bottom Left: Competitors */}
-                      <Widget title="Real Competitors" icon={Target} delay={0.3}>
-                        <div className="flex flex-col h-full justify-between py-1">
-                          <div className="flex items-center justify-between mb-2">
-                             <span className="text-[10px] text-gray-500 cursor-pointer hover:text-white transition-colors flex items-center gap-1">
-                                <ChevronLeft className="w-3 h-3" /> (1/3) <ChevronRight className="w-3 h-3" />
+                      <Widget 
+                        title="Real Competitors" 
+                        icon={Target} 
+                        delay={0.3}
+                        action={
+                          <div className="flex items-center gap-1.5">
+                             <button 
+                               onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronLeft className="w-3 h-3" />
+                             </button>
+                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                               {competitorIndex + 1}/{data.validation.competitorList.length}
                              </span>
+                             <button 
+                               onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
+                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                             >
+                               <ChevronRight className="w-3 h-3" />
+                             </button>
                           </div>
-                          <div>
-                             <p className="font-sans font-bold text-white text-sm mb-1">Competitor 1: USP</p>
-                             <p className="font-mono text-[10px] text-gray-400 leading-relaxed">Details...</p>
-                          </div>
+                        }
+                      >
+                        <div className="flex flex-col h-full justify-center py-1">
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={competitorIndex}
+                              initial={{ opacity: 0, x: 10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex flex-col gap-2"
+                            >
+                               <div>
+                                 <div className="flex items-center gap-2 mb-1">
+                                    <span className="font-sans font-bold text-white text-sm">
+                                      {data.validation.competitorList[competitorIndex].name}
+                                    </span>
+                                    <div className="w-4 h-4 rounded-sm bg-white/10 flex items-center justify-center text-[8px] font-mono text-gray-400 border border-white/10">
+                                      {data.validation.competitorList[competitorIndex].name[0]}
+                                    </div>
+                                 </div>
+                               </div>
+                               
+                               <div>
+                                  <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-0.5">Primary USP</p>
+                                  <p className="font-sans text-xs text-gray-300 leading-relaxed">
+                                    {data.validation.competitorList[competitorIndex].usp}
+                                  </p>
+                               </div>
+
+                               <div>
+                                  <p className="font-mono text-[9px] text-velocity-red/80 uppercase tracking-widest mb-0.5">Weakness</p>
+                                  <p className="font-sans text-xs text-gray-400 leading-relaxed">
+                                    {data.validation.competitorList[competitorIndex].weakness}
+                                  </p>
+                               </div>
+                            </motion.div>
+                          </AnimatePresence>
                         </div>
                       </Widget>
 
