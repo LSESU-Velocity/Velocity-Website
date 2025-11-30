@@ -1233,14 +1233,14 @@ export const Launchpad: React.FC = () => {
                           {/* Central Axis Lines */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                            <div className="h-full w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                            <div className="h-full w-px bg-gradient-to-b from-transparent via-white/50 to-transparent" />
                             {/* Center Point */}
                             <div className="absolute w-1 h-1 bg-white/40 rounded-full" />
                           </div>
 
                           {/* Axis Labels */}
-                          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10">
-                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded border border-white/10">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10">
+                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded border border-white/10 shadow-sm">
                               {data.validation.marketGap?.xAxis.label}
                             </span>
                           </div>
@@ -1252,8 +1252,8 @@ export const Launchpad: React.FC = () => {
                             {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
                           </div>
 
-                          <div className="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center z-10">
-                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded whitespace-nowrap border border-white/10">
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center z-10">
+                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded whitespace-nowrap border border-white/10 shadow-sm">
                               {data.validation.marketGap?.yAxis.label}
                             </span>
                           </div>
@@ -1331,7 +1331,7 @@ export const Launchpad: React.FC = () => {
                               className="flex flex-col gap-2 p-3 rounded-sm bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 relative overflow-hidden"
                             >
                               <div className="absolute top-0 right-0 p-2 opacity-10">
-                                <Target className="w-12 h-12 text-white" />
+                                {/* Icon removed */}
                               </div>
 
                               <div className="flex items-center justify-between relative z-10">
