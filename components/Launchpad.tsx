@@ -1185,74 +1185,15 @@ export const Launchpad: React.FC = () => {
                         
                       {/* Bottom Left: Competitors with Perceptual Map */}
                       <Widget 
-                        title="Real Competitors" 
+                        title="Market Gap & Opportunities" 
                         icon={Target} 
                         delay={0.3}
                         className="h-[540px]"
-                        action={
-                          <div className="flex items-center gap-1.5">
-                             <button 
-                               onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronLeft className="w-3 h-3" />
-                             </button>
-                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                               {competitorIndex + 1}/{data.validation.competitorList.length}
-                             </span>
-                             <button 
-                               onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronRight className="w-3 h-3" />
-                             </button>
-                          </div>
-                        }
                       >
-                        <div className="flex flex-col h-full py-1 gap-3">
-                          {/* Competitor Info */}
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={competitorIndex}
-                              initial={{ opacity: 0, x: 10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex flex-col gap-2"
-                            >
-                               <div>
-                                 <div className="flex items-center gap-2 mb-1">
-                                    <span className="font-sans font-bold text-white text-sm">
-                                      {data.validation.competitorList[competitorIndex].name}
-                                    </span>
-                                    <div className="w-4 h-4 rounded-sm bg-white/10 flex items-center justify-center text-[8px] font-mono text-gray-400 border border-white/10">
-                                      {data.validation.competitorList[competitorIndex].name[0]}
-                                    </div>
-                                 </div>
-                               </div>
-                               
-                               <div>
-                                  <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-0.5">Primary USP</p>
-                                  <p className="font-sans text-xs text-gray-300 leading-relaxed">
-                                    {data.validation.competitorList[competitorIndex].usp}
-                                  </p>
-                               </div>
-
-                               <div>
-                                  <p className="font-mono text-[9px] text-velocity-red/80 uppercase tracking-widest mb-0.5">Weakness</p>
-                                  <p className="font-sans text-xs text-gray-400 leading-relaxed">
-                                    {data.validation.competitorList[competitorIndex].weakness}
-                                  </p>
-                               </div>
-                            </motion.div>
-                          </AnimatePresence>
-
+                        <div className="flex flex-col h-full py-1 gap-2">
+                          
                           {/* Perceptual Map Section */}
-                          <div className="border-t border-white/5 pt-3 flex flex-col flex-1">
-                            <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest mb-4">Market Gaps & Opportunities</p>
-                            
-                            {/* Perceptual Map */}
-                            <div className="relative w-full h-48 bg-black/20 border border-white/10 rounded-sm mb-2">
+                          <div className="relative w-full h-48 bg-black/20 border border-white/10 rounded-sm mb-1 shrink-0">
                               
                               {/* Quadrant Backgrounds */}
                               <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
@@ -1273,14 +1214,12 @@ export const Launchpad: React.FC = () => {
                               </div>
                               
                               {/* Axis Labels */}
-                              {/* X Axis Label */}
                               <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
                                 <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded">
                                   {data.validation.marketGap?.xAxis.label}
                                 </span>
                               </div>
                               
-                              {/* X Axis Low/High */}
                               <div className="absolute bottom-1 left-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
                                 <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
                               </div>
@@ -1288,14 +1227,12 @@ export const Launchpad: React.FC = () => {
                                 {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
                               </div>
 
-                              {/* Y Axis Label */}
                               <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center">
                                 <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded whitespace-nowrap">
                                   {data.validation.marketGap?.yAxis.label}
                                 </span>
                               </div>
 
-                              {/* Y Axis Low/High */}
                               <div className="absolute top-1 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
                                 High
                               </div>
@@ -1316,14 +1253,12 @@ export const Launchpad: React.FC = () => {
                                     bottom: `${comp.y}%`,
                                     transform: 'translate(-50%, 50%)'
                                   }}
+                                  onMouseEnter={() => setCompetitorIndex(i)}
                                 >
-                                  <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-110 z-20 shadow-white/20' : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-gray-500 z-10'}`} />
+                                  <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-125 z-20 shadow-white/30' : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-gray-500 z-10'}`} />
                                   
-                                  {/* Tooltip */}
                                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
                                     <div className="font-bold mb-0.5">{comp.name}</div>
-                                    <div className="text-gray-400 text-[8px]">{comp.usp}</div>
-                                    {/* Arrow */}
                                     <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
                                   </div>
                                 </motion.div>
@@ -1341,30 +1276,49 @@ export const Launchpad: React.FC = () => {
                                   transform: 'translate(-50%, 50%)'
                                 }}
                               >
-                                {/* Pulsing ring */}
-                                <div className="absolute inset-0 w-full h-full rounded-full bg-velocity-red/30 animate-ping" />
-                                <div className="w-4 h-4 rounded-full bg-velocity-red border-2 border-white shadow-[0_0_15px_rgba(255,31,31,0.6)] relative z-10" />
+                                <div className="absolute inset-0 w-full h-full rounded-full bg-emerald-500/30 animate-ping" />
+                                <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_15px_rgba(16,185,129,0.6)] relative z-10" />
                                 
-                                {/* Tooltip */}
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-velocity-red border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-emerald-500 border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
                                   <div className="font-bold">YOUR GAP</div>
-                                  {/* Arrow */}
-                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-velocity-red" />
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-emerald-500" />
                                 </div>
                               </motion.div>
+                          </div>
+
+                          {/* Competitor List */}
+                          <div className="flex flex-col gap-1.5 flex-1 overflow-y-auto custom-scrollbar pr-1">
+                             {data.validation.competitorList.map((comp: any, i: number) => (
+                               <div 
+                                  key={i}
+                                  className={`p-2.5 rounded-sm border transition-all duration-200 cursor-pointer ${competitorIndex === i ? 'bg-white/5 border-white/10' : 'bg-transparent border-transparent hover:bg-white/[0.02] hover:border-white/5'}`}
+                                  onClick={() => setCompetitorIndex(i)}
+                                  onMouseEnter={() => setCompetitorIndex(i)}
+                               >
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className={`font-sans text-sm ${competitorIndex === i ? 'font-bold text-white' : 'font-medium text-gray-400'}`}>{comp.name}</span>
+                                    <div className={`w-3 h-3 rounded-full border ${competitorIndex === i ? 'bg-white border-white' : 'bg-gray-800 border-gray-600'}`} />
+                                  </div>
+                                  <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-[10px]">
+                                     <span className="text-gray-500 font-mono uppercase">USP</span>
+                                     <span className="text-gray-300 leading-tight">{comp.usp}</span>
+                                     <span className="text-gray-500 font-mono uppercase">Weakness</span>
+                                     <span className="text-gray-400 leading-tight">{comp.weakness}</span>
+                                  </div>
+                               </div>
+                             ))}
+                          </div>
+
+                          {/* Identified Opportunity - Green Theme */}
+                          <div className="mt-auto p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-sm relative overflow-hidden shrink-0">
+                            <div className="absolute top-0 right-0 p-1">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-pulse" />
                             </div>
-                            
-                            {/* Your Gap Text - Pushed to bottom */}
-                            <div className="mt-auto p-3 bg-velocity-red/5 border border-velocity-red/20 rounded-sm relative overflow-hidden">
-                              <div className="absolute top-0 right-0 p-1">
-                                <div className="w-1.5 h-1.5 rounded-full bg-velocity-red/40 animate-pulse" />
-                              </div>
-                              <div className="flex flex-col gap-1">
-                                <p className="font-mono text-[9px] text-velocity-red uppercase tracking-widest">Identified Opportunity</p>
-                                <p className="font-sans text-xs text-gray-200 leading-relaxed">
-                                  "{data.validation.marketGap?.yourGap}"
-                                </p>
-                              </div>
+                            <div className="flex flex-col gap-1">
+                              <p className="font-mono text-[9px] text-emerald-500 uppercase tracking-widest">Identified Opportunity</p>
+                              <p className="font-sans text-xs text-emerald-100/90 leading-relaxed">
+                                "{data.validation.marketGap?.yourGap}"
+                              </p>
                             </div>
                           </div>
                         </div>
