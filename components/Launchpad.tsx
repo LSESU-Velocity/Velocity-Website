@@ -1252,8 +1252,8 @@ export const Launchpad: React.FC = () => {
                             {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
                           </div>
 
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center z-10">
-                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded whitespace-nowrap border border-white/10 shadow-sm">
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] rotate-180 flex items-center justify-center z-10">
+                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-0.5 py-2 rounded whitespace-nowrap border border-white/10 shadow-sm">
                               {data.validation.marketGap?.yAxis.label}
                             </span>
                           </div>
