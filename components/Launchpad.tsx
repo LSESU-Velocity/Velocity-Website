@@ -115,10 +115,16 @@ const generateStartupData = (idea: string) => {
       }
     ],
     competitors: [
-      { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize" },
-      { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling" },
-      { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug" }
+      { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize", x: 70, y: 60 },
+      { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling", x: 85, y: 75 },
+      { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug", x: 60, y: 40 }
     ],
+    marketGap: {
+      xAxis: { label: "Ease of Use", low: "Complex", high: "Simple" },
+      yAxis: { label: "Customization", low: "Limited", high: "Flexible" },
+      yourPosition: { x: 25, y: 85 },
+      yourGap: "Beginner-friendly with full customization power"
+    },
     searchVolume: [
       {
         keyword: "Startup Tools",
@@ -207,10 +213,16 @@ const generateStartupData = (idea: string) => {
         }
       ],
       competitors: [
-        { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption" },
-        { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook" },
-        { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK" }
+        { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption", x: 75, y: 70 },
+        { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook", x: 30, y: 25 },
+        { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK", x: 60, y: 80 }
       ],
+      marketGap: {
+        xAxis: { label: "Social Features", low: "Solo", high: "Community" },
+        yAxis: { label: "Price", low: "Free", high: "Premium" },
+        yourPosition: { x: 85, y: 20 },
+        yourGap: "Free social matching for students, not solo tracking"
+      },
       searchVolume: [
         {
           keyword: "Gym Partner App",
@@ -298,10 +310,16 @@ const generateStartupData = (idea: string) => {
         }
       ],
       competitors: [
-        { name: "Rover", usp: "Professional sitting services", weakness: "Paid services only, no casual playdates" },
-        { name: "PawShake", usp: "Verified walkers", weakness: "Complex booking process" },
-        { name: "LocalDog", usp: "Neighborhood focus", weakness: "Outdated app interface, buggy" }
+        { name: "Rover", usp: "Professional sitting services", weakness: "Paid services only, no casual playdates", x: 85, y: 80 },
+        { name: "BorrowMyDoggy", usp: "Free community care", weakness: "Unreliable for scheduled needs", x: 20, y: 25 },
+        { name: "LocalDog", usp: "Neighborhood focus", weakness: "Outdated app interface, buggy", x: 45, y: 40 }
       ],
+      marketGap: {
+        xAxis: { label: "Reliability", low: "Casual", high: "Scheduled" },
+        yAxis: { label: "Price", low: "Free", high: "Expensive" },
+        yourPosition: { x: 75, y: 25 },
+        yourGap: "Reliable, scheduled care at student-friendly prices"
+      },
       searchVolume: [
         {
           keyword: "Dog Walking App",
@@ -389,10 +407,16 @@ const generateStartupData = (idea: string) => {
         }
       ],
       competitors: [
-        { name: "Chegg", usp: "Massive answer database", weakness: "Expensive monthly fee, academic integrity risks" },
-        { name: "Quizlet", usp: "Great flashcards", weakness: "Limited collaboration features" },
-        { name: "StuDocu", usp: "Note sharing", weakness: "Upload-gated content, inconsistent quality" }
+        { name: "Chegg", usp: "Massive answer database", weakness: "Expensive monthly fee, academic integrity risks", x: 80, y: 85 },
+        { name: "Quizlet", usp: "Great flashcards", weakness: "Limited collaboration features", x: 35, y: 30 },
+        { name: "StuDocu", usp: "Note sharing", weakness: "Upload-gated content, inconsistent quality", x: 55, y: 50 }
       ],
+      marketGap: {
+        xAxis: { label: "Collaboration", low: "Solo Study", high: "Group Work" },
+        yAxis: { label: "Price", low: "Free", high: "Paid" },
+        yourPosition: { x: 80, y: 20 },
+        yourGap: "Free peer collaboration, not paid answer lookup"
+      },
       searchVolume: [
         {
           keyword: "Study Group App",
@@ -480,10 +504,16 @@ const generateStartupData = (idea: string) => {
         }
       ],
       competitors: [
-        { name: "Yelp", usp: "Huge review database", weakness: "Trust issues with fake reviews" },
-        { name: "Instagram", usp: "Visual discovery", weakness: "Not built for menus or ordering" },
-        { name: "UberEats", usp: "Delivery logistics", weakness: "High fees for restaurants and users" }
+        { name: "Yelp", usp: "Huge review database", weakness: "Trust issues with fake reviews", x: 30, y: 65 },
+        { name: "Instagram", usp: "Visual discovery", weakness: "Not built for menus or ordering", x: 85, y: 20 },
+        { name: "UberEats", usp: "Delivery logistics", weakness: "High fees for restaurants and users", x: 70, y: 80 }
       ],
+      marketGap: {
+        xAxis: { label: "Visual Focus", low: "Text-Based", high: "Visual First" },
+        yAxis: { label: "Ordering", low: "Discovery Only", high: "Full Delivery" },
+        yourPosition: { x: 80, y: 55 },
+        yourGap: "Visual-first discovery with seamless ordering"
+      },
       searchVolume: [
         {
           keyword: "Visual Menu App",
@@ -561,7 +591,8 @@ const generateStartupData = (idea: string) => {
           competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
           searchVolume: data.searchVolume,
-          growthData: data.searchVolume[0].data
+          growthData: data.searchVolume[0].data,
+          marketGap: data.marketGap
         },
         systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`
       });
@@ -1152,12 +1183,12 @@ export const Launchpad: React.FC = () => {
                          </div>
                       </Widget>
                         
-                      {/* Bottom Left: Competitors */}
+                      {/* Bottom Left: Competitors with Perceptual Map */}
                       <Widget 
                         title="Real Competitors" 
                         icon={Target} 
                         delay={0.3}
-                        className="h-64"
+                        className="h-[540px]"
                         action={
                           <div className="flex items-center gap-1.5">
                              <button 
@@ -1178,7 +1209,8 @@ export const Launchpad: React.FC = () => {
                           </div>
                         }
                       >
-                        <div className="flex flex-col h-full justify-center py-1">
+                        <div className="flex flex-col h-full py-1 gap-3">
+                          {/* Competitor Info */}
                           <AnimatePresence mode="wait">
                             <motion.div
                               key={competitorIndex}
@@ -1214,6 +1246,127 @@ export const Launchpad: React.FC = () => {
                                </div>
                             </motion.div>
                           </AnimatePresence>
+
+                          {/* Perceptual Map Section */}
+                          <div className="border-t border-white/5 pt-3 flex flex-col flex-1">
+                            <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest mb-4">Market Gaps & Opportunities</p>
+                            
+                            {/* Perceptual Map */}
+                            <div className="relative w-full h-48 bg-black/20 border border-white/10 rounded-sm mb-2">
+                              
+                              {/* Quadrant Backgrounds */}
+                              <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                                <div className="bg-white/[0.01] border-r border-b border-white/5" />
+                                <div className="border-b border-white/5" />
+                                <div className="border-r border-white/5" />
+                                <div className="bg-white/[0.01]" />
+                              </div>
+
+                              {/* Central Axis Lines */}
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <div className="w-full h-px bg-white/20 relative">
+                                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 border-t border-r border-white/20 rotate-45 transform origin-center" />
+                                </div>
+                                <div className="h-full w-px bg-white/20 absolute left-1/2 top-0 -translate-x-1/2">
+                                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 border-t border-l border-white/20 rotate-45 transform origin-center" />
+                                </div>
+                              </div>
+                              
+                              {/* Axis Labels */}
+                              {/* X Axis Label */}
+                              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
+                                <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded">
+                                  {data.validation.marketGap?.xAxis.label}
+                                </span>
+                              </div>
+                              
+                              {/* X Axis Low/High */}
+                              <div className="absolute bottom-1 left-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
+                                <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
+                              </div>
+                              <div className="absolute bottom-1 right-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
+                                {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
+                              </div>
+
+                              {/* Y Axis Label */}
+                              <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center">
+                                <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded whitespace-nowrap">
+                                  {data.validation.marketGap?.yAxis.label}
+                                </span>
+                              </div>
+
+                              {/* Y Axis Low/High */}
+                              <div className="absolute top-1 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
+                                High
+                              </div>
+                              <div className="absolute bottom-1 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
+                                Low
+                              </div>
+                              
+                              {/* Competitor dots */}
+                              {data.validation.competitorList.map((comp: any, i: number) => (
+                                <motion.div
+                                  key={comp.name}
+                                  initial={{ scale: 0, opacity: 0 }}
+                                  animate={{ scale: 1, opacity: 1 }}
+                                  transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
+                                  className="absolute group/dot cursor-help"
+                                  style={{
+                                    left: `${comp.x}%`,
+                                    bottom: `${comp.y}%`,
+                                    transform: 'translate(-50%, 50%)'
+                                  }}
+                                >
+                                  <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-110 z-20 shadow-white/20' : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-gray-500 z-10'}`} />
+                                  
+                                  {/* Tooltip */}
+                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                                    <div className="font-bold mb-0.5">{comp.name}</div>
+                                    <div className="text-gray-400 text-[8px]">{comp.usp}</div>
+                                    {/* Arrow */}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
+                                  </div>
+                                </motion.div>
+                              ))}
+                              
+                              {/* Your opportunity position */}
+                              <motion.div
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ delay: 0.8, type: "spring" }}
+                                className="absolute group/gap cursor-help z-20"
+                                style={{
+                                  left: `${data.validation.marketGap?.yourPosition.x}%`,
+                                  bottom: `${data.validation.marketGap?.yourPosition.y}%`,
+                                  transform: 'translate(-50%, 50%)'
+                                }}
+                              >
+                                {/* Pulsing ring */}
+                                <div className="absolute inset-0 w-full h-full rounded-full bg-velocity-red/30 animate-ping" />
+                                <div className="w-4 h-4 rounded-full bg-velocity-red border-2 border-white shadow-[0_0_15px_rgba(255,31,31,0.6)] relative z-10" />
+                                
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-velocity-red border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                                  <div className="font-bold">YOUR GAP</div>
+                                  {/* Arrow */}
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-velocity-red" />
+                                </div>
+                              </motion.div>
+                            </div>
+                            
+                            {/* Your Gap Text - Pushed to bottom */}
+                            <div className="mt-auto p-3 bg-velocity-red/5 border border-velocity-red/20 rounded-sm relative overflow-hidden">
+                              <div className="absolute top-0 right-0 p-1">
+                                <div className="w-1.5 h-1.5 rounded-full bg-velocity-red/40 animate-pulse" />
+                              </div>
+                              <div className="flex flex-col gap-1">
+                                <p className="font-mono text-[9px] text-velocity-red uppercase tracking-widest">Identified Opportunity</p>
+                                <p className="font-sans text-xs text-gray-200 leading-relaxed">
+                                  "{data.validation.marketGap?.yourGap}"
+                                </p>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </Widget>
 
