@@ -76,17 +76,20 @@ const generateStartupData = (idea: string) => {
       {
         model: "Freemium Model",
         pricing: "Free tier available",
-        strategies: ["Premium Analytics", "Team Seats", "Enterprise API"]
+        strategies: ["Premium Analytics", "Team Seats", "Enterprise API"],
+        technicalRequirement: "Implement feature flags with LaunchDarkly or Flagsmith for tier-based access control."
       },
       {
         model: "Subscription",
         pricing: "$29/mo Starter",
-        strategies: ["Recurring Revenue", "Annual Discounts", "Usage-based Tiers"]
+        strategies: ["Recurring Revenue", "Annual Discounts", "Usage-based Tiers"],
+        technicalRequirement: "Integrate Stripe Billing with webhooks for subscription lifecycle management."
       },
       {
         model: "One-time Purchase",
         pricing: "$199 Lifetime Deal",
-        strategies: ["Quick Cash Injection", "No Recurring Costs", "Early Adopters"]
+        strategies: ["Quick Cash Injection", "No Recurring Costs", "Early Adopters"],
+        technicalRequirement: "Set up Stripe Checkout with license key generation for lifetime access."
       }
     ],
     market: {
@@ -165,17 +168,20 @@ const generateStartupData = (idea: string) => {
         {
           model: "Subscription",
           pricing: "£4.99/mo Premium",
-          strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"]
+          strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"],
+          technicalRequirement: "Integrate Stripe Billing with in-app purchase support for iOS/Android."
         },
         {
           model: "Ad-Supported",
           pricing: "Free with Ads",
-          strategies: ["Supplement Ads", "Local Gym Promos", "Affiliate Links"]
+          strategies: ["Supplement Ads", "Local Gym Promos", "Affiliate Links"],
+          technicalRequirement: "Implement Google AdMob SDK with mediation for optimal ad fill rates."
         },
         {
           model: "Freemium",
           pricing: "Free Basic / £9.99 Pro",
-          strategies: ["Pro Workout Plans", "Verified Badge", "Priority Matching"]
+          strategies: ["Pro Workout Plans", "Verified Badge", "Priority Matching"],
+          technicalRequirement: "Build entitlement system with RevenueCat for cross-platform subscription sync."
         }
       ],
       market: {
@@ -253,17 +259,20 @@ const generateStartupData = (idea: string) => {
         {
           model: "Marketplace",
           pricing: "5% Service Fee",
-          strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"]
+          strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"],
+          technicalRequirement: "Implement Stripe Connect for split payments and platform fees."
         },
         {
           model: "Subscription",
           pricing: "£9.99/mo for Owners",
-          strategies: ["Insurance Integration", "Vet Chat Access", "Emergency Support"]
+          strategies: ["Insurance Integration", "Vet Chat Access", "Emergency Support"],
+          technicalRequirement: "Set up Stripe Billing with customer portal for self-service management."
         },
         {
           model: "Affiliate",
           pricing: "Product Recommendations",
-          strategies: ["Pet Food Partnerships", "Toy Sales", "Grooming Discounts"]
+          strategies: ["Pet Food Partnerships", "Toy Sales", "Grooming Discounts"],
+          technicalRequirement: "Build affiliate link tracking with UTM parameters and conversion pixels."
         }
       ],
       market: {
@@ -341,17 +350,20 @@ const generateStartupData = (idea: string) => {
         {
           model: "Freemium",
           pricing: "Free for Students",
-          strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"]
+          strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"],
+          technicalRequirement: "Implement .edu email verification with SSO integration for institutions."
         },
         {
           model: "Tutor Commission",
           pricing: "15% per Session",
-          strategies: ["Video Chat Tools", "Scheduling API", "Payment Processing"]
+          strategies: ["Video Chat Tools", "Scheduling API", "Payment Processing"],
+          technicalRequirement: "Implement Stripe Connect for tutor payouts with automatic fee deduction."
         },
         {
           model: "Content Sales",
           pricing: "$5 per Study Guide",
-          strategies: ["User Generated Content", "Revenue Share", "Premium Notes"]
+          strategies: ["User Generated Content", "Revenue Share", "Premium Notes"],
+          technicalRequirement: "Build digital delivery system with Stripe for instant content unlocking."
         }
       ],
       market: {
@@ -429,17 +441,20 @@ const generateStartupData = (idea: string) => {
         {
           model: "Commission",
           pricing: "10% per Order",
-          strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"]
+          strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"],
+          technicalRequirement: "Implement Stripe Connect for restaurant payouts with platform commission."
         },
         {
           model: "Subscription (SaaS)",
           pricing: "£49/mo for Restaurants",
-          strategies: ["Menu Management", "CRM Features", "Website Builder"]
+          strategies: ["Menu Management", "CRM Features", "Website Builder"],
+          technicalRequirement: "Build multi-tenant architecture with Stripe Billing for B2B subscriptions."
         },
         {
           model: "Consumer Premium",
           pricing: "£7.99/mo for Foodies",
-          strategies: ["Exclusive Reservations", "Secret Menu Access", "No Booking Fees"]
+          strategies: ["Exclusive Reservations", "Secret Menu Access", "No Booking Fees"],
+          technicalRequirement: "Integrate Stripe with in-app purchases for cross-platform premium access."
         }
       ],
       market: {
@@ -948,7 +963,7 @@ export const Launchpad: React.FC = () => {
                     title="Monetization Strategy" 
                     icon={Coins} 
                     delay={0.15} 
-                    className="h-48"
+                    className="h-64"
                     action={
                       <div className="flex items-center gap-1.5">
                          <button 
@@ -983,13 +998,17 @@ export const Launchpad: React.FC = () => {
                           <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
                           <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
                         </div>
-                        <div className="space-y-1">
+                        <div className="space-y-1 mb-3">
                           {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
                             <div key={i} className="flex items-center gap-2">
                               <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
                               <span className="text-xs text-gray-300">{strat}</span>
                             </div>
                           ))}
+                        </div>
+                        <div className="pt-2 border-t border-white/5">
+                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Technical Requirement</p>
+                          <p className="font-mono text-[10px] text-gray-500 leading-relaxed">{data.monetization[monetizationIndex].technicalRequirement}</p>
                         </div>
                       </motion.div>
                     </AnimatePresence>
@@ -1013,7 +1032,7 @@ export const Launchpad: React.FC = () => {
                       <p className="font-mono text-gray-500 text-[10px] italic">{data.identity.tagline}</p>
                     </motion.div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[2fr_1fr]">
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
                       {/* Top Left: Market Funnel */}
                       <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]">
                         <div className="flex flex-col h-full justify-center gap-4 py-2">
@@ -1138,6 +1157,7 @@ export const Launchpad: React.FC = () => {
                         title="Real Competitors" 
                         icon={Target} 
                         delay={0.3}
+                        className="h-64"
                         action={
                           <div className="flex items-center gap-1.5">
                              <button 
@@ -1202,6 +1222,7 @@ export const Launchpad: React.FC = () => {
                         title="THE BIGGEST RISK" 
                         icon={AlertTriangle} 
                         delay={0.4}
+                        className="h-64"
                         action={
                           <div className="flex items-center gap-1.5">
                              <button 
@@ -1327,14 +1348,14 @@ export const Launchpad: React.FC = () => {
                   </Widget>
 
                   <div className="mt-auto">
-                    <div className="border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3">
-                        <div className="flex items-center justify-between">
+                    <div className="border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3 h-64">
+                        <div className="flex items-center justify-between shrink-0">
                             <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
                                 <Copy className="w-3 h-3" /> Copy Prompt
                             </span>
                         </div>
-                        <div className="relative group/prompt">
-                            <div className="p-2 bg-black/40 border border-white/10 font-mono text-[9px] text-gray-400 h-[80px] overflow-y-auto leading-relaxed custom-scrollbar">
+                        <div className="relative group/prompt flex-1 min-h-0">
+                            <div className="p-2 bg-black/40 border border-white/10 font-mono text-[9px] text-gray-400 h-full overflow-y-auto leading-relaxed custom-scrollbar">
                                 <span className="text-velocity-red">&gt; SYSTEM PROMPT:</span><br/>
                                 {data.systemPrompt}
                             </div>
@@ -1346,7 +1367,7 @@ export const Launchpad: React.FC = () => {
                            href="https://www.lsesu.com/communities/societies/group/Velocity/"
                            target="_blank"
                            rel="noopener noreferrer"
-                           className="w-full py-2 bg-velocity-red text-white font-mono text-[10px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center"
+                           className="w-full py-2 bg-velocity-red text-white font-mono text-[10px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
                         >
                            DON'T KNOW HOW TO USE THIS? JOIN VELOCITY NOW.
                         </a>
