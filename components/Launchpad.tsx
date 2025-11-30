@@ -1261,7 +1261,7 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute top-2 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
                             High
                           </div>
-                          <div className="absolute bottom-2 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
+                          <div className="absolute bottom-8 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
                             Low
                           </div>
 
