@@ -4,13 +4,13 @@ import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Load
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 // Animated text component matching Hero.tsx
-const AnimatedText = ({ 
-  text, 
-  className, 
-  delay = 0 
-}: { 
-  text: string, 
-  className?: string, 
+const AnimatedText = ({
+  text,
+  className,
+  delay = 0
+}: {
+  text: string,
+  className?: string,
   delay?: number
 }) => {
   const container: Variants = {
@@ -632,11 +632,11 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
           `,
         }}
       />
-      
+
       {/* Grid Background */}
-      <div 
-        className="absolute inset-0 opacity-[0.03] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.07]" 
-        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} 
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.07]"
+        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
       />
 
       <div className="relative z-10 p-4 h-full flex flex-col">
@@ -671,37 +671,37 @@ export const Launchpad: React.FC = () => {
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-      if (data && !isGenerating) {
-        setTimeout(() => {
-          const element = inputFormRef.current;
-          if (!element) return;
+    if (data && !isGenerating) {
+      setTimeout(() => {
+        const element = inputFormRef.current;
+        if (!element) return;
 
-          const start = window.scrollY;
-          const elementTop = element.getBoundingClientRect().top;
-          const offset = 100; // Position the input form near the top with some padding
-          const target = start + elementTop - offset;
-          const distance = target - start;
-          const duration = 1400; // Slower scroll (1.4s)
-          let startTime: number | null = null;
+        const start = window.scrollY;
+        const elementTop = element.getBoundingClientRect().top;
+        const offset = 100; // Position the input form near the top with some padding
+        const target = start + elementTop - offset;
+        const distance = target - start;
+        const duration = 1400; // Slower scroll (1.4s)
+        let startTime: number | null = null;
 
-          function animation(currentTime: number) {
-            if (startTime === null) startTime = currentTime;
-            const timeElapsed = currentTime - startTime;
-            
-            // Ease in-out cubic for smooth acceleration/deceleration
-            const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-            
-            const progress = ease(Math.min(timeElapsed / duration, 1));
-            window.scrollTo(0, start + (distance * progress));
+        function animation(currentTime: number) {
+          if (startTime === null) startTime = currentTime;
+          const timeElapsed = currentTime - startTime;
 
-            if (timeElapsed < duration) {
-              requestAnimationFrame(animation);
-            }
+          // Ease in-out cubic for smooth acceleration/deceleration
+          const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+          const progress = ease(Math.min(timeElapsed / duration, 1));
+          window.scrollTo(0, start + (distance * progress));
+
+          if (timeElapsed < duration) {
+            requestAnimationFrame(animation);
           }
+        }
 
-          requestAnimationFrame(animation);
-        }, 100);
-      }
+        requestAnimationFrame(animation);
+      }, 100);
+    }
   }, [data, isGenerating]);
 
   const loadingSteps = [
@@ -724,7 +724,7 @@ export const Launchpad: React.FC = () => {
   const handleLaunch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!idea.trim()) return;
-    
+
     setIsGenerating(true);
     setData(null);
     setCompetitorIndex(0);
@@ -734,9 +734,9 @@ export const Launchpad: React.FC = () => {
     setDomainIndex(0);
     setAppScreenIndex(0);
     setLoadingStep(0);
-    
+
     const result = await generateStartupData(idea);
-    
+
     setData(result);
     setIsGenerating(false);
   };
@@ -747,37 +747,37 @@ export const Launchpad: React.FC = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header Section */}
         <div className="flex flex-col items-center justify-center mb-16 text-center">
-          
+
           <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
-            <AnimatedText 
-              text="FROM IDEA" 
+            <AnimatedText
+              text="FROM IDEA"
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
               delay={0.2}
             />
-            <AnimatedText 
-              text="TO LAUNCH" 
+            <AnimatedText
+              text="TO LAUNCH"
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5E3A8] via-[#D4AF37] to-[#8A6E2F] pb-4 drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]"
               delay={0.8}
             />
           </h1>
-          
-          <motion.p 
+
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
             className="font-mono text-sm md:text-base text-gray-400 max-w-xl mb-12 leading-relaxed"
           >
-            Describe your idea in one sentence. We'll generate your brand identity, 
+            Describe your idea in one sentence. We'll generate your brand identity,
             tech stack, and go-to-market strategy.
           </motion.p>
 
           {/* Input Section */}
-          <motion.form 
+          <motion.form
             ref={inputFormRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.6 }}
-            onSubmit={handleLaunch} 
+            onSubmit={handleLaunch}
             className="w-full max-w-2xl"
           >
             <div className="relative group">
@@ -790,7 +790,7 @@ export const Launchpad: React.FC = () => {
                   className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-mono text-sm"
                   disabled={isGenerating}
                 />
-                <button 
+                <button
                   type="submit"
                   disabled={isGenerating || !idea}
                   className="relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 border-2 bg-velocity-darkRed/20 border-velocity-red/50 text-white shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_50px_rgba(255,31,31,0.6)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
@@ -817,8 +817,8 @@ export const Launchpad: React.FC = () => {
                 className="mt-8 flex flex-col items-center"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  {React.createElement(loadingSteps[loadingStep].icon, { 
-                    className: "w-4 h-4 text-velocity-red" 
+                  {React.createElement(loadingSteps[loadingStep].icon, {
+                    className: "w-4 h-4 text-velocity-red"
                   })}
                   <span className="font-mono text-sm text-gray-400">
                     {loadingSteps[loadingStep].text}...
@@ -847,31 +847,31 @@ export const Launchpad: React.FC = () => {
             >
               {/* Widgets Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                
+
                 {/* Left Column: App Mockup & Monetization */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget 
-                    title="App Mockup" 
-                    icon={Smartphone} 
-                    delay={0.1} 
+                  <Widget
+                    title="App Mockup"
+                    icon={Smartphone}
+                    delay={0.1}
                     className="flex-1"
                     action={
                       <div className="flex items-center gap-1.5">
-                         <button 
-                           onClick={() => setAppScreenIndex((prev) => (prev - 1 + data.visuals.screens.length) % data.visuals.screens.length)}
-                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                         >
-                           <ChevronLeft className="w-3 h-3" />
-                         </button>
-                         <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                           {appScreenIndex + 1}/{data.visuals.screens.length}
-                         </span>
-                         <button 
-                           onClick={() => setAppScreenIndex((prev) => (prev + 1) % data.visuals.screens.length)}
-                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                         >
-                           <ChevronRight className="w-3 h-3" />
-                         </button>
+                        <button
+                          onClick={() => setAppScreenIndex((prev) => (prev - 1 + data.visuals.screens.length) % data.visuals.screens.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          {appScreenIndex + 1}/{data.visuals.screens.length}
+                        </span>
+                        <button
+                          onClick={() => setAppScreenIndex((prev) => (prev + 1) % data.visuals.screens.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
                       </div>
                     }
                   >
@@ -879,139 +879,139 @@ export const Launchpad: React.FC = () => {
                       {/* Phone Mockup */}
                       <div className="flex-1 flex items-center justify-center py-2">
                         <div className="relative w-full max-w-[180px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
-                           {/* Dynamic Notch */}
-                           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
-                           
-                           {/* Screen Content */}
-                           <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col">
-                              {/* Status Bar Mock */}
-                              <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
-                                 <div className="text-[8px] font-mono text-white">9:41</div>
-                                 <div className="flex gap-1">
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                 </div>
+                          {/* Dynamic Notch */}
+                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
+
+                          {/* Screen Content */}
+                          <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col">
+                            {/* Status Bar Mock */}
+                            <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
+                              <div className="text-[8px] font-mono text-white">9:41</div>
+                              <div className="flex gap-1">
+                                <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
+                                <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
                               </div>
+                            </div>
 
-                              {/* App Header */}
-                              <div className="px-4 py-2 flex items-center justify-between">
-                                 <div className="w-6 h-6 rounded-full bg-white/10"></div>
-                                 <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.visuals.screens[appScreenIndex].title}</span>
-                                 <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
-                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
-                                 </div>
+                            {/* App Header */}
+                            <div className="px-4 py-2 flex items-center justify-between">
+                              <div className="w-6 h-6 rounded-full bg-white/10"></div>
+                              <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.visuals.screens[appScreenIndex].title}</span>
+                              <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
+                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
                               </div>
+                            </div>
 
-                              {/* Search Bar (visible on all screens for consistency or conditionally) */}
-                              <div className="px-4 mb-4">
-                                 <div className="w-full h-8 bg-white/5 rounded-full flex items-center px-3 border border-white/10">
-                                    <div className="w-3 h-3 rounded-full border border-white/30 mr-2"></div>
-                                    <div className="w-20 h-2 bg-white/10 rounded"></div>
-                                 </div>
+                            {/* Search Bar (visible on all screens for consistency or conditionally) */}
+                            <div className="px-4 mb-4">
+                              <div className="w-full h-8 bg-white/5 rounded-full flex items-center px-3 border border-white/10">
+                                <div className="w-3 h-3 rounded-full border border-white/30 mr-2"></div>
+                                <div className="w-20 h-2 bg-white/10 rounded"></div>
                               </div>
+                            </div>
 
-                              {/* Dynamic Content Area */}
-                              <AnimatePresence mode="wait">
-                                <motion.div 
-                                  key={appScreenIndex}
-                                  initial={{ opacity: 0, scale: 0.95 }}
-                                  animate={{ opacity: 1, scale: 1 }}
-                                  exit={{ opacity: 0, scale: 1.05 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5"
-                                >
-                                  {data.visuals.screens[appScreenIndex].type === 'map' && (
-                                    <>
-                                       {/* Mock Markers */}
-                                       <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
-                                          <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                       </div>
-                                       <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
-                                          <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                       </div>
-                                       {/* Floating Action Button */}
-                                       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
-                                         <div className="w-16 h-2 bg-white rounded"></div>
-                                       </div>
-                                    </>
-                                  )}
+                            {/* Dynamic Content Area */}
+                            <AnimatePresence mode="wait">
+                              <motion.div
+                                key={appScreenIndex}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.05 }}
+                                transition={{ duration: 0.2 }}
+                                className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5"
+                              >
+                                {data.visuals.screens[appScreenIndex].type === 'map' && (
+                                  <>
+                                    {/* Mock Markers */}
+                                    <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
+                                      <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                    </div>
+                                    <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
+                                      <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
+                                    </div>
+                                    {/* Floating Action Button */}
+                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
+                                      <div className="w-16 h-2 bg-white rounded"></div>
+                                    </div>
+                                  </>
+                                )}
 
-                                  {data.visuals.screens[appScreenIndex].type === 'feed' && (
-                                    <div className="p-3 space-y-2 h-full overflow-hidden">
-                                      {[1, 2, 3].map((i) => (
-                                        <div key={i} className="w-full h-16 bg-white/5 rounded-lg border border-white/5 flex items-center p-2 gap-2">
-                                          <div className="w-10 h-10 rounded-md bg-white/10"></div>
-                                          <div className="flex-1 space-y-1">
-                                            <div className="w-2/3 h-2 bg-white/20 rounded"></div>
-                                            <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
-                                          </div>
+                                {data.visuals.screens[appScreenIndex].type === 'feed' && (
+                                  <div className="p-3 space-y-2 h-full overflow-hidden">
+                                    {[1, 2, 3].map((i) => (
+                                      <div key={i} className="w-full h-16 bg-white/5 rounded-lg border border-white/5 flex items-center p-2 gap-2">
+                                        <div className="w-10 h-10 rounded-md bg-white/10"></div>
+                                        <div className="flex-1 space-y-1">
+                                          <div className="w-2/3 h-2 bg-white/20 rounded"></div>
+                                          <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
                                         </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {data.visuals.screens[appScreenIndex].type === 'profile' && (
+                                  <div className="p-4 flex flex-col items-center h-full">
+                                    <div className="w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 mb-3">
+                                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full rounded-full p-1" />
+                                    </div>
+                                    <div className="w-24 h-3 bg-white/20 rounded mb-1"></div>
+                                    <div className="w-16 h-2 bg-white/10 rounded mb-6"></div>
+
+                                    <div className="w-full grid grid-cols-3 gap-2 mb-4">
+                                      {[1, 2, 3].map((i) => (
+                                        <div key={i} className="aspect-square bg-white/5 rounded-lg border border-white/5"></div>
                                       ))}
                                     </div>
-                                  )}
 
-                                  {data.visuals.screens[appScreenIndex].type === 'profile' && (
-                                    <div className="p-4 flex flex-col items-center h-full">
-                                      <div className="w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 mb-3">
-                                        <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full rounded-full p-1" />
-                                      </div>
-                                      <div className="w-24 h-3 bg-white/20 rounded mb-1"></div>
-                                      <div className="w-16 h-2 bg-white/10 rounded mb-6"></div>
-                                      
-                                      <div className="w-full grid grid-cols-3 gap-2 mb-4">
-                                        {[1, 2, 3].map((i) => (
-                                          <div key={i} className="aspect-square bg-white/5 rounded-lg border border-white/5"></div>
-                                        ))}
-                                      </div>
-                                      
-                                      <div className="w-full space-y-2 mt-auto">
-                                        <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
-                                        <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
-                                      </div>
+                                    <div className="w-full space-y-2 mt-auto">
+                                      <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
+                                      <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
                                     </div>
-                                  )}
-                                </motion.div>
-                              </AnimatePresence>
+                                  </div>
+                                )}
+                              </motion.div>
+                            </AnimatePresence>
 
-                              {/* Bottom Nav */}
-                              <div className="h-12 border-t border-white/5 flex items-center justify-around px-2">
-                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 0 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 1 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                                 <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 2 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                              </div>
-                              
-                              {/* Home Indicator */}
-                              <div className="h-4 w-full flex justify-center items-start">
-                                 <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
-                              </div>
-                           </div>
+                            {/* Bottom Nav */}
+                            <div className="h-12 border-t border-white/5 flex items-center justify-around px-2">
+                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 0 ? 'bg-white/10' : 'border border-white/20'}`}></div>
+                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 1 ? 'bg-white/10' : 'border border-white/20'}`}></div>
+                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 2 ? 'bg-white/10' : 'border border-white/20'}`}></div>
+                            </div>
+
+                            {/* Home Indicator */}
+                            <div className="h-4 w-full flex justify-center items-start">
+                              <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </Widget>
 
-                  <Widget 
-                    title="Monetization Strategy" 
-                    icon={Coins} 
-                    delay={0.15} 
+                  <Widget
+                    title="Monetization Strategy"
+                    icon={Coins}
+                    delay={0.15}
                     className="h-64"
                     action={
                       <div className="flex items-center gap-1.5">
-                         <button 
-                           onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
-                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                         >
-                           <ChevronLeft className="w-3 h-3" />
-                         </button>
-                         <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                           {monetizationIndex + 1}/{data.monetization.length}
-                         </span>
-                         <button 
-                           onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
-                           className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                         >
-                           <ChevronRight className="w-3 h-3" />
-                         </button>
+                        <button
+                          onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          {monetizationIndex + 1}/{data.monetization.length}
+                        </span>
+                        <button
+                          onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
                       </div>
                     }
                   >
@@ -1048,369 +1048,398 @@ export const Launchpad: React.FC = () => {
 
                 {/* Center Column: Analysis */}
                 <div className="lg:col-span-6 flex flex-col gap-4">
-                   {/* Header moved here */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5 }}
-                      className="text-center pb-2"
-                    >
-                      <div className="inline-flex items-center gap-2 text-velocity-red mb-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span className="font-mono text-[9px] uppercase tracking-widest">Analysis Complete</span>
-                      </div>
-                      <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-white mb-0.5">{data.identity.name}</h2>
-                      <p className="font-mono text-gray-500 text-[10px] italic">{data.identity.tagline}</p>
-                    </motion.div>
+                  {/* Header moved here */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center pb-2"
+                  >
+                    <div className="inline-flex items-center gap-2 text-velocity-red mb-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      <span className="font-mono text-[9px] uppercase tracking-widest">Analysis Complete</span>
+                    </div>
+                    <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-white mb-0.5">{data.identity.name}</h2>
+                    <p className="font-mono text-gray-500 text-[10px] italic">{data.identity.tagline}</p>
+                  </motion.div>
 
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
-                      {/* Top Left: Market Funnel */}
-                      <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]">
-                        <div className="flex flex-col h-full justify-center gap-4 py-2">
-                          {/* TAM - Wide Bar */}
-                          <div className="w-full bg-[#1A1A1A] border border-white/5 p-3 rounded-sm hover:bg-[#222] transition-colors">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-mono text-[10px] text-gray-500 font-bold">TAM</span>
-                                  <span className="text-[9px] text-gray-600 uppercase tracking-wide">Total Market</span>
-                                </div>
-                                <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.tam.value}</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
+                    {/* Top Left: Market Funnel */}
+                    <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]">
+                      <div className="flex flex-col h-full justify-center gap-4 py-2">
+                        {/* TAM - Wide Bar */}
+                        <div className="w-full bg-[#1A1A1A] border border-white/5 p-3 rounded-sm hover:bg-[#222] transition-colors">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-mono text-[10px] text-gray-500 font-bold">TAM</span>
+                                <span className="text-[9px] text-gray-600 uppercase tracking-wide">Total Market</span>
                               </div>
-                              <p className="font-mono text-[9px] text-gray-500 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
+                              <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.tam.value}</p>
                             </div>
-                          </div>
-
-                          {/* SAM - Medium Bar */}
-                          <div className="w-[85%] mx-auto bg-[#2A2A2A] border border-white/10 p-3 rounded-sm hover:bg-[#333] transition-colors">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-mono text-[10px] text-gray-400 font-bold">SAM</span>
-                                  <span className="text-[9px] text-gray-500 uppercase tracking-wide">Serviceable</span>
-                                </div>
-                                <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.sam.value}</p>
-                              </div>
-                              <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
-                            </div>
-                          </div>
-
-                          {/* SOM - Narrow Bar */}
-                          <div className="w-[70%] mx-auto bg-velocity-red shadow-[0_4px_20px_rgba(255,31,31,0.2)] border border-red-500 p-3 rounded-sm">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-mono text-[10px] text-white font-bold">SOM</span>
-                                  <span className="text-[9px] text-white/70 uppercase tracking-wide">Target</span>
-                                </div>
-                                <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.som.value}</p>
-                              </div>
-                              <p className="font-mono text-[9px] text-white/90 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
-                            </div>
+                            <p className="font-mono text-[9px] text-gray-500 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
                           </div>
                         </div>
-                      </Widget>
 
-                      {/* Top Right: Search Volume */}
-                      <Widget 
-                        title="Search Volume" 
-                        icon={BarChart3} 
-                        delay={0.2} 
-                        className="h-full min-h-[280px]"
-                        action={
-                          <div className="flex items-center gap-1.5">
-                             <button 
-                               onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronLeft className="w-3 h-3" />
-                             </button>
-                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                               {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
-                             </span>
-                             <button 
-                               onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronRight className="w-3 h-3" />
-                             </button>
-                          </div>
-                        }
-                      >
-                         <div className="h-full w-full flex flex-col min-h-[140px]">
-                           <AnimatePresence mode="wait">
-                             <motion.div
-                                key={searchVolumeIndex}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex flex-col h-full"
-                             >
-                               <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
-                                 for "{data.validation.searchVolume[searchVolumeIndex].keyword}":<br/>
-                                 <span className="text-white">High trending</span>
-                               </p>
-                               <div className="flex-1">
-                                  <ResponsiveContainer width="100%" height="100%">
-                                     <AreaChart data={data.validation.searchVolume[searchVolumeIndex].data}>
-                                        <defs>
-                                           <linearGradient id={`colorUsers-${searchVolumeIndex}`} x1="0" y1="0" x2="0" y2="1">
-                                              <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3}/>
-                                              <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0}/>
-                                           </linearGradient>
-                                        </defs>
-                                        <XAxis dataKey="name" hide />
-                                        <YAxis hide />
-                                        <Tooltip 
-                                           contentStyle={{ backgroundColor: '#0A0A0A', borderColor: '#333', fontFamily: 'JetBrains Mono', fontSize: '12px' }}
-                                           itemStyle={{ color: '#FF1F1F' }}
-                                           cursor={{ stroke: '#333', strokeWidth: 1 }}
-                                        />
-                                        <Area 
-                                          type="monotone" 
-                                          dataKey="users" 
-                                          stroke="#FF1F1F" 
-                                          strokeWidth={2} 
-                                          fillOpacity={1} 
-                                          fill={`url(#colorUsers-${searchVolumeIndex})`} 
-                                        />
-                                     </AreaChart>
-                                  </ResponsiveContainer>
-                               </div>
-                             </motion.div>
-                           </AnimatePresence>
-                         </div>
-                      </Widget>
-                        
-                      {/* Bottom Left: Competitors with Perceptual Map */}
-                      <Widget 
-                        title="Market Gap & Opportunities" 
-                        icon={Target} 
-                        delay={0.3}
-                        className="min-h-[420px]"
-                        action={
-                          <div className="flex items-center gap-1.5">
-                             <button 
-                               onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronLeft className="w-3 h-3" />
-                             </button>
-                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                               {competitorIndex + 1}/{data.validation.competitorList.length}
-                             </span>
-                             <button 
-                               onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronRight className="w-3 h-3" />
-                             </button>
-                          </div>
-                        }
-                      >
-                        <div className="flex flex-col h-full py-1 gap-2">
-                          
-                          {/* Perceptual Map Section */}
-                          <div className="relative w-full h-48 bg-black/20 border border-white/10 rounded-sm mb-1 shrink-0">
-                              
-                              {/* Quadrant Backgrounds */}
-                              <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-                                <div className="bg-white/[0.01] border-r border-b border-white/5" />
-                                <div className="border-b border-white/5" />
-                                <div className="border-r border-white/5" />
-                                <div className="bg-white/[0.01]" />
+                        {/* SAM - Medium Bar */}
+                        <div className="w-[85%] mx-auto bg-[#2A2A2A] border border-white/10 p-3 rounded-sm hover:bg-[#333] transition-colors">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-mono text-[10px] text-gray-400 font-bold">SAM</span>
+                                <span className="text-[9px] text-gray-500 uppercase tracking-wide">Serviceable</span>
                               </div>
-
-                              {/* Central Axis Lines */}
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <div className="w-full h-px bg-white/20 relative">
-                                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-1 border-t border-r border-white/20 rotate-45 transform origin-center" />
-                                </div>
-                                <div className="h-full w-px bg-white/20 absolute left-1/2 top-0 -translate-x-1/2">
-                                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1 h-1 border-t border-l border-white/20 rotate-45 transform origin-center" />
-                                </div>
-                              </div>
-                              
-                              {/* Axis Labels */}
-                              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
-                                <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded">
-                                  {data.validation.marketGap?.xAxis.label}
-                                </span>
-                              </div>
-                              
-                              <div className="absolute bottom-1 left-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
-                                <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
-                              </div>
-                              <div className="absolute bottom-1 right-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
-                                {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
-                              </div>
-
-                              <div className="absolute -left-6 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center">
-                                <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/50 px-2 py-0.5 rounded whitespace-nowrap">
-                                  {data.validation.marketGap?.yAxis.label}
-                                </span>
-                              </div>
-
-                              <div className="absolute top-1 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
-                                High
-                              </div>
-                              <div className="absolute bottom-1 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
-                                Low
-                              </div>
-                              
-                              {/* Competitor dots */}
-                              {data.validation.competitorList.map((comp: any, i: number) => (
-                                <motion.div
-                                  key={comp.name}
-                                  initial={{ scale: 0, opacity: 0 }}
-                                  animate={{ scale: 1, opacity: 1 }}
-                                  transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-                                  className="absolute group/dot cursor-help"
-                                  style={{
-                                    left: `${comp.x}%`,
-                                    bottom: `${comp.y}%`,
-                                    transform: 'translate(-50%, 50%)'
-                                  }}
-                                  onClick={() => setCompetitorIndex(i)}
-                                >
-                                  <div className={`w-3 h-3 rounded-full border-2 transition-all duration-200 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-150 z-20 shadow-white/30' : 'bg-gray-800 border-gray-600 hover:bg-gray-700 hover:border-gray-500 z-10'}`} />
-                                  
-                                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
-                                    <div className="font-bold mb-0.5">{comp.name}</div>
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
-                                  </div>
-                                </motion.div>
-                              ))}
-                              
-                              {/* Your opportunity position */}
-                              <motion.div
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.8, type: "spring" }}
-                                className="absolute group/gap cursor-help z-20"
-                                style={{
-                                  left: `${data.validation.marketGap?.yourPosition.x}%`,
-                                  bottom: `${data.validation.marketGap?.yourPosition.y}%`,
-                                  transform: 'translate(-50%, 50%)'
-                                }}
-                              >
-                                <div className="absolute inset-0 w-full h-full rounded-full bg-emerald-500/30 animate-ping" />
-                                <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_15px_rgba(16,185,129,0.6)] relative z-10" />
-                                
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-emerald-500 border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
-                                  <div className="font-bold">YOUR GAP</div>
-                                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-emerald-500" />
-                                </div>
-                              </motion.div>
-                          </div>
-
-                          {/* Active Competitor Detail - Replaces List */}
-                          <div className="flex-1 min-h-[90px] flex flex-col justify-center">
-                             <AnimatePresence mode="wait">
-                                <motion.div
-                                  key={competitorIndex}
-                                  initial={{ opacity: 0, x: 10 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  exit={{ opacity: 0, x: -10 }}
-                                  transition={{ duration: 0.2 }}
-                                  className="flex flex-col gap-2 p-2 rounded-sm bg-white/[0.02] border border-white/5"
-                                >
-                                   <div className="flex items-center justify-between">
-                                      <span className="font-sans font-bold text-white text-sm">
-                                        {data.validation.competitorList[competitorIndex].name}
-                                      </span>
-                                      <div className="flex gap-1">
-                                        {data.validation.competitorList.map((_: any, i: number) => (
-                                          <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === competitorIndex ? 'bg-white' : 'bg-white/20'}`} />
-                                        ))}
-                                      </div>
-                                   </div>
-                                   
-                                   <div className="grid grid-cols-2 gap-3">
-                                      <div>
-                                        <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-0.5">USP</p>
-                                        <p className="font-sans text-xs text-gray-300 leading-relaxed line-clamp-2">
-                                          {data.validation.competitorList[competitorIndex].usp}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest mb-0.5">Weakness</p>
-                                        <p className="font-sans text-xs text-gray-400 leading-relaxed line-clamp-2">
-                                          {data.validation.competitorList[competitorIndex].weakness}
-                                        </p>
-                                      </div>
-                                   </div>
-                                </motion.div>
-                             </AnimatePresence>
-                          </div>
-
-                          {/* Identified Opportunity - Green Theme */}
-                          <div className="mt-auto p-3 bg-emerald-500/5 border border-emerald-500/20 rounded-sm relative overflow-hidden shrink-0">
-                            <div className="absolute top-0 right-0 p-1">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-pulse" />
+                              <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.sam.value}</p>
                             </div>
-                            <div className="flex flex-col gap-1">
-                              <p className="font-mono text-[9px] text-emerald-500 uppercase tracking-widest">Identified Opportunity</p>
-                              <p className="font-sans text-xs text-emerald-100/90 leading-relaxed">
-                                "{data.validation.marketGap?.yourGap}"
+                            <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
+                          </div>
+                        </div>
+
+                        {/* SOM - Narrow Bar */}
+                        <div className="w-[70%] mx-auto bg-velocity-red shadow-[0_4px_20px_rgba(255,31,31,0.2)] border border-red-500 p-3 rounded-sm">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-mono text-[10px] text-white font-bold">SOM</span>
+                                <span className="text-[9px] text-white/70 uppercase tracking-wide">Target</span>
+                              </div>
+                              <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.som.value}</p>
+                            </div>
+                            <p className="font-mono text-[9px] text-white/90 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </Widget>
+
+                    {/* Top Right: Search Volume */}
+                    <Widget
+                      title="Search Volume"
+                      icon={BarChart3}
+                      delay={0.2}
+                      className="h-full min-h-[280px]"
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                            {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
+                          </span>
+                          <button
+                            onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
+                    >
+                      <div className="h-full w-full flex flex-col min-h-[140px]">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={searchVolumeIndex}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col h-full"
+                          >
+                            <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
+                              for "{data.validation.searchVolume[searchVolumeIndex].keyword}":<br />
+                              <span className="text-white">High trending</span>
+                            </p>
+                            <div className="flex-1">
+                              <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={data.validation.searchVolume[searchVolumeIndex].data}>
+                                  <defs>
+                                    <linearGradient id={`colorUsers-${searchVolumeIndex}`} x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3} />
+                                      <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0} />
+                                    </linearGradient>
+                                  </defs>
+                                  <XAxis dataKey="name" hide />
+                                  <YAxis hide />
+                                  <Tooltip
+                                    contentStyle={{ backgroundColor: '#0A0A0A', borderColor: '#333', fontFamily: 'JetBrains Mono', fontSize: '12px' }}
+                                    itemStyle={{ color: '#FF1F1F' }}
+                                    cursor={{ stroke: '#333', strokeWidth: 1 }}
+                                  />
+                                  <Area
+                                    type="monotone"
+                                    dataKey="users"
+                                    stroke="#FF1F1F"
+                                    strokeWidth={2}
+                                    fillOpacity={1}
+                                    fill={`url(#colorUsers-${searchVolumeIndex})`}
+                                  />
+                                </AreaChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </Widget>
+
+                    {/* Bottom Left: Competitors with Perceptual Map */}
+                    <Widget
+                      title="Market Gap & Opportunities"
+                      icon={Target}
+                      delay={0.3}
+                      className="min-h-[420px]"
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                            {competitorIndex + 1}/{data.validation.competitorList.length}
+                          </span>
+                          <button
+                            onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
+                    >
+                      <div className="flex flex-col h-full py-1 gap-2">
+
+                        {/* Perceptual Map Section */}
+                        <div className="relative w-full h-48 bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 rounded-sm mb-1 shrink-0 overflow-hidden group/map">
+
+                          {/* Grid Background */}
+                          <div className="absolute inset-0"
+                            style={{
+                              backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px)',
+                              backgroundSize: '12px 12px'
+                            }}
+                          />
+
+                          {/* Quadrant Backgrounds */}
+                          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+                            <div className="border-r border-b border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
+                            <div className="border-b border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
+                            <div className="border-r border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
+                            <div className="transition-colors duration-500 hover:bg-white/[0.01]" />
+                          </div>
+
+                          {/* Central Axis Lines */}
+                          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                            <div className="h-full w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+                            {/* Center Point */}
+                            <div className="absolute w-1 h-1 bg-white/40 rounded-full" />
+                          </div>
+
+                          {/* Axis Labels */}
+                          <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10">
+                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded border border-white/10">
+                              {data.validation.marketGap?.xAxis.label}
+                            </span>
+                          </div>
+
+                          <div className="absolute bottom-2 left-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
+                            <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
+                          </div>
+                          <div className="absolute bottom-2 right-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
+                            {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
+                          </div>
+
+                          <div className="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 flex items-center justify-center z-10">
+                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded whitespace-nowrap border border-white/10">
+                              {data.validation.marketGap?.yAxis.label}
+                            </span>
+                          </div>
+
+                          <div className="absolute top-2 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
+                            High
+                          </div>
+                          <div className="absolute bottom-2 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
+                            Low
+                          </div>
+
+                          {/* Competitor dots */}
+                          {data.validation.competitorList.map((comp: any, i: number) => (
+                            <motion.div
+                              key={comp.name}
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
+                              className="absolute group/dot cursor-help"
+                              style={{
+                                left: `${comp.x}%`,
+                                bottom: `${comp.y}%`,
+                                transform: 'translate(-50%, 50%)'
+                              }}
+                              onClick={() => setCompetitorIndex(i)}
+                            >
+                              {/* Pulse effect for selected */}
+                              {competitorIndex === i && (
+                                <div className="absolute inset-0 -m-2 rounded-full border border-white/20 animate-ping" />
+                              )}
+
+                              <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-125 z-20 shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'bg-gray-900 border-gray-600 hover:bg-gray-800 hover:border-gray-400 z-10'}`} />
+
+                              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                                <div className="font-bold mb-0.5">{comp.name}</div>
+                                <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
+                              </div>
+                            </motion.div>
+                          ))}
+
+                          {/* Your opportunity position */}
+                          <motion.div
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ delay: 0.8, type: "spring" }}
+                            className="absolute group/gap cursor-help z-20"
+                            style={{
+                              left: `${data.validation.marketGap?.yourPosition.x}%`,
+                              bottom: `${data.validation.marketGap?.yourPosition.y}%`,
+                              transform: 'translate(-50%, 50%)'
+                            }}
+                          >
+                            <div className="absolute inset-0 w-full h-full rounded-full bg-emerald-500/30 animate-ping duration-1000" />
+                            <div className="absolute inset-0 -m-1 w-[calc(100%+8px)] h-[calc(100%+8px)] rounded-full border border-emerald-500/30 animate-pulse" />
+                            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_20px_rgba(16,185,129,0.8)] relative z-10 flex items-center justify-center">
+                              <div className="w-1 h-1 bg-white rounded-full" />
+                            </div>
+
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-emerald-500 border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                              <div className="font-bold">YOUR GAP</div>
+                              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-emerald-500" />
+                            </div>
+                          </motion.div>
+                        </div>
+
+                        {/* Active Competitor Detail - Replaces List */}
+                        <div className="flex-1 min-h-[90px] flex flex-col justify-center">
+                          <AnimatePresence mode="wait">
+                            <motion.div
+                              key={competitorIndex}
+                              initial={{ opacity: 0, x: 10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -10 }}
+                              transition={{ duration: 0.2 }}
+                              className="flex flex-col gap-2 p-3 rounded-sm bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 relative overflow-hidden"
+                            >
+                              <div className="absolute top-0 right-0 p-2 opacity-10">
+                                <Target className="w-12 h-12 text-white" />
+                              </div>
+
+                              <div className="flex items-center justify-between relative z-10">
+                                <span className="font-sans font-bold text-white text-sm flex items-center gap-2">
+                                  {data.validation.competitorList[competitorIndex].name}
+                                  <span className="px-1.5 py-0.5 rounded-full bg-white/10 text-[8px] font-mono font-normal text-gray-400">COMPETITOR</span>
+                                </span>
+                                <div className="flex gap-1">
+                                  {data.validation.competitorList.map((_: any, i: number) => (
+                                    <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === competitorIndex ? 'bg-white' : 'bg-white/20'}`} />
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4 relative z-10 mt-1">
+                                <div>
+                                  <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-blue-400 rounded-full" /> USP
+                                  </p>
+                                  <p className="font-sans text-xs text-gray-300 leading-relaxed">
+                                    {data.validation.competitorList[competitorIndex].usp}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="font-mono text-[9px] text-red-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-red-400 rounded-full" /> Weakness
+                                  </p>
+                                  <p className="font-sans text-xs text-gray-400 leading-relaxed">
+                                    {data.validation.competitorList[competitorIndex].weakness}
+                                  </p>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+
+                        {/* Identified Opportunity - Green Theme */}
+                        <div className="mt-auto p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-sm relative overflow-hidden shrink-0 group hover:border-emerald-500/40 transition-colors">
+                          <div className="absolute top-0 right-0 p-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-pulse" />
+                          </div>
+                          {/* Background glow */}
+                          <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
+
+                          <div className="flex flex-col gap-1 relative z-10">
+                            <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest flex items-center gap-2">
+                              <span className="w-1 h-1 bg-emerald-400 rounded-full" />
+                              Identified Opportunity
+                            </p>
+                            <p className="font-sans text-xs text-emerald-100/90 leading-relaxed font-medium">
+                              "{data.validation.marketGap?.yourGap}"
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </Widget>
+
+                    {/* Bottom Right: Biggest Risk */}
+                    <Widget
+                      title="THE BIGGEST RISK"
+                      icon={AlertTriangle}
+                      delay={0.4}
+                      className="h-64"
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                            {riskIndex + 1}/{data.validation.riskAnalysis.length}
+                          </span>
+                          <button
+                            onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
+                    >
+                      <div className="flex flex-col gap-2 h-full justify-center">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={riskIndex}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col gap-2"
+                          >
+                            <div>
+                              <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
+                              <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].risk}</p>
+                            </div>
+                            <div>
+                              <p className="font-mono text-[9px] text-blue-400 mb-0.5 uppercase tracking-widest">Product Feature:</p>
+                              <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">
+                                {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
                               </p>
                             </div>
-                          </div>
-                        </div>
-                      </Widget>
-
-                      {/* Bottom Right: Biggest Risk */}
-                      <Widget 
-                        title="THE BIGGEST RISK" 
-                        icon={AlertTriangle} 
-                        delay={0.4}
-                        className="h-64"
-                        action={
-                          <div className="flex items-center gap-1.5">
-                             <button 
-                               onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronLeft className="w-3 h-3" />
-                             </button>
-                             <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
-                               {riskIndex + 1}/{data.validation.riskAnalysis.length}
-                             </span>
-                             <button 
-                               onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
-                               className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronRight className="w-3 h-3" />
-                             </button>
-                          </div>
-                        }
-                      >
-                         <div className="flex flex-col gap-2 h-full justify-center">
-                            <AnimatePresence mode="wait">
-                              <motion.div
-                                key={riskIndex}
-                                initial={{ opacity: 0, x: 10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex flex-col gap-2"
-                              >
-                                <div>
-                                   <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
-                                   <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].risk}</p>
-                                </div>
-                                <div>
-                                    <p className="font-mono text-[9px] text-blue-400 mb-0.5 uppercase tracking-widest">Product Feature:</p>
-                                    <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">
-                                      {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
-                                    </p>
-                                </div>
-                              </motion.div>
-                            </AnimatePresence>
-                         </div>
-                      </Widget>
-                   </div>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </Widget>
+                  </div>
                 </div>
 
                 {/* Right Column: Brand & Strategy */}
@@ -1421,13 +1450,13 @@ export const Launchpad: React.FC = () => {
                         <p className="font-mono text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Color Palette</p>
                         <div className="flex gap-2">
                           {data.identity.colors.map((color: string, i: number) => (
-                            <motion.div 
-                              key={i} 
+                            <motion.div
+                              key={i}
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
                               transition={{ delay: 0.4 + i * 0.1, type: "spring" }}
-                              className="w-8 h-8 border border-white/10" 
-                              style={{ backgroundColor: color }} 
+                              className="w-8 h-8 border border-white/10"
+                              style={{ backgroundColor: color }}
                             />
                           ))}
                         </div>
@@ -1436,18 +1465,18 @@ export const Launchpad: React.FC = () => {
                         <div className="flex items-center justify-between mb-1">
                           <p className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">Domain</p>
                           <div className="flex items-center gap-1">
-                             <button 
-                               onClick={() => setDomainIndex((prev) => (prev - 1 + data.identity.domain.length) % data.identity.domain.length)}
-                               className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronLeft className="w-2.5 h-2.5" />
-                             </button>
-                             <button 
-                               onClick={() => setDomainIndex((prev) => (prev + 1) % data.identity.domain.length)}
-                               className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                             >
-                               <ChevronRight className="w-2.5 h-2.5" />
-                             </button>
+                            <button
+                              onClick={() => setDomainIndex((prev) => (prev - 1 + data.identity.domain.length) % data.identity.domain.length)}
+                              className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                            >
+                              <ChevronLeft className="w-2.5 h-2.5" />
+                            </button>
+                            <button
+                              onClick={() => setDomainIndex((prev) => (prev + 1) % data.identity.domain.length)}
+                              className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                            >
+                              <ChevronRight className="w-2.5 h-2.5" />
+                            </button>
                           </div>
                         </div>
                         <div className="flex flex-col gap-1">
@@ -1460,8 +1489,8 @@ export const Launchpad: React.FC = () => {
                               transition={{ duration: 0.2 }}
                             >
                               <div className="flex items-center gap-2 mb-1">
-                                 <Globe className="w-3.5 h-3.5 text-velocity-red" />
-                                 <span className="font-mono text-xs text-white">{data.identity.domain[domainIndex]}</span>
+                                <Globe className="w-3.5 h-3.5 text-velocity-red" />
+                                <span className="font-mono text-xs text-white">{data.identity.domain[domainIndex]}</span>
                               </div>
                               <span className="font-mono text-[9px] w-fit px-1.5 py-0.5 bg-[#2EC4B6]/10 text-[#2EC4B6] border border-[#2EC4B6]/30 uppercase">AVAILABLE [API CHECKED]</span>
                             </motion.div>
@@ -1474,8 +1503,8 @@ export const Launchpad: React.FC = () => {
                   <Widget title="Day 1 Playbook" icon={Zap} delay={0.7}>
                     <div className="space-y-2">
                       {data.strategy.map((step: string, i: number) => (
-                        <motion.div 
-                          key={i} 
+                        <motion.div
+                          key={i}
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.8 + i * 0.1 }}
@@ -1492,28 +1521,28 @@ export const Launchpad: React.FC = () => {
 
                   <div className="mt-auto">
                     <div className="border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3 h-64">
-                        <div className="flex items-center justify-between shrink-0">
-                            <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                <Copy className="w-3 h-3" /> Copy Prompt
-                            </span>
+                      <div className="flex items-center justify-between shrink-0">
+                        <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
+                          <Copy className="w-3 h-3" /> Copy Prompt
+                        </span>
+                      </div>
+                      <div className="relative group/prompt flex-1 min-h-0">
+                        <div className="p-2 bg-black/40 border border-white/10 font-mono text-[9px] text-gray-400 h-full overflow-y-auto leading-relaxed custom-scrollbar">
+                          <span className="text-velocity-red">&gt; SYSTEM PROMPT:</span><br />
+                          {data.systemPrompt}
                         </div>
-                        <div className="relative group/prompt flex-1 min-h-0">
-                            <div className="p-2 bg-black/40 border border-white/10 font-mono text-[9px] text-gray-400 h-full overflow-y-auto leading-relaxed custom-scrollbar">
-                                <span className="text-velocity-red">&gt; SYSTEM PROMPT:</span><br/>
-                                {data.systemPrompt}
-                            </div>
-                            <div className="absolute top-1 right-1 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
-                                <Copy className="w-3 h-3 text-white cursor-pointer" />
-                            </div>
+                        <div className="absolute top-1 right-1 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
+                          <Copy className="w-3 h-3 text-white cursor-pointer" />
                         </div>
-                        <a 
-                           href="https://www.lsesu.com/communities/societies/group/Velocity/"
-                           target="_blank"
-                           rel="noopener noreferrer"
-                           className="w-full py-2 bg-velocity-red text-white font-mono text-[10px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
-                        >
-                           DON'T KNOW HOW TO USE THIS? JOIN VELOCITY NOW.
-                        </a>
+                      </div>
+                      <a
+                        href="https://www.lsesu.com/communities/societies/group/Velocity/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-2 bg-velocity-red text-white font-mono text-[10px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
+                      >
+                        DON'T KNOW HOW TO USE THIS? JOIN VELOCITY NOW.
+                      </a>
                     </div>
                   </div>
                 </div>
