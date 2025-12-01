@@ -1616,67 +1616,71 @@ export const Launchpad: React.FC = () => {
                       </div>
                     }
                   >
-                    <div className="flex flex-col h-full gap-3">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={promptChainIndex}
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex flex-col h-full gap-3"
-                        >
-                          {/* Step Header */}
-                          <div>
-                            <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
-                            <p className="font-sans font-bold text-white text-sm">{data.promptChain[promptChainIndex].title}</p>
-                          </div>
-
-                          {/* Prompt content */}
-                          <div className="relative group/prompt flex-1 min-h-0">
-                            <div 
-                              className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-400 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
-                              onClick={() => {
-                                navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
-                              }}
-                            >
-                              {data.promptChain[promptChainIndex].prompt}
+                    <div className="flex flex-col h-full min-h-0">
+                      <div className="flex-1 relative min-h-0">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={promptChainIndex}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 flex flex-col gap-3"
+                          >
+                            {/* Step Header */}
+                            <div className="shrink-0">
+                              <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
+                              <p className="font-sans font-bold text-white text-sm">{data.promptChain[promptChainIndex].title}</p>
                             </div>
-                            <div className="absolute top-2 right-2 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
-                              <div className="flex items-center gap-1 bg-velocity-red px-2 py-1 text-[8px] font-mono text-white uppercase tracking-wider">
-                                <Copy className="w-2.5 h-2.5" /> Copy
+
+                            {/* Prompt content */}
+                            <div className="relative group/prompt flex-1 min-h-0">
+                              <div 
+                                className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-400 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
+                                }}
+                              >
+                                {data.promptChain[promptChainIndex].prompt}
+                              </div>
+                              <div className="absolute top-2 right-2 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
+                                <div className="flex items-center gap-1 bg-velocity-red px-2 py-1 text-[8px] font-mono text-white uppercase tracking-wider">
+                                  <Copy className="w-2.5 h-2.5" /> Copy
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* Progress Steps */}
-                          <div className="flex items-center justify-between gap-1 pt-2 border-t border-white/5">
-                            {data.promptChain.map((step: any, i: number) => (
-                              <button
-                                key={i}
-                                onClick={() => setPromptChainIndex(i)}
-                                className={`flex-1 h-1 transition-all duration-300 ${
-                                  i === promptChainIndex 
-                                    ? 'bg-velocity-red' 
-                                    : i < promptChainIndex 
-                                      ? 'bg-velocity-red/40' 
-                                      : 'bg-white/10'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
+                            {/* Progress Steps */}
+                            <div className="shrink-0 flex items-center justify-between gap-1 pt-2 border-t border-white/5">
+                              {data.promptChain.map((step: any, i: number) => (
+                                <button
+                                  key={i}
+                                  onClick={() => setPromptChainIndex(i)}
+                                  className={`flex-1 h-1 transition-all duration-300 ${
+                                    i === promptChainIndex 
+                                      ? 'bg-velocity-red' 
+                                      : i < promptChainIndex 
+                                        ? 'bg-velocity-red/40' 
+                                        : 'bg-white/10'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
 
                       {/* CTA */}
-                      <a
-                        href="https://www.lsesu.com/communities/societies/group/Velocity/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center shrink-0 flex items-center justify-center gap-2"
-                      >
-                        Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
-                      </a>
+                      <div className="pt-3 shrink-0">
+                        <a
+                          href="https://www.lsesu.com/communities/societies/group/Velocity/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center flex items-center justify-center gap-2"
+                        >
+                          Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
+                        </a>
+                      </div>
                     </div>
                   </Widget>
                 </div>
