@@ -93,7 +93,8 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "15M", label: "UK Startup Founders" },
         sam: { value: "1.2M", label: "London Tech Workers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        aiInsight: "The UK startup ecosystem is experiencing rapid growth, with London ranking as Europe's top tech hub. Student founders represent an underserved segment with high potential for early adoption and viral growth within university networks."
       },
       sources: {
         market: [
@@ -255,7 +256,8 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        aiInsight: "Post-pandemic gym culture is booming, with social fitness emerging as a key trend. Young adults increasingly seek accountability partners, yet existing apps focus on tracking rather than connection—creating a clear market gap."
       },
       sources: {
         market: [
@@ -391,7 +393,8 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        aiInsight: "UK pet ownership surged 20% since 2020, with millennials driving demand for premium pet services. Urban pet owners face unique challenges—limited space and busy schedules—making community-based solutions highly appealing."
       },
       sources: {
         market: [
@@ -527,7 +530,8 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
-        som: { value: "~12,000", label: "LSE Students" }
+        som: { value: "~12,000", label: "LSE Students" },
+        aiInsight: "EdTech adoption among UK students doubled post-COVID. Peer-to-peer learning tools show 3x higher engagement than traditional platforms. Students increasingly prefer collaborative study over isolated learning environments."
       },
       sources: {
         market: [
@@ -663,7 +667,8 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        aiInsight: "Visual-first discovery is reshaping food ordering—Instagram food accounts drive 40% of restaurant discovery among Gen Z. Current delivery apps optimize for logistics, not discovery, leaving a gap for aesthetic-first platforms."
       },
       sources: {
         market: [
@@ -800,6 +805,7 @@ const generateStartupData = (idea: string) => {
           tam: data.market.tam,
           sam: data.market.sam,
           som: data.market.som,
+          aiInsight: data.market.aiInsight,
           competitors: 3,
           competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
@@ -1348,7 +1354,7 @@ export const Launchpad: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
                     {/* Top Left: Market Funnel */}
-                    <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]" visible={showResults}>
+                    <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[380px]" visible={showResults}>
                       <div className="flex flex-col h-full justify-center gap-4 py-2">
                         {/* TAM - Wide Bar */}
                         <div className="w-full bg-[#1A1A1A] border border-white/5 p-3 rounded-sm hover:bg-[#222] transition-colors">
@@ -1392,6 +1398,17 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* AI Research Insight - Integrated Design */}
+                        <div className="mt-auto pt-4">
+                          <div className="flex items-center gap-1.5 mb-2">
+                            <Zap className="w-3 h-3 text-velocity-red" />
+                            <span className="font-mono text-[9px] text-velocity-red uppercase tracking-widest">AI Market Insight</span>
+                          </div>
+                          <p className="font-sans text-xs text-gray-300 leading-relaxed border-l-2 border-velocity-red/20 pl-3 py-0.5">
+                            {data.validation.aiInsight}
+                          </p>
+                        </div>
+
                         {/* Source Reference Indicator */}
                         <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
                           <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
@@ -1407,7 +1424,7 @@ export const Launchpad: React.FC = () => {
                       title="Search Volume"
                       icon={BarChart3}
                       delay={0.2}
-                      className="h-full min-h-[280px]"
+                      className="h-full min-h-[380px]"
                       visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
