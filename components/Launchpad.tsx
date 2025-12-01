@@ -699,19 +699,39 @@ export const Launchpad: React.FC = () => {
   useEffect(() => {
     if (data && !isGenerating) {
       setShowResults(false); // Reset before scroll
+      
+      // Capture current scroll position immediately
+      const initialScrollY = window.scrollY;
+      
+      // Freeze viewport to prevent any micro-scrolls during layout
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
+      
+      // Wait for layout to fully settle
       setTimeout(() => {
         const element = inputFormRef.current;
         if (!element) {
-          setShowResults(true); // Show results even if no scroll needed
+          document.documentElement.style.overflow = '';
+          document.documentElement.style.paddingRight = '';
+          setShowResults(true);
           return;
         }
 
-        const start = window.scrollY;
+        // Calculate target while viewport is frozen
         const elementTop = element.getBoundingClientRect().top;
-        const offset = 100; // Position the input form near the top with some padding
-        const target = start + elementTop - offset;
-        const distance = target - start;
-        const duration = 1400; // Slower scroll (1.4s)
+        const offset = 100;
+        const target = initialScrollY + elementTop - offset;
+        const distance = target - initialScrollY;
+        
+        // Unfreeze viewport
+        document.documentElement.style.overflow = '';
+        document.documentElement.style.paddingRight = '';
+        
+        // Ensure we're at the starting position
+        window.scrollTo({ top: initialScrollY, behavior: 'instant' as ScrollBehavior });
+        
+        const duration = 1400;
         let startTime: number | null = null;
 
         function animation(currentTime: number) {
@@ -722,7 +742,7 @@ export const Launchpad: React.FC = () => {
           const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
           const progress = ease(Math.min(timeElapsed / duration, 1));
-          window.scrollTo(0, start + (distance * progress));
+          window.scrollTo({ top: initialScrollY + (distance * progress), behavior: 'instant' as ScrollBehavior });
 
           if (timeElapsed < duration) {
             requestAnimationFrame(animation);
@@ -733,7 +753,7 @@ export const Launchpad: React.FC = () => {
         }
 
         requestAnimationFrame(animation);
-      }, 100);
+      }, 50);
     }
   }, [data, isGenerating]);
 
