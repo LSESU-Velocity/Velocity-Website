@@ -1288,35 +1288,33 @@ export const Launchpad: React.FC = () => {
                           {/* Center Point */}
                           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/50 rounded-full pointer-events-none z-10" />
 
-                          {/* Axis Labels - Re-positioned for clarity */}
-                          {/* X-Axis Label (Bottom Center) */}
-                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
-                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded border border-white/10 shadow-sm">
-                              {data.validation.marketGap?.xAxis.label}
-                            </span>
-                          </div>
-
-                          {/* Y-Axis Label (Left Center) */}
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] rotate-180 z-10">
-                            <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-0.5 py-2 rounded whitespace-nowrap border border-white/10 shadow-sm">
-                              {data.validation.marketGap?.yAxis.label}
-                            </span>
-                          </div>
-
-                          {/* X-Axis Values (Left/Right at vertical center) */}
-                          <div className="absolute top-1/2 left-2 -translate-y-1/2 font-mono text-[8px] text-gray-500 flex items-center gap-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
-                            <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
-                          </div>
-                          <div className="absolute top-1/2 right-2 -translate-y-1/2 font-mono text-[8px] text-gray-500 flex items-center gap-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
-                            {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
-                          </div>
-
-                          {/* Y-Axis Values (Top/Bottom at horizontal center) */}
-                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                          {/* Axis Value Labels - Centered on each edge (standard perceptual map convention) */}
+                          {/* Top Center: Y-High */}
+                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                          
+                          {/* Bottom Center: Y-Low */}
+                          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.low}
+                          </div>
+                          
+                          {/* Left Center: X-Low */}
+                          <div className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10">
+                            {data.validation.marketGap?.xAxis.low}
+                          </div>
+                          
+                          {/* Right Center: X-High */}
+                          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10 text-right">
+                            {data.validation.marketGap?.xAxis.high}
+                          </div>
+                          
+                          {/* Axis Labels - At corners for context */}
+                          <div className="absolute bottom-0.5 right-1.5 font-mono text-[6px] text-cyan-600/60 uppercase tracking-wider z-10">
+                            {data.validation.marketGap?.xAxis.label} →
+                          </div>
+                          <div className="absolute top-1.5 left-0.5 [writing-mode:vertical-rl] rotate-180 font-mono text-[6px] text-amber-600/60 uppercase tracking-wider z-10">
+                            {data.validation.marketGap?.yAxis.label} →
                           </div>
 
                           {/* Competitor dots */}
