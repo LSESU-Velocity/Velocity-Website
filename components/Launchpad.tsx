@@ -1515,7 +1515,7 @@ export const Launchpad: React.FC = () => {
 
                 {/* Right Column: Brand & Strategy */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget title="Brand Identity" icon={Palette} delay={0.3} visible={showResults}>
+                  <Widget title="Brand Identity" icon={Palette} delay={0.3} visible={showResults} className="h-fit">
                     <div className="space-y-3">
                       <div>
                         <p className="font-mono text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Color Palette</p>
@@ -1571,7 +1571,7 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults} className="h-36">
+                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults} className="h-52">
                     <div className="space-y-1.5">
                       {data.strategy.map((step: string, i: number) => (
                         <motion.div
