@@ -1242,15 +1242,10 @@ export const Launchpad: React.FC = () => {
 
                     {/* Bottom Left: Competitors with Perceptual Map */}
                     <Widget
-                      title={
-                        <span className="block">
-                          <span className="block">COMPETITORS &</span>
-                          <span className="block">MARKET GAP</span>
-                        </span>
-                      }
+                      title="Market Position"
                       icon={Target}
                       delay={0.3}
-                      className="min-h-[420px]"
+                      className="min-h-[380px]"
                       visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
@@ -1272,115 +1267,29 @@ export const Launchpad: React.FC = () => {
                         </div>
                       }
                     >
-                      <div className="flex flex-col h-full py-1 gap-2">
+                      <div className="flex flex-col h-full py-1 gap-3">
 
-                        {/* Active Competitor Detail - Moved above perceptual map */}
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={competitorIndex}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col gap-2 shrink-0"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="font-sans font-bold text-white text-sm flex items-center gap-2">
-                                {data.validation.competitorList[competitorIndex].name}
-                                <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest font-normal">Competitor</span>
-                              </span>
-                              <div className="flex gap-1">
-                                {data.validation.competitorList.map((_: any, i: number) => (
-                                  <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === competitorIndex ? 'bg-white' : 'bg-white/20'}`} />
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                  <span className="w-1 h-1 bg-blue-400 rounded-full" /> USP
-                                </p>
-                                <p className="font-sans text-xs text-gray-300 leading-relaxed">
-                                  {data.validation.competitorList[competitorIndex].usp}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="font-mono text-[9px] text-red-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                  <span className="w-1 h-1 bg-red-400 rounded-full" /> Weakness
-                                </p>
-                                <p className="font-sans text-xs text-gray-400 leading-relaxed">
-                                  {data.validation.competitorList[competitorIndex].weakness}
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-
-                        {/* Perceptual Map Section - Sandwiched between competitors and opportunity */}
-                        <div className="relative w-full h-48 bg-white/[0.02] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
-
-                          {/* Grid Background */}
-                          <div className="absolute inset-0"
-                            style={{
-                              backgroundImage: 'radial-gradient(circle at center, rgba(255,255,255,0.03) 1px, transparent 1px)',
-                              backgroundSize: '12px 12px'
-                            }}
-                          />
-
-                          {/* Quadrant Backgrounds */}
-                          <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-                            <div className="border-r border-b border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
-                            <div className="border-b border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
-                            <div className="border-r border-white/5 transition-colors duration-500 hover:bg-white/[0.01]" />
-                            <div className="transition-colors duration-500 hover:bg-white/[0.01]" />
-                          </div>
+                        {/* Perceptual Map */}
+                        <div className="relative w-full h-44 bg-white/[0.02] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
 
                           {/* Central Axis Lines */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                           </div>
-                          {/* Prominent Y-Axis */}
                           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
-                          {/* Center Point */}
-                          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/50 rounded-full pointer-events-none z-10" />
 
-                          {/* 
-                            AXIS VALUE LABELS - Following low→high convention:
-                            - X-axis: LEFT=low, RIGHT=high (values increase left→right)
-                            - Y-axis: BOTTOM=low, TOP=high (values increase bottom→top)
-                            
-                            ⚠️ AI AGENTS: Do NOT swap these positions. If the displayed values
-                            seem semantically wrong, fix the DATA (xAxis.low/high, yAxis.low/high),
-                            not this rendering code. See data convention comment above.
-                          */}
-                          
-                          {/* Top Center: Y-High (high value at TOP) */}
-                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-velocity-red/70 z-10 text-center">
+                          {/* Minimal axis labels */}
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 z-10">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          
-                          {/* Bottom Center: Y-Low (low value at BOTTOM) */}
-                          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-velocity-red/70 z-10 text-center">
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 z-10">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
-                          
-                          {/* Left Center: X-Low (low value at LEFT) */}
-                          <div className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-blue-400/70 z-10">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-500 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
-                          
-                          {/* Right Center: X-High (high value at RIGHT) */}
-                          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-blue-400/70 z-10 text-right">
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-500 z-10">
                             {data.validation.marketGap?.xAxis.high}
-                          </div>
-                          
-                          {/* Axis Labels - At corners for context */}
-                          <div className="absolute bottom-0.5 right-1.5 font-mono text-[6px] text-blue-400/60 uppercase tracking-wider z-10">
-                            {data.validation.marketGap?.xAxis.label} →
-                          </div>
-                          <div className="absolute top-1.5 left-0.5 [writing-mode:vertical-rl] rotate-180 font-mono text-[6px] text-velocity-red/60 uppercase tracking-wider z-10">
-                            {data.validation.marketGap?.yAxis.label} →
                           </div>
 
                           {/* Competitor dots */}
@@ -1390,7 +1299,7 @@ export const Launchpad: React.FC = () => {
                               initial={{ scale: 0, opacity: 0 }}
                               animate={{ scale: 1, opacity: 1 }}
                               transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
-                              className="absolute group/dot cursor-help"
+                              className="absolute group/dot cursor-pointer"
                               style={{
                                 left: `${comp.x}%`,
                                 bottom: `${comp.y}%`,
@@ -1407,43 +1316,55 @@ export const Launchpad: React.FC = () => {
                               )}
 
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
-                                <div className="font-bold mb-0.5">{comp.name}</div>
+                                <div className="font-bold">{comp.name}</div>
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
                               </div>
                             </motion.div>
                           ))}
 
-                          {/* Your opportunity position */}
+                          {/* Your position - simplified */}
                           <motion.div
                             initial={{ scale: 0, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
                             transition={{ delay: 0.8, type: "spring" }}
-                            className="absolute group/gap cursor-help z-20"
+                            className="absolute z-20"
                             style={{
                               left: `${data.validation.marketGap?.yourPosition.x}%`,
                               bottom: `${data.validation.marketGap?.yourPosition.y}%`,
                               transform: 'translate(-50%, 50%)'
                             }}
                           >
-                            <div className="absolute inset-0 w-full h-full rounded-full bg-emerald-500/30 animate-ping duration-1000" />
-                            <div className="absolute inset-0 -m-1 w-[calc(100%+8px)] h-[calc(100%+8px)] rounded-full border border-emerald-500/30 animate-pulse" />
-                            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_20px_rgba(16,185,129,0.8)] relative z-10 flex items-center justify-center">
-                              <div className="w-1 h-1 bg-white rounded-full" />
-                            </div>
-
-                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-emerald-500 border border-white/20 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/gap:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
-                              <div className="font-bold">YOUR GAP</div>
-                              <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-emerald-500" />
-                            </div>
+                            <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
                           </motion.div>
                         </div>
 
-                        {/* Identified Opportunity */}
-                        <div className="mt-auto pt-2 shrink-0">
-                          <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest mb-1">
-                            Identified Opportunity
-                          </p>
-                          <p className="font-sans text-xs text-white leading-relaxed">
+                        {/* Competitor Info - Streamlined */}
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={competitorIndex}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="space-y-2"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-2 h-2 rounded-full bg-velocity-red" />
+                              <span className="font-sans font-bold text-white text-sm">{data.validation.competitorList[competitorIndex].name}</span>
+                            </div>
+                            <p className="font-mono text-[10px] text-gray-400 leading-relaxed pl-4">
+                              <span className="text-gray-500">Weakness:</span> {data.validation.competitorList[competitorIndex].weakness}
+                            </p>
+                          </motion.div>
+                        </AnimatePresence>
+
+                        {/* Your Opportunity - Clean */}
+                        <div className="mt-auto pt-2 border-t border-white/5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                            <span className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest">Your Gap</span>
+                          </div>
+                          <p className="font-sans text-xs text-white leading-relaxed pl-4">
                             {data.validation.marketGap?.yourGap}
                           </p>
                         </div>
