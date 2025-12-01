@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
-import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -794,6 +792,38 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
   );
 };
 
+// Google Trends Widget Component using iframe embed
+const GoogleTrends = ({ keyword }: { keyword: string }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const encodedKeyword = encodeURIComponent(keyword);
+  
+  // Google Trends embed URL for timeseries widget
+  const iframeSrc = `https://trends.google.com/trends/embed/explore/TIMESERIES?req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22${encodedKeyword}%22%2C%22geo%22%3A%22GB%22%2C%22time%22%3A%22today%2012-m%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D&tz=-60&eq=q%3D${encodedKeyword}%26geo%3DGB%26date%3Dtoday%2012-m`;
+
+  return (
+    <div className="w-full h-full overflow-hidden relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/5 z-10">
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-4 h-4 text-velocity-red animate-spin" />
+            <span className="font-mono text-[9px] text-gray-500">Loading trends...</span>
+          </div>
+        </div>
+      )}
+      <iframe
+        src={iframeSrc}
+        className="w-full h-full border-0"
+        style={{ 
+          filter: 'invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1)',
+          minHeight: '150px'
+        }}
+        onLoad={() => setIsLoading(false)}
+        title={`Google Trends for ${keyword}`}
+      />
+    </div>
+  );
+};
+
 export const Launchpad: React.FC = () => {
   const [idea, setIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -1320,34 +1350,10 @@ export const Launchpad: React.FC = () => {
                           >
                             <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
                               for "{data.validation.searchVolume[searchVolumeIndex].keyword}":<br />
-                              <span className="text-white">High trending</span>
+                              <span className="text-white">Live Google Trends</span>
                             </p>
-                            <div className="flex-1">
-                              <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={data.validation.searchVolume[searchVolumeIndex].data}>
-                                  <defs>
-                                    <linearGradient id={`colorUsers-${searchVolumeIndex}`} x1="0" y1="0" x2="0" y2="1">
-                                      <stop offset="0%" stopColor="#FF1F1F" stopOpacity={0.3} />
-                                      <stop offset="100%" stopColor="#FF1F1F" stopOpacity={0} />
-                                    </linearGradient>
-                                  </defs>
-                                  <XAxis dataKey="name" hide />
-                                  <YAxis hide />
-                                  <Tooltip
-                                    contentStyle={{ backgroundColor: '#0A0A0A', borderColor: '#333', fontFamily: 'JetBrains Mono', fontSize: '12px' }}
-                                    itemStyle={{ color: '#FF1F1F' }}
-                                    cursor={{ stroke: '#333', strokeWidth: 1 }}
-                                  />
-                                  <Area
-                                    type="monotone"
-                                    dataKey="users"
-                                    stroke="#FF1F1F"
-                                    strokeWidth={2}
-                                    fillOpacity={1}
-                                    fill={`url(#colorUsers-${searchVolumeIndex})`}
-                                  />
-                                </AreaChart>
-                              </ResponsiveContainer>
+                            <div className="flex-1 min-h-0 relative overflow-hidden rounded">
+                              <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
                             </div>
                           </motion.div>
                         </AnimatePresence>
