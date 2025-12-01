@@ -1380,10 +1380,22 @@ export const Launchpad: React.FC = () => {
                             transition={{ duration: 0.2 }}
                             className="flex flex-col h-full"
                           >
-                            <p className="font-mono text-[10px] text-gray-500 mb-2 leading-relaxed">
-                              for "{data.validation.searchVolume[searchVolumeIndex].keyword}":<br />
-                              <span className="text-white">Live Google Trends</span>
-                            </p>
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="font-mono text-[10px] text-white">
+                                "{data.validation.searchVolume[searchVolumeIndex].keyword}"
+                              </p>
+                              <div className="group/info relative">
+                                <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center cursor-help hover:border-velocity-red/50 transition-colors">
+                                  <span className="text-[8px] text-gray-500 group-hover/info:text-velocity-red transition-colors">?</span>
+                                </div>
+                                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[8px] font-mono text-gray-400 opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl leading-relaxed">
+                                  <span className="text-white">100</span> = peak interest<br />
+                                  <span className="text-white">50</span> = half as popular<br />
+                                  <span className="text-white">0</span> = insufficient data
+                                  <div className="absolute top-full right-3 -mt-px border-4 border-transparent border-t-gray-900/95" />
+                                </div>
+                              </div>
+                            </div>
                             <div className="flex-1 min-h-0 relative overflow-hidden rounded">
                               <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
                             </div>
