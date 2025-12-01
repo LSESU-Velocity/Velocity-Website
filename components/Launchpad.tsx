@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 // Animated text component matching Hero.tsx
@@ -97,6 +97,11 @@ const generateStartupData = (idea: string) => {
       sam: { value: "1.2M", label: "London Tech Workers" },
       som: { value: "~5,000", label: "LSE Students & Staff" }
     },
+    customerSegments: [
+      { segment: "Early-stage Founders", age: "20-35", income: "Variable", interest: "Tech & Innovation" },
+      { segment: "Product Managers", age: "25-45", income: "High", interest: "Efficiency & Scaling" },
+      { segment: "Hackathon Participants", age: "18-25", income: "Low", interest: "Speed & Prototyping" }
+    ],
     riskAnalysis: [
       {
         risk: "Building features users don't need.",
@@ -237,6 +242,11 @@ const generateStartupData = (idea: string) => {
         sam: { value: "850K", label: "London Gym-Goers" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
+      customerSegments: [
+        { segment: "University Students", age: "18-24", income: "Low", interest: "Social Fitness" },
+        { segment: "Young Professionals", age: "23-30", income: "Medium-High", interest: "Networking & Health" },
+        { segment: "New Gym Goers", age: "Any", income: "Variable", interest: "Motivation & Support" }
+      ],
       riskAnalysis: [
         {
           risk: "Users match but don't meet offline.",
@@ -351,6 +361,11 @@ const generateStartupData = (idea: string) => {
         sam: { value: "300K", label: "London Dog Owners" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
+      customerSegments: [
+        { segment: "Pet Owners", age: "25-50", income: "Medium-High", interest: "Pet Care & Community" },
+        { segment: "Remote Workers", age: "25-40", income: "Medium-High", interest: "Companionship" },
+        { segment: "Elderly with Pets", age: "60+", income: "Fixed", interest: "Social Connection" }
+      ],
       riskAnalysis: [
         {
           risk: "Chicken & Egg: App is empty, so no one joins.",
@@ -465,6 +480,11 @@ const generateStartupData = (idea: string) => {
         sam: { value: "400K", label: "London Students" },
         som: { value: "~12,000", label: "LSE Students" }
       },
+      customerSegments: [
+        { segment: "Undergraduate Students", age: "18-22", income: "Low", interest: "Grades & Socializing" },
+        { segment: "Postgrad Researchers", age: "23-30", income: "Low-Medium", interest: "Collaboration" },
+        { segment: "Tutors/TAs", age: "20-30", income: "Variable", interest: "Teaching & Income" }
+      ],
       riskAnalysis: [
         {
           risk: "Empty platform syndrome (no content).",
@@ -579,6 +599,11 @@ const generateStartupData = (idea: string) => {
         sam: { value: "3.5M", label: "London Foodies" },
         som: { value: "~5,000", label: "LSE Students & Staff" }
       },
+      customerSegments: [
+        { segment: "Foodies / Bloggers", age: "20-35", income: "Medium", interest: "Trends & Aesthetics" },
+        { segment: "Busy Professionals", age: "25-45", income: "High", interest: "Quality & Convenience" },
+        { segment: "Diet-Specific Eaters", age: "Any", income: "Variable", interest: "Health & Restrictions" }
+      ],
       riskAnalysis: [
         {
           risk: "Restaurants ignore unproven platform.",
@@ -704,6 +729,7 @@ const generateStartupData = (idea: string) => {
           growthData: data.searchVolume[0].data,
           marketGap: data.marketGap
         },
+        customerSegments: data.customerSegments,
         systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`,
         promptChain: data.promptChain
       });
@@ -776,6 +802,7 @@ export const Launchpad: React.FC = () => {
   const [monetizationIndex, setMonetizationIndex] = useState(0);
   const [riskIndex, setRiskIndex] = useState(0);
   const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
+  const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -871,6 +898,7 @@ export const Launchpad: React.FC = () => {
     setMonetizationIndex(0);
     setRiskIndex(0);
     setSearchVolumeIndex(0);
+    setDomainIndex(0);
     setAppScreenIndex(0);
     setPromptChainIndex(0);
     setLoadingStep(0);
@@ -1513,6 +1541,32 @@ export const Launchpad: React.FC = () => {
 
                 {/* Right Column: Brand & Strategy */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
+                  <Widget title="Potential Customer Segments" icon={Users} delay={0.3} visible={showResults} className="h-fit">
+                    <div className="space-y-4">
+                       {data.customerSegments.map((segment: any, i: number) => (
+                          <motion.div 
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 + i * 0.1 }}
+                            className="bg-white/5 border border-white/5 p-2 rounded-sm hover:border-velocity-red/30 transition-colors"
+                          >
+                             <div className="flex justify-between items-start mb-1">
+                                <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
+                                <span className="font-mono text-[9px] text-gray-500 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
+                             </div>
+                             <div className="flex flex-col gap-1">
+                               <div className="flex items-center gap-2 text-[9px] text-gray-400 font-mono">
+                                 <span className="text-velocity-red">Target:</span> {segment.interest}
+                               </div>
+                               <div className="flex items-center gap-2 text-[9px] text-gray-400 font-mono">
+                                 <span className="text-blue-400">Income:</span> {segment.income}
+                               </div>
+                             </div>
+                          </motion.div>
+                       ))}
+                    </div>
+                  </Widget>
 
                   <Widget title="User Acquisition" icon={Zap} delay={0.7} visible={showResults} className="h-52">
                     <div className="space-y-1.5">
