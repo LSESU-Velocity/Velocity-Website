@@ -1237,10 +1237,6 @@ export const Launchpad: React.FC = () => {
                             </div>
                           ))}
                         </div>
-                        <div className="pt-2 border-t border-white/5">
-                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Technical Requirement</p>
-                          <p className="font-mono text-[10px] text-gray-500 leading-relaxed">{data.monetization[monetizationIndex].technicalRequirement}</p>
-                        </div>
                       </motion.div>
                     </AnimatePresence>
                   </Widget>
