@@ -776,7 +776,6 @@ export const Launchpad: React.FC = () => {
   const [monetizationIndex, setMonetizationIndex] = useState(0);
   const [riskIndex, setRiskIndex] = useState(0);
   const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
-  const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -872,7 +871,6 @@ export const Launchpad: React.FC = () => {
     setMonetizationIndex(0);
     setRiskIndex(0);
     setSearchVolumeIndex(0);
-    setDomainIndex(0);
     setAppScreenIndex(0);
     setPromptChainIndex(0);
     setLoadingStep(0);
@@ -1515,61 +1513,6 @@ export const Launchpad: React.FC = () => {
 
                 {/* Right Column: Brand & Strategy */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget title="Brand Identity" icon={Palette} delay={0.3} visible={showResults} className="h-fit">
-                    <div className="space-y-3">
-                      <div>
-                        <p className="font-mono text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Color Palette</p>
-                        <div className="flex gap-2">
-                          {data.identity.colors.map((color: string, i: number) => (
-                            <motion.div
-                              key={i}
-                              initial={{ scale: 0 }}
-                              animate={{ scale: 1 }}
-                              transition={{ delay: 0.4 + i * 0.1, type: "spring" }}
-                              className="w-8 h-8 border border-white/10"
-                              style={{ backgroundColor: color }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div className="pt-3 border-t border-white/5">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">Domain</p>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setDomainIndex((prev) => (prev - 1 + data.identity.domain.length) % data.identity.domain.length)}
-                              className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                            >
-                              <ChevronLeft className="w-2.5 h-2.5" />
-                            </button>
-                            <button
-                              onClick={() => setDomainIndex((prev) => (prev + 1) % data.identity.domain.length)}
-                              className="w-4 h-4 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                            >
-                              <ChevronRight className="w-2.5 h-2.5" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-1">
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={domainIndex}
-                              initial={{ opacity: 0, x: 10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              <div className="flex items-center gap-2 mb-1">
-                                <Globe className="w-3.5 h-3.5 text-velocity-red" />
-                                <span className="font-mono text-xs text-white">{data.identity.domain[domainIndex]}</span>
-                              </div>
-                              <span className="font-mono text-[9px] w-fit px-1.5 py-0.5 bg-[#2EC4B6]/10 text-[#2EC4B6] border border-[#2EC4B6]/30 uppercase">AVAILABLE [API CHECKED]</span>
-                            </motion.div>
-                          </AnimatePresence>
-                        </div>
-                      </div>
-                    </div>
-                  </Widget>
 
                   <Widget title="User Acquisition" icon={Zap} delay={0.7} visible={showResults} className="h-52">
                     <div className="space-y-1.5">
