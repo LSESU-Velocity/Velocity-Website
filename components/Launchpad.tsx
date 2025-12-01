@@ -114,13 +114,38 @@ const generateStartupData = (idea: string) => {
         productFeature: "Automated linting and CI/CD pipeline integration."
       }
     ],
+    /**
+     * PERCEPTUAL MAP DATA CONVENTION (for AI agents and future API integration):
+     * 
+     * ⚠️ CRITICAL: The perceptual map renders values in a LOW→HIGH direction:
+     *   - X-axis: LEFT edge = xAxis.low, RIGHT edge = xAxis.high
+     *   - Y-axis: BOTTOM edge = yAxis.low, TOP edge = yAxis.high
+     * 
+     * When defining axis values, think: "What is the LOW end of this spectrum?"
+     * Put that in .low (rendered LEFT for X, BOTTOM for Y).
+     * Put the HIGH end in .high (rendered RIGHT for X, TOP for Y).
+     * 
+     * EXAMPLES OF CORRECT LOW→HIGH ORDERING:
+     *   ✓ Complexity:    low="Simple"     → high="Complex"    (simple is low complexity)
+     *   ✓ Price:         low="Free"       → high="Premium"    (free is low price)
+     *   ✓ Social:        low="Solo"       → high="Community"  (solo is low social)
+     *   ✓ Reliability:   low="Casual"     → high="Scheduled"  (casual is low reliability)
+     * 
+     * COMMON MISTAKE TO AVOID:
+     *   ✗ Do NOT think alphabetically or by "ease" - think by the SCALE being measured.
+     *   ✗ If measuring "Ease of Use", the scale is still Simple(low)→Complex(high) because
+     *     you're placing products on a complexity spectrum, not an "easiness" spectrum.
+     * 
+     * Competitor positions (x, y) are percentages: (0,0)=bottom-left, (100,100)=top-right.
+     * A product at x=20 is 20% along the X-axis (closer to the LOW/left end).
+     */
     competitors: [
-      { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize", x: 70, y: 60 },
-      { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling", x: 85, y: 75 },
-      { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug", x: 60, y: 40 }
+      { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize", x: 30, y: 60 },
+      { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling", x: 15, y: 75 },
+      { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug", x: 40, y: 40 }
     ],
     marketGap: {
-      xAxis: { label: "Ease of Use", low: "Complex", high: "Simple" },
+      xAxis: { label: "Ease of Use", low: "Simple", high: "Complex" },
       yAxis: { label: "Customization", low: "Limited", high: "Flexible" },
       yourPosition: { x: 25, y: 85 },
       yourGap: "Beginner-friendly with full customization power"
@@ -1288,23 +1313,32 @@ export const Launchpad: React.FC = () => {
                           {/* Center Point */}
                           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/50 rounded-full pointer-events-none z-10" />
 
-                          {/* Axis Value Labels - Centered on each edge (standard perceptual map convention) */}
-                          {/* Top Center: Y-High */}
+                          {/* 
+                            AXIS VALUE LABELS - Following low→high convention:
+                            - X-axis: LEFT=low, RIGHT=high (values increase left→right)
+                            - Y-axis: BOTTOM=low, TOP=high (values increase bottom→top)
+                            
+                            ⚠️ AI AGENTS: Do NOT swap these positions. If the displayed values
+                            seem semantically wrong, fix the DATA (xAxis.low/high, yAxis.low/high),
+                            not this rendering code. See data convention comment above.
+                          */}
+                          
+                          {/* Top Center: Y-High (high value at TOP) */}
                           <div className="absolute top-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
                           
-                          {/* Bottom Center: Y-Low */}
+                          {/* Bottom Center: Y-Low (low value at BOTTOM) */}
                           <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
                           
-                          {/* Left Center: X-Low */}
+                          {/* Left Center: X-Low (low value at LEFT) */}
                           <div className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
                           
-                          {/* Right Center: X-High */}
+                          {/* Right Center: X-High (high value at RIGHT) */}
                           <div className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10 text-right">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
