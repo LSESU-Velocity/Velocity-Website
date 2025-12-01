@@ -1405,14 +1405,13 @@ export const Launchpad: React.FC = () => {
                           </motion.div>
                         </div>
 
-                        {/* Identified Opportunity - Green Theme */}
+                        {/* Identified Opportunity */}
                         <div className="mt-auto pt-2 shrink-0">
-                          <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest flex items-center gap-2 mb-1">
-                            <span className="w-1 h-1 bg-emerald-400 rounded-full" />
+                          <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest mb-1">
                             Identified Opportunity
                           </p>
-                          <p className="font-sans text-xs text-emerald-100/90 leading-relaxed font-medium">
-                            "{data.validation.marketGap?.yourGap}"
+                          <p className="font-sans text-xs text-white leading-relaxed">
+                            {data.validation.marketGap?.yourGap}
                           </p>
                         </div>
                       </div>
