@@ -1342,7 +1342,7 @@ export const Launchpad: React.FC = () => {
                               <div className="flex items-center justify-between relative z-10">
                                 <span className="font-sans font-bold text-white text-sm flex items-center gap-2">
                                   {data.validation.competitorList[competitorIndex].name}
-                                  <span className="px-1.5 py-0.5 rounded-full bg-white/10 text-[8px] font-mono font-normal text-gray-400">COMPETITOR</span>
+                                  <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest font-normal">Competitor</span>
                                 </span>
                                 <div className="flex gap-1">
                                   {data.validation.competitorList.map((_: any, i: number) => (
@@ -1374,22 +1374,14 @@ export const Launchpad: React.FC = () => {
                         </div>
 
                         {/* Identified Opportunity - Green Theme */}
-                        <div className="mt-auto p-3 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-sm relative overflow-hidden shrink-0 group hover:border-emerald-500/40 transition-colors">
-                          <div className="absolute top-0 right-0 p-1">
-                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-pulse" />
-                          </div>
-                          {/* Background glow */}
-                          <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
-
-                          <div className="flex flex-col gap-1 relative z-10">
-                            <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest flex items-center gap-2">
-                              <span className="w-1 h-1 bg-emerald-400 rounded-full" />
-                              Identified Opportunity
-                            </p>
-                            <p className="font-sans text-xs text-emerald-100/90 leading-relaxed font-medium">
-                              "{data.validation.marketGap?.yourGap}"
-                            </p>
-                          </div>
+                        <div className="mt-auto pt-2 shrink-0">
+                          <p className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest flex items-center gap-2 mb-1">
+                            <span className="w-1 h-1 bg-emerald-400 rounded-full" />
+                            Identified Opportunity
+                          </p>
+                          <p className="font-sans text-xs text-emerald-100/90 leading-relaxed font-medium">
+                            "{data.validation.marketGap?.yourGap}"
+                          </p>
                         </div>
                       </div>
                     </Widget>
