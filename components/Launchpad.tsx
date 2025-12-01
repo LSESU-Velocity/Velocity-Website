@@ -1324,12 +1324,12 @@ export const Launchpad: React.FC = () => {
                           */}
                           
                           {/* Top Center: Y-High (high value at TOP) */}
-                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
+                          <div className="absolute top-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-velocity-red/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
                           
                           {/* Bottom Center: Y-Low (low value at BOTTOM) */}
-                          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-amber-500/70 z-10 text-center">
+                          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 font-mono text-[8px] text-velocity-red/70 z-10 text-center">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
                           
@@ -1347,7 +1347,7 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute bottom-0.5 right-1.5 font-mono text-[6px] text-cyan-600/60 uppercase tracking-wider z-10">
                             {data.validation.marketGap?.xAxis.label} →
                           </div>
-                          <div className="absolute top-1.5 left-0.5 [writing-mode:vertical-rl] rotate-180 font-mono text-[6px] text-amber-600/60 uppercase tracking-wider z-10">
+                          <div className="absolute top-1.5 left-0.5 [writing-mode:vertical-rl] rotate-180 font-mono text-[6px] text-velocity-red/60 uppercase tracking-wider z-10">
                             {data.validation.marketGap?.yAxis.label} →
                           </div>
 
