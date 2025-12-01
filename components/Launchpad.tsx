@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink } from 'lucide-react';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -93,10 +93,16 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "15M", label: "UK Startup Founders" },
         sam: { value: "1.2M", label: "London Tech Workers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        sources: [
+        som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      sources: {
+        market: [
           { name: "Statista UK Tech Report 2024", url: "https://statista.com" },
           { name: "Gov.uk Business Statistics", url: "https://gov.uk" }
+        ],
+        competitors: [
+          { name: "G2 Crowd Reviews", url: "https://g2.com" },
+          { name: "Capterra Comparisons", url: "https://capterra.com" }
         ]
       },
     customerSegments: [
@@ -249,10 +255,16 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        sources: [
+        som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      sources: {
+        market: [
           { name: "UK Active Fitness Report 2024", url: "https://ukactive.com" },
           { name: "Mintel Gym & Health Clubs", url: "https://mintel.com" }
+        ],
+        competitors: [
+          { name: "App Store Reviews", url: "https://apps.apple.com" },
+          { name: "TrustPilot Fitness Apps", url: "https://trustpilot.com" }
         ]
       },
       customerSegments: [
@@ -379,10 +391,16 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        sources: [
+        som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      sources: {
+        market: [
           { name: "PFMA Pet Population Report", url: "https://pfma.org.uk" },
           { name: "Statista UK Pet Industry", url: "https://statista.com" }
+        ],
+        competitors: [
+          { name: "Pet Industry Federation UK", url: "https://petfederation.co.uk" },
+          { name: "App Store Pet App Reviews", url: "https://apps.apple.com" }
         ]
       },
       customerSegments: [
@@ -509,10 +527,16 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
-        som: { value: "~12,000", label: "LSE Students" },
-        sources: [
+        som: { value: "~12,000", label: "LSE Students" }
+      },
+      sources: {
+        market: [
           { name: "HESA Student Statistics 2024", url: "https://hesa.ac.uk" },
           { name: "Universities UK Data", url: "https://universitiesuk.ac.uk" }
+        ],
+        competitors: [
+          { name: "EdTech Magazine Analysis", url: "https://edtechmagazine.com" },
+          { name: "Student App Reviews", url: "https://trustpilot.com" }
         ]
       },
       customerSegments: [
@@ -639,10 +663,16 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        sources: [
+        som: { value: "~5,000", label: "LSE Students & Staff" }
+      },
+      sources: {
+        market: [
           { name: "Statista Food Delivery UK", url: "https://statista.com" },
           { name: "IGD UK Food & Grocery", url: "https://igd.com" }
+        ],
+        competitors: [
+          { name: "UK Hospitality Report", url: "https://ukhospitality.org.uk" },
+          { name: "Statista Food Delivery", url: "https://statista.com" }
         ]
       },
       customerSegments: [
@@ -770,7 +800,6 @@ const generateStartupData = (idea: string) => {
           tam: data.market.tam,
           sam: data.market.sam,
           som: data.market.som,
-          sources: data.market.sources,
           competitors: 3,
           competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
@@ -778,6 +807,7 @@ const generateStartupData = (idea: string) => {
           growthData: data.searchVolume[0].data,
           marketGap: data.marketGap
         },
+        sources: data.sources,
         customerSegments: data.customerSegments,
         systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`,
         promptChain: data.promptChain
@@ -1362,25 +1392,11 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Sources Section */}
-                        <div className="mt-4 pt-3 border-t border-white/5">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-1 h-1 rounded-full bg-blue-400/60"></div>
-                            <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Sources</span>
-                          </div>
-                          <div className="space-y-1.5">
-                            {data.validation.sources?.map((source: { name: string; url: string }, i: number) => (
-                              <a
-                                key={i}
-                                href={source.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-[9px] font-mono text-gray-500 hover:text-blue-400 transition-colors group/source"
-                              >
-                                <Globe className="w-2.5 h-2.5 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
-                                <span className="truncate">{source.name}</span>
-                              </a>
-                            ))}
+                        {/* Source Reference Indicator */}
+                        <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
+                          <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
+                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
+                            <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
                           </div>
                         </div>
                       </div>
@@ -1574,6 +1590,14 @@ export const Launchpad: React.FC = () => {
                           <p className="font-sans text-xs text-white leading-relaxed pl-4">
                             {data.validation.marketGap?.yourGap}
                           </p>
+                        </div>
+
+                        {/* Source Reference Indicator */}
+                        <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
+                          <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
+                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
+                            <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
+                          </div>
                         </div>
                       </div>
                     </Widget>
@@ -1790,6 +1814,83 @@ export const Launchpad: React.FC = () => {
                           Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
                         </a>
                       </div>
+                    </div>
+                  </Widget>
+                </div>
+
+                {/* Sources Widget - Bottom */}
+                <div className="lg:col-span-12 mt-4">
+                  <Widget
+                    title="Data Sources"
+                    icon={BookOpen}
+                    delay={0.9}
+                    className="h-fit"
+                    visible={showResults}
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Market Data Sources */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
+                            <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
+                          </div>
+                          <span className="font-mono text-[10px] text-white uppercase tracking-widest">Market Data</span>
+                        </div>
+                        <div className="pl-6 space-y-2">
+                          {data.sources?.market?.map((source: { name: string; url: string }, i: number) => (
+                            <motion.a
+                              key={i}
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 1 + i * 0.1 }}
+                              className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
+                            >
+                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                              <span className="truncate">{source.name}</span>
+                            </motion.a>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Competitor Analysis Sources */}
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
+                            <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
+                          </div>
+                          <span className="font-mono text-[10px] text-white uppercase tracking-widest">Competitive Analysis</span>
+                        </div>
+                        <div className="pl-6 space-y-2">
+                          {data.sources?.competitors?.map((source: { name: string; url: string }, i: number) => (
+                            <motion.a
+                              key={i}
+                              href={source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              initial={{ opacity: 0, x: -10 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ delay: 1.1 + i * 0.1 }}
+                              className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
+                            >
+                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                              <span className="truncate">{source.name}</span>
+                            </motion.a>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI Disclaimer */}
+                    <div className="mt-4 pt-3 border-t border-white/5 flex items-start gap-2">
+                      <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <span className="text-[7px] text-amber-400">!</span>
+                      </div>
+                      <p className="font-mono text-[9px] text-gray-500 leading-relaxed">
+                        Data sourced from public databases and industry reports. In the future, sources will be dynamically fetched via Gemini AI for real-time accuracy.
+                      </p>
                     </div>
                   </Widget>
                 </div>
