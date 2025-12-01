@@ -60,6 +60,151 @@ const AnimatedText = ({
   );
 };
 
+// Animated Dial/Gauge Component
+const AnimatedScoreBar = ({
+  label,
+  targetValue,
+  delay = 0,
+  visible = true,
+  invertColor = false
+}: {
+  label: string;
+  targetValue: number;
+  delay?: number;
+  visible?: boolean;
+  invertColor?: boolean;
+}) => {
+  const [currentValue, setCurrentValue] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  useEffect(() => {
+    if (visible && !hasAnimated) {
+      setHasAnimated(true);
+      const startTime = Date.now();
+      const duration = 1200; // ms
+      const delayMs = delay * 1000;
+
+      const timeout = setTimeout(() => {
+        const animate = () => {
+          const elapsed = Date.now() - startTime - delayMs;
+          const progress = Math.min(elapsed / duration, 1);
+          
+          // Ease out cubic for smooth deceleration
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const value = Math.round(eased * targetValue);
+          
+          setCurrentValue(value);
+          
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          }
+        };
+        requestAnimationFrame(animate);
+      }, delayMs);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [visible, targetValue, delay, hasAnimated]);
+
+  // Reset animation when data changes
+  useEffect(() => {
+    setHasAnimated(false);
+    setCurrentValue(0);
+  }, [targetValue]);
+
+  // Get solid color based on thresholds
+  const getDialColor = (percentage: number) => {
+    const effectivePercentage = invertColor ? 100 - percentage : percentage;
+    
+    if (effectivePercentage < 33) {
+      return '#ef4444'; // Red
+    } else if (effectivePercentage < 70) {
+      return '#eab308'; // Yellow
+    } else if (effectivePercentage < 90) {
+      return '#22c55e'; // Green
+    } else {
+      return '#15803d'; // Dark green
+    }
+  };
+
+  const dialColor = getDialColor(currentValue);
+  const totalSegments = 12;
+  const filledSegments = Math.round((currentValue / 100) * totalSegments);
+
+  // Generate arc segments
+  const segments = [];
+  const startAngle = -180; // Start from left
+  const endAngle = 0; // End at right (semicircle)
+  const anglePerSegment = (endAngle - startAngle) / totalSegments;
+  const gapAngle = 4; // Gap between segments in degrees
+
+  for (let i = 0; i < totalSegments; i++) {
+    const segmentStart = startAngle + i * anglePerSegment + gapAngle / 2;
+    const segmentEnd = startAngle + (i + 1) * anglePerSegment - gapAngle / 2;
+    const isFilled = i < filledSegments;
+    
+    // Convert angles to radians
+    const startRad = (segmentStart * Math.PI) / 180;
+    const endRad = (segmentEnd * Math.PI) / 180;
+    
+    // Calculate arc path
+    const outerRadius = 40;
+    const innerRadius = 28;
+    const centerX = 50;
+    const centerY = 50;
+    
+    const x1 = centerX + outerRadius * Math.cos(startRad);
+    const y1 = centerY + outerRadius * Math.sin(startRad);
+    const x2 = centerX + outerRadius * Math.cos(endRad);
+    const y2 = centerY + outerRadius * Math.sin(endRad);
+    const x3 = centerX + innerRadius * Math.cos(endRad);
+    const y3 = centerY + innerRadius * Math.sin(endRad);
+    const x4 = centerX + innerRadius * Math.cos(startRad);
+    const y4 = centerY + innerRadius * Math.sin(startRad);
+    
+    const largeArcFlag = anglePerSegment - gapAngle > 180 ? 1 : 0;
+    
+    const pathData = `
+      M ${x1} ${y1}
+      A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}
+      L ${x3} ${y3}
+      A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}
+      Z
+    `;
+    
+    segments.push(
+      <path
+        key={i}
+        d={pathData}
+        fill={isFilled ? dialColor : 'rgba(255,255,255,0.08)'}
+        style={{
+          transition: 'fill 0.15s ease-out',
+          filter: isFilled ? `drop-shadow(0 0 4px ${dialColor}40)` : 'none'
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative w-24 h-14">
+        <svg viewBox="0 0 100 55" className="w-full h-full">
+          {segments}
+        </svg>
+        <div className="absolute inset-0 flex items-end justify-center pb-0">
+          <span 
+            className="font-sans font-bold text-lg tabular-nums"
+            style={{ color: dialColor }}
+          >
+            {currentValue}%
+          </span>
+        </div>
+      </div>
+      <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">{label}</span>
+    </div>
+  );
+};
+
 // Mock data generator
 const generateStartupData = (idea: string) => {
   const lowercaseIdea = idea.toLowerCase();
@@ -1478,43 +1623,15 @@ export const Launchpad: React.FC = () => {
                         className="h-fit"
                         visible={showResults}
                       >
-                        <div className="p-2">
-                          <div className="flex gap-4 items-start">
-                            <div className="hidden sm:flex w-10 h-10 rounded-lg bg-gradient-to-br from-velocity-red/10 to-orange-500/10 border border-velocity-red/20 items-center justify-center shrink-0">
-                              <Zap className="w-5 h-5 text-velocity-red" />
-                            </div>
-                            <div className="space-y-3">
-                              <p className="font-sans text-sm text-gray-300 leading-relaxed border-l-2 border-velocity-red/20 pl-4">
-                                {data.validation.aiInsight}
-                              </p>
-                              
-                              <div className="flex flex-wrap gap-x-6 gap-y-2 pl-4">
-                                 <div className="flex items-center gap-2">
-                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Viability</span>
-                                    <div className="flex gap-0.5">
-                                      {[1,2,3,4].map(i => <div key={i} className="w-1 h-2 bg-emerald-500 rounded-[1px]" />)}
-                                      <div className="w-1 h-2 bg-emerald-500/30 rounded-[1px]" />
-                                    </div>
-                                 </div>
-                                 
-                                 <div className="flex items-center gap-2">
-                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Scalability</span>
-                                    <div className="flex gap-0.5">
-                                      {[1,2,3].map(i => <div key={i} className="w-1 h-2 bg-blue-500 rounded-[1px]" />)}
-                                      <div className="w-1 h-2 bg-blue-500/30 rounded-[1px]" />
-                                      <div className="w-1 h-2 bg-blue-500/30 rounded-[1px]" />
-                                    </div>
-                                 </div>
-
-                                 <div className="flex items-center gap-2">
-                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Complexity</span>
-                                    <div className="flex gap-0.5">
-                                      {[1,2].map(i => <div key={i} className="w-1 h-2 bg-amber-500 rounded-[1px]" />)}
-                                      {[3,4,5].map(i => <div key={i} className="w-1 h-2 bg-amber-500/30 rounded-[1px]" />)}
-                                    </div>
-                                 </div>
-                              </div>
-                            </div>
+                        <div className="flex flex-col gap-3">
+                          <p className="font-sans text-sm text-gray-300 leading-relaxed">
+                            {data.validation.aiInsight}
+                          </p>
+                          
+                          <div className="grid grid-cols-3 gap-3 pt-2 border-t border-white/5">
+                            <AnimatedScoreBar label="Viability" targetValue={80} delay={0.3} visible={showResults} />
+                            <AnimatedScoreBar label="Scalability" targetValue={60} delay={0.4} visible={showResults} />
+                            <AnimatedScoreBar label="Complexity" targetValue={40} delay={0.5} visible={showResults} invertColor />
                           </div>
                         </div>
                       </Widget>
