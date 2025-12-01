@@ -75,19 +75,19 @@ const generateStartupData = (idea: string) => {
         model: "Freemium Model",
         pricing: "Free tier available",
         strategies: ["Premium Analytics", "Team Seats", "Enterprise API"],
-        technicalRequirement: "Implement feature flags with LaunchDarkly or Flagsmith for tier-based access control."
+        examples: "Slack, Dropbox, Zoom"
       },
       {
         model: "Subscription",
         pricing: "$29/mo Starter",
         strategies: ["Recurring Revenue", "Annual Discounts", "Usage-based Tiers"],
-        technicalRequirement: "Integrate Stripe Billing with webhooks for subscription lifecycle management."
+        examples: "Netflix, Adobe Creative Cloud"
       },
       {
         model: "One-time Purchase",
         pricing: "$199 Lifetime Deal",
         strategies: ["Quick Cash Injection", "No Recurring Costs", "Early Adopters"],
-        technicalRequirement: "Set up Stripe Checkout with license key generation for lifetime access."
+        examples: "Alfred, Things 3, Final Cut Pro"
       }
     ],
     market: {
@@ -220,19 +220,19 @@ const generateStartupData = (idea: string) => {
           model: "Subscription",
           pricing: "£4.99/mo Premium",
           strategies: ["Advanced Filters", "Unlimited Swipes", "Gym Partnerships"],
-          technicalRequirement: "Integrate Stripe Billing with in-app purchase support for iOS/Android."
+          examples: "Strava, Peloton, Headspace"
         },
         {
           model: "Ad-Supported",
           pricing: "Free with Ads",
           strategies: ["Supplement Ads", "Local Gym Promos", "Affiliate Links"],
-          technicalRequirement: "Implement Google AdMob SDK with mediation for optimal ad fill rates."
+          examples: "MyFitnessPal (Free), YouTube"
         },
         {
           model: "Freemium",
           pricing: "Free Basic / £9.99 Pro",
           strategies: ["Pro Workout Plans", "Verified Badge", "Priority Matching"],
-          technicalRequirement: "Build entitlement system with RevenueCat for cross-platform subscription sync."
+          examples: "Spotify, Duolingo"
         }
       ],
       market: {
@@ -339,19 +339,19 @@ const generateStartupData = (idea: string) => {
           model: "Marketplace",
           pricing: "5% Service Fee",
           strategies: ["Featured Listings", "Pet Service Booking", "Premium Profiles"],
-          technicalRequirement: "Implement Stripe Connect for split payments and platform fees."
+          examples: "Airbnb, Uber, Etsy"
         },
         {
           model: "Subscription",
           pricing: "£9.99/mo for Owners",
           strategies: ["Insurance Integration", "Vet Chat Access", "Emergency Support"],
-          technicalRequirement: "Set up Stripe Billing with customer portal for self-service management."
+          examples: "BarkBox, Chewy Autoship"
         },
         {
           model: "Affiliate",
           pricing: "Product Recommendations",
           strategies: ["Pet Food Partnerships", "Toy Sales", "Grooming Discounts"],
-          technicalRequirement: "Build affiliate link tracking with UTM parameters and conversion pixels."
+          examples: "Wirecutter, Skyscanner"
         }
       ],
       market: {
@@ -458,19 +458,19 @@ const generateStartupData = (idea: string) => {
           model: "Freemium",
           pricing: "Free for Students",
           strategies: ["University Licensing", "Tutor Marketplace", "Study Material Sales"],
-          technicalRequirement: "Implement .edu email verification with SSO integration for institutions."
+          examples: "Notion, Evernote, Quizlet"
         },
         {
           model: "Tutor Commission",
           pricing: "15% per Session",
           strategies: ["Video Chat Tools", "Scheduling API", "Payment Processing"],
-          technicalRequirement: "Implement Stripe Connect for tutor payouts with automatic fee deduction."
+          examples: "Preply, Cambly"
         },
         {
           model: "Content Sales",
           pricing: "$5 per Study Guide",
           strategies: ["User Generated Content", "Revenue Share", "Premium Notes"],
-          technicalRequirement: "Build digital delivery system with Stripe for instant content unlocking."
+          examples: "Udemy, Gumroad"
         }
       ],
       market: {
@@ -577,19 +577,19 @@ const generateStartupData = (idea: string) => {
           model: "Commission",
           pricing: "10% per Order",
           strategies: ["Sponsored Dishes", "Restaurant Analytics", "Delivery Integration"],
-          technicalRequirement: "Implement Stripe Connect for restaurant payouts with platform commission."
+          examples: "Deliveroo, UberEats"
         },
         {
           model: "Subscription (SaaS)",
           pricing: "£49/mo for Restaurants",
           strategies: ["Menu Management", "CRM Features", "Website Builder"],
-          technicalRequirement: "Build multi-tenant architecture with Stripe Billing for B2B subscriptions."
+          examples: "Toast, Shopify"
         },
         {
           model: "Consumer Premium",
           pricing: "£7.99/mo for Foodies",
           strategies: ["Exclusive Reservations", "Secret Menu Access", "No Booking Fees"],
-          technicalRequirement: "Integrate Stripe with in-app purchases for cross-platform premium access."
+          examples: "Resy, Opentable"
         }
       ],
       market: {
@@ -1236,6 +1236,12 @@ export const Launchpad: React.FC = () => {
                               <span className="text-xs text-gray-300">{strat}</span>
                             </div>
                           ))}
+                        </div>
+                        <div className="pt-2 border-t border-white/5">
+                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
+                          <p className="font-mono text-[10px] text-gray-400 leading-relaxed flex items-center gap-1.5">
+                             {data.monetization[monetizationIndex].examples}
+                          </p>
                         </div>
                       </motion.div>
                     </AnimatePresence>
