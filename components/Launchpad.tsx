@@ -1152,16 +1152,16 @@ export const Launchpad: React.FC = () => {
                         </div>
 
                         {/* SOM - Narrow Bar */}
-                        <div className="w-[70%] mx-auto bg-velocity-red shadow-[0_4px_20px_rgba(255,31,31,0.2)] border border-red-500 p-3 rounded-sm">
+                        <div className="w-[70%] mx-auto bg-velocity-red/30 shadow-[0_4px_20px_rgba(255,31,31,0.1)] border border-velocity-red/50 p-3 rounded-sm">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-white font-bold">SOM</span>
-                                <span className="text-[9px] text-white/70 uppercase tracking-wide">Target</span>
+                                <span className="font-mono text-[10px] text-velocity-red font-bold">SOM</span>
+                                <span className="text-[9px] text-gray-400 uppercase tracking-wide">Target</span>
                               </div>
-                              <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.som.value}</p>
+                              <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.som.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-white/90 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
+                            <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
                           </div>
                         </div>
                       </div>
