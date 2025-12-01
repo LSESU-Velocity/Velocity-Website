@@ -1237,53 +1237,47 @@ export const Launchpad: React.FC = () => {
                       <div className="flex flex-col h-full py-1 gap-2">
 
                         {/* Active Competitor Detail - Moved above perceptual map */}
-                        <div className="min-h-[90px] flex flex-col justify-center shrink-0">
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={competitorIndex}
-                              initial={{ opacity: 0, x: 10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{ duration: 0.2 }}
-                              className="flex flex-col gap-2 p-3 rounded-sm bg-gradient-to-r from-white/[0.02] to-transparent border border-white/5 relative overflow-hidden"
-                            >
-                              <div className="absolute top-0 right-0 p-2 opacity-10">
-                                {/* Icon removed */}
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={competitorIndex}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col gap-2 shrink-0"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="font-sans font-bold text-white text-sm flex items-center gap-2">
+                                {data.validation.competitorList[competitorIndex].name}
+                                <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest font-normal">Competitor</span>
+                              </span>
+                              <div className="flex gap-1">
+                                {data.validation.competitorList.map((_: any, i: number) => (
+                                  <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === competitorIndex ? 'bg-white' : 'bg-white/20'}`} />
+                                ))}
                               </div>
+                            </div>
 
-                              <div className="flex items-center justify-between relative z-10">
-                                <span className="font-sans font-bold text-white text-sm flex items-center gap-2">
-                                  {data.validation.competitorList[competitorIndex].name}
-                                  <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest font-normal">Competitor</span>
-                                </span>
-                                <div className="flex gap-1">
-                                  {data.validation.competitorList.map((_: any, i: number) => (
-                                    <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i === competitorIndex ? 'bg-white' : 'bg-white/20'}`} />
-                                  ))}
-                                </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                  <span className="w-1 h-1 bg-blue-400 rounded-full" /> USP
+                                </p>
+                                <p className="font-sans text-xs text-gray-300 leading-relaxed">
+                                  {data.validation.competitorList[competitorIndex].usp}
+                                </p>
                               </div>
-
-                              <div className="grid grid-cols-2 gap-4 relative z-10 mt-1">
-                                <div>
-                                  <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                    <span className="w-1 h-1 bg-blue-400 rounded-full" /> USP
-                                  </p>
-                                  <p className="font-sans text-xs text-gray-300 leading-relaxed">
-                                    {data.validation.competitorList[competitorIndex].usp}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-mono text-[9px] text-red-400 uppercase tracking-widest mb-1 flex items-center gap-1">
-                                    <span className="w-1 h-1 bg-red-400 rounded-full" /> Weakness
-                                  </p>
-                                  <p className="font-sans text-xs text-gray-400 leading-relaxed">
-                                    {data.validation.competitorList[competitorIndex].weakness}
-                                  </p>
-                                </div>
+                              <div>
+                                <p className="font-mono text-[9px] text-red-400 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                  <span className="w-1 h-1 bg-red-400 rounded-full" /> Weakness
+                                </p>
+                                <p className="font-sans text-xs text-gray-400 leading-relaxed">
+                                  {data.validation.competitorList[competitorIndex].weakness}
+                                </p>
                               </div>
-                            </motion.div>
-                          </AnimatePresence>
-                        </div>
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
 
                         {/* Perceptual Map Section - Sandwiched between competitors and opportunity */}
                         <div className="relative w-full h-48 bg-white/[0.02] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
