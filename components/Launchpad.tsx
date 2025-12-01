@@ -1360,12 +1360,13 @@ export const Launchpad: React.FC = () => {
                               }}
                               onClick={() => setCompetitorIndex(i)}
                             >
-                              {/* Pulse effect for selected */}
-                              {competitorIndex === i && (
-                                <div className="absolute inset-0 -m-2 rounded-full border border-white/20 animate-ping" />
+                              {competitorIndex === i ? (
+                                <div className="w-4 h-4 rounded-full bg-velocity-red border-2 border-white shadow-[0_0_20px_rgba(255,31,31,0.8)] relative z-20 flex items-center justify-center">
+                                  <div className="w-1 h-1 bg-white rounded-full" />
+                                </div>
+                              ) : (
+                                <div className="w-3 h-3 rounded-full border-2 transition-all duration-300 shadow-lg bg-gray-900 border-gray-600 hover:bg-gray-800 hover:border-gray-400 z-10" />
                               )}
-
-                              <div className={`w-3 h-3 rounded-full border-2 transition-all duration-300 shadow-lg ${competitorIndex === i ? 'bg-white border-white scale-125 z-20 shadow-[0_0_15px_rgba(255,255,255,0.5)]' : 'bg-gray-900 border-gray-600 hover:bg-gray-800 hover:border-gray-400 z-10'}`} />
 
                               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
                                 <div className="font-bold mb-0.5">{comp.name}</div>
