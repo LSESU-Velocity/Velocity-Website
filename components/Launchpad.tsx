@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle } from 'lucide-react';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -204,6 +204,13 @@ const generateStartupData = (idea: string) => {
         title: "Polish & Launch Ready",
         prompt: `Finally, add a nice landing page that explains what the app does with a "Get Started" button, add some loading animations, and make sure the navigation flows smoothly between all pages. Add a footer with links.`
       }
+    ],
+    distributionChannels: [
+      { name: "r/startups", type: "Reddit", members: "1.4M+" },
+      { name: "Product Hunt", type: "Community", members: "Active" },
+      { name: "Indie Hackers", type: "Forum", members: "Founders" },
+      { name: "r/SaaS", type: "Reddit", members: "45k+" },
+      { name: "Twitter/X Tech", type: "Social", members: "Viral" }
     ]
   };
 
@@ -324,6 +331,13 @@ const generateStartupData = (idea: string) => {
           title: "Launch Features",
           prompt: "Finally, add a matches list screen showing all your current gym buddies, push notifications when you get a new match, and a simple onboarding flow for new users that explains how the app works. Add a nice splash screen with the app logo."
         }
+      ],
+      distributionChannels: [
+        { name: "r/Fitness", type: "Reddit", members: "11M+" },
+        { name: "r/GymMotivation", type: "Reddit", members: "400k+" },
+        { name: "Bodybuilding.com", type: "Forum", members: "OGs" },
+        { name: "TikTok Fitness", type: "Social", members: "Viral" },
+        { name: "r/LSE", type: "Local", members: "Students" }
       ]
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
@@ -443,6 +457,13 @@ const generateStartupData = (idea: string) => {
           title: "Safety & Payments",
           prompt: "Finally, add owner verification badges, a review system for after playdates, and a simple payment flow for pet-sitting bookings. Include a map view to see nearby pets and add push notifications for new booking requests."
         }
+      ],
+      distributionChannels: [
+        { name: "r/dogs", type: "Reddit", members: "2.5M+" },
+        { name: "r/cats", type: "Reddit", members: "4M+" },
+        { name: "PetForums.co.uk", type: "Forum", members: "Local" },
+        { name: "Nextdoor", type: "App", members: "Neighbors" },
+        { name: "Facebook Dog Groups", type: "Social", members: "Active" }
       ]
     };
   } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
@@ -562,6 +583,13 @@ const generateStartupData = (idea: string) => {
           title: "Tutoring & Rewards",
           prompt: "Finally, add a tutor marketplace where students can offer tutoring for courses they've aced, a points system that rewards users for sharing quality notes, and a profile page showing someone's courses, groups, and reputation. Add email notifications for upcoming study sessions."
         }
+      ],
+      distributionChannels: [
+        { name: "r/LSE", type: "Reddit", members: "Key Target" },
+        { name: "The Student Room", type: "Forum", members: "Huge UK" },
+        { name: "r/UniUK", type: "Reddit", members: "General" },
+        { name: "Discord Study Servers", type: "Social", members: "Active" },
+        { name: "Campus WhatsApp", type: "Chat", members: "Direct" }
       ]
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
@@ -681,6 +709,13 @@ const generateStartupData = (idea: string) => {
           title: "Checkout & User Favorites",
           prompt: "Finally, add a checkout flow with pickup or delivery options, saved payment methods, and order tracking. Include a favorites list where users can save dishes they want to try, and a past orders section to quickly reorder. Add tasty food animations when placing an order!"
         }
+      ],
+      distributionChannels: [
+        { name: "r/LondonFood", type: "Reddit", members: "Locals" },
+        { name: "Instagram Foodies", type: "Social", members: "Visual" },
+        { name: "TikTok Food Trends", type: "Social", members: "Viral" },
+        { name: "r/FoodPorn", type: "Reddit", members: "Global" },
+        { name: "TripAdvisor Forums", type: "Travel", members: "Tourists" }
       ]
     };
   }
@@ -710,12 +745,7 @@ const generateStartupData = (idea: string) => {
           complexity: "Medium",
           timeline: "2 Weekends"
         },
-        strategy: [
-          "Launch on university subreddits",
-          "Partner with LSE student orgs",
-          "Flyer campaign on campus",
-          "TikTok viral content strategy"
-        ],
+        distributionChannels: data.distributionChannels,
         validation: {
           tam: data.market.tam,
           sam: data.market.sam,
@@ -1576,22 +1606,41 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="User Acquisition" icon={Zap} delay={0.7} visible={showResults} className="h-52">
-                    <div className="space-y-1.5">
-                      {data.strategy.map((step: string, i: number) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.8 + i * 0.1 }}
-                          className="flex items-start gap-2 group/item"
-                        >
-                          <div className="w-3.5 h-3.5 bg-velocity-red/10 border border-velocity-red/30 text-velocity-red flex items-center justify-center font-mono text-[8px] font-bold shrink-0 group-hover/item:bg-velocity-red/20 transition-colors">
-                            {i + 1}
-                          </div>
-                          <p className="font-mono text-[9px] text-gray-400 group-hover/item:text-gray-300 transition-colors leading-tight line-clamp-1">{step}</p>
-                        </motion.div>
-                      ))}
+                  <Widget title="Distribution Channels" icon={MessageCircle} delay={0.7} visible={showResults} className="h-fit min-h-[220px]">
+                    <div className="flex flex-col gap-3 h-full">
+                      <div className="flex items-center justify-between">
+                        <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">
+                           Where Your Users Hang Out
+                        </p>
+                        <div className="text-[8px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-gray-400">TOP 5</div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-2">
+                        {data.distributionChannels.map((channel: any, i: number) => (
+                          <motion.a
+                            href={`https://google.com/search?q=${encodeURIComponent(channel.name)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.8 + i * 0.1 }}
+                            className="flex items-center justify-between p-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-sm cursor-pointer relative overflow-hidden"
+                          >
+                             <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
+                             
+                            <div className="flex items-center gap-2.5 relative z-10">
+                               <div className="w-1.5 h-1.5 rounded-full bg-velocity-red group-hover/channel:scale-150 transition-transform duration-300" />
+                               <span className="font-sans text-xs text-gray-300 font-medium group-hover/channel:text-white transition-colors">{channel.name}</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 relative z-10">
+                                <span className="font-mono text-[8px] text-gray-600 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
+                                <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
+                            </div>
+                          </motion.a>
+                        ))}
+                      </div>
                     </div>
                   </Widget>
 
