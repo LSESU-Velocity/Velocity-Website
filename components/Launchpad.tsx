@@ -1616,7 +1616,7 @@ export const Launchpad: React.FC = () => {
                       </div>
                     }
                   >
-                    <div className="flex flex-col h-full gap-2">
+                    <div className="flex flex-col h-full gap-3">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={promptChainIndex}
@@ -1624,47 +1624,43 @@ export const Launchpad: React.FC = () => {
                           animate={{ opacity: 1, x: 0 }}
                           exit={{ opacity: 0, x: -10 }}
                           transition={{ duration: 0.2 }}
-                          className="flex flex-col h-full"
+                          className="flex flex-col h-full gap-3"
                         >
-                          {/* Step indicator */}
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-6 h-6 bg-velocity-red/20 border border-velocity-red/50 flex items-center justify-center font-mono text-xs font-bold text-velocity-red">
-                              {data.promptChain[promptChainIndex].step}
-                            </div>
-                            <span className="font-sans font-semibold text-white text-sm">
-                              {data.promptChain[promptChainIndex].title}
-                            </span>
+                          {/* Step Header */}
+                          <div>
+                            <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
+                            <p className="font-sans font-bold text-white text-sm">{data.promptChain[promptChainIndex].title}</p>
                           </div>
 
                           {/* Prompt content */}
                           <div className="relative group/prompt flex-1 min-h-0">
                             <div 
-                              className="p-2 bg-black/40 border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed custom-scrollbar cursor-pointer hover:border-velocity-red/30 transition-colors"
+                              className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-400 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
                               onClick={() => {
                                 navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
                               }}
                             >
                               {data.promptChain[promptChainIndex].prompt}
                             </div>
-                            <div className="absolute top-1 right-1 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
-                              <div className="flex items-center gap-1 bg-velocity-red/90 px-1.5 py-0.5 text-[8px] font-mono text-white">
-                                <Copy className="w-2.5 h-2.5" /> Click to copy
+                            <div className="absolute top-2 right-2 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
+                              <div className="flex items-center gap-1 bg-velocity-red px-2 py-1 text-[8px] font-mono text-white uppercase tracking-wider">
+                                <Copy className="w-2.5 h-2.5" /> Copy
                               </div>
                             </div>
                           </div>
 
-                          {/* Progress dots */}
-                          <div className="flex items-center justify-center gap-2 mt-2">
-                            {data.promptChain.map((_: any, i: number) => (
+                          {/* Progress Steps */}
+                          <div className="flex items-center justify-between gap-1 pt-2 border-t border-white/5">
+                            {data.promptChain.map((step: any, i: number) => (
                               <button
                                 key={i}
                                 onClick={() => setPromptChainIndex(i)}
-                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                className={`flex-1 h-1 transition-all duration-300 ${
                                   i === promptChainIndex 
-                                    ? 'bg-velocity-red w-4' 
+                                    ? 'bg-velocity-red' 
                                     : i < promptChainIndex 
-                                      ? 'bg-velocity-red/50' 
-                                      : 'bg-white/20'
+                                      ? 'bg-velocity-red/40' 
+                                      : 'bg-white/10'
                                 }`}
                               />
                             ))}
@@ -1677,9 +1673,9 @@ export const Launchpad: React.FC = () => {
                         href="https://www.lsesu.com/communities/societies/group/Velocity/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full py-2 bg-velocity-red text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
+                        className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center shrink-0 flex items-center justify-center gap-2"
                       >
-                        Need help building? Join Velocity →
+                        Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
                       </a>
                     </div>
                   </Widget>
