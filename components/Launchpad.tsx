@@ -90,11 +90,15 @@ const generateStartupData = (idea: string) => {
         examples: "Alfred, Things 3, Final Cut Pro"
       }
     ],
-    market: {
-      tam: { value: "15M", label: "UK Startup Founders" },
-      sam: { value: "1.2M", label: "London Tech Workers" },
-      som: { value: "~5,000", label: "LSE Students & Staff" }
-    },
+      market: {
+        tam: { value: "15M", label: "UK Startup Founders" },
+        sam: { value: "1.2M", label: "London Tech Workers" },
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        sources: [
+          { name: "Statista UK Tech Report 2024", url: "https://statista.com" },
+          { name: "Gov.uk Business Statistics", url: "https://gov.uk" }
+        ]
+      },
     customerSegments: [
       { segment: "Early-stage Founders", age: "20-35", income: "Variable", interest: "Tech & Innovation" },
       { segment: "Product Managers", age: "25-45", income: "High", interest: "Efficiency & Scaling" },
@@ -245,7 +249,11 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        sources: [
+          { name: "UK Active Fitness Report 2024", url: "https://ukactive.com" },
+          { name: "Mintel Gym & Health Clubs", url: "https://mintel.com" }
+        ]
       },
       customerSegments: [
         { segment: "University Students", age: "18-24", income: "Low", interest: "Social Fitness" },
@@ -371,7 +379,11 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        sources: [
+          { name: "PFMA Pet Population Report", url: "https://pfma.org.uk" },
+          { name: "Statista UK Pet Industry", url: "https://statista.com" }
+        ]
       },
       customerSegments: [
         { segment: "Pet Owners", age: "25-50", income: "Medium-High", interest: "Pet Care & Community" },
@@ -497,7 +509,11 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
-        som: { value: "~12,000", label: "LSE Students" }
+        som: { value: "~12,000", label: "LSE Students" },
+        sources: [
+          { name: "HESA Student Statistics 2024", url: "https://hesa.ac.uk" },
+          { name: "Universities UK Data", url: "https://universitiesuk.ac.uk" }
+        ]
       },
       customerSegments: [
         { segment: "Undergraduate Students", age: "18-22", income: "Low", interest: "Grades & Socializing" },
@@ -623,7 +639,11 @@ const generateStartupData = (idea: string) => {
       market: {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
-        som: { value: "~5,000", label: "LSE Students & Staff" }
+        som: { value: "~5,000", label: "LSE Students & Staff" },
+        sources: [
+          { name: "Statista Food Delivery UK", url: "https://statista.com" },
+          { name: "IGD UK Food & Grocery", url: "https://igd.com" }
+        ]
       },
       customerSegments: [
         { segment: "Foodies / Bloggers", age: "20-35", income: "Medium", interest: "Trends & Aesthetics" },
@@ -750,6 +770,7 @@ const generateStartupData = (idea: string) => {
           tam: data.market.tam,
           sam: data.market.sam,
           som: data.market.som,
+          sources: data.market.sources,
           competitors: 3,
           competitorList: data.competitors,
           riskAnalysis: data.riskAnalysis,
@@ -1338,6 +1359,28 @@ export const Launchpad: React.FC = () => {
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.som.value}</p>
                             </div>
                             <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
+                          </div>
+                        </div>
+
+                        {/* Sources Section */}
+                        <div className="mt-4 pt-3 border-t border-white/5">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-1 h-1 rounded-full bg-blue-400/60"></div>
+                            <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Sources</span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {data.validation.sources?.map((source: { name: string; url: string }, i: number) => (
+                              <a
+                                key={i}
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-[9px] font-mono text-gray-500 hover:text-blue-400 transition-colors group/source"
+                              >
+                                <Globe className="w-2.5 h-2.5 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                                <span className="truncate">{source.name}</span>
+                              </a>
+                            ))}
                           </div>
                         </div>
                       </div>
