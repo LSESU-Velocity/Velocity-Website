@@ -1212,7 +1212,7 @@ export const Launchpad: React.FC = () => {
                       <div className="flex flex-col h-full py-1 gap-2">
 
                         {/* Perceptual Map Section */}
-                        <div className="relative w-full h-48 bg-gradient-to-br from-white/[0.03] to-transparent border border-white/10 rounded-sm mb-1 shrink-0 overflow-hidden group/map">
+                        <div className="relative w-full h-48 bg-white/[0.02] border border-white/10 rounded-sm mb-1 shrink-0 overflow-hidden group/map">
 
                           {/* Grid Background */}
                           <div className="absolute inset-0"
@@ -1233,10 +1233,11 @@ export const Launchpad: React.FC = () => {
                           {/* Central Axis Lines */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                            <div className="h-full w-px bg-gradient-to-b from-transparent via-white/50 to-transparent" />
-                            {/* Center Point */}
-                            <div className="absolute w-1 h-1 bg-white/40 rounded-full" />
                           </div>
+                          {/* Prominent Y-Axis */}
+                          <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
+                          {/* Center Point */}
+                          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-white/50 rounded-full pointer-events-none z-10" />
 
                           {/* Axis Labels - Re-positioned for clarity */}
                           {/* X-Axis Label (Bottom Center) */}
