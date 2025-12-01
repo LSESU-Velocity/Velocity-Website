@@ -1242,7 +1242,12 @@ export const Launchpad: React.FC = () => {
 
                     {/* Bottom Left: Competitors with Perceptual Map */}
                     <Widget
-                      title="Market Gap & Opportunities"
+                      title={
+                        <span className="block">
+                          <span className="block">COMPETITORS &</span>
+                          <span className="block">MARKET GAP</span>
+                        </span>
+                      }
                       icon={Target}
                       delay={0.3}
                       className="min-h-[420px]"
