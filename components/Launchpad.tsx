@@ -94,7 +94,7 @@ const generateStartupData = (idea: string) => {
         tam: { value: "15M", label: "UK Startup Founders" },
         sam: { value: "1.2M", label: "London Tech Workers" },
         som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "The UK startup ecosystem is experiencing rapid growth, with London ranking as Europe's top tech hub. Student founders represent an underserved segment with high potential for early adoption and viral growth within university networks."
+        aiInsight: "VelocityApp targets a high-growth segment of UK founders (15M TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
       },
       sources: {
         market: [
@@ -257,7 +257,7 @@ const generateStartupData = (idea: string) => {
         tam: { value: "10M", label: "UK Gym Members" },
         sam: { value: "850K", label: "London Gym-Goers" },
         som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "Post-pandemic gym culture is booming, with social fitness emerging as a key trend. Young adults increasingly seek accountability partners, yet existing apps focus on tracking rather than connection—creating a clear market gap."
+        aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With 10M UK gym members, the TAM is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
       },
       sources: {
         market: [
@@ -394,7 +394,7 @@ const generateStartupData = (idea: string) => {
         tam: { value: "2.4M", label: "UK Pet Owners" },
         sam: { value: "300K", label: "London Dog Owners" },
         som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "UK pet ownership surged 20% since 2020, with millennials driving demand for premium pet services. Urban pet owners face unique challenges—limited space and busy schedules—making community-based solutions highly appealing."
+        aiInsight: "PetPals capitalizes on the post-pandemic pet boom (20% growth). It solves a critical trust issue in the pet-sitting market by leveraging local community verification. While established players like Rover dominate the high-end, your focus on 'casual, community-led' care fills a massive gap for cost-conscious urban millennials."
       },
       sources: {
         market: [
@@ -531,7 +531,7 @@ const generateStartupData = (idea: string) => {
         tam: { value: "2.8M", label: "UK University Students" },
         sam: { value: "400K", label: "London Students" },
         som: { value: "~12,000", label: "LSE Students" },
-        aiInsight: "EdTech adoption among UK students doubled post-COVID. Peer-to-peer learning tools show 3x higher engagement than traditional platforms. Students increasingly prefer collaborative study over isolated learning environments."
+        aiInsight: "StudySphere hits the sweet spot of post-COVID hybrid learning. Students are craving connection, and your peer-to-peer focus differentiates heavily from static content libraries like Chegg. The 'Freemium' model aligns perfectly with student budgets. Success hinges on overcoming the 'empty platform' risk by seeding high-quality initial content."
       },
       sources: {
         market: [
@@ -668,7 +668,7 @@ const generateStartupData = (idea: string) => {
         tam: { value: "45M", label: "UK Food Delivery Users" },
         sam: { value: "3.5M", label: "London Foodies" },
         som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "Visual-first discovery is reshaping food ordering—Instagram food accounts drive 40% of restaurant discovery among Gen Z. Current delivery apps optimize for logistics, not discovery, leaving a gap for aesthetic-first platforms."
+        aiInsight: "Tastify disrupts the text-heavy food delivery model with a visual-first approach, aligning perfectly with Gen Z discovery habits. With 45M users in the TAM, the opportunity is massive. The main challenge is the logistics barrier, which your 'concierge MVP' strategy smartly mitigates. Visual discovery + seamless ordering is a defensible moat."
       },
       sources: {
         market: [
@@ -1352,7 +1352,7 @@ export const Launchpad: React.FC = () => {
                     <p className="font-mono text-gray-500 text-[10px] italic">{data.identity.tagline}</p>
                   </motion.div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Top Left: Market Funnel */}
                     <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[380px]" visible={showResults}>
                       <div className="flex flex-col h-full justify-center gap-4 py-2">
@@ -1398,19 +1398,8 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* AI Research Insight - Integrated Design */}
-                        <div className="mt-auto pt-4">
-                          <div className="flex items-center gap-1.5 mb-2">
-                            <Zap className="w-3 h-3 text-velocity-red" />
-                            <span className="font-mono text-[9px] text-velocity-red uppercase tracking-widest">AI Market Insight</span>
-                          </div>
-                          <p className="font-sans text-xs text-gray-300 leading-relaxed border-l-2 border-velocity-red/20 pl-3 py-0.5">
-                            {data.validation.aiInsight}
-                          </p>
-                        </div>
-
                         {/* Source Reference Indicator */}
-                        <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
+                        <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-default">
                           <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
                           <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
                             <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
@@ -1479,6 +1468,57 @@ export const Launchpad: React.FC = () => {
                         </AnimatePresence>
                       </div>
                     </Widget>
+
+                    {/* Middle: AI Executive Summary */}
+                    <div className="col-span-1 md:col-span-2">
+                      <Widget
+                        title="AI Executive Summary"
+                        icon={Zap}
+                        delay={0.25}
+                        className="h-fit"
+                        visible={showResults}
+                      >
+                        <div className="p-2">
+                          <div className="flex gap-4 items-start">
+                            <div className="hidden sm:flex w-10 h-10 rounded-lg bg-gradient-to-br from-velocity-red/10 to-orange-500/10 border border-velocity-red/20 items-center justify-center shrink-0">
+                              <Zap className="w-5 h-5 text-velocity-red" />
+                            </div>
+                            <div className="space-y-3">
+                              <p className="font-sans text-sm text-gray-300 leading-relaxed border-l-2 border-velocity-red/20 pl-4">
+                                {data.validation.aiInsight}
+                              </p>
+                              
+                              <div className="flex flex-wrap gap-x-6 gap-y-2 pl-4">
+                                 <div className="flex items-center gap-2">
+                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Viability</span>
+                                    <div className="flex gap-0.5">
+                                      {[1,2,3,4].map(i => <div key={i} className="w-1 h-2 bg-emerald-500 rounded-[1px]" />)}
+                                      <div className="w-1 h-2 bg-emerald-500/30 rounded-[1px]" />
+                                    </div>
+                                 </div>
+                                 
+                                 <div className="flex items-center gap-2">
+                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Scalability</span>
+                                    <div className="flex gap-0.5">
+                                      {[1,2,3].map(i => <div key={i} className="w-1 h-2 bg-blue-500 rounded-[1px]" />)}
+                                      <div className="w-1 h-2 bg-blue-500/30 rounded-[1px]" />
+                                      <div className="w-1 h-2 bg-blue-500/30 rounded-[1px]" />
+                                    </div>
+                                 </div>
+
+                                 <div className="flex items-center gap-2">
+                                    <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">Complexity</span>
+                                    <div className="flex gap-0.5">
+                                      {[1,2].map(i => <div key={i} className="w-1 h-2 bg-amber-500 rounded-[1px]" />)}
+                                      {[3,4,5].map(i => <div key={i} className="w-1 h-2 bg-amber-500/30 rounded-[1px]" />)}
+                                    </div>
+                                 </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Widget>
+                    </div>
 
                     {/* Bottom Left: Competitors with Perceptual Map */}
                     <Widget
@@ -1624,7 +1664,7 @@ export const Launchpad: React.FC = () => {
                       title="THE BIGGEST RISK"
                       icon={AlertTriangle}
                       delay={0.4}
-                      className="h-64"
+                      className="h-full min-h-[380px]"
                       visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
