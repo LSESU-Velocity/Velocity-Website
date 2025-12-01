@@ -626,7 +626,7 @@ const generateStartupData = (idea: string) => {
 };
 
 // Widget with spotlight effect matching Features.tsx
-const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action }: any) => {
+const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action, visible = true }: any) => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -639,8 +639,8 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay }}
+      animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+      transition={{ duration: 0.5, delay: visible ? delay : 0 }}
       onMouseMove={handleMouseMove}
       className={`relative group bg-white/[0.02] border border-white/10 overflow-hidden h-full flex flex-col ${className}`}
     >
@@ -693,13 +693,18 @@ export const Launchpad: React.FC = () => {
   const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [showResults, setShowResults] = useState(false);
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (data && !isGenerating) {
+      setShowResults(false); // Reset before scroll
       setTimeout(() => {
         const element = inputFormRef.current;
-        if (!element) return;
+        if (!element) {
+          setShowResults(true); // Show results even if no scroll needed
+          return;
+        }
 
         const start = window.scrollY;
         const elementTop = element.getBoundingClientRect().top;
@@ -721,6 +726,9 @@ export const Launchpad: React.FC = () => {
 
           if (timeElapsed < duration) {
             requestAnimationFrame(animation);
+          } else {
+            // Scroll complete - now show the widgets
+            setShowResults(true);
           }
         }
 
@@ -752,6 +760,7 @@ export const Launchpad: React.FC = () => {
 
     setIsGenerating(true);
     setData(null);
+    setShowResults(false);
     setCompetitorIndex(0);
     setMonetizationIndex(0);
     setRiskIndex(0);
@@ -867,8 +876,8 @@ export const Launchpad: React.FC = () => {
           {data && !isGenerating && (
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              animate={{ opacity: showResults ? 1 : 0 }}
+              transition={{ duration: 0.3 }}
             >
               {/* Widgets Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -880,6 +889,7 @@ export const Launchpad: React.FC = () => {
                     icon={Smartphone}
                     delay={0.1}
                     className="flex-1"
+                    visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
                         <button
@@ -1020,6 +1030,7 @@ export const Launchpad: React.FC = () => {
                     icon={Coins}
                     delay={0.15}
                     className="h-64"
+                    visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
                         <button
@@ -1076,7 +1087,7 @@ export const Launchpad: React.FC = () => {
                   {/* Header moved here */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    animate={showResults ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
                     transition={{ duration: 0.5 }}
                     className="text-center pb-2"
                   >
@@ -1090,7 +1101,7 @@ export const Launchpad: React.FC = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full grid-rows-[1fr_auto]">
                     {/* Top Left: Market Funnel */}
-                    <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]">
+                    <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[280px]" visible={showResults}>
                       <div className="flex flex-col h-full justify-center gap-4 py-2">
                         {/* TAM - Wide Bar */}
                         <div className="w-full bg-[#1A1A1A] border border-white/5 p-3 rounded-sm hover:bg-[#222] transition-colors">
@@ -1142,6 +1153,7 @@ export const Launchpad: React.FC = () => {
                       icon={BarChart3}
                       delay={0.2}
                       className="h-full min-h-[280px]"
+                      visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
                           <button
@@ -1214,6 +1226,7 @@ export const Launchpad: React.FC = () => {
                       icon={Target}
                       delay={0.3}
                       className="min-h-[420px]"
+                      visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
                           <button
@@ -1418,6 +1431,7 @@ export const Launchpad: React.FC = () => {
                       icon={AlertTriangle}
                       delay={0.4}
                       className="h-64"
+                      visible={showResults}
                       action={
                         <div className="flex items-center gap-1.5">
                           <button
@@ -1467,7 +1481,7 @@ export const Launchpad: React.FC = () => {
 
                 {/* Right Column: Brand & Strategy */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget title="Brand Identity" icon={Palette} delay={0.3}>
+                  <Widget title="Brand Identity" icon={Palette} delay={0.3} visible={showResults}>
                     <div className="space-y-3">
                       <div>
                         <p className="font-mono text-[10px] text-gray-500 mb-2 uppercase tracking-widest">Color Palette</p>
@@ -1523,7 +1537,7 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7}>
+                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults}>
                     <div className="space-y-2">
                       {data.strategy.map((step: string, i: number) => (
                         <motion.div
