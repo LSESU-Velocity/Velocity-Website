@@ -81,7 +81,7 @@ const AnimatedScoreBar = ({
     if (visible && !hasAnimated) {
       setHasAnimated(true);
       const startTime = Date.now();
-      const duration = 1200; // ms
+      const duration = 1500; // ms - slightly slower for dial
       const delayMs = delay * 1000;
 
       const timeout = setTimeout(() => {
@@ -89,7 +89,7 @@ const AnimatedScoreBar = ({
           const elapsed = Date.now() - startTime - delayMs;
           const progress = Math.min(elapsed / duration, 1);
           
-          // Ease out cubic for smooth deceleration
+          // Ease out cubic
           const eased = 1 - Math.pow(1 - progress, 3);
           const value = Math.round(eased * targetValue);
           
@@ -106,17 +106,19 @@ const AnimatedScoreBar = ({
     }
   }, [visible, targetValue, delay, hasAnimated]);
 
-  // Reset animation when data changes
   useEffect(() => {
-    setHasAnimated(false);
-    setCurrentValue(0);
+    if (visible) {
+        setHasAnimated(false);
+        setCurrentValue(0);
+    }
   }, [targetValue]);
 
   // Get solid color based on thresholds
   const getDialColor = (percentage: number) => {
     const effectivePercentage = invertColor ? 100 - percentage : percentage;
     
-    if (effectivePercentage < 33) {
+    // Thresholds: 0-33 (Red), 33-70 (Yellow), 70-90 (Green), 90+ (Dark Green)
+    if (effectivePercentage < 33.33) {
       return '#ef4444'; // Red
     } else if (effectivePercentage < 70) {
       return '#eab308'; // Yellow
@@ -128,79 +130,81 @@ const AnimatedScoreBar = ({
   };
 
   const dialColor = getDialColor(currentValue);
-  const totalSegments = 12;
+  const totalSegments = 14; // A bit denser than 12 for a premium look
   const filledSegments = Math.round((currentValue / 100) * totalSegments);
 
-  // Generate arc segments
+  // Generate arc segments - arc opens upward (like a speedometer)
   const segments = [];
-  const startAngle = -180; // Start from left
-  const endAngle = 0; // End at right (semicircle)
-  const anglePerSegment = (endAngle - startAngle) / totalSegments;
-  const gapAngle = 4; // Gap between segments in degrees
+  const startAngle = -180; // Left side (9 o'clock position)
+  const endAngle = 0;      // Right side (3 o'clock position)
+  const angleRange = endAngle - startAngle;
+  const gap = 4; // degrees
+  const segmentAngle = (angleRange - (totalSegments - 1) * gap) / totalSegments;
+
+  const radius = 40;
+  const innerRadius = 28;
+  const centerX = 50;
+  const centerY = 50; // Center at bottom of viewBox so arc appears at top
+
+  // Helper to calculate coordinates (standard math: 0° = right, counterclockwise positive)
+  const polarToCartesian = (cx: number, cy: number, r: number, angleInDegrees: number) => {
+    const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
+    return {
+      x: cx + r * Math.cos(angleInRadians),
+      y: cy + r * Math.sin(angleInRadians)
+    };
+  };
+
+  const describeArc = (cx: number, cy: number, innerR: number, outerR: number, startAng: number, endAng: number) => {
+    const startOuter = polarToCartesian(cx, cy, outerR, startAng);
+    const endOuter = polarToCartesian(cx, cy, outerR, endAng);
+    const startInner = polarToCartesian(cx, cy, innerR, startAng);
+    const endInner = polarToCartesian(cx, cy, innerR, endAng);
+
+    const largeArcFlag = Math.abs(endAng - startAng) > 180 ? 1 : 0;
+
+    return [
+      "M", startOuter.x, startOuter.y,
+      "A", outerR, outerR, 0, largeArcFlag, 1, endOuter.x, endOuter.y,
+      "L", endInner.x, endInner.y,
+      "A", innerR, innerR, 0, largeArcFlag, 0, startInner.x, startInner.y,
+      "Z"
+    ].join(" ");
+  };
 
   for (let i = 0; i < totalSegments; i++) {
-    const segmentStart = startAngle + i * anglePerSegment + gapAngle / 2;
-    const segmentEnd = startAngle + (i + 1) * anglePerSegment - gapAngle / 2;
+    const segmentStart = startAngle + i * (segmentAngle + gap);
+    const segmentEnd = segmentStart + segmentAngle;
     const isFilled = i < filledSegments;
-    
-    // Convert angles to radians
-    const startRad = (segmentStart * Math.PI) / 180;
-    const endRad = (segmentEnd * Math.PI) / 180;
-    
-    // Calculate arc path
-    const outerRadius = 40;
-    const innerRadius = 28;
-    const centerX = 50;
-    const centerY = 50;
-    
-    const x1 = centerX + outerRadius * Math.cos(startRad);
-    const y1 = centerY + outerRadius * Math.sin(startRad);
-    const x2 = centerX + outerRadius * Math.cos(endRad);
-    const y2 = centerY + outerRadius * Math.sin(endRad);
-    const x3 = centerX + innerRadius * Math.cos(endRad);
-    const y3 = centerY + innerRadius * Math.sin(endRad);
-    const x4 = centerX + innerRadius * Math.cos(startRad);
-    const y4 = centerY + innerRadius * Math.sin(startRad);
-    
-    const largeArcFlag = anglePerSegment - gapAngle > 180 ? 1 : 0;
-    
-    const pathData = `
-      M ${x1} ${y1}
-      A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}
-      L ${x3} ${y3}
-      A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}
-      Z
-    `;
-    
+
     segments.push(
       <path
         key={i}
-        d={pathData}
+        d={describeArc(centerX, centerY, innerRadius, radius, segmentStart, segmentEnd)}
         fill={isFilled ? dialColor : 'rgba(255,255,255,0.08)'}
         style={{
-          transition: 'fill 0.15s ease-out',
-          filter: isFilled ? `drop-shadow(0 0 4px ${dialColor}40)` : 'none'
+          transition: 'fill 0.2s ease-out'
         }}
       />
     );
   }
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="relative w-24 h-14">
-        <svg viewBox="0 0 100 55" className="w-full h-full">
+    <div className="flex flex-col items-center justify-center w-full">
+      <div className="relative w-28 h-16 flex items-center justify-center">
+        <svg viewBox="0 0 100 55" className="w-full h-full overflow-visible">
           {segments}
         </svg>
-        <div className="absolute inset-0 flex items-end justify-center pb-0">
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center -mb-1">
           <span 
-            className="font-sans font-bold text-lg tabular-nums"
+            className="font-sans font-bold text-2xl tracking-tight tabular-nums leading-none"
             style={{ color: dialColor }}
           >
             {currentValue}%
           </span>
         </div>
       </div>
-      <span className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">{label}</span>
+      <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest mt-1">{label}</span>
     </div>
   );
 };
