@@ -1571,7 +1571,7 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults} className="h-52">
+                  <Widget title="User Acquisition" icon={Zap} delay={0.7} visible={showResults} className="h-52">
                     <div className="space-y-1.5">
                       {data.strategy.map((step: string, i: number) => (
                         <motion.div
