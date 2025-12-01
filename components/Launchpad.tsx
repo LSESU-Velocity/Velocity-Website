@@ -1594,7 +1594,7 @@ export const Launchpad: React.FC = () => {
                     title="Prompt Chain"
                     icon={Terminal}
                     delay={0.8}
-                    className="flex-1 min-h-[320px]"
+                    className="flex-1 min-h-[400px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
