@@ -104,7 +104,8 @@ const AnimatedScoreBar = ({
 
       return () => clearTimeout(timeout);
     }
-  }, [visible, targetValue, delay, hasAnimated]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, targetValue, delay]);
 
   useEffect(() => {
     if (visible) {
