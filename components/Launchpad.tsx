@@ -184,6 +184,23 @@ const generateStartupData = (idea: string) => {
           { name: 'W6', users: 2000 },
         ]
       }
+    ],
+    promptChain: [
+      {
+        step: 1,
+        title: "Set Up Your App Foundation",
+        prompt: `Build me a modern web app called "${idea}" with a clean homepage, user signup/login, and a simple dashboard. Use a dark theme with red accents. Make it mobile-friendly.`
+      },
+      {
+        step: 2,
+        title: "Add Core Features",
+        prompt: `Now add the main features: a real-time analytics view on the dashboard, the ability for users to create and manage projects, and a settings page where they can update their profile. Keep the same styling.`
+      },
+      {
+        step: 3,
+        title: "Polish & Launch Ready",
+        prompt: `Finally, add a nice landing page that explains what the app does with a "Get Started" button, add some loading animations, and make sure the navigation flows smoothly between all pages. Add a footer with links.`
+      }
     ]
   };
 
@@ -282,6 +299,23 @@ const generateStartupData = (idea: string) => {
             { name: 'W6', users: 1100 },
           ]
         }
+      ],
+      promptChain: [
+        {
+          step: 1,
+          title: "Create the Matching Screen",
+          prompt: "Build me a mobile app for finding gym partners. Start with a swipe-based matching screen like Tinder where users can see other people's profiles (photo, name, gym they go to, workout style). Add swipe left to skip and swipe right to match. Use a dark theme with red highlights."
+        },
+        {
+          step: 2,
+          title: "Add Profiles & Chat",
+          prompt: "Now add a profile setup flow where users can add their photo, select their gym from a list, pick their workout times, and describe what they're looking for in a gym buddy. Also add a simple chat feature so matched users can message each other to plan workouts."
+        },
+        {
+          step: 3,
+          title: "Launch Features",
+          prompt: "Finally, add a matches list screen showing all your current gym buddies, push notifications when you get a new match, and a simple onboarding flow for new users that explains how the app works. Add a nice splash screen with the app logo."
+        }
       ]
     };
   } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
@@ -378,6 +412,23 @@ const generateStartupData = (idea: string) => {
             { name: 'W5', users: 1100 },
             { name: 'W6', users: 2200 },
           ]
+        }
+      ],
+      promptChain: [
+        {
+          step: 1,
+          title: "Build the Pet Feed",
+          prompt: "Create a mobile app for pet owners to connect. Start with a location-based feed showing nearby pets with their photos, names, and a short bio. Add filters for pet type (dog, cat, etc.) and distance. Use warm orange and teal colors on a dark background."
+        },
+        {
+          step: 2,
+          title: "Add Pet Profiles & Booking",
+          prompt: "Now add a pet profile page where owners can add multiple pets with photos, age, breed, and personality traits. Also add a booking system where users can request playdates or pet-sitting services with a calendar picker and messaging."
+        },
+        {
+          step: 3,
+          title: "Safety & Payments",
+          prompt: "Finally, add owner verification badges, a review system for after playdates, and a simple payment flow for pet-sitting bookings. Include a map view to see nearby pets and add push notifications for new booking requests."
         }
       ]
     };
@@ -476,6 +527,23 @@ const generateStartupData = (idea: string) => {
             { name: 'W6', users: 950 },
           ]
         }
+      ],
+      promptChain: [
+        {
+          step: 1,
+          title: "Create the Study Hub",
+          prompt: "Build me a web app for university students to study together. Start with a homepage showing study groups organized by course/subject, a search bar to find groups, and a simple signup with university email. Use a purple and pink color scheme on dark mode."
+        },
+        {
+          step: 2,
+          title: "Add Collaboration Tools",
+          prompt: "Now add a study group page where members can share notes (upload PDFs or images), create flashcard decks together, and schedule study sessions with a shared calendar. Include a live chat for each group."
+        },
+        {
+          step: 3,
+          title: "Tutoring & Rewards",
+          prompt: "Finally, add a tutor marketplace where students can offer tutoring for courses they've aced, a points system that rewards users for sharing quality notes, and a profile page showing someone's courses, groups, and reputation. Add email notifications for upcoming study sessions."
+        }
       ]
     };
   } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
@@ -573,6 +641,23 @@ const generateStartupData = (idea: string) => {
             { name: 'W6', users: 2500 },
           ]
         }
+      ],
+      promptChain: [
+        {
+          step: 1,
+          title: "Build the Food Discovery Feed",
+          prompt: "Create a food discovery app with a beautiful visual feed showing dish photos from nearby restaurants. Each card shows the dish photo, name, price, and restaurant. Add filters for cuisine type and dietary needs (vegan, gluten-free). Use red and orange colors on a dark theme."
+        },
+        {
+          step: 2,
+          title: "Add Restaurant Pages & Ordering",
+          prompt: "Now add a restaurant detail page with all their dishes as a visual grid, operating hours, location on a map, and reviews. Include an 'Add to Order' button on each dish and a cart system to build your order."
+        },
+        {
+          step: 3,
+          title: "Checkout & User Favorites",
+          prompt: "Finally, add a checkout flow with pickup or delivery options, saved payment methods, and order tracking. Include a favorites list where users can save dishes they want to try, and a past orders section to quickly reorder. Add tasty food animations when placing an order!"
+        }
       ]
     };
   }
@@ -619,7 +704,8 @@ const generateStartupData = (idea: string) => {
           growthData: data.searchVolume[0].data,
           marketGap: data.marketGap
         },
-        systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`
+        systemPrompt: `Act as a Senior React Native developer. Set up a project structure for '${data.name}' using Expo and Firebase. Include a 'MapScreen' component with integrated Google Maps API and user authentication via Firebase. Focus on clean, modular code.`,
+        promptChain: data.promptChain
       });
     }, 2500);
   });
@@ -692,6 +778,7 @@ export const Launchpad: React.FC = () => {
   const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
   const [domainIndex, setDomainIndex] = useState(0);
   const [appScreenIndex, setAppScreenIndex] = useState(0);
+  const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const inputFormRef = useRef<HTMLFormElement>(null);
@@ -787,6 +874,7 @@ export const Launchpad: React.FC = () => {
     setSearchVolumeIndex(0);
     setDomainIndex(0);
     setAppScreenIndex(0);
+    setPromptChainIndex(0);
     setLoadingStep(0);
 
     const result = await generateStartupData(idea);
@@ -1483,8 +1571,8 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults}>
-                    <div className="space-y-2">
+                  <Widget title="Day 1 Playbook" icon={Zap} delay={0.7} visible={showResults} className="h-36">
+                    <div className="space-y-1.5">
                       {data.strategy.map((step: string, i: number) => (
                         <motion.div
                           key={i}
@@ -1493,41 +1581,108 @@ export const Launchpad: React.FC = () => {
                           transition={{ delay: 0.8 + i * 0.1 }}
                           className="flex items-start gap-2 group/item"
                         >
-                          <div className="w-4 h-4 bg-velocity-red/10 border border-velocity-red/30 text-velocity-red flex items-center justify-center font-mono text-[9px] font-bold shrink-0 group-hover/item:bg-velocity-red/20 transition-colors">
+                          <div className="w-3.5 h-3.5 bg-velocity-red/10 border border-velocity-red/30 text-velocity-red flex items-center justify-center font-mono text-[8px] font-bold shrink-0 group-hover/item:bg-velocity-red/20 transition-colors">
                             {i + 1}
                           </div>
-                          <p className="font-mono text-[10px] text-gray-400 group-hover/item:text-gray-300 transition-colors leading-relaxed">{step}</p>
+                          <p className="font-mono text-[9px] text-gray-400 group-hover/item:text-gray-300 transition-colors leading-tight line-clamp-1">{step}</p>
                         </motion.div>
                       ))}
                     </div>
                   </Widget>
 
-                  <div className="mt-auto">
-                    <div className="border border-white/10 bg-white/[0.02] p-3 flex flex-col gap-3 h-64">
-                      <div className="flex items-center justify-between shrink-0">
-                        <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                          <Copy className="w-3 h-3" /> Copy Prompt
+                  <Widget
+                    title="Prompt Chain"
+                    icon={Terminal}
+                    delay={0.8}
+                    className="flex-1 min-h-[320px]"
+                    visible={showResults}
+                    action={
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          {promptChainIndex + 1}/{data.promptChain.length}
                         </span>
+                        <button
+                          onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
                       </div>
-                      <div className="relative group/prompt flex-1 min-h-0">
-                        <div className="p-2 bg-black/40 border border-white/10 font-mono text-[9px] text-gray-400 h-full overflow-y-auto leading-relaxed custom-scrollbar">
-                          <span className="text-velocity-red">&gt; SYSTEM PROMPT:</span><br />
-                          {data.systemPrompt}
-                        </div>
-                        <div className="absolute top-1 right-1 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
-                          <Copy className="w-3 h-3 text-white cursor-pointer" />
-                        </div>
-                      </div>
+                    }
+                  >
+                    <div className="flex flex-col h-full gap-2">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={promptChainIndex}
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex flex-col h-full"
+                        >
+                          {/* Step indicator */}
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-6 h-6 bg-velocity-red/20 border border-velocity-red/50 flex items-center justify-center font-mono text-xs font-bold text-velocity-red">
+                              {data.promptChain[promptChainIndex].step}
+                            </div>
+                            <span className="font-sans font-semibold text-white text-sm">
+                              {data.promptChain[promptChainIndex].title}
+                            </span>
+                          </div>
+
+                          {/* Prompt content */}
+                          <div className="relative group/prompt flex-1 min-h-0">
+                            <div 
+                              className="p-2 bg-black/40 border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed custom-scrollbar cursor-pointer hover:border-velocity-red/30 transition-colors"
+                              onClick={() => {
+                                navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
+                              }}
+                            >
+                              {data.promptChain[promptChainIndex].prompt}
+                            </div>
+                            <div className="absolute top-1 right-1 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
+                              <div className="flex items-center gap-1 bg-velocity-red/90 px-1.5 py-0.5 text-[8px] font-mono text-white">
+                                <Copy className="w-2.5 h-2.5" /> Click to copy
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Progress dots */}
+                          <div className="flex items-center justify-center gap-2 mt-2">
+                            {data.promptChain.map((_: any, i: number) => (
+                              <button
+                                key={i}
+                                onClick={() => setPromptChainIndex(i)}
+                                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                                  i === promptChainIndex 
+                                    ? 'bg-velocity-red w-4' 
+                                    : i < promptChainIndex 
+                                      ? 'bg-velocity-red/50' 
+                                      : 'bg-white/20'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
+
+                      {/* CTA */}
                       <a
                         href="https://www.lsesu.com/communities/societies/group/Velocity/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-full py-2 bg-velocity-red text-white font-mono text-[10px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
+                        className="w-full py-2 bg-velocity-red text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red/80 transition-colors text-center shrink-0"
                       >
-                        DON'T KNOW HOW TO USE THIS? JOIN VELOCITY NOW.
+                        Need help building? Join Velocity →
                       </a>
                     </div>
-                  </div>
+                  </Widget>
                 </div>
 
               </div>
