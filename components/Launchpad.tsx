@@ -1334,17 +1334,17 @@ export const Launchpad: React.FC = () => {
                           </div>
                           
                           {/* Left Center: X-Low (low value at LEFT) */}
-                          <div className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10">
+                          <div className="absolute left-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-blue-400/70 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
                           
                           {/* Right Center: X-High (high value at RIGHT) */}
-                          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-cyan-500/70 z-10 text-right">
+                          <div className="absolute right-1.5 top-1/2 -translate-y-1/2 font-mono text-[8px] text-blue-400/70 z-10 text-right">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
                           
                           {/* Axis Labels - At corners for context */}
-                          <div className="absolute bottom-0.5 right-1.5 font-mono text-[6px] text-cyan-600/60 uppercase tracking-wider z-10">
+                          <div className="absolute bottom-0.5 right-1.5 font-mono text-[6px] text-blue-400/60 uppercase tracking-wider z-10">
                             {data.validation.marketGap?.xAxis.label} →
                           </div>
                           <div className="absolute top-1.5 left-0.5 [writing-mode:vertical-rl] rotate-180 font-mono text-[6px] text-velocity-red/60 uppercase tracking-wider z-10">
