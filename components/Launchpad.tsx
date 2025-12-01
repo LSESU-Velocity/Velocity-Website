@@ -1238,31 +1238,35 @@ export const Launchpad: React.FC = () => {
                             <div className="absolute w-1 h-1 bg-white/40 rounded-full" />
                           </div>
 
-                          {/* Axis Labels */}
-                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 z-10">
+                          {/* Axis Labels - Re-positioned for clarity */}
+                          {/* X-Axis Label (Bottom Center) */}
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10">
                             <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-2 py-0.5 rounded border border-white/10 shadow-sm">
                               {data.validation.marketGap?.xAxis.label}
                             </span>
                           </div>
 
-                          <div className="absolute bottom-2 left-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
-                            <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
-                          </div>
-                          <div className="absolute bottom-2 right-2 font-mono text-[8px] text-gray-600 flex items-center gap-1">
-                            {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
-                          </div>
-
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] rotate-180 flex items-center justify-center z-10">
+                          {/* Y-Axis Label (Left Center) */}
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 [writing-mode:vertical-rl] rotate-180 z-10">
                             <span className="font-mono text-[9px] text-gray-400 uppercase tracking-widest bg-black/80 backdrop-blur-sm px-0.5 py-2 rounded whitespace-nowrap border border-white/10 shadow-sm">
                               {data.validation.marketGap?.yAxis.label}
                             </span>
                           </div>
 
-                          <div className="absolute top-2 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
-                            High
+                          {/* X-Axis Values (Left/Right at vertical center) */}
+                          <div className="absolute top-1/2 left-2 -translate-y-1/2 font-mono text-[8px] text-gray-500 flex items-center gap-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                            <ChevronLeft className="w-2 h-2" /> {data.validation.marketGap?.xAxis.low}
                           </div>
-                          <div className="absolute bottom-8 left-1/2 ml-2 font-mono text-[8px] text-gray-600">
-                            Low
+                          <div className="absolute top-1/2 right-2 -translate-y-1/2 font-mono text-[8px] text-gray-500 flex items-center gap-1 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                            {data.validation.marketGap?.xAxis.high} <ChevronRight className="w-2 h-2" />
+                          </div>
+
+                          {/* Y-Axis Values (Top/Bottom at horizontal center) */}
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                            {data.validation.marketGap?.yAxis.high}
+                          </div>
+                          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 bg-black/40 px-1 py-0.5 rounded backdrop-blur-sm border border-white/5">
+                            {data.validation.marketGap?.yAxis.low}
                           </div>
 
                           {/* Competitor dots */}
