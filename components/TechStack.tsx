@@ -8,6 +8,9 @@ const items = [
   { name: "VERCEL", desc: "git push to production in 12 seconds." },
   { name: "SUPABASE", desc: "Postgres + Auth + Storage. One click." },
   { name: "CLAUDE", desc: "Your senior engineer never sleeps." },
+  { name: "GEMINI", desc: "Multimodal intelligence. Seeing, hearing, and coding." },
+  { name: "NANO BANANA", desc: "Edit reality with text. Images reimagined." },
+  { name: "HUGGING FACE", desc: "The AI community. Open source models for all." },
   { name: "GITHUB", desc: "Where your code lives forever." },
   { name: "STRIPE", desc: "Money in, money out. Seven lines." },
   { name: "YOU", desc: "The missing piece. Start building." }
