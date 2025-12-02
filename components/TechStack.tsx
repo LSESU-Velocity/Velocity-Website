@@ -3,14 +3,14 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const items = [
-  { name: "MICROSOFT '75", desc: "Micro-Soft. Writing a BASIC interpreter for the Altair." },
-  { name: "APPLE '76", desc: "The Homebrew Computer Club. Sold the calculator to buy parts." },
-  { name: "NVIDIA '93", desc: "Denny's. Three engineers dreaming of 3D graphics." },
-  { name: "AMAZON '94", desc: "A desk made of a door. Selling books from a garage." },
-  { name: "GOOGLE '98", desc: "BackRub. Two PhD dropouts and a server made of Lego." },
-  { name: "FACEBOOK '04", desc: "TheFacebook. A directory for one campus." },
-  { name: "AIRBNB '08", desc: "AirBed & Breakfast. Selling cereal boxes to survive." },
-  { name: "YOU '25", desc: "LSE. You are here. Write the next chapter." }
+  { name: "CURSOR", desc: "AI pair programmer. Tab to accept the future." },
+  { name: "V0", desc: "UI from prompts. Design without Figma." },
+  { name: "VERCEL", desc: "git push to production in 12 seconds." },
+  { name: "SUPABASE", desc: "Postgres + Auth + Storage. One click." },
+  { name: "CLAUDE", desc: "Your senior engineer never sleeps." },
+  { name: "GITHUB", desc: "Where your code lives forever." },
+  { name: "STRIPE", desc: "Money in, money out. Seven lines." },
+  { name: "YOU", desc: "The missing piece. Start building." }
 ];
 
 export const TechStack: React.FC = () => {
