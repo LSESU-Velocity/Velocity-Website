@@ -1098,10 +1098,12 @@ export const Launchpad: React.FC = () => {
           return;
         }
 
-        // Calculate target while viewport is frozen
-        const elementTop = element.getBoundingClientRect().top;
-        const offset = 100;
-        const target = initialScrollY + elementTop - offset;
+      // Calculate target while viewport is frozen - scroll to bottom edge of form
+      // but account for navbar height so the heading below is visible
+      const elementRect = element.getBoundingClientRect();
+      const elementBottom = elementRect.bottom;
+      const navbarHeight = 80; // Account for fixed navbar
+      const target = initialScrollY + elementBottom - navbarHeight;
         const distance = target - initialScrollY;
         
         // Unfreeze viewport
