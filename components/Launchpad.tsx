@@ -1038,7 +1038,7 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
   const iframeSrc = `https://trends.google.com/trends/embed/explore/TIMESERIES?req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22${encodedKeyword}%22%2C%22geo%22%3A%22GB%22%2C%22time%22%3A%22today%2012-m%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D&tz=-60&eq=q%3D${encodedKeyword}%26geo%3DGB%26date%3Dtoday%2012-m`;
 
   return (
-    <div className="w-full h-full overflow-hidden relative">
+    <div className="w-full h-full overflow-hidden relative" style={{ minHeight: '280px' }}>
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/5 z-10">
           <div className="flex flex-col items-center gap-2">
@@ -1049,10 +1049,15 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
       )}
       <iframe
         src={iframeSrc}
-        className="w-full h-full border-0"
+        className="border-0 absolute inset-0"
         style={{ 
           filter: 'invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1)',
-          minHeight: '150px'
+          width: 'calc(100% + 40px)',
+          height: 'calc(100% + 80px)',
+          marginLeft: '-20px',
+          marginTop: '-40px',
+          transform: 'scale(0.95)',
+          transformOrigin: 'center center'
         }}
         onLoad={() => setIsLoading(false)}
         title={`Google Trends for ${keyword}`}
@@ -1587,7 +1592,7 @@ export const Launchpad: React.FC = () => {
                         </div>
                       }
                     >
-                      <div className="h-full w-full flex flex-col min-h-[140px]">
+                      <div className="h-full w-full flex flex-col">
                         <AnimatePresence mode="wait">
                           <motion.div
                             key={searchVolumeIndex}
@@ -1597,7 +1602,7 @@ export const Launchpad: React.FC = () => {
                             transition={{ duration: 0.2 }}
                             className="flex flex-col h-full"
                           >
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-2 shrink-0">
                               <p className="font-mono text-[10px] text-white">
                                 "{data.validation.searchVolume[searchVolumeIndex].keyword}"
                               </p>
@@ -1613,7 +1618,7 @@ export const Launchpad: React.FC = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="flex-1 min-h-0 relative overflow-hidden rounded">
+                            <div className="flex-1 relative overflow-hidden rounded" style={{ minHeight: '280px' }}>
                               <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
                             </div>
                           </motion.div>
