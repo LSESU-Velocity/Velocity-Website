@@ -205,7 +205,7 @@ const AnimatedScoreBar = ({
           </span>
         </div>
       </div>
-      <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest mt-1">{label}</span>
+      <span className="font-mono text-[10px] text-gray-400 uppercase tracking-widest mt-1">{label}</span>
     </div>
   );
 };
@@ -1017,7 +1017,7 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
             <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
               <Icon className="w-3.5 h-3.5 text-gray-300 group-hover:text-velocity-red transition-colors duration-300" />
             </div>
-            <span className="font-mono text-[10px] text-gray-500 uppercase tracking-widest">{title}</span>
+            <span className="font-mono text-[10px] text-gray-300 uppercase tracking-widest">{title}</span>
           </div>
           {action}
         </div>
@@ -1043,7 +1043,7 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
         <div className="absolute inset-0 flex items-center justify-center bg-white/5 z-10">
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-4 h-4 text-velocity-red animate-spin" />
-            <span className="font-mono text-[9px] text-gray-500">Loading trends...</span>
+            <span className="font-mono text-[9px] text-gray-400">Loading trends...</span>
           </div>
         </div>
       )}
@@ -1306,7 +1306,7 @@ export const Launchpad: React.FC = () => {
                         >
                           <ChevronLeft className="w-3 h-3" />
                         </button>
-                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {appScreenIndex + 1}/{data.visuals.screens.length}
                         </span>
                         <button
@@ -1447,7 +1447,7 @@ export const Launchpad: React.FC = () => {
                         >
                           <ChevronLeft className="w-3 h-3" />
                         </button>
-                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {monetizationIndex + 1}/{data.monetization.length}
                         </span>
                         <button
@@ -1469,7 +1469,7 @@ export const Launchpad: React.FC = () => {
                         className="space-y-3"
                       >
                         <div>
-                          <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Model</p>
+                          <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
                           <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
                           <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
                         </div>
@@ -1477,13 +1477,13 @@ export const Launchpad: React.FC = () => {
                           {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
                             <div key={i} className="flex items-center gap-2">
                               <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
-                              <span className="text-xs text-gray-300">{strat}</span>
+                              <span className="text-xs text-gray-200">{strat}</span>
                             </div>
                           ))}
                         </div>
                         <div className="pt-2 border-t border-white/5">
                           <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
-                          <p className="font-mono text-[10px] text-gray-400 leading-relaxed flex items-center gap-1.5">
+                          <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
                              {data.monetization[monetizationIndex].examples}
                           </p>
                         </div>
@@ -1506,7 +1506,7 @@ export const Launchpad: React.FC = () => {
                       <span className="font-mono text-[9px] uppercase tracking-widest">Analysis Complete</span>
                     </div>
                     <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-white mb-0.5">{data.identity.name}</h2>
-                    <p className="font-mono text-gray-500 text-[10px] italic">{data.identity.tagline}</p>
+                    <p className="font-mono text-gray-400 text-[10px] italic">{data.identity.tagline}</p>
                   </motion.div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1518,12 +1518,12 @@ export const Launchpad: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-500 font-bold">TAM</span>
-                                <span className="text-[9px] text-gray-600 uppercase tracking-wide">Total Market</span>
+                                <span className="font-mono text-[10px] text-gray-300 font-bold">TAM</span>
+                                <span className="text-[9px] text-gray-400 uppercase tracking-wide">Total Market</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.tam.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-gray-500 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
+                            <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
                           </div>
                         </div>
 
@@ -1532,12 +1532,12 @@ export const Launchpad: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-400 font-bold">SAM</span>
-                                <span className="text-[9px] text-gray-500 uppercase tracking-wide">Serviceable</span>
+                                <span className="font-mono text-[10px] text-gray-300 font-bold">SAM</span>
+                                <span className="text-[9px] text-gray-400 uppercase tracking-wide">Serviceable</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.sam.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
+                            <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
                           </div>
                         </div>
 
@@ -1547,7 +1547,7 @@ export const Launchpad: React.FC = () => {
                             <div>
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="font-mono text-[10px] text-velocity-red font-bold">SOM</span>
-                                <span className="text-[9px] text-gray-400 uppercase tracking-wide">Target</span>
+                                <span className="text-[9px] text-gray-300 uppercase tracking-wide">Target</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.som.value}</p>
                             </div>
@@ -1557,7 +1557,7 @@ export const Launchpad: React.FC = () => {
 
                         {/* Source Reference Indicator */}
                         <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-default">
-                          <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
+                          <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
                           <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
                             <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
                           </div>
@@ -1580,7 +1580,7 @@ export const Launchpad: React.FC = () => {
                           >
                             <ChevronLeft className="w-3 h-3" />
                           </button>
-                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                             {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
                           </span>
                           <button
@@ -1608,7 +1608,7 @@ export const Launchpad: React.FC = () => {
                               </p>
                               <div className="group/info relative">
                                 <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center cursor-help hover:border-velocity-red/50 transition-colors">
-                                  <span className="text-[8px] text-gray-500 group-hover/info:text-velocity-red transition-colors">?</span>
+                                  <span className="text-[8px] text-gray-400 group-hover/info:text-velocity-red transition-colors">?</span>
                                 </div>
                                 <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[8px] font-mono text-gray-400 opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl leading-relaxed">
                                   <span className="text-white">100</span> = peak interest<br />
@@ -1636,7 +1636,7 @@ export const Launchpad: React.FC = () => {
                         visible={showResults}
                       >
                         <div className="flex flex-col gap-3">
-                          <p className="font-sans text-sm text-gray-300 leading-relaxed">
+                          <p className="font-sans text-sm text-gray-200 leading-relaxed">
                             {data.validation.aiInsight}
                           </p>
                           
@@ -1664,7 +1664,7 @@ export const Launchpad: React.FC = () => {
                           >
                             <ChevronLeft className="w-3 h-3" />
                           </button>
-                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                             {competitorIndex + 1}/{data.validation.competitorList.length}
                           </span>
                           <button
@@ -1688,16 +1688,16 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
 
                           {/* Minimal axis labels */}
-                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 z-10">
+                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-500 z-10">
+                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-500 z-10">
+                          <div className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-500 z-10">
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
 
@@ -1761,8 +1761,8 @@ export const Launchpad: React.FC = () => {
                               <div className="w-2 h-2 rounded-full bg-velocity-red" />
                               <span className="font-sans font-bold text-white text-sm">{data.validation.competitorList[competitorIndex].name}</span>
                             </div>
-                            <p className="font-mono text-[10px] text-gray-400 leading-relaxed pl-4">
-                              <span className="text-gray-500">Weakness:</span> {data.validation.competitorList[competitorIndex].weakness}
+                            <p className="font-mono text-[10px] text-gray-300 leading-relaxed pl-4">
+                              <span className="text-gray-400">Weakness:</span> {data.validation.competitorList[competitorIndex].weakness}
                             </p>
                           </motion.div>
                         </AnimatePresence>
@@ -1780,7 +1780,7 @@ export const Launchpad: React.FC = () => {
 
                         {/* Source Reference Indicator */}
                         <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
-                          <span className="font-mono text-[8px] text-gray-600 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
+                          <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
                           <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
                             <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
                           </div>
@@ -1803,7 +1803,7 @@ export const Launchpad: React.FC = () => {
                           >
                             <ChevronLeft className="w-3 h-3" />
                           </button>
-                          <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                             {riskIndex + 1}/{data.validation.riskAnalysis.length}
                           </span>
                           <button
@@ -1831,7 +1831,7 @@ export const Launchpad: React.FC = () => {
                             </div>
                             <div>
                               <p className="font-mono text-[9px] text-blue-400 mb-0.5 uppercase tracking-widest">Product Feature:</p>
-                              <p className="font-sans text-gray-400 text-xs leading-relaxed line-clamp-2">
+                              <p className="font-sans text-gray-300 text-xs leading-relaxed line-clamp-2">
                                 {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
                               </p>
                             </div>
@@ -1856,13 +1856,13 @@ export const Launchpad: React.FC = () => {
                           >
                              <div className="flex justify-between items-start mb-1">
                                 <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
-                                <span className="font-mono text-[9px] text-gray-500 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
+                                <span className="font-mono text-[9px] text-gray-300 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
                              </div>
                              <div className="flex flex-col gap-1">
-                               <div className="flex items-center gap-2 text-[9px] text-gray-400 font-mono">
+                               <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
                                  <span className="text-velocity-red">Target:</span> {segment.interest}
                                </div>
-                               <div className="flex items-center gap-2 text-[9px] text-gray-400 font-mono">
+                               <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
                                  <span className="text-blue-400">Income:</span> {segment.income}
                                </div>
                              </div>
@@ -1874,10 +1874,10 @@ export const Launchpad: React.FC = () => {
                   <Widget title="Distribution Channels" icon={MessageCircle} delay={0.7} visible={showResults} className="h-fit min-h-[220px]">
                     <div className="flex flex-col gap-3 h-full">
                       <div className="flex items-center justify-between">
-                        <p className="font-mono text-[9px] text-gray-500 uppercase tracking-widest">
+                        <p className="font-mono text-[9px] text-gray-300 uppercase tracking-widest">
                            Where Your Users Hang Out
                         </p>
-                        <div className="text-[8px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-gray-400">TOP 5</div>
+                        <div className="text-[8px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-gray-300">TOP 5</div>
                       </div>
                       
                       <div className="flex flex-col gap-2">
@@ -1896,11 +1896,11 @@ export const Launchpad: React.FC = () => {
                              
                             <div className="flex items-center gap-2.5 relative z-10">
                                <div className="w-1.5 h-1.5 rounded-full bg-velocity-red group-hover/channel:scale-150 transition-transform duration-300" />
-                               <span className="font-sans text-xs text-gray-300 font-medium group-hover/channel:text-white transition-colors">{channel.name}</span>
+                               <span className="font-sans text-xs text-gray-200 font-medium group-hover/channel:text-white transition-colors">{channel.name}</span>
                             </div>
                             
                             <div className="flex items-center gap-2 relative z-10">
-                                <span className="font-mono text-[8px] text-gray-600 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
+                                <span className="font-mono text-[8px] text-gray-400 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
                                 <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
                             </div>
                           </motion.a>
@@ -1923,7 +1923,7 @@ export const Launchpad: React.FC = () => {
                         >
                           <ChevronLeft className="w-3 h-3" />
                         </button>
-                        <span className="font-mono text-[9px] text-gray-500 tabular-nums px-1 select-none">
+                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {promptChainIndex + 1}/{data.promptChain.length}
                         </span>
                         <button
@@ -1948,14 +1948,14 @@ export const Launchpad: React.FC = () => {
                           >
                             {/* Step Header */}
                             <div className="shrink-0">
-                              <p className="font-mono text-[10px] text-gray-500 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
+                              <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
                               <p className="font-sans font-bold text-white text-sm">{data.promptChain[promptChainIndex].title}</p>
                             </div>
 
                             {/* Prompt content */}
                             <div className="relative group/prompt flex-1 min-h-0">
                               <div 
-                                className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-400 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
+                                className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
                                 onClick={() => {
                                   navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
                                 }}
@@ -2034,7 +2034,7 @@ export const Launchpad: React.FC = () => {
                               transition={{ delay: 1 + i * 0.1 }}
                               className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
                             >
-                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                              <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
                               <span className="truncate">{source.name}</span>
                             </motion.a>
                           ))}
@@ -2061,7 +2061,7 @@ export const Launchpad: React.FC = () => {
                               transition={{ delay: 1.1 + i * 0.1 }}
                               className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
                             >
-                              <ExternalLink className="w-3 h-3 text-gray-600 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                              <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
                               <span className="truncate">{source.name}</span>
                             </motion.a>
                           ))}
@@ -2074,7 +2074,7 @@ export const Launchpad: React.FC = () => {
                       <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 mt-0.5">
                         <span className="text-[7px] text-amber-400">!</span>
                       </div>
-                      <p className="font-mono text-[9px] text-gray-500 leading-relaxed">
+                      <p className="font-mono text-[9px] text-gray-400 leading-relaxed">
                         Data sourced from public databases and industry reports. In the future, sources will be dynamically fetched via Gemini AI for real-time accuracy.
                       </p>
                     </div>
