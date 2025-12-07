@@ -1,4 +1,5 @@
-// API Types
+// Reading file content
+
 export interface LoginResponse {
     valid: boolean;
     keyId?: string;
@@ -6,23 +7,62 @@ export interface LoginResponse {
 }
 
 export interface AnalysisData {
-    name: string;
-    tagline: string;
-    colors: string[];
-    domain: string[];
-    stack: string[];
-    interface: string;
+    identity: {
+        name: string;
+        tagline: string;
+        colors: string[];
+        domain: string[];
+        available: boolean;
+    };
     monetization: Array<{
         model: string;
         pricing: string;
         strategies: string[];
         examples: string;
     }>;
-    market: {
+    visuals: {
+        logoStyle: string;
+        appInterface: string;
+        screens: Array<{ type: string; title: string }>;
+    };
+    blueprint: {
+        stack: string[];
+        complexity: string;
+        timeline: string;
+    };
+    validation: {
         tam: { value: string; label: string };
         sam: { value: string; label: string };
         som: { value: string; label: string };
         aiInsight: string;
+        competitors: number;
+        competitorList: Array<{
+            name: string;
+            usp: string;
+            weakness: string;
+            x: number;
+            y: number;
+        }>;
+        riskAnalysis: Array<{
+            risk: string;
+            mitigation: string;
+            productFeature: string;
+        }>;
+        searchVolume: Array<{
+            keyword: string;
+            data: Array<{ name: string; users: number }>;
+        }>;
+        marketGap: {
+            xAxis: { label: string; low: string; high: string };
+            yAxis: { label: string; low: string; high: string };
+            yourPosition: { x: number; y: number };
+            yourGap: string;
+        };
+        scores?: {
+            viability: number;
+            scalability: number;
+            complexity: number;
+        };
     };
     sources: {
         market: Array<{ name: string; url: string }>;
@@ -34,28 +74,6 @@ export interface AnalysisData {
         income: string;
         interest: string;
     }>;
-    riskAnalysis: Array<{
-        risk: string;
-        mitigation: string;
-        productFeature: string;
-    }>;
-    competitors: Array<{
-        name: string;
-        usp: string;
-        weakness: string;
-        x: number;
-        y: number;
-    }>;
-    marketGap: {
-        xAxis: { label: string; low: string; high: string };
-        yAxis: { label: string; low: string; high: string };
-        yourPosition: { x: number; y: number };
-        yourGap: string;
-    };
-    searchVolume: Array<{
-        keyword: string;
-        data: Array<{ name: string; users: number }>;
-    }>;
     promptChain: Array<{
         step: number;
         title: string;
@@ -66,10 +84,6 @@ export interface AnalysisData {
         type: string;
         members: string;
     }>;
-    // Computed scores
-    viability?: number;
-    scalability?: number;
-    complexity?: number;
 }
 
 export interface AnalysisRecord {

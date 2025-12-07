@@ -1779,9 +1779,9 @@ export const Launchpad: React.FC = () => {
                           </p>
 
                           <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5">
-                            <AnimatedScoreBar label="Viability" targetValue={80} delay={0.3} visible={showResults} />
-                            <AnimatedScoreBar label="Scalability" targetValue={60} delay={0.4} visible={showResults} />
-                            <AnimatedScoreBar label="Complexity" targetValue={40} delay={0.5} visible={showResults} invertColor />
+                            <AnimatedScoreBar label="Viability" targetValue={data.validation.scores?.viability ?? 80} delay={0.3} visible={showResults} />
+                            <AnimatedScoreBar label="Scalability" targetValue={data.validation.scores?.scalability ?? 60} delay={0.4} visible={showResults} />
+                            <AnimatedScoreBar label="Complexity" targetValue={data.validation.scores?.complexity ?? 40} delay={0.5} visible={showResults} invertColor />
                           </div>
                         </div>
                       </Widget>

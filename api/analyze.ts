@@ -195,18 +195,64 @@ ${responseSchema}`;
       return res.status(500).json({ error: 'Failed to parse AI response' });
     }
 
+    // Reshape data to match Launchpad.tsx expectations
+    const formattedData = {
+      identity: {
+        name: analysisData.name,
+        tagline: analysisData.tagline,
+        colors: analysisData.colors || ["#000000", "#ffffff"],
+        domain: analysisData.domain || [],
+        available: true
+      },
+      monetization: analysisData.monetization,
+      visuals: {
+        logoStyle: "Minimalist",
+        appInterface: analysisData.interface,
+        screens: [
+          { type: "map", title: "Home" },
+          { type: "feed", title: "Feed" },
+          { type: "profile", title: "Profile" }
+        ]
+      },
+      blueprint: {
+        stack: analysisData.stack || [],
+        complexity: analysisData.complexity > 70 ? "High" : analysisData.complexity > 40 ? "Medium" : "Low",
+        timeline: "2-4 Weeks"
+      },
+      distributionChannels: analysisData.distributionChannels,
+      validation: {
+        tam: analysisData.market.tam,
+        sam: analysisData.market.sam,
+        som: analysisData.market.som,
+        aiInsight: analysisData.market.aiInsight,
+        competitors: analysisData.competitors.length,
+        competitorList: analysisData.competitors,
+        riskAnalysis: analysisData.riskAnalysis,
+        searchVolume: analysisData.searchVolume,
+        marketGap: analysisData.marketGap,
+        scores: {
+          viability: analysisData.viability || 0,
+          scalability: analysisData.scalability || 0,
+          complexity: analysisData.complexity || 0
+        }
+      },
+      sources: analysisData.sources,
+      customerSegments: analysisData.customerSegments,
+      promptChain: analysisData.promptChain
+    };
+
     // Save to Firestore
     const analysesRef = db.collection('analyses');
     const newAnalysis = {
       keyId: keyDoc.id,
       idea: idea.trim(),
-      data: analysisData,
+      data: formattedData,
       createdAt: new Date(),
     };
 
     await analysesRef.add(newAnalysis);
 
-    return res.status(200).json(analysisData);
+    return res.status(200).json(formattedData);
   } catch (error) {
     console.error('Analysis error:', error);
     return res.status(500).json({ error: 'Failed to generate analysis' });
