@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { initFirebase } from '../lib/firebase';
+import { initFirebase } from './_firebase';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Only allow GET

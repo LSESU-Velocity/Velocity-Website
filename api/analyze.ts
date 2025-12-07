@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { initFirebase } from '../lib/firebase';
+import { initFirebase } from './_firebase';
 
 // Initialize Gemini
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
@@ -93,45 +93,45 @@ const responseSchema = `{
 }`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Only allow POST
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
+  // Only allow POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { key, idea } = req.body;
+
+  if (!key || typeof key !== 'string') {
+    return res.status(400).json({ error: 'Key is required' });
+  }
+
+  if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
+    return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
+  }
+
+  try {
+    const db = initFirebase();
+
+    // Validate the key exists
+    const keysRef = db.collection('keys');
+    const keySnapshot = await keysRef.where('code', '==', key.trim()).get();
+
+    if (keySnapshot.empty) {
+      return res.status(401).json({ error: 'Invalid key' });
     }
 
-    const { key, idea } = req.body;
+    const keyDoc = keySnapshot.docs[0];
 
-    if (!key || typeof key !== 'string') {
-        return res.status(400).json({ error: 'Key is required' });
-    }
+    // Generate analysis using Gemini 2.5 Flash with grounding
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash',
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.9,
+        maxOutputTokens: 8192,
+      },
+    });
 
-    if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
-        return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
-    }
-
-    try {
-        const db = initFirebase();
-
-        // Validate the key exists
-        const keysRef = db.collection('keys');
-        const keySnapshot = await keysRef.where('code', '==', key.trim()).get();
-
-        if (keySnapshot.empty) {
-            return res.status(401).json({ error: 'Invalid key' });
-        }
-
-        const keyDoc = keySnapshot.docs[0];
-
-        // Generate analysis using Gemini 2.5 Flash with grounding
-        const model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash',
-            generationConfig: {
-                temperature: 0.7,
-                topP: 0.9,
-                maxOutputTokens: 8192,
-            },
-        });
-
-        const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
+    const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
 
 STARTUP IDEA: "${idea}"
 
@@ -155,36 +155,36 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
 ${responseSchema}`;
 
-        const result = await model.generateContent(prompt);
-        const response = result.response;
-        let text = response.text();
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    let text = response.text();
 
-        // Clean up the response - remove markdown code blocks if present
-        text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    // Clean up the response - remove markdown code blocks if present
+    text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-        // Parse the JSON
-        let analysisData;
-        try {
-            analysisData = JSON.parse(text);
-        } catch (parseError) {
-            console.error('Failed to parse Gemini response:', text);
-            return res.status(500).json({ error: 'Failed to parse AI response' });
-        }
-
-        // Save to Firestore
-        const analysesRef = db.collection('analyses');
-        const newAnalysis = {
-            keyId: keyDoc.id,
-            idea: idea.trim(),
-            data: analysisData,
-            createdAt: new Date(),
-        };
-
-        await analysesRef.add(newAnalysis);
-
-        return res.status(200).json(analysisData);
-    } catch (error) {
-        console.error('Analysis error:', error);
-        return res.status(500).json({ error: 'Failed to generate analysis' });
+    // Parse the JSON
+    let analysisData;
+    try {
+      analysisData = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Failed to parse Gemini response:', text);
+      return res.status(500).json({ error: 'Failed to parse AI response' });
     }
+
+    // Save to Firestore
+    const analysesRef = db.collection('analyses');
+    const newAnalysis = {
+      keyId: keyDoc.id,
+      idea: idea.trim(),
+      data: analysisData,
+      createdAt: new Date(),
+    };
+
+    await analysesRef.add(newAnalysis);
+
+    return res.status(200).json(analysisData);
+  } catch (error) {
+    console.error('Analysis error:', error);
+    return res.status(500).json({ error: 'Failed to generate analysis' });
+  }
 }
