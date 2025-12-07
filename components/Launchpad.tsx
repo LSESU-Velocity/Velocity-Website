@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History } from 'lucide-react';
+import { useAuth } from '../hooks/useAuth';
+import { InviteCodeLogin } from './InviteCodeLogin';
+import { generateAnalysis, getAnalyses, AnalysisRecord } from '../lib/api';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -1074,9 +1077,14 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
 };
 
 export const Launchpad: React.FC = () => {
+  const { isAuthenticated, isLoading: authLoading, authKey, login, logout } = useAuth();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [idea, setIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<AnalysisRecord[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
   const [competitorIndex, setCompetitorIndex] = useState(0);
   const [monetizationIndex, setMonetizationIndex] = useState(0);
   const [riskIndex, setRiskIndex] = useState(0);
@@ -1087,6 +1095,13 @@ export const Launchpad: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const inputFormRef = useRef<HTMLFormElement>(null);
+
+  // Fetch history when authenticated
+  useEffect(() => {
+    if (isAuthenticated && authKey) {
+      getAnalyses(authKey).then(setHistory).catch(console.error);
+    }
+  }, [isAuthenticated, authKey]);
 
   useEffect(() => {
     if (data && !isGenerating) {
@@ -1172,8 +1187,15 @@ export const Launchpad: React.FC = () => {
     e.preventDefault();
     if (!idea.trim()) return;
 
+    // Check authentication first
+    if (!isAuthenticated) {
+      setShowLoginModal(true);
+      return;
+    }
+
     setIsGenerating(true);
     setData(null);
+    setError(null);
     setShowResults(false);
     setCompetitorIndex(0);
     setMonetizationIndex(0);
@@ -1184,16 +1206,125 @@ export const Launchpad: React.FC = () => {
     setPromptChainIndex(0);
     setLoadingStep(0);
 
-    const result = await generateStartupData(idea);
+    try {
+      const result = await generateAnalysis(authKey!, idea);
+      setData(result);
+      // Refresh history after new analysis
+      if (authKey) {
+        getAnalyses(authKey).then(setHistory).catch(console.error);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to generate analysis');
+      console.error('Analysis error:', err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
-    setData(result);
-    setIsGenerating(false);
+  // Load a previous analysis from history
+  const loadFromHistory = (record: AnalysisRecord) => {
+    setData(record.data);
+    setIdea(record.idea);
+    setShowHistory(false);
+    setShowResults(true);
   };
 
   return (
     <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden">
+      {/* Login Modal */}
+      <InviteCodeLogin
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={login}
+      />
+
+      {/* Auth Status Bar */}
+      <div className="fixed top-20 right-6 z-40 flex items-center gap-3">
+        {isAuthenticated ? (
+          <>
+            {/* History Button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowHistory(!showHistory)}
+                className="p-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+              >
+                <History className="w-4 h-4" />
+                <span className="text-sm font-mono hidden sm:inline">History</span>
+                {history.length > 0 && (
+                  <span className="bg-velocity-red text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {history.length}
+                  </span>
+                )}
+              </button>
+
+              {/* History Dropdown */}
+              <AnimatePresence>
+                {showHistory && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="absolute top-full right-0 mt-2 w-72 bg-zinc-900 border border-white/10 rounded-lg shadow-xl overflow-hidden"
+                  >
+                    <div className="p-3 border-b border-white/10">
+                      <span className="text-sm font-semibold text-white">Previous Analyses</span>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                      {history.length === 0 ? (
+                        <p className="p-3 text-sm text-gray-500">No analyses yet</p>
+                      ) : (
+                        history.map((record) => (
+                          <button
+                            key={record.id}
+                            onClick={() => loadFromHistory(record)}
+                            className="w-full p-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
+                          >
+                            <p className="text-sm text-white truncate">{record.idea}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(record.createdAt).toLocaleDateString()}
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={logout}
+              className="p-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="px-4 py-2 bg-velocity-red hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors"
+          >
+            Login
+          </button>
+        )}
+      </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3 max-w-2xl mx-auto"
+          >
+            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
+            <p className="text-red-400 text-sm">{error}</p>
+            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">×</button>
+          </motion.div>
+        )}
+
         {/* Header Section */}
         <div className="flex flex-col items-center justify-center mb-16 text-center">
 
