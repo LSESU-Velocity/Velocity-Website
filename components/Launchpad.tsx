@@ -278,10 +278,10 @@ const generateStartupData = (idea: string) => {
       }
     ],
     market: {
-      tam: { value: "15M", label: "UK Startup Founders" },
-      sam: { value: "1.2M", label: "London Tech Workers" },
-      som: { value: "~5,000", label: "LSE Students & Staff" },
-      aiInsight: "VelocityApp targets a high-growth segment of UK founders (15M TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
+      tam: { value: "$150B", label: "Global Developer Tools Market" },
+      sam: { value: "$12B", label: "UK SaaS & Startup Tools" },
+      som: { value: "$500K", label: "LSE Founders & Tech Students" },
+      aiInsight: "VelocityApp targets a high-growth segment of UK founders ($150B TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
     },
     sources: {
       market: [
@@ -441,10 +441,10 @@ const generateStartupData = (idea: string) => {
         }
       ],
       market: {
-        tam: { value: "10M", label: "UK Gym Members" },
-        sam: { value: "850K", label: "London Gym-Goers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With 10M UK gym members, the TAM is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
+        tam: { value: "$5.3B", label: "UK Fitness App Market" },
+        sam: { value: "$420M", label: "London Fitness Tech" },
+        som: { value: "$75K", label: "LSE Students & Staff" },
+        aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With $5.3B UK fitness app TAM, the opportunity is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
       },
       sources: {
         market: [
@@ -578,9 +578,9 @@ const generateStartupData = (idea: string) => {
         }
       ],
       market: {
-        tam: { value: "2.4M", label: "UK Pet Owners" },
-        sam: { value: "300K", label: "London Dog Owners" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
+        tam: { value: "$8.1B", label: "UK Pet Care Market" },
+        sam: { value: "$650M", label: "London Pet Services" },
+        som: { value: "$60K", label: "LSE Students & Staff" },
         aiInsight: "PetPals capitalizes on the post-pandemic pet boom (20% growth). It solves a critical trust issue in the pet-sitting market by leveraging local community verification. While established players like Rover dominate the high-end, your focus on 'casual, community-led' care fills a massive gap for cost-conscious urban millennials."
       },
       sources: {
@@ -715,9 +715,9 @@ const generateStartupData = (idea: string) => {
         }
       ],
       market: {
-        tam: { value: "2.8M", label: "UK University Students" },
-        sam: { value: "400K", label: "London Students" },
-        som: { value: "~12,000", label: "LSE Students" },
+        tam: { value: "$6.2B", label: "UK EdTech Market" },
+        sam: { value: "$890M", label: "London Higher Ed Tech" },
+        som: { value: "$120K", label: "LSE Student Spending" },
         aiInsight: "StudySphere hits the sweet spot of post-COVID hybrid learning. Students are craving connection, and your peer-to-peer focus differentiates heavily from static content libraries like Chegg. The 'Freemium' model aligns perfectly with student budgets. Success hinges on overcoming the 'empty platform' risk by seeding high-quality initial content."
       },
       sources: {
@@ -852,10 +852,10 @@ const generateStartupData = (idea: string) => {
         }
       ],
       market: {
-        tam: { value: "45M", label: "UK Food Delivery Users" },
-        sam: { value: "3.5M", label: "London Foodies" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "Tastify disrupts the text-heavy food delivery model with a visual-first approach, aligning perfectly with Gen Z discovery habits. With 45M users in the TAM, the opportunity is massive. The main challenge is the logistics barrier, which your 'concierge MVP' strategy smartly mitigates. Visual discovery + seamless ordering is a defensible moat."
+        tam: { value: "$14.5B", label: "UK Food Delivery Market" },
+        sam: { value: "$2.8B", label: "London Food Tech" },
+        som: { value: "$85K", label: "LSE Students & Staff" },
+        aiInsight: "Tastify disrupts the text-heavy food delivery model with a visual-first approach, aligning perfectly with Gen Z discovery habits. With $14.5B TAM, the opportunity is massive. The main challenge is the logistics barrier, which your 'concierge MVP' strategy smartly mitigates. Visual discovery + seamless ordering is a defensible moat."
       },
       sources: {
         market: [
