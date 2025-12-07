@@ -6,12 +6,31 @@ let db: Firestore;
 
 export function initFirebase(): Firestore {
     if (!getApps().length) {
-        // Handle private key newlines (Vercel stores them with literal \n)
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+        // Handle private key newlines - Vercel may store them in different formats
+        let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-        if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
-            throw new Error('Missing Firebase environment variables');
+        if (!privateKey) {
+            throw new Error('FIREBASE_PRIVATE_KEY is not set');
         }
+
+        // Remove surrounding quotes if present (Vercel sometimes adds them)
+        if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+            privateKey = privateKey.slice(1, -1);
+        }
+
+        // Replace literal \n with actual newlines
+        privateKey = privateKey.replace(/\\n/g, '\n');
+
+        if (!process.env.FIREBASE_PROJECT_ID) {
+            throw new Error('FIREBASE_PROJECT_ID is not set');
+        }
+        if (!process.env.FIREBASE_CLIENT_EMAIL) {
+            throw new Error('FIREBASE_CLIENT_EMAIL is not set');
+        }
+
+        console.log('Initializing Firebase with project:', process.env.FIREBASE_PROJECT_ID);
+        console.log('Service account:', process.env.FIREBASE_CLIENT_EMAIL);
+        console.log('Private key starts with:', privateKey.substring(0, 30));
 
         app = initializeApp({
             credential: cert({
