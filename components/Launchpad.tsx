@@ -60,7 +60,7 @@ const AnimatedText = ({
   );
 };
 
-// Animated Dial/Gauge Component - Premium glassmorphism design
+// Animated Dial/Gauge Component - Clean minimal design matching site aesthetic
 const AnimatedScoreBar = ({
   label,
   targetValue,
@@ -76,7 +76,6 @@ const AnimatedScoreBar = ({
 }) => {
   const [currentValue, setCurrentValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (visible && !hasAnimated) {
@@ -133,11 +132,11 @@ const AnimatedScoreBar = ({
 
   const dialColor = getDialColor(currentValue);
 
-  // Arc configuration
-  const radius = 42;
-  const strokeWidth = 6;
+  // Arc configuration - smaller size
+  const radius = 36;
+  const strokeWidth = 4;
   const centerX = 50;
-  const centerY = 50;
+  const centerY = 45;
 
   // Calculate arc path (semicircle opening upward)
   const startAngle = -180;
@@ -164,37 +163,12 @@ const AnimatedScoreBar = ({
   const filledArc = currentValue > 0 ? describeArc(centerX, centerY, radius, startAngle, filledAngle) : '';
 
   return (
-    <div
-      className="group/dial flex flex-col items-center justify-center w-full"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* Glassmorphic container */}
-      <div
-        className="relative p-4 rounded-lg bg-white/[0.02] border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.04] hover:border-white/20"
-        style={{
-          boxShadow: isHovered ? `0 0 30px ${dialColor}15, inset 0 0 20px ${dialColor}05` : 'none',
-        }}
-      >
+    <div className="flex flex-col items-center justify-center w-full">
+      {/* Minimal container */}
+      <div className="relative p-2">
         {/* SVG Dial */}
-        <div className="relative w-24 h-14 flex items-center justify-center">
-          <svg viewBox="0 0 100 55" className="w-full h-full overflow-visible">
-            {/* Glow filter for filled arc */}
-            <defs>
-              <filter id={`glow-${label}`} x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-              {/* Gradient for the arc */}
-              <linearGradient id={`arcGradient-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={dialColor} stopOpacity="0.6" />
-                <stop offset="100%" stopColor={dialColor} stopOpacity="1" />
-              </linearGradient>
-            </defs>
-
+        <div className="relative w-20 h-12 flex items-center justify-center">
+          <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
             {/* Background arc track */}
             <path
               d={backgroundArc}
@@ -204,34 +178,30 @@ const AnimatedScoreBar = ({
               strokeLinecap="round"
             />
 
-            {/* Filled arc with glow */}
+            {/* Filled arc - no glow filter */}
             {currentValue > 0 && (
               <path
                 d={filledArc}
                 fill="none"
-                stroke={`url(#arcGradient-${label})`}
+                stroke={dialColor}
                 strokeWidth={strokeWidth}
                 strokeLinecap="round"
-                filter={`url(#glow-${label})`}
                 style={{
                   transition: 'stroke 0.3s ease-out'
                 }}
               />
             )}
 
-            {/* Start and end tick marks */}
-            <circle cx={centerX - radius} cy={centerY} r="1.5" fill="rgba(255,255,255,0.2)" />
-            <circle cx={centerX + radius} cy={centerY} r="1.5" fill="rgba(255,255,255,0.2)" />
+            {/* Minimal tick marks */}
+            <circle cx={centerX - radius} cy={centerY} r="1" fill="rgba(255,255,255,0.15)" />
+            <circle cx={centerX + radius} cy={centerY} r="1" fill="rgba(255,255,255,0.15)" />
           </svg>
 
           {/* Centered percentage display */}
           <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
             <span
-              className="font-sans font-bold text-xl tracking-tight tabular-nums leading-none transition-all duration-300"
-              style={{
-                color: dialColor,
-                textShadow: isHovered ? `0 0 15px ${dialColor}60` : 'none'
-              }}
+              className="font-mono font-medium text-sm tracking-tight tabular-nums leading-none"
+              style={{ color: dialColor }}
             >
               {currentValue}%
             </span>
@@ -240,7 +210,7 @@ const AnimatedScoreBar = ({
       </div>
 
       {/* Label below the dial */}
-      <span className="font-mono text-[9px] text-gray-500 uppercase tracking-[0.2em] mt-2 group-hover/dial:text-gray-300 transition-colors duration-300">
+      <span className="font-mono text-[8px] text-gray-300 uppercase tracking-[0.15em] mt-1">
         {label}
       </span>
     </div>
@@ -1672,12 +1642,12 @@ export const Launchpad: React.FC = () => {
                         className="h-fit"
                         visible={showResults}
                       >
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
                           <p className="font-sans text-sm text-gray-200 leading-relaxed">
                             {data.validation.aiInsight}
                           </p>
 
-                          <div className="grid grid-cols-3 gap-3 pt-2 border-t border-white/5">
+                          <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5">
                             <AnimatedScoreBar label="Viability" targetValue={80} delay={0.3} visible={showResults} />
                             <AnimatedScoreBar label="Scalability" targetValue={60} delay={0.4} visible={showResults} />
                             <AnimatedScoreBar label="Complexity" targetValue={40} delay={0.5} visible={showResults} invertColor />
