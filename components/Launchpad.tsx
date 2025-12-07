@@ -210,7 +210,7 @@ const AnimatedScoreBar = ({
       </div>
 
       {/* Label below the dial */}
-      <span className="font-mono text-[8px] text-gray-300 uppercase tracking-[0.15em] mt-1">
+      <span className="font-mono text-[9px] text-gray-300 uppercase tracking-widest mt-1">
         {label}
       </span>
     </div>
