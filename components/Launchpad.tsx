@@ -88,13 +88,13 @@ const AnimatedScoreBar = ({
         const animate = () => {
           const elapsed = Date.now() - startTime - delayMs;
           const progress = Math.min(elapsed / duration, 1);
-          
+
           // Ease out cubic
           const eased = 1 - Math.pow(1 - progress, 3);
           const value = Math.round(eased * targetValue);
-          
+
           setCurrentValue(value);
-          
+
           if (progress < 1) {
             requestAnimationFrame(animate);
           }
@@ -104,20 +104,20 @@ const AnimatedScoreBar = ({
 
       return () => clearTimeout(timeout);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, targetValue, delay]);
 
   useEffect(() => {
     if (visible) {
-        setHasAnimated(false);
-        setCurrentValue(0);
+      setHasAnimated(false);
+      setCurrentValue(0);
     }
   }, [targetValue]);
 
   // Get solid color based on thresholds
   const getDialColor = (percentage: number) => {
     const effectivePercentage = invertColor ? 100 - percentage : percentage;
-    
+
     // Thresholds: 0-33 (Red), 33-70 (Yellow), 70-90 (Green), 90+ (Dark Green)
     if (effectivePercentage < 33.33) {
       return '#ef4444'; // Red
@@ -197,7 +197,7 @@ const AnimatedScoreBar = ({
           {segments}
         </svg>
         <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center -mb-1">
-          <span 
+          <span
             className="font-sans font-bold text-2xl tracking-tight tabular-nums leading-none"
             style={{ color: dialColor }}
           >
@@ -240,22 +240,22 @@ const generateStartupData = (idea: string) => {
         examples: "Alfred, Things 3, Final Cut Pro"
       }
     ],
-      market: {
-        tam: { value: "15M", label: "UK Startup Founders" },
-        sam: { value: "1.2M", label: "London Tech Workers" },
-        som: { value: "~5,000", label: "LSE Students & Staff" },
-        aiInsight: "VelocityApp targets a high-growth segment of UK founders (15M TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
-      },
-      sources: {
-        market: [
-          { name: "Statista UK Tech Report 2024", url: "https://statista.com" },
-          { name: "Gov.uk Business Statistics", url: "https://gov.uk" }
-        ],
-        competitors: [
-          { name: "G2 Crowd Reviews", url: "https://g2.com" },
-          { name: "Capterra Comparisons", url: "https://capterra.com" }
-        ]
-      },
+    market: {
+      tam: { value: "15M", label: "UK Startup Founders" },
+      sam: { value: "1.2M", label: "London Tech Workers" },
+      som: { value: "~5,000", label: "LSE Students & Staff" },
+      aiInsight: "VelocityApp targets a high-growth segment of UK founders (15M TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
+    },
+    sources: {
+      market: [
+        { name: "Statista UK Tech Report 2024", url: "https://statista.com" },
+        { name: "Gov.uk Business Statistics", url: "https://gov.uk" }
+      ],
+      competitors: [
+        { name: "G2 Crowd Reviews", url: "https://g2.com" },
+        { name: "Capterra Comparisons", url: "https://capterra.com" }
+      ]
+    },
     customerSegments: [
       { segment: "Early-stage Founders", age: "20-35", income: "Variable", interest: "Tech & Innovation" },
       { segment: "Product Managers", age: "25-45", income: "High", interest: "Efficiency & Scaling" },
@@ -1033,9 +1033,9 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
 const GoogleTrends = ({ keyword }: { keyword: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const encodedKeyword = encodeURIComponent(keyword);
-  
-  // Google Trends embed URL for timeseries widget
-  const iframeSrc = `https://trends.google.com/trends/embed/explore/TIMESERIES?req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22${encodedKeyword}%22%2C%22geo%22%3A%22GB%22%2C%22time%22%3A%22today%2012-m%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D&tz=-60&eq=q%3D${encodedKeyword}%26geo%3DGB%26date%3Dtoday%2012-m`;
+
+  // Google Trends embed URL for timeseries widget (5-year period for comprehensive trend data)
+  const iframeSrc = `https://trends.google.com/trends/embed/explore/TIMESERIES?req=%7B%22comparisonItem%22%3A%5B%7B%22keyword%22%3A%22${encodedKeyword}%22%2C%22geo%22%3A%22GB%22%2C%22time%22%3A%22today%205-y%22%7D%5D%2C%22category%22%3A0%2C%22property%22%3A%22%22%7D&tz=-60&eq=q%3D${encodedKeyword}%26geo%3DGB%26date%3Dtoday%205-y`;
 
   return (
     <div className="w-full h-full overflow-hidden relative" style={{ minHeight: '280px' }}>
@@ -1050,7 +1050,7 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
       <iframe
         src={iframeSrc}
         className="border-0 absolute inset-0"
-        style={{ 
+        style={{
           filter: 'invert(1) hue-rotate(180deg) contrast(0.9) brightness(1.1)',
           width: 'calc(100% + 40px)',
           height: 'calc(100% + 80px)',
@@ -1084,15 +1084,15 @@ export const Launchpad: React.FC = () => {
   useEffect(() => {
     if (data && !isGenerating) {
       setShowResults(false); // Reset before scroll
-      
+
       // Capture current scroll position immediately
       const initialScrollY = window.scrollY;
-      
+
       // Freeze viewport to prevent any micro-scrolls during layout
       const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
       document.documentElement.style.overflow = 'hidden';
       document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
-      
+
       // Wait for layout to fully settle
       setTimeout(() => {
         const element = inputFormRef.current;
@@ -1103,21 +1103,21 @@ export const Launchpad: React.FC = () => {
           return;
         }
 
-      // Calculate target while viewport is frozen - scroll to bottom edge of form
-      // but account for navbar height so the heading below is visible
-      const elementRect = element.getBoundingClientRect();
-      const elementBottom = elementRect.bottom;
-      const navbarHeight = 80; // Account for fixed navbar
-      const target = initialScrollY + elementBottom - navbarHeight;
+        // Calculate target while viewport is frozen - scroll to bottom edge of form
+        // but account for navbar height so the heading below is visible
+        const elementRect = element.getBoundingClientRect();
+        const elementBottom = elementRect.bottom;
+        const navbarHeight = 80; // Account for fixed navbar
+        const target = initialScrollY + elementBottom - navbarHeight;
         const distance = target - initialScrollY;
-        
+
         // Unfreeze viewport
         document.documentElement.style.overflow = '';
         document.documentElement.style.paddingRight = '';
-        
+
         // Ensure we're at the starting position
         window.scrollTo({ top: initialScrollY, behavior: 'instant' as ScrollBehavior });
-        
+
         const duration = 1400;
         let startTime: number | null = null;
 
@@ -1484,7 +1484,7 @@ export const Launchpad: React.FC = () => {
                         <div className="pt-2 border-t border-white/5">
                           <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
                           <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
-                             {data.monetization[monetizationIndex].examples}
+                            {data.monetization[monetizationIndex].examples}
                           </p>
                         </div>
                       </motion.div>
@@ -1639,7 +1639,7 @@ export const Launchpad: React.FC = () => {
                           <p className="font-sans text-sm text-gray-200 leading-relaxed">
                             {data.validation.aiInsight}
                           </p>
-                          
+
                           <div className="grid grid-cols-3 gap-3 pt-2 border-t border-white/5">
                             <AnimatedScoreBar label="Viability" targetValue={80} delay={0.3} visible={showResults} />
                             <AnimatedScoreBar label="Scalability" targetValue={60} delay={0.4} visible={showResults} />
@@ -1846,28 +1846,28 @@ export const Launchpad: React.FC = () => {
                 <div className="lg:col-span-3 flex flex-col gap-4">
                   <Widget title="Potential Customer Segments" icon={Users} delay={0.3} visible={showResults} className="h-fit">
                     <div className="space-y-4">
-                       {data.customerSegments.map((segment: any, i: number) => (
-                          <motion.div 
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.4 + i * 0.1 }}
-                            className="bg-white/5 border border-white/5 p-2 rounded-sm hover:border-velocity-red/30 transition-colors"
-                          >
-                             <div className="flex justify-between items-start mb-1">
-                                <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
-                                <span className="font-mono text-[9px] text-gray-300 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
-                             </div>
-                             <div className="flex flex-col gap-1">
-                               <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
-                                 <span className="text-velocity-red">Target:</span> {segment.interest}
-                               </div>
-                               <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
-                                 <span className="text-blue-400">Income:</span> {segment.income}
-                               </div>
-                             </div>
-                          </motion.div>
-                       ))}
+                      {data.customerSegments.map((segment: any, i: number) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.4 + i * 0.1 }}
+                          className="bg-white/5 border border-white/5 p-2 rounded-sm hover:border-velocity-red/30 transition-colors"
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
+                            <span className="font-mono text-[9px] text-gray-300 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
+                              <span className="text-velocity-red">Target:</span> {segment.interest}
+                            </div>
+                            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
+                              <span className="text-blue-400">Income:</span> {segment.income}
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </Widget>
 
@@ -1875,11 +1875,11 @@ export const Launchpad: React.FC = () => {
                     <div className="flex flex-col gap-3 h-full">
                       <div className="flex items-center justify-between">
                         <p className="font-mono text-[9px] text-gray-300 uppercase tracking-widest">
-                           Where Your Users Hang Out
+                          Where Your Users Hang Out
                         </p>
                         <div className="text-[8px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-gray-300">TOP 5</div>
                       </div>
-                      
+
                       <div className="flex flex-col gap-2">
                         {data.distributionChannels.map((channel: any, i: number) => (
                           <motion.a
@@ -1892,16 +1892,16 @@ export const Launchpad: React.FC = () => {
                             transition={{ delay: 0.8 + i * 0.1 }}
                             className="flex items-center justify-between p-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-sm cursor-pointer relative overflow-hidden"
                           >
-                             <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
-                             
+                            <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
+
                             <div className="flex items-center gap-2.5 relative z-10">
-                               <div className="w-1.5 h-1.5 rounded-full bg-velocity-red group-hover/channel:scale-150 transition-transform duration-300" />
-                               <span className="font-sans text-xs text-gray-200 font-medium group-hover/channel:text-white transition-colors">{channel.name}</span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-velocity-red group-hover/channel:scale-150 transition-transform duration-300" />
+                              <span className="font-sans text-xs text-gray-200 font-medium group-hover/channel:text-white transition-colors">{channel.name}</span>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 relative z-10">
-                                <span className="font-mono text-[8px] text-gray-400 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
-                                <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
+                              <span className="font-mono text-[8px] text-gray-400 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
+                              <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
                             </div>
                           </motion.a>
                         ))}
@@ -1954,7 +1954,7 @@ export const Launchpad: React.FC = () => {
 
                             {/* Prompt content */}
                             <div className="relative group/prompt flex-1 min-h-0">
-                              <div 
+                              <div
                                 className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
                                 onClick={() => {
                                   navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
@@ -1975,13 +1975,12 @@ export const Launchpad: React.FC = () => {
                                 <button
                                   key={i}
                                   onClick={() => setPromptChainIndex(i)}
-                                  className={`flex-1 h-1 transition-all duration-300 ${
-                                    i === promptChainIndex 
-                                      ? 'bg-velocity-red' 
-                                      : i < promptChainIndex 
-                                        ? 'bg-velocity-red/40' 
+                                  className={`flex-1 h-1 transition-all duration-300 ${i === promptChainIndex
+                                      ? 'bg-velocity-red'
+                                      : i < promptChainIndex
+                                        ? 'bg-velocity-red/40'
                                         : 'bg-white/10'
-                                  }`}
+                                    }`}
                                 />
                               ))}
                             </div>
