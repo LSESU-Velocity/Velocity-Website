@@ -9,16 +9,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.6.0",
     "framer-motion": "^11.0.0",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwind-merge": "^2.2.1"
+    "react-router-dom": "^7.9.6",
+    "recharts": "^3.5.0",
+    "tailwind-merge": "^2.2.1",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@vercel/node": "^3.0.0",
     "@vitejs/plugin-react": "^4.3.1",
     "typescript": "^5.5.3",
     "vite": "^5.4.1"
