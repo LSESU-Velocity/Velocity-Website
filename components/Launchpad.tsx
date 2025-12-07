@@ -60,7 +60,7 @@ const AnimatedText = ({
   );
 };
 
-// Animated Dial/Gauge Component
+// Animated Dial/Gauge Component - Premium glassmorphism design
 const AnimatedScoreBar = ({
   label,
   targetValue,
@@ -76,12 +76,13 @@ const AnimatedScoreBar = ({
 }) => {
   const [currentValue, setCurrentValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (visible && !hasAnimated) {
       setHasAnimated(true);
       const startTime = Date.now();
-      const duration = 1500; // ms - slightly slower for dial
+      const duration = 1500;
       const delayMs = delay * 1000;
 
       const timeout = setTimeout(() => {
@@ -114,7 +115,7 @@ const AnimatedScoreBar = ({
     }
   }, [targetValue]);
 
-  // Get solid color based on thresholds
+  // Get solid color based on thresholds (unchanged)
   const getDialColor = (percentage: number) => {
     const effectivePercentage = invertColor ? 100 - percentage : percentage;
 
@@ -131,23 +132,19 @@ const AnimatedScoreBar = ({
   };
 
   const dialColor = getDialColor(currentValue);
-  const totalSegments = 14; // A bit denser than 12 for a premium look
-  const filledSegments = Math.round((currentValue / 100) * totalSegments);
 
-  // Generate arc segments - arc opens upward (like a speedometer)
-  const segments = [];
-  const startAngle = -180; // Left side (9 o'clock position)
-  const endAngle = 0;      // Right side (3 o'clock position)
-  const angleRange = endAngle - startAngle;
-  const gap = 4; // degrees
-  const segmentAngle = (angleRange - (totalSegments - 1) * gap) / totalSegments;
-
-  const radius = 40;
-  const innerRadius = 28;
+  // Arc configuration
+  const radius = 42;
+  const strokeWidth = 6;
   const centerX = 50;
-  const centerY = 50; // Center at bottom of viewBox so arc appears at top
+  const centerY = 50;
 
-  // Helper to calculate coordinates (standard math: 0° = right, counterclockwise positive)
+  // Calculate arc path (semicircle opening upward)
+  const startAngle = -180;
+  const endAngle = 0;
+  const angleRange = endAngle - startAngle;
+  const filledAngle = startAngle + (currentValue / 100) * angleRange;
+
   const polarToCartesian = (cx: number, cy: number, r: number, angleInDegrees: number) => {
     const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
     return {
@@ -156,56 +153,96 @@ const AnimatedScoreBar = ({
     };
   };
 
-  const describeArc = (cx: number, cy: number, innerR: number, outerR: number, startAng: number, endAng: number) => {
-    const startOuter = polarToCartesian(cx, cy, outerR, startAng);
-    const endOuter = polarToCartesian(cx, cy, outerR, endAng);
-    const startInner = polarToCartesian(cx, cy, innerR, startAng);
-    const endInner = polarToCartesian(cx, cy, innerR, endAng);
-
+  const describeArc = (cx: number, cy: number, r: number, startAng: number, endAng: number) => {
+    const start = polarToCartesian(cx, cy, r, startAng);
+    const end = polarToCartesian(cx, cy, r, endAng);
     const largeArcFlag = Math.abs(endAng - startAng) > 180 ? 1 : 0;
-
-    return [
-      "M", startOuter.x, startOuter.y,
-      "A", outerR, outerR, 0, largeArcFlag, 1, endOuter.x, endOuter.y,
-      "L", endInner.x, endInner.y,
-      "A", innerR, innerR, 0, largeArcFlag, 0, startInner.x, startInner.y,
-      "Z"
-    ].join(" ");
+    return `M ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
   };
 
-  for (let i = 0; i < totalSegments; i++) {
-    const segmentStart = startAngle + i * (segmentAngle + gap);
-    const segmentEnd = segmentStart + segmentAngle;
-    const isFilled = i < filledSegments;
-
-    segments.push(
-      <path
-        key={i}
-        d={describeArc(centerX, centerY, innerRadius, radius, segmentStart, segmentEnd)}
-        fill={isFilled ? dialColor : 'rgba(255,255,255,0.08)'}
-        style={{
-          transition: 'fill 0.2s ease-out'
-        }}
-      />
-    );
-  }
+  const backgroundArc = describeArc(centerX, centerY, radius, startAngle, endAngle);
+  const filledArc = currentValue > 0 ? describeArc(centerX, centerY, radius, startAngle, filledAngle) : '';
 
   return (
-    <div className="flex flex-col items-center justify-center w-full">
-      <div className="relative w-28 h-16 flex items-center justify-center">
-        <svg viewBox="0 0 100 55" className="w-full h-full overflow-visible">
-          {segments}
-        </svg>
-        <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center -mb-1">
-          <span
-            className="font-sans font-bold text-2xl tracking-tight tabular-nums leading-none"
-            style={{ color: dialColor }}
-          >
-            {currentValue}%
-          </span>
+    <div
+      className="group/dial flex flex-col items-center justify-center w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Glassmorphic container */}
+      <div
+        className="relative p-4 rounded-lg bg-white/[0.02] border border-white/10 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.04] hover:border-white/20"
+        style={{
+          boxShadow: isHovered ? `0 0 30px ${dialColor}15, inset 0 0 20px ${dialColor}05` : 'none',
+        }}
+      >
+        {/* SVG Dial */}
+        <div className="relative w-24 h-14 flex items-center justify-center">
+          <svg viewBox="0 0 100 55" className="w-full h-full overflow-visible">
+            {/* Glow filter for filled arc */}
+            <defs>
+              <filter id={`glow-${label}`} x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+              {/* Gradient for the arc */}
+              <linearGradient id={`arcGradient-${label}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor={dialColor} stopOpacity="0.6" />
+                <stop offset="100%" stopColor={dialColor} stopOpacity="1" />
+              </linearGradient>
+            </defs>
+
+            {/* Background arc track */}
+            <path
+              d={backgroundArc}
+              fill="none"
+              stroke="rgba(255,255,255,0.08)"
+              strokeWidth={strokeWidth}
+              strokeLinecap="round"
+            />
+
+            {/* Filled arc with glow */}
+            {currentValue > 0 && (
+              <path
+                d={filledArc}
+                fill="none"
+                stroke={`url(#arcGradient-${label})`}
+                strokeWidth={strokeWidth}
+                strokeLinecap="round"
+                filter={`url(#glow-${label})`}
+                style={{
+                  transition: 'stroke 0.3s ease-out'
+                }}
+              />
+            )}
+
+            {/* Start and end tick marks */}
+            <circle cx={centerX - radius} cy={centerY} r="1.5" fill="rgba(255,255,255,0.2)" />
+            <circle cx={centerX + radius} cy={centerY} r="1.5" fill="rgba(255,255,255,0.2)" />
+          </svg>
+
+          {/* Centered percentage display */}
+          <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
+            <span
+              className="font-sans font-bold text-xl tracking-tight tabular-nums leading-none transition-all duration-300"
+              style={{
+                color: dialColor,
+                textShadow: isHovered ? `0 0 15px ${dialColor}60` : 'none'
+              }}
+            >
+              {currentValue}%
+            </span>
+          </div>
         </div>
       </div>
-      <span className="font-mono text-[10px] text-gray-400 uppercase tracking-widest mt-1">{label}</span>
+
+      {/* Label below the dial */}
+      <span className="font-mono text-[9px] text-gray-500 uppercase tracking-[0.2em] mt-2 group-hover/dial:text-gray-300 transition-colors duration-300">
+        {label}
+      </span>
     </div>
   );
 };
@@ -1976,10 +2013,10 @@ export const Launchpad: React.FC = () => {
                                   key={i}
                                   onClick={() => setPromptChainIndex(i)}
                                   className={`flex-1 h-1 transition-all duration-300 ${i === promptChainIndex
-                                      ? 'bg-velocity-red'
-                                      : i < promptChainIndex
-                                        ? 'bg-velocity-red/40'
-                                        : 'bg-white/10'
+                                    ? 'bg-velocity-red'
+                                    : i < promptChainIndex
+                                      ? 'bg-velocity-red/40'
+                                      : 'bg-white/10'
                                     }`}
                                 />
                               ))}
