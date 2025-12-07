@@ -1239,7 +1239,7 @@ export const Launchpad: React.FC = () => {
       />
 
       {/* Auth Status Bar */}
-      <div className="fixed top-20 right-6 z-40 flex items-center gap-3">
+      <div className="fixed top-20 right-6 z-[60] flex items-center gap-3">
         {isAuthenticated ? (
           <>
             {/* History Button */}
