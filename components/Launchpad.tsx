@@ -1575,7 +1575,7 @@ export const Launchpad: React.FC = () => {
                     title="Monetization Strategy"
                     icon={Coins}
                     delay={0.15}
-                    className="h-full min-h-[380px]"
+                    className="!h-[500px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
