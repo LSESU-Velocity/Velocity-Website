@@ -1,4 +1,11 @@
-// Reading file content
+// API layer with dev-mode bypass for local testing
+import { generateMockAnalysis } from './mockData';
+
+// Dev mode detection - true when running `npm run dev`
+const IS_DEV = import.meta.env.DEV;
+
+// Valid dev-mode test keys
+const DEV_TEST_KEYS = ['VEL-TEST-001', 'VEL-DEV-001'];
 
 export interface LoginResponse {
     valid: boolean;
@@ -97,6 +104,15 @@ export interface AnalysisRecord {
 const API_BASE = '/api';
 
 export async function login(key: string): Promise<LoginResponse> {
+    // DEV MODE BYPASS: Accept test keys without hitting the backend
+    if (IS_DEV && DEV_TEST_KEYS.includes(key.trim())) {
+        console.log('[DEV MODE] Login bypassed with test key:', key);
+        return {
+            valid: true,
+            keyId: 'dev-mode-key-id'
+        };
+    }
+
     const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,6 +122,12 @@ export async function login(key: string): Promise<LoginResponse> {
 }
 
 export async function generateAnalysis(key: string, idea: string): Promise<AnalysisData> {
+    // DEV MODE BYPASS: Use mock data generator instead of hitting the backend
+    if (IS_DEV) {
+        console.log('[DEV MODE] Using mock analysis for:', idea);
+        return generateMockAnalysis(idea);
+    }
+
     const response = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -121,6 +143,12 @@ export async function generateAnalysis(key: string, idea: string): Promise<Analy
 }
 
 export async function getAnalyses(key: string): Promise<AnalysisRecord[]> {
+    // DEV MODE BYPASS: Return empty history in dev mode
+    if (IS_DEV) {
+        console.log('[DEV MODE] Returning empty analysis history');
+        return [];
+    }
+
     const response = await fetch(`${API_BASE}/analyses?key=${encodeURIComponent(key)}`);
 
     if (!response.ok) {

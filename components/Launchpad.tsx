@@ -1434,7 +1434,7 @@ export const Launchpad: React.FC = () => {
                     title="App Mockup"
                     icon={Smartphone}
                     delay={0.1}
-                    className="flex-1"
+                    className="min-h-[340px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
@@ -1575,7 +1575,7 @@ export const Launchpad: React.FC = () => {
                     title="Monetization Strategy"
                     icon={Coins}
                     delay={0.15}
-                    className="h-64"
+                    className="h-full min-h-[380px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
@@ -2051,7 +2051,7 @@ export const Launchpad: React.FC = () => {
                     title="Prompt Chain"
                     icon={Terminal}
                     delay={0.8}
-                    className="flex-1 min-h-[400px]"
+                    className="h-full min-h-[380px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
