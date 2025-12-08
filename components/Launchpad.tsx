@@ -1703,95 +1703,11 @@ export const Launchpad: React.FC = () => {
                       </div>
                     </Widget>
 
-                    {/* Top Right: Search Volume */}
-                    <Widget
-                      title="Search Volume"
-                      icon={BarChart3}
-                      delay={0.2}
-                      className="h-full min-h-[380px]"
-                      visible={showResults}
-                      action={
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                            {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
-                          </span>
-                          <button
-                            onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      }
-                    >
-                      <div className="h-full w-full flex flex-col">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={searchVolumeIndex}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col h-full"
-                          >
-                            <div className="flex items-center justify-between mb-2 shrink-0">
-                              <p className="font-mono text-[10px] text-white">
-                                "{data.validation.searchVolume[searchVolumeIndex].keyword}"
-                              </p>
-                              <div className="group/info relative">
-                                <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center cursor-help hover:border-velocity-red/50 transition-colors">
-                                  <span className="text-[8px] text-gray-400 group-hover/info:text-velocity-red transition-colors">?</span>
-                                </div>
-                                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[8px] font-mono text-gray-400 opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl leading-relaxed">
-                                  <span className="text-white">100</span> = peak interest<br />
-                                  <span className="text-white">50</span> = half as popular<br />
-                                  <span className="text-white">0</span> = insufficient data
-                                  <div className="absolute top-full right-3 -mt-px border-4 border-transparent border-t-gray-900/95" />
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex-1 relative overflow-hidden rounded" style={{ minHeight: '280px' }}>
-                              <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-                    </Widget>
-
-                    {/* Middle: AI Executive Summary */}
-                    <div className="col-span-1 md:col-span-2">
-                      <Widget
-                        title="AI Executive Summary"
-                        icon={Zap}
-                        delay={0.25}
-                        className="h-fit"
-                        visible={showResults}
-                      >
-                        <div className="flex flex-col gap-2">
-                          <p className="font-sans text-sm text-gray-200 leading-relaxed">
-                            {data.validation.aiInsight}
-                          </p>
-
-                          <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5">
-                            <AnimatedScoreBar label="Viability" targetValue={data.validation.scores?.viability ?? 80} delay={0.3} visible={showResults} />
-                            <AnimatedScoreBar label="Scalability" targetValue={data.validation.scores?.scalability ?? 60} delay={0.4} visible={showResults} />
-                            <AnimatedScoreBar label="Complexity" targetValue={data.validation.scores?.complexity ?? 40} delay={0.5} visible={showResults} invertColor />
-                          </div>
-                        </div>
-                      </Widget>
-                    </div>
-
-                    {/* Bottom Left: Competitors with Perceptual Map */}
+                    {/* Top Right: Market Position */}
                     <Widget
                       title="Market Position"
                       icon={Target}
-                      delay={0.3}
+                      delay={0.2}
                       className="min-h-[380px]"
                       visible={showResults}
                       action={
@@ -1923,6 +1839,90 @@ export const Launchpad: React.FC = () => {
                             <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
                           </div>
                         </div>
+                      </div>
+                    </Widget>
+
+                    {/* Middle: AI Executive Summary */}
+                    <div className="col-span-1 md:col-span-2">
+                      <Widget
+                        title="AI Executive Summary"
+                        icon={Zap}
+                        delay={0.25}
+                        className="h-fit"
+                        visible={showResults}
+                      >
+                        <div className="flex flex-col gap-2">
+                          <p className="font-sans text-sm text-gray-200 leading-relaxed">
+                            {data.validation.aiInsight}
+                          </p>
+
+                          <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5">
+                            <AnimatedScoreBar label="Viability" targetValue={data.validation.scores?.viability ?? 80} delay={0.3} visible={showResults} />
+                            <AnimatedScoreBar label="Scalability" targetValue={data.validation.scores?.scalability ?? 60} delay={0.4} visible={showResults} />
+                            <AnimatedScoreBar label="Complexity" targetValue={data.validation.scores?.complexity ?? 40} delay={0.5} visible={showResults} invertColor />
+                          </div>
+                        </div>
+                      </Widget>
+                    </div>
+
+                    {/* Bottom Left: Search Volume */}
+                    <Widget
+                      title="Search Volume"
+                      icon={BarChart3}
+                      delay={0.3}
+                      className="h-full min-h-[380px]"
+                      visible={showResults}
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                            {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
+                          </span>
+                          <button
+                            onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
+                    >
+                      <div className="h-full w-full flex flex-col">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={searchVolumeIndex}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col h-full"
+                          >
+                            <div className="flex items-center justify-between mb-2 shrink-0">
+                              <p className="font-mono text-[10px] text-white">
+                                "{data.validation.searchVolume[searchVolumeIndex].keyword}"
+                              </p>
+                              <div className="group/info relative">
+                                <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center cursor-help hover:border-velocity-red/50 transition-colors">
+                                  <span className="text-[8px] text-gray-400 group-hover/info:text-velocity-red transition-colors">?</span>
+                                </div>
+                                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[8px] font-mono text-gray-400 opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl leading-relaxed">
+                                  <span className="text-white">100</span> = peak interest<br />
+                                  <span className="text-white">50</span> = half as popular<br />
+                                  <span className="text-white">0</span> = insufficient data
+                                  <div className="absolute top-full right-3 -mt-px border-4 border-transparent border-t-gray-900/95" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex-1 relative overflow-hidden rounded" style={{ minHeight: '280px' }}>
+                              <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
                       </div>
                     </Widget>
 
