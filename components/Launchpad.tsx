@@ -1982,7 +1982,7 @@ export const Launchpad: React.FC = () => {
 
                 {/* Right Column: Brand & Strategy */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
-                  <Widget title="Potential Customer Segments" icon={Users} delay={0.3} visible={showResults} className="h-fit">
+                  <Widget title="Potential Customer Segments" icon={Users} delay={0.3} visible={showResults} className="min-h-[280px]">
                     <div className="space-y-4">
                       {data.customerSegments.map((segment: any, i: number) => (
                         <motion.div
@@ -2009,7 +2009,7 @@ export const Launchpad: React.FC = () => {
                     </div>
                   </Widget>
 
-                  <Widget title="Distribution Channels" icon={MessageCircle} delay={0.7} visible={showResults} className="h-fit min-h-[220px]">
+                  <Widget title="Distribution Channels" icon={MessageCircle} delay={0.7} visible={showResults} className="min-h-[320px]">
                     <div className="flex flex-col gap-3 h-full">
                       <div className="flex items-center justify-between">
                         <p className="font-mono text-[9px] text-gray-300 uppercase tracking-widest">
@@ -2051,7 +2051,7 @@ export const Launchpad: React.FC = () => {
                     title="Prompt Chain"
                     icon={Terminal}
                     delay={0.8}
-                    className="h-full min-h-[380px]"
+                    className="min-h-[280px]"
                     visible={showResults}
                     action={
                       <div className="flex items-center gap-1.5">
