@@ -94,7 +94,7 @@ const responseSchema = `{
     {
       "step": 1,
       "title": "Step title (max 40 chars)",
-      "prompt": "Full prompt for AI coding assistant (max 300 chars, actionable and complete)"
+      "prompt": "Full prompt that the user can plug in to an AI coding assistant to build the startup MVP (minimum viable product) (max 300 chars, actionable and complete)"
     }
   ],
   "distributionChannels": [
@@ -222,7 +222,7 @@ For the perceptual map (competitors and marketGap):
 - Y-axis goes from LOW (bottom, value 0) to HIGH (top, value 100)
 - Position competitors and "yourPosition" based on where they fall on these spectrums
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3 search keywords, 3 prompt chain steps, and 5 distribution channels.
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
 
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
 ${responseSchema}`;
