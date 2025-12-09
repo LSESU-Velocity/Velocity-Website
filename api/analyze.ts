@@ -286,7 +286,7 @@ ${responseSchema}`;
     }
 
     const geminiResponse = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -326,24 +326,12 @@ ${responseSchema}`;
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
-    // Extract JSON from response - Gemini 3 Pro may add preamble text before JSON
-    // Look for the first { and last } to extract the JSON object
-    const jsonStartIndex = text.indexOf('{');
-    const jsonEndIndex = text.lastIndexOf('}');
-
-    if (jsonStartIndex === -1 || jsonEndIndex === -1 || jsonEndIndex < jsonStartIndex) {
-      console.error('No valid JSON found in Gemini response:', text);
-      return res.status(500).json({ error: 'Failed to parse AI response - no JSON found' });
-    }
-
-    const jsonText = text.substring(jsonStartIndex, jsonEndIndex + 1);
-
     // Parse the JSON
     let analysisData;
     try {
-      analysisData = JSON.parse(jsonText);
+      analysisData = JSON.parse(text);
     } catch (parseError) {
-      console.error('Failed to parse Gemini response:', jsonText);
+      console.error('Failed to parse Gemini response:', text);
       return res.status(500).json({ error: 'Failed to parse AI response' });
     }
 
