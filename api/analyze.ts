@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
@@ -26,9 +25,6 @@ function initFirebase() {
   return getFirestore();
 }
 
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-
 // JSON Schema for the response - matches existing generateStartupData() structure
 const responseSchema = `{
   "name": "string - catchy startup name",
@@ -50,10 +46,6 @@ const responseSchema = `{
     "sam": { "value": "$XXM", "label": "Serviceable market" },
     "som": { "value": "$XXK", "label": "Initial target segment" },
     "aiInsight": "string - 2-3 sentence market analysis"
-  },
-  "sources": {
-    "market": [{ "name": "Source Name", "url": "https://..." }],
-    "competitors": [{ "name": "Source Name", "url": "https://..." }]
   },
   "customerSegments": [
     {
@@ -116,6 +108,32 @@ const responseSchema = `{
   "complexity": 0-100
 }`;
 
+// Interface for grounding metadata from Google Search
+interface GroundingChunk {
+  web?: {
+    uri: string;
+    title: string;
+  };
+}
+
+interface GroundingSupport {
+  segment?: {
+    startIndex?: number;
+    endIndex?: number;
+    text?: string;
+  };
+  groundingChunkIndices?: number[];
+}
+
+interface GroundingMetadata {
+  webSearchQueries?: string[];
+  groundingChunks?: GroundingChunk[];
+  groundingSupports?: GroundingSupport[];
+  searchEntryPoint?: {
+    renderedContent?: string;
+  };
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST
   if (req.method !== 'POST') {
@@ -145,26 +163,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const keyDoc = keySnapshot.docs[0];
 
-    // Generate analysis using Gemini 2.5 Flash with grounding
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash',
-      generationConfig: {
-        temperature: 0.7,
-        topP: 0.9,
-        maxOutputTokens: 8192,
-      },
-    });
-
+    // Build the prompt for Gemini with Google Search grounding
     const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
 
 STARTUP IDEA: "${idea}"
 
-IMPORTANT INSTRUCTIONS:
-1. Use your knowledge to provide REAL, ACCURATE market data where possible
-2. For TAM/SAM/SOM, use actual market research figures (cite real reports)
-3. For competitors, include REAL companies that operate in this space
-4. For distribution channels, include REAL communities (actual subreddits, Discord servers, forums)
-5. Search volume data should represent realistic 5-year Google Trends growth patterns
+CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
+1. Search for REAL, CURRENT market size data (TAM/SAM/SOM) - use actual industry reports
+2. Search for REAL competitors that operate in this space with their actual websites
+3. Search for real market trends and growth data
+4. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
+5. All market figures should come from verifiable sources you find via search
+
+SCORING:
 6. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
 7. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
 8. Complexity score (0-100): How hard is this to build? Higher = more complex
@@ -179,9 +190,49 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
 ${responseSchema}`;
 
-    const result = await model.generateContent(prompt);
-    const response = result.response;
-    let text = response.text();
+    // Use REST API with Google Search grounding enabled
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      return res.status(500).json({ error: 'GEMINI_API_KEY is not configured' });
+    }
+
+    const geminiResponse = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          tools: [{ google_search: {} }],
+          generationConfig: {
+            temperature: 0.7,
+            topP: 0.9,
+            maxOutputTokens: 8192,
+          }
+        })
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      const errorData = await geminiResponse.text();
+      console.error('Gemini API error:', errorData);
+      return res.status(500).json({ error: 'Failed to call Gemini API' });
+    }
+
+    const geminiResult = await geminiResponse.json();
+
+    // Extract the response text and grounding metadata
+    const candidate = geminiResult.candidates?.[0];
+    if (!candidate) {
+      return res.status(500).json({ error: 'No response from Gemini' });
+    }
+
+    let text = candidate.content?.parts?.[0]?.text || '';
+    const groundingMetadata: GroundingMetadata = candidate.groundingMetadata || {};
+
+    // Log grounding info for debugging
+    console.log('Grounding queries used:', groundingMetadata.webSearchQueries);
+    console.log('Number of grounding chunks:', groundingMetadata.groundingChunks?.length || 0);
 
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -194,6 +245,28 @@ ${responseSchema}`;
       console.error('Failed to parse Gemini response:', text);
       return res.status(500).json({ error: 'Failed to parse AI response' });
     }
+
+    // Extract sources from grounding metadata
+    const groundingChunks = groundingMetadata.groundingChunks || [];
+    const searchQueries = groundingMetadata.webSearchQueries || [];
+
+    // Format grounding sources for the frontend
+    const groundingSources = groundingChunks.map((chunk: GroundingChunk) => ({
+      uri: chunk.web?.uri || '',
+      title: chunk.web?.title || 'Source'
+    })).filter((source: { uri: string; title: string }) => source.uri); // Filter out empty URIs
+
+    // Create categorized sources from grounding data
+    // First half for market data, second half for competitors (rough heuristic)
+    const midpoint = Math.ceil(groundingSources.length / 2);
+    const marketSources = groundingSources.slice(0, midpoint).map((s: { uri: string; title: string }) => ({
+      name: s.title,
+      url: s.uri
+    }));
+    const competitorSources = groundingSources.slice(midpoint).map((s: { uri: string; title: string }) => ({
+      name: s.title,
+      url: s.uri
+    }));
 
     // Reshape data to match Launchpad.tsx expectations
     const formattedData = {
@@ -236,7 +309,16 @@ ${responseSchema}`;
           complexity: analysisData.complexity || 0
         }
       },
-      sources: analysisData.sources,
+      // Enhanced sources with grounding metadata
+      sources: {
+        // All grounding sources with full metadata
+        groundingChunks: groundingSources,
+        // Search queries used by the model
+        searchQueries: searchQueries,
+        // Categorized sources for backward compatibility
+        market: marketSources.length > 0 ? marketSources : (analysisData.sources?.market || []),
+        competitors: competitorSources.length > 0 ? competitorSources : (analysisData.sources?.competitors || [])
+      },
       customerSegments: analysisData.customerSegments,
       promptChain: analysisData.promptChain
     };

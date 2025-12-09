@@ -2149,69 +2149,131 @@ export const Launchpad: React.FC = () => {
                     className="h-fit"
                     visible={showResults}
                   >
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Market Data Sources */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
-                            <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
-                          </div>
-                          <span className="font-mono text-[10px] text-white uppercase tracking-widest">Market Data</span>
+                    {/* Verified by Google Search Badge */}
+                    {data.sources?.groundingChunks && data.sources.groundingChunks.length > 0 && (
+                      <div className="mb-4 flex items-center gap-2 px-2 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-sm w-fit">
+                        <div className="w-3 h-3 rounded-full bg-emerald-500/30 flex items-center justify-center">
+                          <CheckCircle2 className="w-2 h-2 text-emerald-400" />
                         </div>
-                        <div className="pl-6 space-y-2">
-                          {data.sources?.market?.map((source: { name: string; url: string }, i: number) => (
-                            <motion.a
-                              key={i}
-                              href={source.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 1 + i * 0.1 }}
-                              className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
-                            >
-                              <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
-                              <span className="truncate">{source.name}</span>
-                            </motion.a>
-                          ))}
-                        </div>
+                        <span className="font-mono text-[9px] text-emerald-400 uppercase tracking-wider">Verified via Google Search</span>
                       </div>
+                    )}
 
-                      {/* Competitor Analysis Sources */}
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
-                            <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
-                          </div>
-                          <span className="font-mono text-[10px] text-white uppercase tracking-widest">Competitive Analysis</span>
-                        </div>
-                        <div className="pl-6 space-y-2">
-                          {data.sources?.competitors?.map((source: { name: string; url: string }, i: number) => (
+                    {/* Grounding Sources - Primary Display */}
+                    {data.sources?.groundingChunks && data.sources.groundingChunks.length > 0 ? (
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {data.sources.groundingChunks.map((source: { uri: string; title: string }, i: number) => (
                             <motion.a
                               key={i}
-                              href={source.url}
+                              href={source.uri}
                               target="_blank"
                               rel="noopener noreferrer"
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 1.1 + i * 0.1 }}
-                              className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 1 + i * 0.05 }}
+                              className="flex items-center gap-3 p-2.5 bg-white/[0.02] border border-white/10 rounded-sm hover:bg-white/5 hover:border-blue-500/30 transition-all group/source"
                             >
+                              {/* Favicon */}
+                              <img
+                                src={`https://www.google.com/s2/favicons?domain=${new URL(source.uri).hostname}&sz=32`}
+                                alt=""
+                                className="w-4 h-4 rounded-sm shrink-0"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                              />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-mono text-[10px] text-gray-300 group-hover/source:text-blue-400 transition-colors truncate">
+                                  {source.title}
+                                </p>
+                                <p className="font-mono text-[8px] text-gray-500 truncate">
+                                  {new URL(source.uri).hostname}
+                                </p>
+                              </div>
                               <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
-                              <span className="truncate">{source.name}</span>
                             </motion.a>
                           ))}
                         </div>
+
+                        {/* Search Queries Used */}
+                        {data.sources?.searchQueries && data.sources.searchQueries.length > 0 && (
+                          <div className="pt-3 border-t border-white/5">
+                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest mb-2">Search Queries Used</p>
+                            <div className="flex flex-wrap gap-2">
+                              {data.sources.searchQueries.map((query: string, i: number) => (
+                                <span key={i} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-[9px] font-mono text-gray-400">
+                                  "{query}"
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    </div>
+                    ) : (
+                      /* Fallback to legacy sources */
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Market Data Sources */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
+                              <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
+                            </div>
+                            <span className="font-mono text-[10px] text-white uppercase tracking-widest">Market Data</span>
+                          </div>
+                          <div className="pl-6 space-y-2">
+                            {data.sources?.market?.map((source: { name: string; url: string }, i: number) => (
+                              <motion.a
+                                key={i}
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1 + i * 0.1 }}
+                                className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
+                              >
+                                <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                                <span className="truncate">{source.name}</span>
+                              </motion.a>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Competitor Analysis Sources */}
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2">
+                            <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
+                              <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
+                            </div>
+                            <span className="font-mono text-[10px] text-white uppercase tracking-widest">Competitive Analysis</span>
+                          </div>
+                          <div className="pl-6 space-y-2">
+                            {data.sources?.competitors?.map((source: { name: string; url: string }, i: number) => (
+                              <motion.a
+                                key={i}
+                                href={source.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 1.1 + i * 0.1 }}
+                                className="flex items-center gap-2 text-[10px] font-mono text-gray-400 hover:text-blue-400 transition-colors group/source"
+                              >
+                                <ExternalLink className="w-3 h-3 text-gray-500 group-hover/source:text-blue-400 transition-colors shrink-0" />
+                                <span className="truncate">{source.name}</span>
+                              </motion.a>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* AI Disclaimer */}
                     <div className="mt-4 pt-3 border-t border-white/5 flex items-start gap-2">
-                      <div className="w-3 h-3 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 mt-0.5">
-                        <span className="text-[7px] text-amber-400">!</span>
+                      <div className="w-3 h-3 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <Globe className="w-2 h-2 text-emerald-400" />
                       </div>
                       <p className="font-mono text-[9px] text-gray-400 leading-relaxed">
-                        Data sourced from public databases and industry reports. In the future, sources will be dynamically fetched via Gemini AI for real-time accuracy.
+                        Data sourced via Google Search grounding for real-time accuracy. Click any source to verify the information directly.
                       </p>
                     </div>
                   </Widget>
