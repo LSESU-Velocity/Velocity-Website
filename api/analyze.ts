@@ -76,7 +76,7 @@ const responseSchema = `{
     "xAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
     "yAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
     "yourPosition": { "x": 0-100, "y": 0-100 },
-    "yourGap": "Description of your unique market position (max 180 chars, complete sentences)"
+    "yourGap": "Description of your unique market position (max 120 chars, complete sentences)"
   },
   "searchVolume": [
     {
