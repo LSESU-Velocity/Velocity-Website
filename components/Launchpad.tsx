@@ -1317,11 +1317,19 @@ export const Launchpad: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3 max-w-2xl mx-auto"
+            className={`mb-8 p-4 border rounded-lg flex items-center gap-3 max-w-2xl mx-auto ${error.includes('Daily limit reached')
+                ? 'bg-amber-500/10 border-amber-500/20'
+                : 'bg-red-500/10 border-red-500/20'
+              }`}
           >
-            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
-            <p className="text-red-400 text-sm">{error}</p>
-            <button onClick={() => setError(null)} className="ml-auto text-red-400 hover:text-red-300">×</button>
+            <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${error.includes('Daily limit reached') ? 'text-amber-400' : 'text-red-400'
+              }`} />
+            <p className={`text-sm ${error.includes('Daily limit reached') ? 'text-amber-400' : 'text-red-400'
+              }`}>{error}</p>
+            <button onClick={() => setError(null)} className={`ml-auto ${error.includes('Daily limit reached')
+                ? 'text-amber-400 hover:text-amber-300'
+                : 'text-red-400 hover:text-red-300'
+              }`}>×</button>
           </motion.div>
         )}
 

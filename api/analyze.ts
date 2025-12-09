@@ -162,6 +162,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const keyDoc = keySnapshot.docs[0];
+    const keyData = keyDoc.data();
+
+    // === RATE LIMITING: Configurable analyses per key per day ===
+    const DAILY_LIMIT = keyData?.dailyLimit ?? 20; // Default to 20 if not set
+
+    // Calculate start of today in UTC
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+
+    // Count analyses made by this key today
+    const rateLimitQuery = await db.collection('analyses')
+      .where('keyId', '==', keyDoc.id)
+      .where('createdAt', '>=', today)
+      .count()
+      .get();
+
+    const todayCount = rateLimitQuery.data().count;
+    const remaining = Math.max(0, DAILY_LIMIT - todayCount - 1); // -1 for the current request
+
+    if (todayCount >= DAILY_LIMIT) {
+      const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      return res.status(429).json({
+        error: `Daily limit reached (${DAILY_LIMIT} analyses). Try again tomorrow.`,
+        limit: DAILY_LIMIT,
+        used: todayCount,
+        remaining: 0,
+        resetsAt: tomorrow.toISOString()
+      });
+    }
+    // === END RATE LIMITING ===
 
     // Build the prompt for Gemini with Google Search grounding
     const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.

@@ -137,8 +137,21 @@ export async function generateAnalysis(key: string, idea: string): Promise<Analy
     });
 
     if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to generate analysis');
+        const errorData = await response.json();
+
+        // Handle rate limiting with a user-friendly message
+        if (response.status === 429 && errorData.resetsAt) {
+            const resetDate = new Date(errorData.resetsAt);
+            const now = new Date();
+            const hoursUntilReset = Math.ceil((resetDate.getTime() - now.getTime()) / (1000 * 60 * 60));
+
+            throw new Error(
+                `Daily limit reached (${errorData.used}/${errorData.limit} analyses). ` +
+                `Resets in ${hoursUntilReset} hour${hoursUntilReset !== 1 ? 's' : ''}.`
+            );
+        }
+
+        throw new Error(errorData.error || 'Failed to generate analysis');
     }
 
     return response.json();
