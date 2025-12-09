@@ -49,6 +49,18 @@ export interface AnalysisData {
             weakness: string;
             x: number;
             y: number;
+            // Competitor profile fields
+            founded?: string;
+            hq?: string;
+            funding?: string;
+            employees?: string;
+            website?: string;
+        }>;
+        marketReports: Array<{
+            title: string;
+            publisher: string;
+            keyStat: string;
+            url: string;
         }>;
         riskAnalysis: Array<{
             risk: string;

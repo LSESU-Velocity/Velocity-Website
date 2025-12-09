@@ -63,13 +63,26 @@ const responseSchema = `{
       "productFeature": "Feature that addresses this (max 80 chars)"
     }
   ],
+  "marketReports": [
+    {
+      "title": "Report title - Publisher, Year (max 50 chars)",
+      "publisher": "Publisher name (max 25 chars)",
+      "keyStat": "Key stat: value | metric (max 40 chars)",
+      "url": "URL to the actual report or source"
+    }
+  ],
   "competitors": [
     {
       "name": "Competitor Name (max 25 chars)",
       "usp": "Their unique selling point (max 60 chars)",
       "weakness": "Their weakness you can exploit (max 100 chars, complete sentence)",
       "x": 0-100,
-      "y": 0-100
+      "y": 0-100,
+      "founded": "Founding year (max 10 chars, e.g. 2016)",
+      "hq": "HQ location (max 15 chars, e.g. San Francisco)",
+      "funding": "Funding raised (max 20 chars, e.g. $275M raised)",
+      "employees": "Employee count (max 10 chars, e.g. 500+)",
+      "website": "Company website domain (e.g. notion.so)"
     }
   ],
   "marketGap": {
@@ -206,23 +219,33 @@ CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
 4. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
 5. All market figures should come from verifiable sources you find via search
 
+MARKET REPORTS - FIND AUTHORITATIVE SOURCES:
+6. Search for 3-4 real market research reports from sources like Statista, Grand View Research, IBISWorld, McKinsey, etc.
+7. Include report title, publisher, and a key statistic (e.g., "Market size: $404B | CAGR: 13.4%")
+8. Provide direct URLs to the actual reports
+
+COMPETITOR PROFILES - VERIFIED DATA:
+9. For each competitor, search for their founding year, HQ location, funding raised, and employee count
+10. Include their actual website domain (e.g., notion.so, coda.io)
+11. Use Crunchbase, LinkedIn, or company websites as sources
+
 SCORING:
-6. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
-7. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
-8. Complexity score (0-100): How hard is this to build? Higher = more complex
+12. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
+13. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
+14. Complexity score (0-100): How hard is this to build? Higher = more complex
 
 CHARACTER LIMITS - CRITICAL:
-9. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
-10. Write COMPLETE, COHERENT sentences that naturally fit within limits - never truncate mid-sentence
-11. Be concise but informative - prioritize key insights over verbose explanations
-12. If a limit feels tight, focus on the most impactful information
+15. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
+16. Write COMPLETE, COHERENT sentences that naturally fit within limits - never truncate mid-sentence
+17. Be concise but informative - prioritize key insights over verbose explanations
+18. If a limit feels tight, focus on the most impactful information
 
 For the perceptual map (competitors and marketGap):
 - X-axis goes from LOW (left, value 0) to HIGH (right, value 100)
 - Y-axis goes from LOW (bottom, value 0) to HIGH (top, value 100)
 - Position competitors and "yourPosition" based on where they fall on these spectrums
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
 
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
 ${responseSchema}`;
@@ -337,6 +360,7 @@ ${responseSchema}`;
         aiInsight: analysisData.market.aiInsight,
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
+        marketReports: analysisData.marketReports || [],
         riskAnalysis: analysisData.riskAnalysis,
         searchVolume: analysisData.searchVolume,
         marketGap: analysisData.marketGap,

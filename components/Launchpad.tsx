@@ -1318,8 +1318,8 @@ export const Launchpad: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className={`mb-8 p-4 border rounded-lg flex items-center gap-3 max-w-2xl mx-auto ${error.includes('Daily limit reached')
-                ? 'bg-amber-500/10 border-amber-500/20'
-                : 'bg-red-500/10 border-red-500/20'
+              ? 'bg-amber-500/10 border-amber-500/20'
+              : 'bg-red-500/10 border-red-500/20'
               }`}
           >
             <AlertTriangle className={`w-5 h-5 flex-shrink-0 ${error.includes('Daily limit reached') ? 'text-amber-400' : 'text-red-400'
@@ -1327,8 +1327,8 @@ export const Launchpad: React.FC = () => {
             <p className={`text-sm ${error.includes('Daily limit reached') ? 'text-amber-400' : 'text-red-400'
               }`}>{error}</p>
             <button onClick={() => setError(null)} className={`ml-auto ${error.includes('Daily limit reached')
-                ? 'text-amber-400 hover:text-amber-300'
-                : 'text-red-400 hover:text-red-300'
+              ? 'text-amber-400 hover:text-amber-300'
+              : 'text-red-400 hover:text-red-300'
               }`}>×</button>
           </motion.div>
         )}
@@ -1700,6 +1700,32 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
+                        {/* Market Reports & Data */}
+                        {data.validation.marketReports && data.validation.marketReports.length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-white/5 space-y-1.5">
+                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Research Sources</p>
+                            {data.validation.marketReports.slice(0, 3).map((report: any, i: number) => (
+                              <a
+                                key={i}
+                                href={report.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-start gap-2 p-1.5 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/5 hover:border-blue-500/30 transition-all group/report"
+                              >
+                                <span className="text-[10px] shrink-0">📊</span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-mono text-[9px] text-gray-300 group-hover/report:text-blue-400 transition-colors truncate">
+                                    {report.title}
+                                  </p>
+                                  <p className="font-mono text-[8px] text-gray-500">
+                                    <span className="text-gray-400">{report.publisher}</span> → {report.keyStat}
+                                  </p>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+
                         {/* Source Reference Indicator */}
                         <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-default">
                           <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
@@ -1818,10 +1844,50 @@ export const Launchpad: React.FC = () => {
                             transition={{ duration: 0.2 }}
                             className="space-y-2"
                           >
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 rounded-full bg-velocity-red" />
-                              <span className="font-sans font-bold text-white text-sm">{data.validation.competitorList[competitorIndex].name}</span>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-velocity-red" />
+                                <span className="font-sans font-bold text-white text-sm">{data.validation.competitorList[competitorIndex].name}</span>
+                              </div>
+                              {data.validation.competitorList[competitorIndex].website && (
+                                <a
+                                  href={`https://${data.validation.competitorList[competitorIndex].website}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="font-mono text-[9px] text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                                >
+                                  {data.validation.competitorList[competitorIndex].website}
+                                  <ExternalLink className="w-2.5 h-2.5" />
+                                </a>
+                              )}
                             </div>
+
+                            {/* Competitor Profile */}
+                            {(data.validation.competitorList[competitorIndex].founded || data.validation.competitorList[competitorIndex].funding) && (
+                              <div className="flex flex-wrap gap-x-3 gap-y-1 pl-4">
+                                {data.validation.competitorList[competitorIndex].founded && (
+                                  <span className="font-mono text-[9px] text-gray-400">
+                                    🏢 {data.validation.competitorList[competitorIndex].founded}
+                                  </span>
+                                )}
+                                {data.validation.competitorList[competitorIndex].hq && (
+                                  <span className="font-mono text-[9px] text-gray-400">
+                                    📍 {data.validation.competitorList[competitorIndex].hq}
+                                  </span>
+                                )}
+                                {data.validation.competitorList[competitorIndex].funding && (
+                                  <span className="font-mono text-[9px] text-emerald-400">
+                                    💰 {data.validation.competitorList[competitorIndex].funding}
+                                  </span>
+                                )}
+                                {data.validation.competitorList[competitorIndex].employees && (
+                                  <span className="font-mono text-[9px] text-gray-400">
+                                    👥 {data.validation.competitorList[competitorIndex].employees}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+
                             <p className="font-mono text-[10px] text-gray-300 leading-relaxed pl-4">
                               <span className="text-gray-400">Weakness:</span> {data.validation.competitorList[competitorIndex].weakness}
                             </p>

@@ -39,6 +39,11 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             som: { value: "$500K", label: "LSE Founders & Tech Students" },
             aiInsight: "VelocityApp targets a high-growth segment of UK founders ($150B TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
         },
+        marketReports: [
+            { title: "Developer Tools Market Report 2024", publisher: "Statista", keyStat: "Market size: $150B | CAGR: 12.1%", url: "https://statista.com/outlooks/developer-tools" },
+            { title: "SaaS Industry Trends Report", publisher: "Grand View Research", keyStat: "Projected 2030: $317B", url: "https://grandviewresearch.com/saas" },
+            { title: "UK Tech Startup Landscape", publisher: "Tech Nation", keyStat: "$14.4B invested in 2023", url: "https://technation.io/reports" }
+        ],
         sources: {
             groundingChunks: [
                 { uri: "https://statista.com/outlooks/developer-tools-market-2024", title: "Statista: Developer Tools Market Report 2024" },
@@ -79,9 +84,9 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             }
         ],
         competitors: [
-            { name: "CodeFast", usp: "Large library of templates", weakness: "Generic designs, hard to customize", x: 30, y: 60 },
-            { name: "LaunchPad", usp: "One-click deployment", weakness: "Vendor lock-in, expensive scaling", x: 15, y: 75 },
-            { name: "DevAssist", usp: "AI code completion", weakness: "Requires senior dev knowledge to debug", x: 40, y: 40 }
+            { name: "Vercel", usp: "One-click deployments", weakness: "Expensive at scale, vendor lock-in", x: 30, y: 60, founded: "2015", hq: "San Francisco", funding: "$313M raised", employees: "350+", website: "vercel.com" },
+            { name: "Bubble", usp: "Visual no-code builder", weakness: "Limited customization, slow performance", x: 15, y: 75, founded: "2012", hq: "New York", funding: "$115M raised", employees: "200+", website: "bubble.io" },
+            { name: "Replit", usp: "Browser-based IDE", weakness: "Not production-ready, limited enterprise features", x: 40, y: 40, founded: "2016", hq: "San Francisco", funding: "$222M raised", employees: "100+", website: "replit.com" }
         ],
         marketGap: {
             xAxis: { label: "Ease of Use", low: "Simple", high: "Complex" },
@@ -185,6 +190,11 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 som: { value: "$75K", label: "LSE Students & Staff" },
                 aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With $5.3B UK fitness app TAM, the opportunity is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
             },
+            marketReports: [
+                { title: "UK Fitness Market Report 2024", publisher: "UK Active", keyStat: "Market size: $5.3B | CAGR: 8.5%", url: "https://ukactive.com/reports" },
+                { title: "Digital Fitness Market Outlook", publisher: "Mintel", keyStat: "App downloads: +45% YoY", url: "https://mintel.com/fitness" },
+                { title: "Health & Fitness App Trends", publisher: "Statista", keyStat: "Global users: 1.1B", url: "https://statista.com/fitness-apps" }
+            ],
             sources: {
                 groundingChunks: [
                     { uri: "https://ukactive.com/reports/fitness-market-2024", title: "UK Active: Fitness Market Report 2024" },
@@ -225,9 +235,9 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 }
             ],
             competitors: [
-                { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption", x: 75, y: 70 },
-                { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook", x: 30, y: 25 },
-                { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK", x: 60, y: 80 }
+                { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption", x: 75, y: 70, founded: "2018", hq: "London", funding: "$12M", employees: "50+", website: "fitbuddy.app" },
+                { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook", x: 30, y: 25, founded: "2020", hq: "Berlin", funding: "$3M", employees: "25+", website: "gymmate.io" },
+                { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK", x: 60, y: 80, founded: "2017", hq: "Los Angeles", funding: "$28M", employees: "100+", website: "spotme.fit" }
             ],
             marketGap: {
                 xAxis: { label: "Social Features", low: "Solo", high: "Community" },
@@ -343,6 +353,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                     aiInsight: data.market.aiInsight,
                     competitors: 3,
                     competitorList: data.competitors,
+                    marketReports: data.marketReports,
                     riskAnalysis: data.riskAnalysis,
                     searchVolume: data.searchVolume,
                     marketGap: data.marketGap,
