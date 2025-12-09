@@ -326,12 +326,24 @@ ${responseSchema}`;
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
+    // Extract JSON from response - Gemini 3 Pro may add preamble text before JSON
+    // Look for the first { and last } to extract the JSON object
+    const jsonStartIndex = text.indexOf('{');
+    const jsonEndIndex = text.lastIndexOf('}');
+
+    if (jsonStartIndex === -1 || jsonEndIndex === -1 || jsonEndIndex < jsonStartIndex) {
+      console.error('No valid JSON found in Gemini response:', text);
+      return res.status(500).json({ error: 'Failed to parse AI response - no JSON found' });
+    }
+
+    const jsonText = text.substring(jsonStartIndex, jsonEndIndex + 1);
+
     // Parse the JSON
     let analysisData;
     try {
-      analysisData = JSON.parse(text);
+      analysisData = JSON.parse(jsonText);
     } catch (parseError) {
-      console.error('Failed to parse Gemini response:', text);
+      console.error('Failed to parse Gemini response:', jsonText);
       return res.status(500).json({ error: 'Failed to parse AI response' });
     }
 
