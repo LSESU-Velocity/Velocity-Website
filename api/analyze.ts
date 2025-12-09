@@ -149,6 +149,28 @@ interface GroundingMetadata {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Enable CORS with origin validation
+  const allowedOrigins = [
+    'https://velocity-website.vercel.app',
+    'https://velocity-website-git-main.vercel.app',
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+  ].filter(Boolean);
+
+  if (process.env.NODE_ENV === 'development') {
+    allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
+  }
+
+  const origin = req.headers.origin || '';
+  if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -163,6 +185,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
     return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
   }
+
 
   try {
     const db = initFirebase();

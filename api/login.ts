@@ -2,6 +2,12 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
+// Rate limiting store (in-memory for serverless - resets on cold start)
+// For production, consider using Redis or a database
+const loginAttempts = new Map<string, { count: number; resetTime: number }>();
+const LOGIN_RATE_LIMIT = 10; // Max attempts per window
+const LOGIN_RATE_WINDOW = 60 * 1000; // 1 minute window
+
 function initFirebase() {
     if (getApps().length === 0) {
         let privateKey = process.env.FIREBASE_PRIVATE_KEY;
@@ -24,9 +30,48 @@ function initFirebase() {
     return getFirestore();
 }
 
+function getClientIP(req: VercelRequest): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (typeof forwarded === 'string') {
+        return forwarded.split(',')[0].trim();
+    }
+    return req.socket?.remoteAddress || 'unknown';
+}
+
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+    const now = Date.now();
+    const record = loginAttempts.get(ip);
+
+    if (!record || now > record.resetTime) {
+        loginAttempts.set(ip, { count: 1, resetTime: now + LOGIN_RATE_WINDOW });
+        return { allowed: true, remaining: LOGIN_RATE_LIMIT - 1 };
+    }
+
+    if (record.count >= LOGIN_RATE_LIMIT) {
+        return { allowed: false, remaining: 0 };
+    }
+
+    record.count++;
+    return { allowed: true, remaining: LOGIN_RATE_LIMIT - record.count };
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    // Enable CORS with origin validation
+    const allowedOrigins = [
+        'https://velocity-website.vercel.app',
+        'https://velocity-website-git-main.vercel.app',
+        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
+    ].filter(Boolean);
+
+    // Allow localhost in development
+    if (process.env.NODE_ENV === 'development') {
+        allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
+    }
+
+    const origin = req.headers.origin || '';
+    if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+    }
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -39,6 +84,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // Rate limiting check
+    const clientIP = getClientIP(req);
+    const rateCheck = checkRateLimit(clientIP);
+
+    if (!rateCheck.allowed) {
+        return res.status(429).json({
+            valid: false,
+            error: 'Too many login attempts. Please try again later.'
+        });
+    }
+
     const { key } = req.body;
 
     if (!key || typeof key !== 'string') {
@@ -46,20 +102,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // Log env var presence (not values for security)
-        console.log('Checking Firebase env vars...');
-        console.log('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'SET' : 'MISSING');
-        console.log('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'SET' : 'MISSING');
-        console.log('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? `SET (length: ${process.env.FIREBASE_PRIVATE_KEY.length})` : 'MISSING');
-
         const db = initFirebase();
-        console.log('Firebase initialized successfully');
 
         // Look up the key in the 'keys' collection
         const keysRef = db.collection('keys');
-        console.log('Querying keys collection for:', key.trim());
         const snapshot = await keysRef.where('code', '==', key.trim()).get();
-        console.log('Query complete, found:', snapshot.size, 'documents');
 
         if (snapshot.empty) {
             return res.status(401).json({ valid: false, error: 'Invalid key' });
@@ -72,15 +119,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             keyId: keyDoc.id,
         });
     } catch (error: any) {
-        console.error('Login error details:', {
-            message: error.message,
-            code: error.code,
-            stack: error.stack,
-        });
+        console.error('Login error:', error.code || 'UNKNOWN');
         return res.status(500).json({
             valid: false,
-            error: 'Server error',
-            debug: process.env.NODE_ENV === 'development' ? error.message : undefined
+            error: 'Server error'
         });
     }
 }

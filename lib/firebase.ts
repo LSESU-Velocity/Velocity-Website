@@ -28,9 +28,7 @@ export function initFirebase(): Firestore {
             throw new Error('FIREBASE_CLIENT_EMAIL is not set');
         }
 
-        console.log('Initializing Firebase with project:', process.env.FIREBASE_PROJECT_ID);
-        console.log('Service account:', process.env.FIREBASE_CLIENT_EMAIL);
-        console.log('Private key starts with:', privateKey.substring(0, 30));
+
 
         app = initializeApp({
             credential: cert({
