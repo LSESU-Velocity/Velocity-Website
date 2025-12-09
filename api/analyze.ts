@@ -26,60 +26,61 @@ function initFirebase() {
 }
 
 // JSON Schema for the response - matches existing generateStartupData() structure
+// CHARACTER LIMITS are specified to ensure content fits widget layouts without truncation
 const responseSchema = `{
-  "name": "string - catchy startup name",
-  "tagline": "string - short memorable tagline",
+  "name": "string - catchy startup name (max 25 chars)",
+  "tagline": "string - short memorable tagline (max 60 chars)",
   "colors": ["primary hex", "secondary hex", "accent hex", "neutral hex"],
   "domain": ["domain1.com", "domain2.io", "domain3.app"],
   "stack": ["Tech1", "Tech2", "Tech3", "Tech4"],
-  "interface": "string - brief description of main interface",
+  "interface": "string - brief description of main interface (max 80 chars)",
   "monetization": [
     {
-      "model": "string - e.g. Freemium, Subscription, Marketplace",
-      "pricing": "string - e.g. $29/mo, Free tier available",
-      "strategies": ["Strategy1", "Strategy2", "Strategy3"],
-      "examples": "string - similar companies using this model"
+      "model": "string - e.g. Freemium, Subscription (max 30 chars)",
+      "pricing": "string - e.g. $29/mo, Free tier available (max 50 chars)",
+      "strategies": ["Strategy - max 35 chars each", "Strategy2", "Strategy3"],
+      "examples": "string - similar companies using this model (max 60 chars)"
     }
   ],
   "market": {
-    "tam": { "value": "$XXB", "label": "Market description" },
-    "sam": { "value": "$XXM", "label": "Serviceable market" },
-    "som": { "value": "$XXK", "label": "Initial target segment" },
-    "aiInsight": "string - 2-3 sentence market analysis"
+    "tam": { "value": "$XXB", "label": "Market description (max 40 chars)" },
+    "sam": { "value": "$XXM", "label": "Serviceable market (max 40 chars)" },
+    "som": { "value": "$XXK", "label": "Initial target segment (max 40 chars)" },
+    "aiInsight": "string - 2-3 sentence market analysis (max 280 chars, complete sentences)"
   },
   "customerSegments": [
     {
-      "segment": "Segment Name",
-      "age": "Age range",
-      "income": "Income level",
-      "interest": "Key interest"
+      "segment": "Segment Name (max 35 chars)",
+      "age": "Age range (max 10 chars, e.g. 25-45)",
+      "income": "Income level (max 30 chars)",
+      "interest": "Key interest/pain point (max 60 chars)"
     }
   ],
   "riskAnalysis": [
     {
-      "risk": "Risk description",
-      "mitigation": "How to mitigate",
-      "productFeature": "Feature that addresses this"
+      "risk": "Risk description (max 100 chars, complete sentence)",
+      "mitigation": "How to mitigate (max 80 chars)",
+      "productFeature": "Feature that addresses this (max 80 chars)"
     }
   ],
   "competitors": [
     {
-      "name": "Competitor Name",
-      "usp": "Their unique selling point",
-      "weakness": "Their weakness you can exploit",
+      "name": "Competitor Name (max 25 chars)",
+      "usp": "Their unique selling point (max 60 chars)",
+      "weakness": "Their weakness you can exploit (max 100 chars, complete sentence)",
       "x": 0-100,
       "y": 0-100
     }
   ],
   "marketGap": {
-    "xAxis": { "label": "Axis label", "low": "Low end", "high": "High end" },
-    "yAxis": { "label": "Axis label", "low": "Low end", "high": "High end" },
+    "xAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
+    "yAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
     "yourPosition": { "x": 0-100, "y": 0-100 },
-    "yourGap": "Description of your unique position"
+    "yourGap": "Description of your unique market position (max 180 chars, complete sentences)"
   },
   "searchVolume": [
     {
-      "keyword": "Relevant keyword",
+      "keyword": "Relevant search keyword (max 40 chars)",
       "data": [
         { "name": "Y1", "users": 0 },
         { "name": "Y2", "users": 100 },
@@ -92,15 +93,15 @@ const responseSchema = `{
   "promptChain": [
     {
       "step": 1,
-      "title": "Step title",
-      "prompt": "Full prompt for AI coding assistant"
+      "title": "Step title (max 40 chars)",
+      "prompt": "Full prompt for AI coding assistant (max 300 chars, actionable and complete)"
     }
   ],
   "distributionChannels": [
     {
-      "name": "Channel name",
-      "type": "Reddit/Discord/Forum/Social",
-      "members": "Size indicator"
+      "name": "Channel name (max 40 chars)",
+      "type": "Reddit/Discord/Forum/Social (max 15 chars)",
+      "members": "Size indicator (max 20 chars, e.g. 750K+ members)"
     }
   ],
   "viability": 0-100,
@@ -209,6 +210,12 @@ SCORING:
 6. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
 7. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
 8. Complexity score (0-100): How hard is this to build? Higher = more complex
+
+CHARACTER LIMITS - CRITICAL:
+9. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
+10. Write COMPLETE, COHERENT sentences that naturally fit within limits - never truncate mid-sentence
+11. Be concise but informative - prioritize key insights over verbose explanations
+12. If a limit feels tight, focus on the most impactful information
 
 For the perceptual map (competitors and marketGap):
 - X-axis goes from LOW (left, value 0) to HIGH (right, value 100)
