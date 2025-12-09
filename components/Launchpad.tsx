@@ -1330,12 +1330,12 @@ export const Launchpad: React.FC = () => {
 
           <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
             <AnimatedText
-              text="FROM IDEA"
+              text="READY TO BUILD?"
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
               delay={0.2}
             />
             <AnimatedText
-              text="TO LAUNCH"
+              text="START HERE."
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5E3A8] via-[#D4AF37] to-[#8A6E2F] pb-4 drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]"
               delay={0.8}
             />
@@ -1347,8 +1347,7 @@ export const Launchpad: React.FC = () => {
             transition={{ delay: 1.4, duration: 0.6 }}
             className="font-mono text-sm md:text-base text-gray-400 max-w-xl mb-12 leading-relaxed"
           >
-            Describe your idea in one sentence. We'll generate your brand identity,
-            tech stack, and go-to-market strategy.
+            You've got the spark. We'll find your market, your customers, and your starting point.
           </motion.p>
 
           {/* Input Section */}
