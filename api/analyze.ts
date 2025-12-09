@@ -234,11 +234,16 @@ SCORING:
 13. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
 14. Complexity score (0-100): How hard is this to build? Higher = more complex
 
-CHARACTER LIMITS - CRITICAL:
+CHARACTER LIMITS - ABSOLUTELY CRITICAL (MUST FOLLOW):
 15. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
 16. Write COMPLETE, COHERENT sentences that naturally fit within limits - never truncate mid-sentence
 17. Be concise but informative - prioritize key insights over verbose explanations
 18. If a limit feels tight, focus on the most impactful information
+
+ENFORCED LIMITS - COUNT CHARACTERS CAREFULLY:
+19. "yourGap" field: MAXIMUM 100 characters - describe the unique market position concisely
+20. "aiInsight" field (market analysis): MAXIMUM 280 characters - 2-3 short, complete sentences
+21. These two fields commonly exceed limits - double-check their length before responding
 
 For the perceptual map (competitors and marketGap):
 - X-axis goes from LOW (left, value 0) to HIGH (right, value 100)
