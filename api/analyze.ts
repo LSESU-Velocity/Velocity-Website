@@ -151,8 +151,9 @@ interface GroundingMetadata {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with origin validation
   const allowedOrigins = [
-    'https://velocity-website.vercel.app',
-    'https://velocity-website-git-main.vercel.app',
+    'https://lsesuvelocity.com',
+    'https://www.lsesuvelocity.com',
+    'https://velocity-website-five.vercel.app',
     process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
   ].filter(Boolean);
 
