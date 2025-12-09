@@ -195,36 +195,71 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // === END RATE LIMITING ===
 
     // Build the prompt for Gemini with Google Search grounding
-    const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
+    const prompt = `# ROLE
+You are an elite startup analyst with deep expertise in market research, competitive intelligence, and venture strategy. Your analyses are data-driven, actionable, and used by founders to make investment-grade decisions.
 
-STARTUP IDEA: "${idea}"
+# TASK
+Analyze the following startup idea and generate a comprehensive market analysis report. Use Google Search to find REAL, CURRENT data—do not fabricate any market figures, competitor names, or community names.
 
-CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
-1. Search for REAL, CURRENT market size data (TAM/SAM/SOM) - use actual industry reports
-2. Search for REAL competitors that operate in this space with their actual websites
-3. Search for real market trends and growth data
-4. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
-5. All market figures should come from verifiable sources you find via search
+## STARTUP IDEA
+"${idea}"
 
-SCORING:
-6. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
-7. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
-8. Complexity score (0-100): How hard is this to build? Higher = more complex
+# RESEARCH REQUIREMENTS (Use Google Search for Each)
 
-CHARACTER LIMITS - CRITICAL:
-9. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
-10. Write COMPLETE, COHERENT sentences that naturally fit within limits - never truncate mid-sentence
-11. Be concise but informative - prioritize key insights over verbose explanations
-12. If a limit feels tight, focus on the most impactful information
+## 1. MARKET SIZING (TAM/SAM/SOM)
+- Search for recent industry reports (Statista, Grand View Research, IBISWorld, etc.)
+- Use 2024-2025 data when available; clearly note the source year
+- TAM = Total addressable market globally
+- SAM = Segment the startup can realistically serve
+- SOM = First-year achievable market share
 
-For the perceptual map (competitors and marketGap):
-- X-axis goes from LOW (left, value 0) to HIGH (right, value 100)
-- Y-axis goes from LOW (bottom, value 0) to HIGH (top, value 100)
-- Position competitors and "yourPosition" based on where they fall on these spectrums
+## 2. COMPETITIVE LANDSCAPE
+- Find 3-5 REAL companies operating in this exact space
+- Search for their actual websites, funding amounts, and user counts when available
+- Identify genuine weaknesses based on user reviews, Trustpilot, G2, or news articles
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
+## 3. DISTRIBUTION CHANNELS
+- Find REAL communities: specific subreddit names (r/example), Discord servers, Facebook groups, forums
+- Search for communities where the target audience actively discusses related problems
+- Include actual member/subscriber counts when available
 
-Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
+## 4. SEARCH VOLUME TRENDS
+- Use search data to identify trending keywords in this space
+- Show realistic growth trajectories based on market trends
+
+# SCORING CRITERIA
+
+| Score | Criteria | Consider |
+|-------|----------|----------|
+| **Viability (0-100)** | Likelihood of success | Market fit, timing, competition intensity, unit economics |
+| **Scalability (0-100)** | Growth potential | Tech scalability, operational complexity, market ceiling |
+| **Complexity (0-100)** | Build difficulty | Higher = more complex; consider tech stack, integrations, regulatory requirements |
+
+# PERCEPTUAL MAP POSITIONING
+For the competitive positioning map (competitors + marketGap):
+- X-axis: 0 (LOW) ← → 100 (HIGH) — the dimension you define (e.g., Price)
+- Y-axis: 0 (LOW) ← → 100 (HIGH) — the dimension you define (e.g., Features)
+- Position "yourPosition" to highlight a genuine market gap NOT occupied by existing competitors
+
+# OUTPUT REQUIREMENTS
+
+## Quantities
+- 3 monetization strategies (with realistic pricing benchmarks from competitors)
+- 3 customer segments (with specific demographics)
+- 3 risks (with actionable mitigations)
+- 3-5 real competitors (with accurate positioning coordinates)
+- 3 search keywords (trending in this space)
+- 3 prompt chain steps (actionable MVP-building prompts)
+- 6 distribution channels (real communities with actual names)
+
+## CHARACTER LIMITS — CRITICAL
+Strictly respect ALL character limits in the schema. For each field:
+- Write COMPLETE sentences that naturally fit the limit—never truncate mid-thought
+- If space is tight, prioritize the single most impactful insight
+- Example: "max 60 chars" means ≤60 characters total, including spaces
+
+# RESPONSE FORMAT
+Respond with ONLY valid JSON matching the schema below. No markdown code fences. No explanations before or after.
 ${responseSchema}`;
 
     // Use REST API with Google Search grounding enabled
