@@ -305,18 +305,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { name: "r/LSE", type: "Local", members: "Students" }
             ]
         };
-    } else if (lowercaseIdea.includes("cat") || lowercaseIdea.includes("pet") || lowercaseIdea.includes("dog")) {
-        data.name = "PetPals";
-        data.tagline = "Connect with furry friends nearby.";
-        data.market.aiInsight = "PetPals capitalizes on the post-pandemic pet boom (20% growth). It solves a critical trust issue in the pet-sitting market by leveraging local community verification.";
-    } else if (lowercaseIdea.includes("study") || lowercaseIdea.includes("student") || lowercaseIdea.includes("university")) {
-        data.name = "StudySphere";
-        data.tagline = "Ace your exams together.";
-        data.market.aiInsight = "StudySphere hits the sweet spot of post-COVID hybrid learning. Students are craving connection, and your peer-to-peer focus differentiates heavily from static content libraries like Chegg.";
-    } else if (lowercaseIdea.includes("food") || lowercaseIdea.includes("restaurant") || lowercaseIdea.includes("cook")) {
-        data.name = "Tastify";
-        data.tagline = "Discover your next craving.";
-        data.market.aiInsight = "Tastify disrupts the text-heavy food delivery model with a visual-first approach, aligning perfectly with Gen Z discovery habits.";
     }
 
     // Simulate API delay
