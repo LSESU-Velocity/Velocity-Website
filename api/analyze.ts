@@ -43,9 +43,9 @@ const responseSchema = `{
     }
   ],
   "market": {
-    "tam": { "value": "$XXB", "label": "Market description (max 40 chars)" },
-    "sam": { "value": "$XXM", "label": "Serviceable market (max 40 chars)" },
-    "som": { "value": "$XXK", "label": "Initial target segment (max 40 chars)" },
+    "tam": { "value": "$XXB", "label": "Total industry market (max 40 chars)" },
+    "sam": { "value": "$XXM", "label": "Reachable with this product (max 40 chars)" },
+    "som": { "value": "$XXK", "label": "Year 1 realistic target (max 40 chars)" },
     "aiInsight": "string - 2-3 sentence market analysis (max 280 chars, complete sentences)"
   },
   "customerSegments": [
@@ -284,7 +284,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 STARTUP IDEA: "${idea}"
 
 CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
-1. Search for REAL, CURRENT market size data (TAM/SAM/SOM) - use actual industry reports
+1. Search for REAL, CURRENT market size data - use actual industry reports
+
+TAM/SAM/SOM CALCULATION - BE REALISTIC AND SPECIFIC:
+- TAM (Total Addressable Market): The ENTIRE global/regional market for this problem. Use industry reports.
+- SAM (Serviceable Addressable Market): The portion of TAM reachable with THIS specific product/business model, limited by geography (focus on UK/Europe initially), language, pricing tier, and distribution capabilities.
+- SOM (Serviceable Obtainable Market): The REALISTIC revenue a bootstrapped startup can capture in Year 1-2. This should be VERY conservative:
+  * Calculate as 1-3% of SAM maximum for a new entrant
+  * Consider: no brand recognition, limited marketing budget, small team
+  * Base on acquiring a specific, achievable number of customers (e.g., "2,000 users × £10/mo = £240K")
+  * SOM should feel achievable, not aspirational - this is the STARTING POINT
+  * If SAM is £500M, SOM should NOT exceed £5-15M for Year 1
 2. Search for REAL competitors that operate in this space with their actual websites
 3. Search for real market trends and growth data
 4. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
