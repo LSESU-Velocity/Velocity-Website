@@ -379,7 +379,7 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 5 distribution channels.
 
 Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
 ${responseSchema}`;
