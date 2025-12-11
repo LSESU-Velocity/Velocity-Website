@@ -1027,7 +1027,7 @@ export const Launchpad: React.FC = () => {
                           </div>
 
                           {/* Inner plotting area - dots are positioned within this inset zone */}
-                          <div className="absolute inset-0 m-5">
+                          <div className="absolute top-5 right-5 bottom-5 left-5">
                             {/* Competitor dots */}
                             {data.validation.competitorList.map((comp: any, i: number) => (
                               <motion.div
