@@ -1006,32 +1006,30 @@ export const Launchpad: React.FC = () => {
                         {/* Perceptual Map */}
                         <div className="relative w-full h-44 bg-white/[0.02] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
 
-                          {/* Central Axis Lines */}
+                          {/* Central Axis Lines - span full container */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                           </div>
                           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
 
-                          {/* Minimal axis labels */}
-                          <div className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          {/* Axis labels - positioned in outer margin */}
+                          <div className="absolute top-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
-                          <div className="absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
-                          <div className="absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute right-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
 
-                          {/* Competitor dots */}
-                          {data.validation.competitorList.map((comp: any, i: number) => {
-                            // Clamp coordinates to safe area (10-90%) to prevent overflow
-                            const safeX = Math.max(10, Math.min(90, comp.x));
-                            const safeY = Math.max(10, Math.min(90, comp.y));
-                            return (
+                          {/* Inner plotting area - dots are positioned within this inset zone */}
+                          <div className="absolute inset-0 m-5">
+                            {/* Competitor dots */}
+                            {data.validation.competitorList.map((comp: any, i: number) => (
                               <motion.div
                                 key={comp.name}
                                 initial={{ scale: 0, opacity: 0 }}
@@ -1039,8 +1037,8 @@ export const Launchpad: React.FC = () => {
                                 transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
                                 className="absolute group/dot cursor-pointer"
                                 style={{
-                                  left: `${safeX}%`,
-                                  bottom: `${safeY}%`,
+                                  left: `${comp.x}%`,
+                                  bottom: `${comp.y}%`,
                                   transform: 'translate(-50%, 50%)'
                                 }}
                                 onClick={() => setCompetitorIndex(i)}
@@ -1058,30 +1056,23 @@ export const Launchpad: React.FC = () => {
                                   <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
                                 </div>
                               </motion.div>
-                            );
-                          })}
+                            ))}
 
-                          {/* Your position - simplified */}
-                          {(() => {
-                            // Clamp coordinates to safe area (10-90%) to prevent overflow
-                            const yourX = Math.max(10, Math.min(90, data.validation.marketGap?.yourPosition.x ?? 50));
-                            const yourY = Math.max(10, Math.min(90, data.validation.marketGap?.yourPosition.y ?? 50));
-                            return (
-                              <motion.div
-                                initial={{ scale: 0, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.8, type: "spring" }}
-                                className="absolute z-20"
-                                style={{
-                                  left: `${yourX}%`,
-                                  bottom: `${yourY}%`,
-                                  transform: 'translate(-50%, 50%)'
-                                }}
-                              >
-                                <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
-                              </motion.div>
-                            );
-                          })()}
+                            {/* Your position */}
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              transition={{ delay: 0.8, type: "spring" }}
+                              className="absolute z-20"
+                              style={{
+                                left: `${data.validation.marketGap?.yourPosition.x ?? 50}%`,
+                                bottom: `${data.validation.marketGap?.yourPosition.y ?? 50}%`,
+                                transform: 'translate(-50%, 50%)'
+                              }}
+                            >
+                              <div className="w-4 h-4 rounded-full bg-emerald-500 border-2 border-white shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
+                            </motion.div>
+                          </div>
                         </div>
 
                         {/* Competitor Info - Streamlined */}
