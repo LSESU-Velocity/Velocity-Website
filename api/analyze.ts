@@ -76,8 +76,8 @@ const responseSchema = `{
       "name": "Competitor Name (max 25 chars)",
       "usp": "Their unique selling point (max 60 chars)",
       "weakness": "Their weakness you can exploit (max 100 chars, complete sentence)",
-      "x": 0-100,
-      "y": 0-100,
+      "x": "0-100 position on X-axis (based on xAxis definition below)",
+      "y": "0-100 position on Y-axis (general-purpose tools like Canva=10-30, specialized tools=70-90)",
       "founded": "Founding year (max 10 chars, e.g. 2016)",
       "hq": "HQ location (max 15 chars, e.g. San Francisco)",
       "funding": "Funding raised (max 20 chars, e.g. $275M raised)",
@@ -86,9 +86,9 @@ const responseSchema = `{
     }
   ],
   "marketGap": {
-    "xAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
-    "yAxis": { "label": "Axis label (max 20 chars)", "low": "Low end (max 20 chars)", "high": "High end (max 20 chars)" },
-    "yourPosition": { "x": 0-100, "y": 0-100 },
+    "xAxis": { "label": "Determinant attribute (max 20 chars)", "low": "Left end meaning (max 20 chars)", "high": "Right end meaning (max 20 chars)" },
+    "yAxis": { "label": "Determinant attribute (max 20 chars)", "low": "Bottom=General Purpose/Simple (max 20 chars)", "high": "Top=Specialized/Complex (max 20 chars)" },
+    "yourPosition": { "x": "0-100 (find a gap)", "y": "0-100 (find a gap)" },
     "yourGap": "Description of your unique market position (max 100 chars, complete sentences)"
   },
   "searchVolume": [
@@ -326,10 +326,58 @@ ENFORCED LIMITS - COUNT CHARACTERS CAREFULLY:
 20. "aiInsight" field (market analysis): MAXIMUM 280 characters - 2-3 short, complete sentences
 21. These two fields commonly exceed limits - double-check their length before responding
 
-For the perceptual map (competitors and marketGap):
-- X-axis goes from LOW (left, value 0) to HIGH (right, value 100)
-- Y-axis goes from LOW (bottom, value 0) to HIGH (top, value 100)
-- Position competitors and "yourPosition" based on where they fall on these spectrums
+PERCEPTUAL MAP - CRITICAL POSITIONING INSTRUCTIONS:
+The perceptual map visually shows where competitors sit in the market. This MUST be accurate.
+
+DO NOT (Common Mistakes to Avoid):
+- Position ALL competitors above Y=50 or all below - ensure distribution across quadrants
+- Use generic "Low/High" as axis labels - be SPECIFIC (e.g., "Consumer-Focused" not "Low Focus")
+- Choose correlated axes (Price vs Quality, Simple vs Low-Cost correlate - avoid these)
+- Place the user's position at exactly (50,50) - find an ACTUAL gap in the market
+- Cluster all competitors in one quadrant - spread them to reveal market dynamics
+
+STEP 1 - Choose TWO DETERMINANT ATTRIBUTES for the axes:
+- These are attributes customers ACTUALLY use to decide between competitors
+- Axes must be UNCORRELATED (avoid price vs quality - they correlate; use quality vs complexity instead)
+- Good axis pairs by industry:
+  * SaaS/Software: "Ease of Use vs Feature Depth", "Consumer vs Enterprise Focus", "Specialized vs General Purpose"
+  * Physical Products: "Mass Market vs Premium", "Local vs Global Reach", "Standardized vs Custom"
+  * Services: "Self-Service vs High-Touch", "Standardized vs Bespoke", "Budget vs Premium"
+  * Marketplaces: "Niche vs Broad Inventory", "Local vs Global Coverage", "Curated vs Open"
+- Pick axes that reveal a meaningful GAP where the user's product can differentiate
+
+STEP 2 - Define axis meanings clearly:
+- X-axis: LOW (left, value 0) to HIGH (right, value 100)
+- Y-axis: LOW (bottom, value 0) to HIGH (top, value 100)
+- Example: If Y-axis is "Specialized vs General Purpose", then:
+  * Y=90-100: Highly specialized tools (e.g., academic citation managers)
+  * Y=40-60: Mid-range tools
+  * Y=0-20: General purpose tools (e.g., Canva, Google Docs)
+
+STEP 3 - Position competitors using CATEGORICAL THINKING:
+Before assigning X/Y values, categorize each competitor:
+- LOW (0-25): Entry-level, budget, consumer, general-purpose
+- MID-LOW (25-45): Prosumer, growing, accessible
+- MID-HIGH (55-75): Professional, established, feature-rich
+- HIGH (75-100): Enterprise, premium, highly specialized
+Then convert to specific numbers within each range.
+
+Examples:
+- If X-axis is "Affordable vs Premium": Ryanair=15, Southwest=30, Delta=65, Emirates=90
+- If X-axis is "Consumer vs Enterprise": Discord=20, Slack=45, Microsoft Teams=70, Salesforce=95
+- If Y-axis is "General Purpose vs Specialized": Canva=15, Notion=30, Figma=65, Ahrefs=85
+
+STEP 4 - Position "yourPosition" STRATEGICALLY:
+- MUST be in a quadrant with FEW or NO existing competitors
+- Distance from nearest competitor should be at least 15-20 units on one axis
+- Justify WHY this gap represents a real market opportunity in "yourGap"
+- If no clear gap exists, the market may be saturated - reflect this honestly
+
+STEP 5 - VALIDATION before responding:
+- Verify at least ONE competitor is below Y=40 AND at least ONE is above Y=60
+- Verify at least ONE competitor is below X=40 AND at least ONE is above X=60
+- If all competitors cluster in one quadrant, RECONSIDER your axis choices
+- The map should tell a story about market segmentation
 
 Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 6 distribution channels.
 
