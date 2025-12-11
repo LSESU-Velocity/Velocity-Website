@@ -148,6 +148,53 @@ interface GroundingMetadata {
   };
 }
 
+// Resolve a single redirect URL to its final destination
+async function resolveRedirectUrl(url: string): Promise<string> {
+  try {
+    // Only resolve vertexaisearch redirect URLs
+    if (!url.includes('vertexaisearch.cloud.google.com/grounding-api-redirect')) {
+      return url;
+    }
+
+    // Follow the redirect with a HEAD request to get the final URL
+    const response = await fetch(url, {
+      method: 'HEAD',
+      redirect: 'follow',
+    });
+
+    // The response.url will be the final URL after all redirects
+    return response.url;
+  } catch (error) {
+    console.error('Failed to resolve redirect URL:', url, error);
+    // Return original URL if resolution fails
+    return url;
+  }
+}
+
+// Resolve multiple redirect URLs in parallel with a timeout
+async function resolveRedirectUrls(sources: { uri: string; title: string }[]): Promise<{ uri: string; title: string }[]> {
+  const TIMEOUT_MS = 5000; // 5 second timeout for all URL resolutions
+
+  const resolveWithTimeout = async (source: { uri: string; title: string }) => {
+    try {
+      const resolvedUri = await Promise.race([
+        resolveRedirectUrl(source.uri),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), TIMEOUT_MS)
+        )
+      ]) as string;
+
+      return { uri: resolvedUri, title: source.title };
+    } catch {
+      // Return original on timeout or error
+      return source;
+    }
+  };
+
+  // Resolve all URLs in parallel
+  return Promise.all(sources.map(resolveWithTimeout));
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with origin validation
   const allowedOrigins = [
@@ -339,11 +386,17 @@ ${responseSchema}`;
     const groundingChunks = groundingMetadata.groundingChunks || [];
     const searchQueries = groundingMetadata.webSearchQueries || [];
 
-    // Format grounding sources for the frontend
-    const groundingSources = groundingChunks.map((chunk: GroundingChunk) => ({
+    // Format grounding sources for the frontend (initial extraction)
+    const rawGroundingSources = groundingChunks.map((chunk: GroundingChunk) => ({
       uri: chunk.web?.uri || '',
       title: chunk.web?.title || 'Source'
     })).filter((source: { uri: string; title: string }) => source.uri); // Filter out empty URIs
+
+    // Resolve redirect URLs to actual source URLs
+    // This converts vertexaisearch.cloud.google.com/grounding-api-redirect/... to actual source URLs
+    const groundingSources = await resolveRedirectUrls(rawGroundingSources);
+
+    console.log('Resolved grounding sources:', groundingSources.map(s => s.uri));
 
     // Create categorized sources from grounding data
     // First half for market data, second half for competitors (rough heuristic)
