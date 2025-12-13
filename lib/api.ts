@@ -4,8 +4,8 @@ import { generateMockAnalysis } from './mockData';
 // Dev mode detection - true when running `npm run dev`
 const IS_DEV = import.meta.env.DEV;
 
-// Valid dev-mode test keys
-const DEV_TEST_KEYS = ['VEL-TEST-001', 'VEL-DEV-001'];
+// Dev-mode test keys (set via VITE_DEV_KEYS env var, not hardcoded)
+const DEV_TEST_KEYS = IS_DEV ? (import.meta.env.VITE_DEV_KEYS?.split(',') || []) : [];
 
 export interface LoginResponse {
     valid: boolean;
