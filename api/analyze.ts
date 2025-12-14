@@ -542,7 +542,7 @@ ${responseSchema}`;
 
     return res.status(200).json(formattedData);
   } catch (error) {
-    console.error('Analysis error:', error);
+    console.error('Analysis error:', error instanceof Error ? error.message : 'Unknown error');
     return res.status(500).json({ error: 'Failed to generate analysis' });
   }
 }

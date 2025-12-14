@@ -2,11 +2,9 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-// Rate limiting store (in-memory for serverless - resets on cold start)
-// For production, consider using Redis or a database
-const loginAttempts = new Map<string, { count: number; resetTime: number }>();
+// Rate limiting constants
 const LOGIN_RATE_LIMIT = 10; // Max attempts per window
-const LOGIN_RATE_WINDOW = 60 * 1000; // 1 minute window
+const LOGIN_RATE_WINDOW_MS = 60 * 1000; // 1 minute window
 
 function initFirebase() {
     if (getApps().length === 0) {
@@ -38,21 +36,32 @@ function getClientIP(req: VercelRequest): string {
     return req.socket?.remoteAddress || 'unknown';
 }
 
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number } {
+async function checkRateLimitFirestore(db: FirebaseFirestore.Firestore, ip: string): Promise<{ allowed: boolean; remaining: number }> {
     const now = Date.now();
-    const record = loginAttempts.get(ip);
+    const rateLimitRef = db.collection('rateLimits').doc(ip.replace(/[\/\.]/g, '_')); // Sanitize IP for doc ID
 
-    if (!record || now > record.resetTime) {
-        loginAttempts.set(ip, { count: 1, resetTime: now + LOGIN_RATE_WINDOW });
-        return { allowed: true, remaining: LOGIN_RATE_LIMIT - 1 };
+    try {
+        const doc = await rateLimitRef.get();
+
+        if (!doc.exists || (doc.data()?.resetTime ?? 0) < now) {
+            // New window or expired - reset counter
+            await rateLimitRef.set({ count: 1, resetTime: now + LOGIN_RATE_WINDOW_MS });
+            return { allowed: true, remaining: LOGIN_RATE_LIMIT - 1 };
+        }
+
+        const data = doc.data()!;
+        if (data.count >= LOGIN_RATE_LIMIT) {
+            return { allowed: false, remaining: 0 };
+        }
+
+        // Increment counter
+        await rateLimitRef.update({ count: data.count + 1 });
+        return { allowed: true, remaining: LOGIN_RATE_LIMIT - data.count - 1 };
+    } catch (error) {
+        // On Firestore error, allow request but log warning
+        console.warn('Rate limit check failed, allowing request:', error instanceof Error ? error.message : 'Unknown error');
+        return { allowed: true, remaining: LOGIN_RATE_LIMIT };
     }
-
-    if (record.count >= LOGIN_RATE_LIMIT) {
-        return { allowed: false, remaining: 0 };
-    }
-
-    record.count++;
-    return { allowed: true, remaining: LOGIN_RATE_LIMIT - record.count };
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -87,25 +96,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Rate limiting check
-    const clientIP = getClientIP(req);
-    const rateCheck = checkRateLimit(clientIP);
-
-    if (!rateCheck.allowed) {
-        return res.status(429).json({
-            valid: false,
-            error: 'Too many login attempts. Please try again later.'
-        });
-    }
-
-    const { key } = req.body;
-
-    if (!key || typeof key !== 'string') {
-        return res.status(400).json({ valid: false, error: 'Key is required' });
-    }
-
     try {
         const db = initFirebase();
+
+        // Rate limiting check (Firestore-based, persists across cold starts)
+        const clientIP = getClientIP(req);
+        const rateCheck = await checkRateLimitFirestore(db, clientIP);
+
+        if (!rateCheck.allowed) {
+            return res.status(429).json({
+                valid: false,
+                error: 'Too many login attempts. Please try again later.'
+            });
+        }
+
+        const { key } = req.body;
+
+        if (!key || typeof key !== 'string') {
+            return res.status(400).json({ valid: false, error: 'Key is required' });
+        }
 
         // Look up the key in the 'keys' collection
         const keysRef = db.collection('keys');
@@ -121,8 +130,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             valid: true,
             keyId: keyDoc.id,
         });
-    } catch (error: any) {
-        console.error('Login error:', error.code || 'UNKNOWN');
+    } catch (error: unknown) {
+        console.error('Login error:', error instanceof Error ? error.message : 'Unknown error');
         return res.status(500).json({
             valid: false,
             error: 'Server error'
