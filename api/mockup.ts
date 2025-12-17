@@ -75,24 +75,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Build the prompt for Gemini 2.5 Flash Image
-        const prompt = `Generate a professional mobile app UI mockup for a startup app.
+        const prompt = `Generate a mobile app UI screen design for a startup app.
 
 APP DETAILS:
 - Name: "${startupName || 'Startup App'}"
 - Concept: "${idea}"
 - Main Interface: "${appDescription || 'A modern mobile app interface'}"
 
-REQUIREMENTS:
-1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
-2. Use a clean, modern UI design with professional aesthetics
-3. Include realistic UI elements: navigation bar, content area, buttons, icons
-4. Use a cohesive color scheme that feels premium and tech-forward
-5. Show the app in use with sample content relevant to the startup concept
-6. The design should look like a real production app, not a wireframe
-7. Include proper spacing, typography hierarchy, and visual balance
-8. Make it look like a polished screenshot from the App Store
+CRITICAL REQUIREMENTS:
+1. Generate ONLY the app screen content - NO phone frame, NO device bezel, NO notch
+2. The output should be a flat rectangular UI design at 9:19 aspect ratio (phone screen proportions)
+3. Use a clean, modern UI design with professional aesthetics
+4. Include realistic UI elements: status bar (time, signal, battery), navigation bar, content area, buttons, icons
+5. Use a cohesive color scheme that feels premium and tech-forward
+6. Show the app in use with sample content relevant to the startup concept
+7. The design should look like a real production app screen, not a wireframe
+8. Include proper spacing, typography hierarchy, and visual balance
 
-Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
+DO NOT include:
+- Phone device frames or bezels
+- Device notches or camera cutouts in the frame
+- Drop shadows or 3D perspective effects
+- Any elements outside the screen content area
+
+Style: Modern, minimal, professional iOS/Android app screen design. Dark or light theme based on what suits the concept best. The image should be a flat, straight-on view of just the screen content.`;
 
         // Use Gemini 2.5 Flash Image API
         const apiKey = process.env.GEMINI_API_KEY;
