@@ -185,3 +185,38 @@ export async function getAnalyses(key: string): Promise<AnalysisRecord[]> {
 
     return response.json();
 }
+
+export interface MockupResponse {
+    image: string;  // base64 encoded image data
+    mimeType: string;
+}
+
+export async function generateMockup(
+    key: string,
+    idea: string,
+    startupName: string,
+    appDescription: string
+): Promise<MockupResponse> {
+    // DEV MODE BYPASS: Return a placeholder in dev mode
+    if (IS_DEV) {
+        console.log('[DEV MODE] Returning placeholder mockup');
+        // Return a 1x1 transparent PNG placeholder
+        return {
+            image: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            mimeType: 'image/png'
+        };
+    }
+
+    const response = await fetch(`${API_BASE}/mockup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, idea, startupName, appDescription }),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate mockup');
+    }
+
+    return response.json();
+}

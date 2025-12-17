@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } 
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
-import { generateAnalysis, getAnalyses, AnalysisRecord } from '../lib/api';
+import { generateAnalysis, getAnalyses, AnalysisRecord, generateMockup } from '../lib/api';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -328,10 +328,11 @@ export const Launchpad: React.FC = () => {
   const [riskIndex, setRiskIndex] = useState(0);
   const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
   const [domainIndex, setDomainIndex] = useState(0);
-  const [appScreenIndex, setAppScreenIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [mockupImage, setMockupImage] = useState<string | null>(null);
+  const [mockupLoading, setMockupLoading] = useState(false);
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   // Fetch history when authenticated
@@ -440,7 +441,8 @@ export const Launchpad: React.FC = () => {
     setRiskIndex(0);
     setSearchVolumeIndex(0);
     setDomainIndex(0);
-    setAppScreenIndex(0);
+    setMockupImage(null);
+    setMockupLoading(false);
     setPromptChainIndex(0);
     setLoadingStep(0);
 
@@ -465,7 +467,32 @@ export const Launchpad: React.FC = () => {
     setIdea(record.idea);
     setShowHistory(false);
     setShowResults(true);
+    setMockupImage(null); // Reset mockup when loading from history
   };
+
+  // Generate mockup image after analysis completes
+  useEffect(() => {
+    if (data && !isGenerating && !mockupImage && !mockupLoading && authKey) {
+      setMockupLoading(true);
+      generateMockup(
+        authKey,
+        idea,
+        data.identity.name,
+        data.visuals.appInterface
+      )
+        .then((result) => {
+          setMockupImage(`data:${result.mimeType};base64,${result.image}`);
+        })
+        .catch((err) => {
+          console.error('Mockup generation error:', err);
+          // Keep mockupImage null to show fallback UI
+        })
+        .finally(() => {
+          setMockupLoading(false);
+        });
+    }
+  }, [data, isGenerating, authKey]);
+
 
   return (
     <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden">
@@ -681,25 +708,6 @@ export const Launchpad: React.FC = () => {
                     delay={0.1}
                     className="min-h-[340px]"
                     visible={showResults}
-                    action={
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => setAppScreenIndex((prev) => (prev - 1 + data.visuals.screens.length) % data.visuals.screens.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronLeft className="w-3 h-3" />
-                        </button>
-                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                          {appScreenIndex + 1}/{data.visuals.screens.length}
-                        </span>
-                        <button
-                          onClick={() => setAppScreenIndex((prev) => (prev + 1) % data.visuals.screens.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                    }
                   >
                     <div className="flex flex-col h-full">
                       {/* Phone Mockup */}
@@ -709,110 +717,70 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
 
                           {/* Screen Content */}
-                          <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col">
-                            {/* Status Bar Mock */}
-                            <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
-                              <div className="text-[8px] font-mono text-white">9:41</div>
-                              <div className="flex gap-1">
-                                <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
+                          <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center">
+                            {mockupLoading && (
+                              <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
+                                <span className="font-mono text-[9px] text-gray-400 text-center px-4">
+                                  Generating mockup...
+                                </span>
                               </div>
-                            </div>
+                            )}
 
-                            {/* App Header */}
-                            <div className="px-4 py-2 flex items-center justify-between">
-                              <div className="w-6 h-6 rounded-full bg-white/10"></div>
-                              <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.visuals.screens[appScreenIndex].title}</span>
-                              <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
-                                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
-                              </div>
-                            </div>
+                            {mockupImage && !mockupLoading && (
+                              <img
+                                src={mockupImage}
+                                alt="App Mockup"
+                                className="w-full h-full object-cover"
+                              />
+                            )}
 
-                            {/* Search Bar (visible on all screens for consistency or conditionally) */}
-                            <div className="px-4 mb-4">
-                              <div className="w-full h-8 bg-white/5 rounded-full flex items-center px-3 border border-white/10">
-                                <div className="w-3 h-3 rounded-full border border-white/30 mr-2"></div>
-                                <div className="w-20 h-2 bg-white/10 rounded"></div>
-                              </div>
-                            </div>
-
-                            {/* Dynamic Content Area */}
-                            <AnimatePresence mode="wait">
-                              <motion.div
-                                key={appScreenIndex}
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 1.05 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex-1 relative overflow-hidden bg-white/5 mx-4 mb-4 rounded-2xl border border-white/5"
-                              >
-                                {data.visuals.screens[appScreenIndex].type === 'map' && (
-                                  <>
-                                    {/* Mock Markers */}
-                                    <div className="absolute top-1/4 left-1/3 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse">
-                                      <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                    </div>
-                                    <div className="absolute top-1/2 right-1/4 w-8 h-8 bg-velocity-red/20 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '0.5s' }}>
-                                      <div className="w-3 h-3 bg-velocity-red rounded-full border border-black"></div>
-                                    </div>
-                                    {/* Floating Action Button */}
-                                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-velocity-red rounded-full shadow-lg shadow-red-900/20">
-                                      <div className="w-16 h-2 bg-white rounded"></div>
-                                    </div>
-                                  </>
-                                )}
-
-                                {data.visuals.screens[appScreenIndex].type === 'feed' && (
-                                  <div className="p-3 space-y-2 h-full overflow-hidden">
-                                    {[1, 2, 3].map((i) => (
-                                      <div key={i} className="w-full h-16 bg-white/5 rounded-lg border border-white/5 flex items-center p-2 gap-2">
-                                        <div className="w-10 h-10 rounded-md bg-white/10"></div>
-                                        <div className="flex-1 space-y-1">
-                                          <div className="w-2/3 h-2 bg-white/20 rounded"></div>
-                                          <div className="w-1/2 h-1.5 bg-white/10 rounded"></div>
-                                        </div>
-                                      </div>
-                                    ))}
+                            {!mockupImage && !mockupLoading && (
+                              /* Fallback wireframe UI */
+                              <div className="w-full h-full flex flex-col">
+                                {/* Status Bar Mock */}
+                                <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
+                                  <div className="text-[8px] font-mono text-white">9:41</div>
+                                  <div className="flex gap-1">
+                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
+                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
                                   </div>
-                                )}
+                                </div>
 
-                                {data.visuals.screens[appScreenIndex].type === 'profile' && (
-                                  <div className="p-4 flex flex-col items-center h-full">
-                                    <div className="w-16 h-16 rounded-full border-2 border-white/20 bg-white/5 mb-3">
-                                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full rounded-full p-1" />
-                                    </div>
-                                    <div className="w-24 h-3 bg-white/20 rounded mb-1"></div>
-                                    <div className="w-16 h-2 bg-white/10 rounded mb-6"></div>
-
-                                    <div className="w-full grid grid-cols-3 gap-2 mb-4">
-                                      {[1, 2, 3].map((i) => (
-                                        <div key={i} className="aspect-square bg-white/5 rounded-lg border border-white/5"></div>
-                                      ))}
-                                    </div>
-
-                                    <div className="w-full space-y-2 mt-auto">
-                                      <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
-                                      <div className="w-full h-8 bg-white/5 rounded border border-white/5"></div>
-                                    </div>
+                                {/* App Header */}
+                                <div className="px-4 py-2 flex items-center justify-between">
+                                  <div className="w-6 h-6 rounded-full bg-white/10"></div>
+                                  <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.identity.name}</span>
+                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
+                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
                                   </div>
-                                )}
-                              </motion.div>
-                            </AnimatePresence>
+                                </div>
 
-                            {/* Bottom Nav */}
-                            <div className="h-12 border-t border-white/5 flex items-center justify-around px-2">
-                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 0 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 1 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                              <div className={`w-6 h-6 rounded-full transition-colors ${appScreenIndex === 2 ? 'bg-white/10' : 'border border-white/20'}`}></div>
-                            </div>
+                                {/* Content skeleton */}
+                                <div className="flex-1 px-4 space-y-2">
+                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
+                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
+                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
+                                </div>
 
-                            {/* Home Indicator */}
-                            <div className="h-4 w-full flex justify-center items-start">
-                              <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
-                            </div>
+                                {/* Home Indicator */}
+                                <div className="h-4 w-full flex justify-center items-start">
+                                  <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
+
+                      {/* AI Generated Label */}
+                      {mockupImage && (
+                        <div className="text-center pb-1">
+                          <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">
+                            AI Generated
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </Widget>
 
