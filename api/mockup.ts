@@ -75,22 +75,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Build the prompt for Gemini 2.5 Flash Image
-        const prompt = `Generate a professional mobile app UI mockup for a startup app.
+        const prompt = `Generate a mobile app UI screenshot for a startup app. IMPORTANT: Generate ONLY the screen content, NOT a phone device mockup.
 
 APP DETAILS:
 - Name: "${startupName || 'Startup App'}"
 - Concept: "${idea}"
 - Main Interface: "${appDescription || 'A modern mobile app interface'}"
 
-REQUIREMENTS:
-1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
-2. Use a clean, modern UI design with professional aesthetics
-3. Include realistic UI elements: navigation bar, content area, buttons, icons
-4. Use a cohesive color scheme that feels premium and tech-forward
-5. Show the app in use with sample content relevant to the startup concept
-6. The design should look like a real production app, not a wireframe
-7. Include proper spacing, typography hierarchy, and visual balance
-8. Make it look like a polished screenshot from the App Store
+CRITICAL REQUIREMENTS:
+1. Generate ONLY the app screen content - NO phone frame, NO device bezels, NO notch
+2. The image should be a flat rectangular screenshot of what appears ON the screen
+3. Use a clean, modern UI design with professional aesthetics
+4. Include realistic UI elements: navigation bar, content area, buttons, icons, tab bar
+5. Use a cohesive color scheme that feels premium and tech-forward
+6. Show the app in use with sample content relevant to the startup concept
+7. The design should look like a real production app screenshot
+8. Include proper spacing, typography hierarchy, and visual balance
+9. Aspect ratio should be approximately 9:19 (mobile portrait)
+
+DO NOT include: phone bezels, device frames, notches, camera cutouts, or any device chrome.
+Just the pure screen content as if taking a screenshot from within the app.
 
 Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
 
