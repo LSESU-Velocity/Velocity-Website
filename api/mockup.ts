@@ -86,12 +86,13 @@ CRITICAL REQUIREMENTS:
 1. Generate ONLY the app screen content - NO phone frame, NO device bezels, NO notch
 2. The image should be a flat rectangular screenshot of what appears ON the screen
 3. Use a clean, modern UI design with professional aesthetics
-4. Include realistic UI elements: navigation bar, content area, buttons, icons, tab bar
+4. Include realistic UI elements: status bar area at top, content area, buttons, icons, tab bar at bottom
 5. Use a cohesive color scheme that feels premium and tech-forward
 6. Show the app in use with sample content relevant to the startup concept
 7. The design should look like a real production app screenshot
 8. Include proper spacing, typography hierarchy, and visual balance
-9. Aspect ratio should be approximately 9:19 (mobile portrait)
+9. Fill the ENTIRE vertical space - content should extend from very top to very bottom
+10. Add a status bar style area at the top (time, battery icons) and bottom navigation tabs
 
 DO NOT include: phone bezels, device frames, notches, camera cutouts, or any device chrome.
 Just the pure screen content as if taking a screenshot from within the app.
@@ -116,6 +117,9 @@ Style: Modern, minimal, professional iOS/Android app design. Dark or light theme
                     contents: [{ parts: [{ text: prompt }] }],
                     generationConfig: {
                         responseModalities: ['IMAGE'],
+                        imageConfig: {
+                            aspectRatio: '9:16'
+                        }
                     }
                 })
             }
