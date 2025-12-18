@@ -188,6 +188,24 @@ export async function getAnalyses(key: string): Promise<AnalysisRecord[]> {
     return response.json();
 }
 
+export async function deleteAnalysis(key: string, analysisId: string): Promise<void> {
+    // DEV MODE BYPASS: Just log and return in dev mode
+    if (IS_DEV) {
+        console.log('[DEV MODE] Would delete analysis:', analysisId);
+        return;
+    }
+
+    const response = await fetch(
+        `${API_BASE}/analyses?key=${encodeURIComponent(key)}&id=${encodeURIComponent(analysisId)}`,
+        { method: 'DELETE' }
+    );
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete analysis');
+    }
+}
+
 export interface MockupResponse {
     image: string;  // base64 encoded image data
     mimeType: string;

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
-import { generateAnalysis, getAnalyses, AnalysisRecord, generateMockup } from '../lib/api';
+import { generateAnalysis, getAnalyses, AnalysisRecord, generateMockup, deleteAnalysis } from '../lib/api';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -335,6 +335,7 @@ export const Launchpad: React.FC = () => {
   const [mockupImage, setMockupImage] = useState<string | null>(null);
   const [mockupLoading, setMockupLoading] = useState(false);
   const [isFromHistory, setIsFromHistory] = useState(false); // Track if analysis was loaded from history
+  const [deletingId, setDeletingId] = useState<string | null>(null); // Track which analysis is being deleted
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   // Fetch history when authenticated
@@ -522,6 +523,25 @@ export const Launchpad: React.FC = () => {
     }
   };
 
+  // Delete an analysis from history
+  const handleDeleteAnalysis = async (e: React.MouseEvent, recordId: string) => {
+    e.stopPropagation(); // Prevent triggering loadFromHistory
+
+    if (!authKey || deletingId) return;
+
+    setDeletingId(recordId);
+    try {
+      await deleteAnalysis(authKey, recordId);
+      // Update local state to remove the deleted item
+      setHistory(prev => prev.filter(record => record.id !== recordId));
+    } catch (err) {
+      console.error('Delete analysis error:', err);
+      setError('Failed to delete analysis');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   // Generate mockup image as fallback for old analyses without persisted mockups
   // This useEffect only triggers when loading from history with no mockup
   useEffect(() => {
@@ -603,16 +623,32 @@ export const Launchpad: React.FC = () => {
                           <p className="p-4 font-mono text-xs text-gray-500">No analyses yet</p>
                         ) : (
                           history.map((record) => (
-                            <button
+                            <div
                               key={record.id}
-                              onClick={() => loadFromHistory(record)}
-                              className="w-full p-4 text-left hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group"
+                              className="w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group"
                             >
-                              <p className="font-mono text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
-                              <p className="font-mono text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
-                                {new Date(record.createdAt).toLocaleDateString()}
-                              </p>
-                            </button>
+                              <button
+                                onClick={() => loadFromHistory(record)}
+                                className="flex-1 text-left min-w-0"
+                              >
+                                <p className="font-mono text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
+                                <p className="font-mono text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+                                  {new Date(record.createdAt).toLocaleDateString()}
+                                </p>
+                              </button>
+                              <button
+                                onClick={(e) => handleDeleteAnalysis(e, record.id)}
+                                disabled={deletingId === record.id}
+                                className="p-1.5 text-gray-500 hover:text-velocity-red hover:bg-white/5 transition-all disabled:opacity-50"
+                                title="Delete analysis"
+                              >
+                                {deletingId === record.id ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
                           ))
                         )}
                       </div>
