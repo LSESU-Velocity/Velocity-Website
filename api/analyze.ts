@@ -27,95 +27,199 @@ function initFirebase() {
 }
 
 // JSON Schema for the response - matches existing generateStartupData() structure
-// CHARACTER LIMITS are specified to ensure content fits widget layouts without truncation
-const responseSchema = `{
-  "name": "string - catchy startup name (max 25 chars)",
-  "tagline": "string - short memorable tagline (max 60 chars)",
-  "interface": "string - brief description of main interface (max 80 chars)",
-  "monetization": [
-    {
-      "model": "string - e.g. Freemium, Subscription (max 30 chars)",
-      "pricing": "string - e.g. $29/mo, Free tier available (max 50 chars)",
-      "strategies": ["Strategy - max 35 chars each", "Strategy2", "Strategy3"],
-      "examples": "string - similar companies using this model (max 60 chars)"
-    }
-  ],
-  "market": {
-    "tam": { "value": "$XXB", "label": "Total industry market (max 40 chars)" },
-    "sam": { "value": "$XXM", "label": "Reachable with this product (max 40 chars)" },
-    "som": { "value": "$XXK", "label": "Year 1 realistic target (max 40 chars)" },
-    "aiInsight": "string - 2-3 sentence market analysis (max 280 chars, complete sentences)"
+// CHARACTER LIMITS are specified in descriptions to guide the model
+const responseSchema = {
+  type: "object",
+  properties: {
+    name: { type: "string", description: "Catchy startup name (max 25 chars)" },
+    tagline: { type: "string", description: "Short memorable tagline (max 60 chars)" },
+    interface: { type: "string", description: "Brief description of main interface (max 80 chars)" },
+    monetization: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          model: { type: "string", description: "e.g. Freemium, Subscription (max 30 chars)" },
+          pricing: { type: "string", description: "e.g. $29/mo, Free tier available (max 50 chars)" },
+          strategies: { type: "array", items: { type: "string" }, description: "Strategy items (max 35 chars each)" },
+          examples: { type: "string", description: "Similar companies using this model (max 60 chars)" }
+        },
+        required: ["model", "pricing", "strategies", "examples"]
+      }
+    },
+    market: {
+      type: "object",
+      properties: {
+        tam: {
+          type: "object",
+          properties: {
+            value: { type: "string", description: "e.g. $XXB" },
+            label: { type: "string", description: "Total industry market (max 40 chars)" }
+          },
+          required: ["value", "label"]
+        },
+        sam: {
+          type: "object",
+          properties: {
+            value: { type: "string", description: "e.g. $XXM" },
+            label: { type: "string", description: "Reachable with this product (max 40 chars)" }
+          },
+          required: ["value", "label"]
+        },
+        som: {
+          type: "object",
+          properties: {
+            value: { type: "string", description: "e.g. $XXK" },
+            label: { type: "string", description: "Year 1 realistic target (max 40 chars)" }
+          },
+          required: ["value", "label"]
+        },
+        aiInsight: { type: "string", description: "2-3 sentence market analysis (max 280 chars, complete sentences)" }
+      },
+      required: ["tam", "sam", "som", "aiInsight"]
+    },
+    customerSegments: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          segment: { type: "string", description: "Segment Name (max 35 chars)" },
+          age: { type: "string", description: "Age range (max 10 chars, e.g. 25-45)" },
+          income: { type: "string", description: "Income level (max 30 chars)" },
+          interest: { type: "string", description: "Key interest/pain point (max 60 chars)" }
+        },
+        required: ["segment", "age", "income", "interest"]
+      }
+    },
+    riskAnalysis: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          risk: { type: "string", description: "Risk description (max 100 chars, complete sentence)" },
+          productFeature: { type: "string", description: "Feature that addresses this (max 80 chars)" }
+        },
+        required: ["risk", "productFeature"]
+      }
+    },
+    marketReports: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string", description: "Report title - Publisher, Year (max 50 chars)" },
+          publisher: { type: "string", description: "Publisher name (max 25 chars)" },
+          keyStat: { type: "string", description: "Key stat: value | metric (max 40 chars)" },
+          url: { type: "string", description: "URL to the actual report or source" }
+        },
+        required: ["title", "publisher", "keyStat", "url"]
+      }
+    },
+    competitors: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Competitor Name (max 25 chars)" },
+          weakness: { type: "string", description: "Their weakness you can exploit (max 100 chars, complete sentence)" },
+          x: { type: "number", description: "0-100 position on X-axis (based on xAxis definition)" },
+          y: { type: "number", description: "0-100 position on Y-axis (general-purpose tools=10-30, specialized=70-90)" },
+          founded: { type: "string", description: "Founding year (max 10 chars, e.g. 2016)" },
+          hq: { type: "string", description: "HQ location (max 15 chars, e.g. San Francisco)" },
+          employees: { type: "string", description: "Employee count (max 10 chars, e.g. 500+)" },
+          website: { type: "string", description: "Company website domain (e.g. notion.so)" }
+        },
+        required: ["name", "weakness", "x", "y", "founded", "hq", "employees", "website"]
+      }
+    },
+    marketGap: {
+      type: "object",
+      properties: {
+        xAxis: {
+          type: "object",
+          properties: {
+            label: { type: "string", description: "Determinant attribute (max 20 chars)" },
+            low: { type: "string", description: "Left end meaning (max 20 chars)" },
+            high: { type: "string", description: "Right end meaning (max 20 chars)" }
+          },
+          required: ["label", "low", "high"]
+        },
+        yAxis: {
+          type: "object",
+          properties: {
+            label: { type: "string", description: "Determinant attribute (max 20 chars)" },
+            low: { type: "string", description: "Bottom=General Purpose/Simple (max 20 chars)" },
+            high: { type: "string", description: "Top=Specialized/Complex (max 20 chars)" }
+          },
+          required: ["label", "low", "high"]
+        },
+        yourPosition: {
+          type: "object",
+          properties: {
+            x: { type: "number", description: "0-100 (find a gap)" },
+            y: { type: "number", description: "0-100 (find a gap)" }
+          },
+          required: ["x", "y"]
+        },
+        yourGap: { type: "string", description: "Description of your unique market position (max 100 chars, complete sentences)" }
+      },
+      required: ["xAxis", "yAxis", "yourPosition", "yourGap"]
+    },
+    searchVolume: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          keyword: { type: "string", description: "Relevant search keyword (max 40 chars)" },
+          data: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Year label, e.g. Y1, Y2" },
+                users: { type: "number", description: "User count for that year" }
+              },
+              required: ["name", "users"]
+            }
+          }
+        },
+        required: ["keyword", "data"]
+      }
+    },
+    promptChain: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          step: { type: "number", description: "Step number" },
+          title: { type: "string", description: "Step title (max 40 chars)" },
+          prompt: { type: "string", description: "Full prompt for AI coding assistant to build MVP (max 300 chars, actionable and complete)" }
+        },
+        required: ["step", "title", "prompt"]
+      }
+    },
+    distributionChannels: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Channel name (max 40 chars)" },
+          type: { type: "string", description: "Reddit/Discord/Forum/Social (max 15 chars)" },
+          members: { type: "string", description: "Size indicator (max 20 chars, e.g. 750K+ members)" }
+        },
+        required: ["name", "type", "members"]
+      }
+    },
+    viability: { type: "number", description: "0-100 score for how likely this is to succeed" },
+    scalability: { type: "number", description: "0-100 score for how easily this can scale" },
+    complexity: { type: "number", description: "0-100 score for how hard this is to build (higher = more complex)" }
   },
-  "customerSegments": [
-    {
-      "segment": "Segment Name (max 35 chars)",
-      "age": "Age range (max 10 chars, e.g. 25-45)",
-      "income": "Income level (max 30 chars)",
-      "interest": "Key interest/pain point (max 60 chars)"
-    }
-  ],
-  "riskAnalysis": [
-    {
-      "risk": "Risk description (max 100 chars, complete sentence)",
-      "productFeature": "Feature that addresses this (max 80 chars)"
-    }
-  ],
-  "marketReports": [
-    {
-      "title": "Report title - Publisher, Year (max 50 chars)",
-      "publisher": "Publisher name (max 25 chars)",
-      "keyStat": "Key stat: value | metric (max 40 chars)",
-      "url": "URL to the actual report or source"
-    }
-  ],
-  "competitors": [
-    {
-      "name": "Competitor Name (max 25 chars)",
-      "weakness": "Their weakness you can exploit (max 100 chars, complete sentence)",
-      "x": "0-100 position on X-axis (based on xAxis definition below)",
-      "y": "0-100 position on Y-axis (general-purpose tools like Canva=10-30, specialized tools=70-90)",
-      "founded": "Founding year (max 10 chars, e.g. 2016)",
-      "hq": "HQ location (max 15 chars, e.g. San Francisco)",
-      "employees": "Employee count (max 10 chars, e.g. 500+)",
-      "website": "Company website domain (e.g. notion.so)"
-    }
-  ],
-  "marketGap": {
-    "xAxis": { "label": "Determinant attribute (max 20 chars)", "low": "Left end meaning (max 20 chars)", "high": "Right end meaning (max 20 chars)" },
-    "yAxis": { "label": "Determinant attribute (max 20 chars)", "low": "Bottom=General Purpose/Simple (max 20 chars)", "high": "Top=Specialized/Complex (max 20 chars)" },
-    "yourPosition": { "x": "0-100 (find a gap)", "y": "0-100 (find a gap)" },
-    "yourGap": "Description of your unique market position (max 100 chars, complete sentences)"
-  },
-  "searchVolume": [
-    {
-      "keyword": "Relevant search keyword (max 40 chars)",
-      "data": [
-        { "name": "Y1", "users": 0 },
-        { "name": "Y2", "users": 100 },
-        { "name": "Y3", "users": 250 },
-        { "name": "Y4", "users": 500 },
-        { "name": "Y5", "users": 800 }
-      ]
-    }
-  ],
-  "promptChain": [
-    {
-      "step": 1,
-      "title": "Step title (max 40 chars)",
-      "prompt": "Full prompt that the user can plug in to an AI coding assistant to build the startup MVP (minimum viable product) (max 300 chars, actionable and complete)"
-    }
-  ],
-  "distributionChannels": [
-    {
-      "name": "Channel name (max 40 chars)",
-      "type": "Reddit/Discord/Forum/Social (max 15 chars)",
-      "members": "Size indicator (max 20 chars, e.g. 750K+ members)"
-    }
-  ],
-  "viability": 0-100,
-  "scalability": 0-100,
-  "complexity": 0-100
-}`;
+  required: [
+    "name", "tagline", "interface", "monetization", "market", "customerSegments",
+    "riskAnalysis", "marketReports", "competitors", "marketGap", "searchVolume",
+    "promptChain", "distributionChannels", "viability", "scalability", "complexity"
+  ]
+};
 
 // Interface for grounding metadata from Google Search
 interface GroundingChunk {
@@ -457,10 +561,7 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 5 distribution channels.
-
-Respond with ONLY valid JSON matching this exact schema (no markdown, no explanation):
-${responseSchema}`;
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -483,6 +584,8 @@ ${responseSchema}`;
             temperature: 0.7,
             topP: 0.9,
             maxOutputTokens: 8192,
+            responseMimeType: "application/json",
+            responseSchema: responseSchema
           }
         })
       }
