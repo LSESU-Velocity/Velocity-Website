@@ -906,47 +906,13 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Market Quick Stats */}
-                        {data.validation.marketQuickStats && data.validation.marketQuickStats.length > 0 ? (
-                          <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
-                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Market Quick Stats</p>
 
-                            {data.validation.marketQuickStats.slice(0, 3).map((stat: any, i: number) => (
-                              <div key={i} className="flex items-start gap-2 p-1.5 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.04] transition-colors">
-                                <div className="w-1.5 h-1.5 mt-1.5 bg-velocity-red rounded-full shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-mono text-[10px] text-white font-bold leading-tight">{stat.value}</p>
-                                  <p className="font-mono text-[8px] text-gray-400 leading-tight">{stat.stat}</p>
-                                </div>
-                                <span className="font-mono text-[7px] text-gray-500 shrink-0 mt-0.5">{stat.source}</span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : data.validation.marketReports && data.validation.marketReports.length > 0 && (
-                          /* Fallback to CAGR from market reports if no quick stats */
-                          <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
-                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Market Insights</p>
-                            {data.validation.marketReports[0]?.keyStat && (
-                              <div className="flex items-center gap-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-sm">
-                                <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                                  <TrendingUp className="w-3 h-3 text-emerald-400" />
-                                </div>
-                                <div>
-                                  <p className="font-mono text-[9px] text-emerald-400 font-bold">
-                                    {data.validation.marketReports[0].keyStat}
-                                  </p>
-                                  <p className="font-mono text-[7px] text-gray-400">Projected Growth Rate</p>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        )}
 
                         {/* Source Reference Indicator */}
-                        <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-pointer" onClick={() => document.getElementById('data-sources-section')?.scrollIntoView({ behavior: 'smooth' })}>
+                        <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-default">
                           <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
                           <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
-                            <span className="font-mono text-[8px] text-blue-400 font-bold">↓</span>
+                            <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
                           </div>
                         </div>
                       </div>
@@ -1434,7 +1400,7 @@ export const Launchpad: React.FC = () => {
                 </div>
 
                 {/* Sources Widget - Bottom */}
-                <div id="data-sources-section" className="lg:col-span-12 mt-4">
+                <div className="lg:col-span-12 mt-4">
                   <Widget
                     title="Data Sources"
                     icon={BookOpen}
@@ -1486,38 +1452,6 @@ export const Launchpad: React.FC = () => {
                             </motion.a>
                           ))}
                         </div>
-
-                        {/* Market Reports Section */}
-                        {data.validation?.marketReports && data.validation.marketReports.length > 0 && (
-                          <div className="pt-4 border-t border-white/5">
-                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest mb-2">Market Research Reports</p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                              {data.validation.marketReports.map((report: any, i: number) => (
-                                <motion.a
-                                  key={i}
-                                  href={report.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ delay: 1.2 + i * 0.05 }}
-                                  className="flex items-start gap-2 p-2 bg-white/[0.02] border border-white/10 rounded-sm hover:bg-white/5 hover:border-blue-500/30 transition-all group/report"
-                                >
-                                  <span className="text-[10px] shrink-0">📊</span>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="font-mono text-[9px] text-gray-300 group-hover/report:text-blue-400 transition-colors line-clamp-2">
-                                      {report.title}
-                                    </p>
-                                    <p className="font-mono text-[8px] text-gray-500 mt-0.5">
-                                      <span className="text-gray-400">{report.publisher}</span>
-                                      {report.keyStat && <span className="text-emerald-400"> • {report.keyStat}</span>}
-                                    </p>
-                                  </div>
-                                </motion.a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
 
                         {/* Search Queries Used */}
                         {data.sources?.searchQueries && data.sources.searchQueries.length > 0 && (
