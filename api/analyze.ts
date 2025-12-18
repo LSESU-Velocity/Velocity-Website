@@ -36,6 +36,7 @@ const responseSchema = {
     interface: { type: "string", description: "Brief description of main interface (max 80 chars)" },
     monetization: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -80,6 +81,7 @@ const responseSchema = {
     },
     customerSegments: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -93,6 +95,7 @@ const responseSchema = {
     },
     riskAnalysis: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -104,6 +107,7 @@ const responseSchema = {
     },
     marketReports: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -117,6 +121,7 @@ const responseSchema = {
     },
     competitors: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -167,6 +172,7 @@ const responseSchema = {
     },
     searchVolume: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -188,6 +194,7 @@ const responseSchema = {
     },
     promptChain: {
       type: "array",
+      minItems: 3,
       items: {
         type: "object",
         properties: {
@@ -200,6 +207,7 @@ const responseSchema = {
     },
     distributionChannels: {
       type: "array",
+      minItems: 5,
       items: {
         type: "object",
         properties: {
