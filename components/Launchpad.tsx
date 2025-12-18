@@ -237,7 +237,7 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
       animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.5, delay: visible ? delay : 0 }}
       onMouseMove={handleMouseMove}
-      className={`relative group bg-white/[0.02] border border-white/10 overflow-hidden h-full flex flex-col ${className}`}
+      className={`relative group bg-white/[0.03] border border-white/10 overflow-hidden h-full flex flex-col backdrop-blur-md shadow-2xl ${className}`}
     >
       {/* Spotlight Effect */}
       <motion.div
@@ -263,9 +263,9 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
-              <Icon className="w-3.5 h-3.5 text-gray-300 group-hover:text-velocity-red transition-colors duration-300" />
+              <Icon className="w-3.5 h-3.5 text-gray-200 group-hover:text-velocity-red transition-colors duration-300" />
             </div>
-            <span className="font-mono text-[10px] text-gray-300 uppercase tracking-widest">{title}</span>
+            <span className="font-mono text-[10px] text-gray-200 uppercase tracking-widest">{title}</span>
           </div>
           {action}
         </div>
@@ -999,11 +999,11 @@ export const Launchpad: React.FC = () => {
                     <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[380px]" visible={showResults}>
                       <div className="flex flex-col h-full justify-center gap-4 py-2">
                         {/* TAM - Wide Bar */}
-                        <div className="w-full bg-[#1A1A1A] border border-white/5 p-3 rounded-sm hover:bg-[#222] transition-colors">
+                        <div className="w-full bg-white/5 border border-white/10 p-3 rounded-sm hover:bg-white/10 transition-colors">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-300 font-bold">TAM</span>
+                                <span className="font-mono text-[10px] text-gray-200 font-bold">TAM</span>
                                 <span className="text-[9px] text-gray-400 uppercase tracking-wide">Total Market</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.tam.value}</p>
@@ -1013,11 +1013,11 @@ export const Launchpad: React.FC = () => {
                         </div>
 
                         {/* SAM - Medium Bar */}
-                        <div className="w-[85%] mx-auto bg-[#2A2A2A] border border-white/10 p-3 rounded-sm hover:bg-[#333] transition-colors">
+                        <div className="w-[85%] mx-auto bg-white/10 border border-white/10 p-3 rounded-sm hover:bg-white/15 transition-colors">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-300 font-bold">SAM</span>
+                                <span className="font-mono text-[10px] text-gray-200 font-bold">SAM</span>
                                 <span className="text-[9px] text-gray-400 uppercase tracking-wide">Serviceable</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.sam.value}</p>
@@ -1072,7 +1072,7 @@ export const Launchpad: React.FC = () => {
                       <div className="flex flex-col h-full py-1 gap-3">
 
                         {/* Perceptual Map */}
-                        <div className="relative w-full h-44 bg-white/[0.02] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
+                        <div className="relative w-full h-44 bg-white/[0.03] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
 
                           {/* Central Axis Lines - span full container */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1081,16 +1081,16 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
 
                           {/* Axis labels - positioned in outer margin */}
-                          <div className="absolute top-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute top-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
-                          <div className="absolute right-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-400 z-10">
+                          <div className="absolute right-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
 
@@ -1364,13 +1364,13 @@ export const Launchpad: React.FC = () => {
                         >
                           <div className="flex justify-between items-start mb-1">
                             <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
-                            <span className="font-mono text-[9px] text-gray-300 border border-white/10 px-1 rounded bg-black/20">{segment.age}</span>
+                            <span className="font-mono text-[9px] text-gray-200 border border-white/10 px-1 rounded bg-black/30">{segment.age}</span>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
+                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-mono">
                               <span className="text-velocity-red">Target:</span> {segment.interest}
                             </div>
-                            <div className="flex items-center gap-2 text-[9px] text-gray-300 font-mono">
+                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-mono">
                               <span className="text-blue-400">Income:</span> {segment.income}
                             </div>
                           </div>
@@ -1398,7 +1398,7 @@ export const Launchpad: React.FC = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.8 + i * 0.1 }}
-                            className="flex items-center justify-between p-2 bg-white/5 border border-white/10 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-sm cursor-pointer relative overflow-hidden"
+                            className="flex items-center justify-between p-2 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-sm cursor-pointer relative overflow-hidden"
                           >
                             <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
 
@@ -1408,7 +1408,7 @@ export const Launchpad: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-2 relative z-10">
-                              <span className="font-mono text-[8px] text-gray-400 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
+                              <span className="font-mono text-[8px] text-gray-300 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
                               <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
                             </div>
                           </motion.a>
@@ -1463,7 +1463,7 @@ export const Launchpad: React.FC = () => {
                             {/* Prompt content */}
                             <div className="relative group/prompt flex-1 min-h-0">
                               <div
-                                className="p-3 bg-white/[0.02] border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.03] transition-all duration-300"
+                                className="p-3 bg-white/5 border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.08] transition-all duration-300"
                                 onClick={() => {
                                   navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
                                 }}
@@ -1543,7 +1543,7 @@ export const Launchpad: React.FC = () => {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: 1 + i * 0.05 }}
-                              className="flex items-center gap-3 p-2.5 bg-white/[0.02] border border-white/10 rounded-sm hover:bg-white/5 hover:border-blue-500/30 transition-all group/source"
+                              className="flex items-center gap-3 p-2.5 bg-white/5 border border-white/10 rounded-sm hover:bg-white/10 hover:border-blue-500/30 transition-all group/source"
                             >
                               {/* Favicon */}
                               <img
