@@ -706,6 +706,7 @@ export const Launchpad: React.FC = () => {
                   placeholder="A Tinder-style app for finding gym partners..."
                   className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-mono text-sm"
                   disabled={isGenerating}
+                  maxLength={500}
                 />
                 <button
                   type="submit"
