@@ -406,19 +406,29 @@ export const Launchpad: React.FC = () => {
     }
   }, [data, isGenerating]);
 
+  // Progressive loading steps - doesn't loop, stops at final step
   const loadingSteps = [
-    { text: "Scanning market landscape", icon: Globe },
-    { text: "Analyzing competition", icon: Target },
-    { text: "Generating brand identity", icon: Palette },
-    { text: "Architecting tech stack", icon: Cpu },
-    { text: "Crafting launch strategy", icon: Rocket }
+    { text: "Analysing idea", icon: Zap },
+    { text: "Searching the web", icon: Globe },
+    { text: "Researching competitors", icon: Target },
+    { text: "Evaluating market size", icon: BarChart3 },
+    { text: "Identifying opportunities", icon: TrendingUp },
+    { text: "Building strategy", icon: Cpu },
+    { text: "Finalising report", icon: Rocket }
   ];
 
   useEffect(() => {
     if (isGenerating) {
+      // Progress through steps, stopping at the final one
       const interval = setInterval(() => {
-        setLoadingStep(prev => (prev + 1) % loadingSteps.length);
-      }, 500);
+        setLoadingStep(prev => {
+          // Stop at the last step instead of looping
+          if (prev >= loadingSteps.length - 1) {
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 2500); // Slower progression to feel more realistic
       return () => clearInterval(interval);
     }
   }, [isGenerating]);
@@ -704,14 +714,53 @@ export const Launchpad: React.FC = () => {
                     {loadingSteps[loadingStep].text}...
                   </span>
                 </div>
-                <div className="flex gap-2">
-                  {loadingSteps.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`w-8 h-[2px] transition-colors duration-300 ${i <= loadingStep ? 'bg-velocity-red' : 'bg-white/10'}`}
-                    />
-                  ))}
+                {/* Smooth progress bar with red glow */}
+                <div className="relative w-64 h-1 bg-white/10 overflow-hidden">
+                  {/* Progress fill with smooth transition */}
+                  <motion.div
+                    className="absolute inset-y-0 left-0 bg-velocity-red"
+                    initial={{ width: '0%' }}
+                    animate={{
+                      width: `${((loadingStep + 1) / loadingSteps.length) * 100}%`
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.4, 0, 0.2, 1]
+                    }}
+                  />
+                  {/* Glowing leading edge */}
+                  <motion.div
+                    className="absolute inset-y-0 w-8 pointer-events-none"
+                    initial={{ left: '-2rem' }}
+                    animate={{
+                      left: `calc(${((loadingStep + 1) / loadingSteps.length) * 100}% - 2rem)`
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.4, 0, 0.2, 1]
+                    }}
+                    style={{
+                      background: 'radial-gradient(ellipse at right center, rgba(255, 31, 31, 0.6) 0%, rgba(255, 31, 31, 0.3) 30%, transparent 70%)',
+                      filter: 'blur(4px)',
+                    }}
+                  />
+                  {/* Subtle pulse on the bar */}
+                  <motion.div
+                    className="absolute inset-0 bg-velocity-red/20"
+                    animate={{
+                      opacity: [0, 0.3, 0]
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut'
+                    }}
+                  />
                 </div>
+                {/* Step indicator */}
+                <span className="font-mono text-[10px] text-gray-500 mt-2">
+                  {loadingStep + 1} / {loadingSteps.length}
+                </span>
               </motion.div>
             )}
           </AnimatePresence>
