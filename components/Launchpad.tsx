@@ -417,7 +417,8 @@ export const Launchpad: React.FC = () => {
     { text: "Evaluating market size", icon: BarChart3, threshold: 42 },
     { text: "Identifying opportunities", icon: TrendingUp, threshold: 56 },
     { text: "Building strategy", icon: Cpu, threshold: 70 },
-    { text: "Finalising report", icon: Rocket, threshold: 85 }
+    { text: "Generating mockup", icon: Smartphone, threshold: 85 },
+    { text: "Finalising report", icon: Rocket, threshold: 95 }
   ];
 
   // Get current step based on percentage
