@@ -336,6 +336,7 @@ export const Launchpad: React.FC = () => {
   const [mockupLoading, setMockupLoading] = useState(false);
   const [isFromHistory, setIsFromHistory] = useState(false); // Track if analysis was loaded from history
   const [deletingId, setDeletingId] = useState<string | null>(null); // Track which analysis is being deleted
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null); // Track which analysis is showing delete confirmation
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   // Fetch history when authenticated
@@ -636,18 +637,49 @@ export const Launchpad: React.FC = () => {
                                   {new Date(record.createdAt).toLocaleDateString()}
                                 </p>
                               </button>
-                              <button
-                                onClick={(e) => handleDeleteAnalysis(e, record.id)}
-                                disabled={deletingId === record.id}
-                                className="p-1.5 text-gray-500 hover:text-velocity-red hover:bg-white/5 transition-all disabled:opacity-50"
-                                title="Delete analysis"
-                              >
-                                {deletingId === record.id ? (
-                                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <div className="relative flex items-center">
+                                {confirmDeleteId === record.id ? (
+                                  <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1">
+                                    <span className="font-mono text-[9px] text-gray-400 whitespace-nowrap">Delete?</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteAnalysis(e, record.id);
+                                        setConfirmDeleteId(null);
+                                      }}
+                                      disabled={deletingId === record.id}
+                                      className="font-mono text-[9px] text-velocity-red hover:text-white transition-colors disabled:opacity-50"
+                                    >
+                                      {deletingId === record.id ? (
+                                        <Loader2 className="w-3 h-3 animate-spin" />
+                                      ) : (
+                                        'Yes'
+                                      )}
+                                    </button>
+                                    <span className="text-gray-600">|</span>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setConfirmDeleteId(null);
+                                      }}
+                                      className="font-mono text-[9px] text-gray-400 hover:text-white transition-colors"
+                                    >
+                                      No
+                                    </button>
+                                  </div>
                                 ) : (
-                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setConfirmDeleteId(record.id);
+                                    }}
+                                    className="p-1.5 text-gray-500 hover:text-velocity-red hover:bg-white/5 transition-all"
+                                    title="Delete analysis"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
                                 )}
-                              </button>
+                              </div>
                             </div>
                           ))
                         )}
