@@ -1060,11 +1060,7 @@ export const Launchpad: React.FC = () => {
                                     📍 {data.validation.competitorList[competitorIndex].hq}
                                   </span>
                                 )}
-                                {data.validation.competitorList[competitorIndex].funding && (
-                                  <span className="font-mono text-[9px] text-emerald-400">
-                                    💰 {data.validation.competitorList[competitorIndex].funding}
-                                  </span>
-                                )}
+
                                 {data.validation.competitorList[competitorIndex].employees && (
                                   <span className="font-mono text-[9px] text-gray-400">
                                     👥 {data.validation.competitorList[competitorIndex].employees}
