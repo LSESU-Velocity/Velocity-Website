@@ -522,19 +522,19 @@ export const Launchpad: React.FC = () => {
       />
 
       {/* Auth Status Bar */}
-      <div className="fixed top-20 right-6 z-[60] flex items-center gap-3">
+      <div className="fixed top-24 right-6 z-[60] flex items-center gap-3">
         {isAuthenticated ? (
           <>
             {/* History Button */}
             <div className="relative">
               <button
                 onClick={() => setShowHistory(!showHistory)}
-                className="p-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2"
+                className="p-2 bg-white/[0.02] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all flex items-center gap-2 group"
               >
-                <History className="w-4 h-4" />
+                <History className="w-4 h-4 group-hover:text-velocity-red transition-colors" />
                 <span className="text-sm font-mono hidden sm:inline">History</span>
                 {history.length > 0 && (
-                  <span className="bg-velocity-red text-white text-xs px-1.5 py-0.5 rounded-full">
+                  <span className="bg-velocity-red text-white text-xs px-1.5 py-0.5">
                     {history.length}
                   </span>
                 )}
@@ -547,28 +547,38 @@ export const Launchpad: React.FC = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full right-0 mt-2 w-72 bg-zinc-900 border border-white/10 rounded-lg shadow-xl overflow-hidden"
+                    className="absolute top-full right-0 mt-2 w-80 bg-white/[0.02] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md"
                   >
-                    <div className="p-3 border-b border-white/10">
-                      <span className="text-sm font-semibold text-white">Previous Analyses</span>
-                    </div>
-                    <div className="max-h-64 overflow-y-auto">
-                      {history.length === 0 ? (
-                        <p className="p-3 text-sm text-gray-500">No analyses yet</p>
-                      ) : (
-                        history.map((record) => (
-                          <button
-                            key={record.id}
-                            onClick={() => loadFromHistory(record)}
-                            className="w-full p-3 text-left hover:bg-white/5 transition-colors border-b border-white/5 last:border-0"
-                          >
-                            <p className="text-sm text-white truncate">{record.idea}</p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              {new Date(record.createdAt).toLocaleDateString()}
-                            </p>
-                          </button>
-                        ))
-                      )}
+                    {/* Grid Background */}
+                    <div
+                      className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                      style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
+                    />
+                    <div className="relative z-10">
+                      <div className="p-4 border-b border-white/10 flex items-center gap-2">
+                        <div className="p-1.5 bg-white/5 border border-white/10">
+                          <History className="w-3.5 h-3.5 text-velocity-red" />
+                        </div>
+                        <span className="font-mono text-[10px] text-gray-300 uppercase tracking-widest">Previous Analyses</span>
+                      </div>
+                      <div className="max-h-72 overflow-y-auto">
+                        {history.length === 0 ? (
+                          <p className="p-4 font-mono text-xs text-gray-500">No analyses yet</p>
+                        ) : (
+                          history.map((record) => (
+                            <button
+                              key={record.id}
+                              onClick={() => loadFromHistory(record)}
+                              className="w-full p-4 text-left hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group"
+                            >
+                              <p className="font-mono text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
+                              <p className="font-mono text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+                                {new Date(record.createdAt).toLocaleDateString()}
+                              </p>
+                            </button>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -578,7 +588,7 @@ export const Launchpad: React.FC = () => {
             {/* Logout Button */}
             <button
               onClick={logout}
-              className="p-2 bg-white/5 border border-white/10 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-2 bg-white/[0.02] border border-white/10 hover:border-velocity-red/50 text-gray-400 hover:text-velocity-red transition-all group"
               title="Logout"
             >
               <LogOut className="w-4 h-4" />
@@ -587,7 +597,7 @@ export const Launchpad: React.FC = () => {
         ) : (
           <button
             onClick={() => setShowLoginModal(true)}
-            className="px-4 py-2 bg-velocity-red hover:bg-red-600 text-white text-sm font-semibold rounded-lg transition-colors"
+            className="px-4 py-2 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red text-white font-mono text-sm uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
           >
             Login
           </button>
