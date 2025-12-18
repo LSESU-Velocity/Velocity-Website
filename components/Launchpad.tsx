@@ -3,7 +3,7 @@ import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } 
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
-import { generateAnalysis, getAnalyses, AnalysisRecord, generateMockup, deleteAnalysis } from '../lib/api';
+import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
 // Animated text component matching Hero.tsx
 const AnimatedText = ({
   text,
@@ -334,7 +334,7 @@ export const Launchpad: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [mockupImage, setMockupImage] = useState<string | null>(null);
   const [mockupLoading, setMockupLoading] = useState(false);
-  const [isFromHistory, setIsFromHistory] = useState(false); // Track if analysis was loaded from history
+
   const [deletingId, setDeletingId] = useState<string | null>(null); // Track which analysis is being deleted
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null); // Track which analysis is showing delete confirmation
   const inputFormRef = useRef<HTMLFormElement>(null);
@@ -485,7 +485,7 @@ export const Launchpad: React.FC = () => {
     setMockupLoading(false);
     setPromptChainIndex(0);
     setLoadingStep(0);
-    setIsFromHistory(false); // This is a new analysis, not from history
+
 
     try {
       const result = await generateAnalysis(authKey!, idea);
@@ -514,7 +514,7 @@ export const Launchpad: React.FC = () => {
     setIdea(record.idea);
     setShowHistory(false);
     setShowResults(true);
-    setIsFromHistory(true); // Mark as loaded from history
+
 
     // Use persisted mockup if available
     if (record.mockupImage && record.mockupMimeType) {
@@ -542,32 +542,6 @@ export const Launchpad: React.FC = () => {
       setDeletingId(null);
     }
   };
-
-  // Generate mockup image as fallback for old analyses without persisted mockups
-  // This useEffect only triggers when loading from history with no mockup
-  useEffect(() => {
-    // Only trigger for history loads where mockup is missing
-    if (data && !isGenerating && !mockupImage && !mockupLoading && authKey && isFromHistory) {
-      setMockupLoading(true);
-      generateMockup(
-        authKey,
-        idea,
-        data.identity.name,
-        data.visuals.appInterface
-      )
-        .then((result) => {
-          const imageDataUrl = `data:${result.mimeType};base64,${result.image}`;
-          setMockupImage(imageDataUrl);
-        })
-        .catch((err) => {
-          console.error('Mockup generation error:', err);
-          // Keep mockupImage null to show fallback UI
-        })
-        .finally(() => {
-          setMockupLoading(false);
-        });
-    }
-  }, [data, isGenerating, authKey, isFromHistory, mockupImage, mockupLoading, idea]);
 
 
   return (
