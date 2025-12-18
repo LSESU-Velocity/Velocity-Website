@@ -330,6 +330,7 @@ export const Launchpad: React.FC = () => {
   const [domainIndex, setDomainIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [loadingPercent, setLoadingPercent] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [mockupImage, setMockupImage] = useState<string | null>(null);
   const [mockupLoading, setMockupLoading] = useState(false);
@@ -406,30 +407,56 @@ export const Launchpad: React.FC = () => {
     }
   }, [data, isGenerating]);
 
-  // Progressive loading steps - doesn't loop, stops at final step
+  // Progressive loading steps with percentage thresholds
   const loadingSteps = [
-    { text: "Analysing idea", icon: Zap },
-    { text: "Searching the web", icon: Globe },
-    { text: "Researching competitors", icon: Target },
-    { text: "Evaluating market size", icon: BarChart3 },
-    { text: "Identifying opportunities", icon: TrendingUp },
-    { text: "Building strategy", icon: Cpu },
-    { text: "Finalising report", icon: Rocket }
+    { text: "Analysing idea", icon: Zap, threshold: 0 },
+    { text: "Searching the web", icon: Globe, threshold: 14 },
+    { text: "Researching competitors", icon: Target, threshold: 28 },
+    { text: "Evaluating market size", icon: BarChart3, threshold: 42 },
+    { text: "Identifying opportunities", icon: TrendingUp, threshold: 56 },
+    { text: "Building strategy", icon: Cpu, threshold: 70 },
+    { text: "Finalising report", icon: Rocket, threshold: 85 }
   ];
+
+  // Get current step based on percentage
+  const getCurrentStep = (percent: number) => {
+    for (let i = loadingSteps.length - 1; i >= 0; i--) {
+      if (percent >= loadingSteps[i].threshold) {
+        return i;
+      }
+    }
+    return 0;
+  };
 
   useEffect(() => {
     if (isGenerating) {
-      // Progress through steps, stopping at the final one
-      const interval = setInterval(() => {
-        setLoadingStep(prev => {
-          // Stop at the last step instead of looping
-          if (prev >= loadingSteps.length - 1) {
-            return prev;
-          }
-          return prev + 1;
-        });
-      }, 2500); // Slower progression to feel more realistic
-      return () => clearInterval(interval);
+      let animationId: number;
+      let startTime: number | null = null;
+      const duration = 25000; // 25 seconds to reach 99%
+
+      const animate = (currentTime: number) => {
+        if (startTime === null) startTime = currentTime;
+        const elapsed = currentTime - startTime;
+
+        // Ease-out curve: starts fast, slows down as it approaches 99%
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 2); // Quadratic ease-out
+        const percent = Math.min(Math.floor(eased * 99), 99);
+
+        setLoadingPercent(percent);
+        setLoadingStep(getCurrentStep(percent));
+
+        if (percent < 99) {
+          animationId = requestAnimationFrame(animate);
+        }
+      };
+
+      animationId = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(animationId);
+    } else {
+      // Reset when not generating
+      setLoadingPercent(0);
+      setLoadingStep(0);
     }
   }, [isGenerating]);
 
@@ -716,30 +743,16 @@ export const Launchpad: React.FC = () => {
                 </div>
                 {/* Smooth progress bar with red glow */}
                 <div className="relative w-64 h-1 bg-white/10 overflow-hidden">
-                  {/* Progress fill with smooth transition */}
-                  <motion.div
-                    className="absolute inset-y-0 left-0 bg-velocity-red"
-                    initial={{ width: '0%' }}
-                    animate={{
-                      width: `${((loadingStep + 1) / loadingSteps.length) * 100}%`
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      ease: [0.4, 0, 0.2, 1]
-                    }}
+                  {/* Progress fill - direct percentage */}
+                  <div
+                    className="absolute inset-y-0 left-0 bg-velocity-red transition-none"
+                    style={{ width: `${loadingPercent}%` }}
                   />
                   {/* Glowing leading edge */}
-                  <motion.div
+                  <div
                     className="absolute inset-y-0 w-8 pointer-events-none"
-                    initial={{ left: '-2rem' }}
-                    animate={{
-                      left: `calc(${((loadingStep + 1) / loadingSteps.length) * 100}% - 2rem)`
-                    }}
-                    transition={{
-                      duration: 0.8,
-                      ease: [0.4, 0, 0.2, 1]
-                    }}
                     style={{
+                      left: `calc(${loadingPercent}% - 2rem)`,
                       background: 'radial-gradient(ellipse at right center, rgba(255, 31, 31, 0.6) 0%, rgba(255, 31, 31, 0.3) 30%, transparent 70%)',
                       filter: 'blur(4px)',
                     }}
@@ -757,9 +770,9 @@ export const Launchpad: React.FC = () => {
                     }}
                   />
                 </div>
-                {/* Step indicator */}
+                {/* Percentage indicator */}
                 <span className="font-mono text-[10px] text-gray-500 mt-2">
-                  {loadingStep + 1} / {loadingSteps.length}
+                  {loadingPercent}%
                 </span>
               </motion.div>
             )}
