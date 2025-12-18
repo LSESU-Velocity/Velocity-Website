@@ -802,8 +802,8 @@ export const Launchpad: React.FC = () => {
                   >
                     <div className="flex flex-col h-full">
                       {/* Phone Mockup */}
-                      <div className="flex-1 flex items-center justify-center py-2">
-                        <div className="relative w-full max-w-[180px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
+                      <div className="flex-1 flex items-center justify-center py-4">
+                        <div className="relative w-full max-w-[220px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
                           {/* Dynamic Notch */}
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
 
