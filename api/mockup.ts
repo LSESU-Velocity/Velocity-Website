@@ -75,24 +75,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         // Build the prompt for Gemini 2.5 Flash Image
-        const prompt = `Generate a professional mobile app UI mockup for a startup app.
+        const prompt = `Generate a high-fidelity, photorealistic mobile app UI screen for a modern startup.
 
-APP DETAILS:
+APP CONTEXT:
 - Name: "${startupName || 'Startup App'}"
 - Concept: "${idea}"
-- Main Interface: "${appDescription || 'A modern mobile app interface'}"
+- Description: "${appDescription || 'Main user interface'}"
 
-REQUIREMENTS:
-1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
-2. Use a clean, modern UI design with professional aesthetics
-3. Include realistic UI elements: navigation bar, content area, buttons, icons
-4. Use a cohesive color scheme that feels premium and tech-forward
-5. Show the app in use with sample content relevant to the startup concept
-6. The design should look like a real production app, not a wireframe
-7. Include proper spacing, typography hierarchy, and visual balance
-8. Make it look like a polished screenshot from the App Store
+DESIGN GUIDELINES:
+1. STYLE: Ultra-modern, premium, and clean. Think top-tier apps like Linear, Airbnb, or wealth management apps.
+2. AESTHETIC: Use a sophisticated color palette (avoid generic bright primary colors), elegant typography (San Francisco/Inter style), and generous whitespace.
+3. VISUALS: NO CARTOONS, NO VECTOR ILLUSTRATIONS. Use realistic content, high-quality photos, or professional 3D abstract elements if needed.
+4. UI ELEMENTS: 
+   - Modern navigation (bottom bar or gesture-based).
+   - Glassmorphism (blur effects) on translucent elements.
+   - Subtle shadows and soft gradients for depth.
+   - Pixel-perfect alignment and consistency.
 
-Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
+OUTPUT REQUIREMENTS:
+- A single, vertical high-resolution screenshot of the app's main view.
+- The interface must look like a REAL production app, not a wireframe or concept sketch.
+- Focus on "Financial Tech" or "Modern SaaS" aesthetic if applicable, or high-end consumer style.
+- The design must be "Dribbble-worthy" — visually stunning and polished.`;
 
         // Use Gemini 2.5 Flash Image API
         const apiKey = process.env.GEMINI_API_KEY;
