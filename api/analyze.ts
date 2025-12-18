@@ -310,24 +310,22 @@ async function generateMockupImage(
   appDescription: string
 ): Promise<{ image: string; mimeType: string } | null> {
   try {
-    const prompt = `Generate a high-fidelity mobile app UI design for a startup.
-
-APP DETAILS:
-- Name: "${startupName || 'Startup App'}"
-- Concept: "${idea}"
-- Main Interface: "${appDescription || 'A modern mobile app interface'}"
-
-CRITICAL REQUIREMENTS:
-1. Generate ONLY the raw user interface screen.
-2. DO NOT include any phone device, bezel, hands, or background.
-3. The image must be a perfectly rectangular screen purely showing the UI.
-4. Use a clean, modern design with professional aesthetics.
-5. Include standard UI elements: status bar, navigation, content, buttons.
-6. Use a premium, tech-forward color scheme.
-7. Show realistic sample content relevant to the concept.
-8. Aspect ratio should be typical for mobile (e.g. 9:16).
-
-Style: Modern, minimal, professional UI design. Dark or light theme as appropriate.`;
+    const prompt = `Generate a direct, flat screen export of a mobile app UI.
+ 
+ APP DETAILS:
+ - Name: "${startupName || 'Startup App'}"
+ - Concept: "${idea}"
+ - Main Interface: "${appDescription || 'A modern mobile app interface'}"
+ 
+ STRICT IMAGE GENERATION RULES:
+ 1. OUTPUT: A single, rectangular image of the APP SCREEN ONLY.
+ 2. FORBIDDEN: Do NOT include a phone body, bezel, notch, hands, background, or 3D effects.
+ 3. COMPOSITION: The UI must fill the ENTIRE image from edge to edge (Full Bleed).
+ 4. CONTENT: Show a realistic, high-fidelity interface with navigation, content, and status bar.
+ 5. STYLE: Modern, premium, clean aesthetic.
+ 6. ASPECT RATIO: Tall mobile aspect ratio (9:19).
+ 
+ This image will be digitally placed inside a phone frame, so ANY internal frame will ruin the effect. deliver ONLY the raw screen pixels.`;
 
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent',
