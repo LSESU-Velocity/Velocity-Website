@@ -31,9 +31,6 @@ function initFirebase() {
 const responseSchema = `{
   "name": "string - catchy startup name (max 25 chars)",
   "tagline": "string - short memorable tagline (max 60 chars)",
-  "colors": ["primary hex", "secondary hex", "accent hex", "neutral hex"],
-  "domain": ["domain1.com", "domain2.io", "domain3.app"],
-  "stack": ["Tech1", "Tech2", "Tech3", "Tech4"],
   "interface": "string - brief description of main interface (max 80 chars)",
   "monetization": [
     {
@@ -60,7 +57,6 @@ const responseSchema = `{
   "riskAnalysis": [
     {
       "risk": "Risk description (max 100 chars, complete sentence)",
-      "mitigation": "How to mitigate (max 80 chars)",
       "productFeature": "Feature that addresses this (max 80 chars)"
     }
   ],
@@ -560,24 +556,11 @@ ${responseSchema}`;
       identity: {
         name: analysisData.name,
         tagline: analysisData.tagline,
-        colors: analysisData.colors || ["#000000", "#ffffff"],
-        domain: analysisData.domain || [],
-        available: true
       },
       monetization: analysisData.monetization,
       visuals: {
         logoStyle: "Minimalist",
         appInterface: analysisData.interface,
-        screens: [
-          { type: "map", title: "Home" },
-          { type: "feed", title: "Feed" },
-          { type: "profile", title: "Profile" }
-        ]
-      },
-      blueprint: {
-        stack: analysisData.stack || [],
-        complexity: analysisData.complexity > 70 ? "High" : analysisData.complexity > 40 ? "Medium" : "Low",
-        timeline: "2-4 Weeks"
       },
       distributionChannels: analysisData.distributionChannels,
       validation: {
