@@ -84,14 +84,13 @@ APP DETAILS:
 
 REQUIREMENTS:
 1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
-2. Include the device frame with modern rounded corners and thin bezels
-3. Use a clean, modern UI design with professional aesthetics
-4. Include realistic UI elements: navigation bar, content area, buttons, icons
-5. Use a cohesive color scheme that feels premium and tech-forward
-6. Show the app in use with sample content relevant to the startup concept
-7. The design should look like a real production app, not a wireframe
-8. Include proper spacing, typography hierarchy, and visual balance
-9. Make it look like a polished screenshot from the App Store
+2. Use a clean, modern UI design with professional aesthetics
+3. Include realistic UI elements: navigation bar, content area, buttons, icons
+4. Use a cohesive color scheme that feels premium and tech-forward
+5. Show the app in use with sample content relevant to the startup concept
+6. The design should look like a real production app, not a wireframe
+7. Include proper spacing, typography hierarchy, and visual balance
+8. Make it look like a polished screenshot from the App Store
 
 Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
 
