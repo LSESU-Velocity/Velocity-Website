@@ -95,8 +95,10 @@ DESIGN GUIDELINES:
 OUTPUT REQUIREMENTS:
 - A single, vertical high-resolution screenshot of the app's main view.
 - The interface must look like a REAL production app, not a wireframe or concept sketch.
-- Focus on "Financial Tech" or "Modern SaaS" aesthetic if applicable, or high-end consumer style.
-- The design must be "Dribbble-worthy" — visually stunning and polished.`;
+- Focus on "Modern SaaS" aesthetic if applicable, or high-end, premium consumer style.
+- The design must be "Dribbble-worthy" — visually stunning and polished.
+- NO BEZELS, NO PHONE HARDWARE, NO DEVICE FRAMES: Generate only the raw UI pixels.
+- FULL HEIGHT: The interface must touch the TOP and BOTTOM of the canvas completely with no margins or empty space.`;
 
         // Use Gemini 2.5 Flash Image API
         const apiKey = process.env.GEMINI_API_KEY;
