@@ -21,6 +21,7 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.9.6",
     "recharts": "^3.5.0",
+    "sharp": "^0.34.5",
     "tailwind-merge": "^2.2.1",
     "tsx": "^4.21.0"
   },
@@ -29,6 +30,7 @@
     "@types/express": "^5.0.6",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/sharp": "^0.31.1",
     "@vercel/node": "^3.0.0",
     "@vitejs/plugin-react": "^4.3.1",
     "typescript": "^5.5.3",

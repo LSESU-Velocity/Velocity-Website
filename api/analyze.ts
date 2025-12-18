@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import sharp from 'sharp';
 
 // Initialize Firebase locally to avoid import issues
 function initFirebase() {
@@ -253,9 +254,23 @@ Style: Modern, minimal, professional iOS/Android app design. Dark or light theme
       return null;
     }
 
+    // Compress the image using sharp to fit within Firestore's ~1MB field limit
+    const originalBuffer = Buffer.from(imagePart.inlineData.data, 'base64');
+    const originalSizeKB = Math.round(originalBuffer.length / 1024);
+    console.log(`Original mockup size: ${originalSizeKB}KB`);
+
+    // Compress to JPEG at 70% quality, resize if needed
+    const compressedBuffer = await sharp(originalBuffer)
+      .resize(800, 1600, { fit: 'inside', withoutEnlargement: true }) // Max dimensions
+      .jpeg({ quality: 70 })
+      .toBuffer();
+
+    const compressedSizeKB = Math.round(compressedBuffer.length / 1024);
+    console.log(`Compressed mockup size: ${compressedSizeKB}KB (${Math.round((1 - compressedBuffer.length / originalBuffer.length) * 100)}% reduction)`);
+
     return {
-      image: imagePart.inlineData.data,
-      mimeType: imagePart.inlineData.mimeType || 'image/png'
+      image: compressedBuffer.toString('base64'),
+      mimeType: 'image/jpeg'
     };
   } catch (error) {
     console.error('Error generating mockup:', error);
