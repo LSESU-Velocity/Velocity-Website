@@ -98,7 +98,8 @@ OUTPUT REQUIREMENTS:
 - Focus on "Modern SaaS" aesthetic if applicable, or high-end, premium consumer style.
 - The design must be "Dribbble-worthy" — visually stunning and polished.
 - NO BEZELS, NO PHONE HARDWARE, NO DEVICE FRAMES: Generate only the raw UI pixels.
-- FULL HEIGHT: The interface must touch the TOP and BOTTOM of the canvas completely with no margins or empty space.`;
+- FULL HEIGHT: The interface must touch the TOP and BOTTOM of the canvas completely with no margins or empty space.
+- ASPECT RATIO: Generate a tall vertical image (9:21 ratio).`;
 
         // Use Gemini 2.5 Flash Image API
         const apiKey = process.env.GEMINI_API_KEY;
