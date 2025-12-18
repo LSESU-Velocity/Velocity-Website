@@ -310,22 +310,28 @@ async function generateMockupImage(
   appDescription: string
 ): Promise<{ image: string; mimeType: string } | null> {
   try {
-    const prompt = `Generate a direct, flat screen export of a mobile app UI.
- 
- APP DETAILS:
- - Name: "${startupName || 'Startup App'}"
- - Concept: "${idea}"
- - Main Interface: "${appDescription || 'A modern mobile app interface'}"
- 
- STRICT IMAGE GENERATION RULES:
- 1. OUTPUT: A single, rectangular image of the APP SCREEN ONLY.
- 2. FORBIDDEN: Do NOT include a phone body, bezel, notch, hands, background, or 3D effects.
- 3. COMPOSITION: The UI must fill the ENTIRE image from edge to edge (Full Bleed).
- 4. CONTENT: Show a realistic, high-fidelity interface with navigation, content, and status bar.
- 5. STYLE: Modern, premium, clean aesthetic.
- 6. ASPECT RATIO: Tall mobile aspect ratio (9:19).
- 
- This image will be digitally placed inside a phone frame, so ANY internal frame will ruin the effect. deliver ONLY the raw screen pixels.`;
+    const prompt = `Generate a STUNNING, award-winning mobile app UI screenshot that looks like it belongs on Dribbble or Behance.
+
+APP CONTEXT:
+- App Name: "${startupName || 'Startup App'}"
+- App Concept: ${idea}
+- Main Screen Purpose: ${appDescription || 'Primary app interface'}
+
+DESIGN AESTHETIC:
+Create a polished, modern, premium interface. Think: "What would a Y Combinator company's production app look like?"
+
+CONTENT - Make it feel real and premium:
+• Actual UI content relevant to "${idea}" - not placeholder text
+• A compelling hero section or main content area
+• Interactive elements (buttons, tabs, cards) that look tappable
+• Professional imagery or illustrations if appropriate
+• Bottom navigation or floating action button
+
+COMPOSITION RULES:
+1. OUTPUT: Rectangle of UI pixels ONLY - NO phone frame, bezel, notch overlay, or device body
+2. FULL BLEED: UI extends edge-to-edge, filling the entire image canvas
+3. ASPECT RATIO: Mobile portrait (approximately 9:21)
+4. The image will be placed INTO a phone mockup frame, so any internal frame/bezel will look wrong`;
 
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent',
