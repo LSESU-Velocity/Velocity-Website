@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, FileText } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
 import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
@@ -1039,37 +1039,6 @@ export const Launchpad: React.FC = () => {
                             <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
                           </div>
                         </div>
-
-                        {/* Market Reports - Compact Sources */}
-                        {data.validation.marketReports && data.validation.marketReports.length > 0 && (
-                          <div className="mt-4 pt-3 border-t border-white/5">
-                            <div className="flex items-center gap-1.5 mb-2">
-                              <FileText className="w-3 h-3 text-gray-500" />
-                              <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Sources</span>
-                            </div>
-                            <div className="space-y-1.5">
-                              {data.validation.marketReports.slice(0, 3).map((report: any, i: number) => (
-                                <a
-                                  key={i}
-                                  href={report.url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="flex items-start gap-2 group/report hover:bg-white/[0.02] p-1.5 -mx-1.5 rounded-sm transition-colors"
-                                >
-                                  <ExternalLink className="w-2.5 h-2.5 text-gray-600 group-hover/report:text-velocity-red mt-0.5 shrink-0 transition-colors" />
-                                  <div className="min-w-0">
-                                    <p className="font-mono text-[9px] text-gray-400 group-hover/report:text-gray-300 truncate transition-colors">
-                                      {report.publisher}
-                                    </p>
-                                    <p className="font-mono text-[8px] text-gray-600 truncate">
-                                      {report.keyStat}
-                                    </p>
-                                  </div>
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </Widget>
 

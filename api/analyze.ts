@@ -479,10 +479,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 STARTUP IDEA: "${idea}"
 
 CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
-1. Search for REAL, CURRENT market size data from AUTHORITATIVE SOURCES (Statista, McKinsey, Grand View Research, IBISWorld, WHO, Gartner, Forrester, etc.)
+1. Search for REAL, CURRENT market size data - use actual industry reports
 
-TAM/SAM/SOM CALCULATION - MUST BE SOURCED FROM AUTHORITATIVE REPORTS:
-- TAM (Total Addressable Market): Search for the EXACT market size from reports. Use industry reports from Statista, McKinsey, Grand View Research, etc. Cite the source.
+TAM/SAM/SOM CALCULATION - BE REALISTIC AND SPECIFIC:
+- TAM (Total Addressable Market): The ENTIRE global/regional market for this problem. Use industry reports.
 - SAM (Serviceable Addressable Market): The portion of TAM reachable with THIS specific product/business model, limited by geography (focus on UK/Europe initially), language, pricing tier, and distribution capabilities.
 - SOM (Serviceable Obtainable Market): The REALISTIC revenue a bootstrapped startup can capture in Year 1-2. This should be VERY conservative:
   * Calculate as 1-3% of SAM maximum for a new entrant
@@ -494,11 +494,10 @@ TAM/SAM/SOM CALCULATION - MUST BE SOURCED FROM AUTHORITATIVE REPORTS:
 3. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
 4. All market figures should come from verifiable sources you find via search
 
-MARKET REPORTS - CRITICAL FOR TAM/SAM/SOM VALIDATION:
-5. You MUST search for and return 3-4 real market research reports that support your TAM/SAM/SOM figures
-6. Prioritize authoritative sources: Statista, Grand View Research, IBISWorld, McKinsey, Gartner, WHO, Forrester, Deloitte, PwC
-7. Include report title, publisher name, and a key statistic (e.g., "Market size: $404B | CAGR: 13.4%")
-8. Provide direct URLs to the actual reports - these will be displayed as sources for the market data
+MARKET REPORTS - FIND AUTHORITATIVE SOURCES:
+5. Search for 3-4 real market research reports from sources like Statista, Grand View Research, IBISWorld, McKinsey, etc.
+6. Include report title, publisher, and a key statistic (e.g., "Market size: $404B | CAGR: 13.4%")
+7. Provide direct URLs to the actual reports
 
 COMPETITOR DISCOVERY - TWO-STEP PROCESS (CRITICAL):
 8. FIRST: Search for WHO the competitors are - use queries like "[category] competitors 2024", "top [industry] tools", "best [product type] alternatives", "[problem space] startups" to DISCOVER competitors via web search
