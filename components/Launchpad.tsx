@@ -1038,16 +1038,6 @@ export const Launchpad: React.FC = () => {
                             <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
                           </div>
                         </div>
-
-
-
-                        {/* Source Reference Indicator */}
-                        <div className="mt-auto flex items-center justify-end gap-1.5 group/srcref cursor-default">
-                          <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
-                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
-                            <span className="font-mono text-[8px] text-blue-400 font-bold">1</span>
-                          </div>
-                        </div>
                       </div>
                     </Widget>
 
@@ -1217,14 +1207,6 @@ export const Launchpad: React.FC = () => {
                           <p className="font-sans text-xs text-white leading-relaxed pl-4">
                             {data.validation.marketGap?.yourGap}
                           </p>
-                        </div>
-
-                        {/* Source Reference Indicator */}
-                        <div className="mt-3 flex items-center justify-end gap-1.5 group/srcref cursor-default">
-                          <span className="font-mono text-[8px] text-gray-400 group-hover/srcref:text-blue-400 transition-colors">See sources</span>
-                          <div className="w-4 h-4 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center group-hover/srcref:bg-blue-500/20 group-hover/srcref:border-blue-500/50 transition-all">
-                            <span className="font-mono text-[8px] text-blue-400 font-bold">2</span>
-                          </div>
                         </div>
                       </div>
                     </Widget>

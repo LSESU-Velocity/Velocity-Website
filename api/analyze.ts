@@ -328,12 +328,11 @@ CONTENT - Make it feel real and premium:
 • Bottom navigation or floating action button
 
 CRITICAL IMAGE DIMENSIONS:
-1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:19 (width:height)
+1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:20 (width:height)
 2. The screenshot must touch the top and bottom edges of the canvas
 3. NO empty space, margins, padding, or background color around the UI
 4. NO phone frame, bezel, notch, or device body on the outer edge
-5. The raw UI pixels should extend to the very edge of the image on the top and bottom sides
-6. Think of it as a screenshot taken from inside a phone - just the screen content, edge to edge`;
+5. Think of it as a screenshot taken from inside a phone - just the screen content, edge to edge`;
 
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent',
