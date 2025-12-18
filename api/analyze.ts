@@ -71,13 +71,11 @@ const responseSchema = `{
   "competitors": [
     {
       "name": "Competitor Name (max 25 chars)",
-      "usp": "Their unique selling point (max 60 chars)",
       "weakness": "Their weakness you can exploit (max 100 chars, complete sentence)",
       "x": "0-100 position on X-axis (based on xAxis definition below)",
       "y": "0-100 position on Y-axis (general-purpose tools like Canva=10-30, specialized tools=70-90)",
       "founded": "Founding year (max 10 chars, e.g. 2016)",
       "hq": "HQ location (max 15 chars, e.g. San Francisco)",
-      "funding": "Funding raised (max 20 chars, e.g. $275M raised)",
       "employees": "Employee count (max 10 chars, e.g. 500+)",
       "website": "Company website domain (e.g. notion.so)"
     }
