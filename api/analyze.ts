@@ -310,7 +310,7 @@ async function generateMockupImage(
   appDescription: string
 ): Promise<{ image: string; mimeType: string } | null> {
   try {
-    const prompt = `Generate a STUNNING, award-winning mobile app UI screenshot that looks like it belongs on Dribbble or Behance.
+    const prompt = `Generate a STUNNING, award-winning mobile app UI screenshot.
 
 APP CONTEXT:
 - App Name: "${startupName || 'Startup App'}"
@@ -330,7 +330,7 @@ CONTENT - Make it feel real and premium:
 COMPOSITION RULES:
 1. OUTPUT: Rectangle of UI pixels ONLY - NO phone frame, bezel, notch overlay, or device body
 2. FULL BLEED: UI extends edge-to-edge, filling the entire image canvas
-3. ASPECT RATIO: Mobile portrait (approximately 9:21)
+3. ASPECT RATIO: Mobile portrait (approximately 9:23)
 4. The image will be placed INTO a phone mockup frame, so any internal frame/bezel will look wrong`;
 
     const geminiResponse = await fetch(
