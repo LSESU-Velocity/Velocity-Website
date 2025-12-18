@@ -706,7 +706,7 @@ export const Launchpad: React.FC = () => {
                     title="App Mockup"
                     icon={Smartphone}
                     delay={0.1}
-                    className="min-h-[340px]"
+                    className="flex-1"
                     visible={showResults}
                   >
                     <div className="flex flex-col h-full">
