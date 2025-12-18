@@ -328,8 +328,8 @@ CONTENT - Make it feel real and premium:
 • Bottom navigation or floating action button
 
 CRITICAL IMAGE DIMENSIONS:
-1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:19 (width:height)
-2. The UI MUST fill 100% of the image canvas - content should touch all four edges
+1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:21 (width:height)
+2. The UI MUST fill 100% of the image canvas - the screenshot should touch the top and bottom edges of the canvas
 3. NO empty space, margins, padding, or background color around the UI
 4. NO phone frame, bezel, notch, device body, or rounded corners on the outer edge
 5. The raw UI pixels should extend to the very edge of the image on all sides
