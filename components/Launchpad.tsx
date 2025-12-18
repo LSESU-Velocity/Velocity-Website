@@ -509,7 +509,7 @@ export const Launchpad: React.FC = () => {
           setMockupLoading(false);
         });
     }
-  }, [data, isGenerating, authKey, isFromHistory]);
+  }, [data, isGenerating, authKey, isFromHistory, mockupImage, mockupLoading, idea]);
 
 
   return (
