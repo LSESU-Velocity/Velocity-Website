@@ -432,7 +432,7 @@ export const Launchpad: React.FC = () => {
     if (isGenerating) {
       let animationId: number;
       let startTime: number | null = null;
-      const duration = 25000; // 25 seconds to reach 99%
+      const duration = 40000; // 40 seconds to reach 99%
 
       const animate = (currentTime: number) => {
         if (startTime === null) startTime = currentTime;
