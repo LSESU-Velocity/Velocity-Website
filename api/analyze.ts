@@ -310,7 +310,7 @@ async function generateMockupImage(
   appDescription: string
 ): Promise<{ image: string; mimeType: string } | null> {
   try {
-    const prompt = `Generate a STUNNING, award-winning mobile app UI screenshot.
+    const prompt = `Generate a mobile app UI screenshot.
 
 APP CONTEXT:
 - App Name: "${startupName || 'Startup App'}"
@@ -327,11 +327,13 @@ CONTENT - Make it feel real and premium:
 • Professional imagery or illustrations if appropriate
 • Bottom navigation or floating action button
 
-COMPOSITION RULES:
-1. OUTPUT: Rectangle of UI pixels ONLY - NO phone frame, bezel, notch overlay, or device body
-2. FULL BLEED: UI extends edge-to-edge, filling the entire image canvas
-3. ASPECT RATIO: Mobile portrait (approximately 9:23)
-4. The image will be placed INTO a phone mockup frame, so any internal frame/bezel will look wrong`;
+CRITICAL IMAGE DIMENSIONS:
+1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:19 (width:height)
+2. The UI MUST fill 100% of the image canvas - content should touch all four edges
+3. NO empty space, margins, padding, or background color around the UI
+4. NO phone frame, bezel, notch, device body, or rounded corners on the outer edge
+5. The raw UI pixels should extend to the very edge of the image on all sides
+6. Think of it as a screenshot taken from inside a phone - just the screen content, edge to edge`;
 
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent',
