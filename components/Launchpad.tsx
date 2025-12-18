@@ -333,6 +333,7 @@ export const Launchpad: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [mockupImage, setMockupImage] = useState<string | null>(null);
   const [mockupLoading, setMockupLoading] = useState(false);
+  const [isFromHistory, setIsFromHistory] = useState(false); // Track if analysis was loaded from history
   const inputFormRef = useRef<HTMLFormElement>(null);
 
   // Fetch history when authenticated
@@ -445,10 +446,17 @@ export const Launchpad: React.FC = () => {
     setMockupLoading(false);
     setPromptChainIndex(0);
     setLoadingStep(0);
+    setIsFromHistory(false); // This is a new analysis, not from history
 
     try {
       const result = await generateAnalysis(authKey!, idea);
       setData(result);
+
+      // Check if mockup was returned with analysis (new behavior)
+      if ((result as any).mockupImage && (result as any).mockupMimeType) {
+        setMockupImage(`data:${(result as any).mockupMimeType};base64,${(result as any).mockupImage}`);
+      }
+
       // Refresh history after new analysis
       if (authKey) {
         getAnalyses(authKey).then(setHistory).catch(console.error);
@@ -467,12 +475,21 @@ export const Launchpad: React.FC = () => {
     setIdea(record.idea);
     setShowHistory(false);
     setShowResults(true);
-    setMockupImage(null); // Reset mockup when loading from history
+    setIsFromHistory(true); // Mark as loaded from history
+
+    // Use persisted mockup if available
+    if (record.mockupImage && record.mockupMimeType) {
+      setMockupImage(`data:${record.mockupMimeType};base64,${record.mockupImage}`);
+    } else {
+      setMockupImage(null); // Will trigger regeneration as fallback
+    }
   };
 
-  // Generate mockup image after analysis completes
+  // Generate mockup image as fallback for old analyses without persisted mockups
+  // This useEffect only triggers when loading from history with no mockup
   useEffect(() => {
-    if (data && !isGenerating && !mockupImage && !mockupLoading && authKey) {
+    // Only trigger for history loads where mockup is missing
+    if (data && !isGenerating && !mockupImage && !mockupLoading && authKey && isFromHistory) {
       setMockupLoading(true);
       generateMockup(
         authKey,
@@ -481,7 +498,8 @@ export const Launchpad: React.FC = () => {
         data.visuals.appInterface
       )
         .then((result) => {
-          setMockupImage(`data:${result.mimeType};base64,${result.image}`);
+          const imageDataUrl = `data:${result.mimeType};base64,${result.image}`;
+          setMockupImage(imageDataUrl);
         })
         .catch((err) => {
           console.error('Mockup generation error:', err);
@@ -491,7 +509,7 @@ export const Launchpad: React.FC = () => {
           setMockupLoading(false);
         });
     }
-  }, [data, isGenerating, authKey]);
+  }, [data, isGenerating, authKey, isFromHistory]);
 
 
   return (

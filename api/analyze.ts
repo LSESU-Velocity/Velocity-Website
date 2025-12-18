@@ -195,6 +195,74 @@ async function resolveRedirectUrls(sources: { uri: string; title: string }[]): P
   return Promise.all(sources.map(resolveWithTimeout));
 }
 
+// Generate mockup image using Gemini 2.5 Flash Image
+async function generateMockupImage(
+  apiKey: string,
+  idea: string,
+  startupName: string,
+  appDescription: string
+): Promise<{ image: string; mimeType: string } | null> {
+  try {
+    const prompt = `Generate a professional mobile app UI mockup for a startup app.
+
+APP DETAILS:
+- Name: "${startupName || 'Startup App'}"
+- Concept: "${idea}"
+- Main Interface: "${appDescription || 'A modern mobile app interface'}"
+
+REQUIREMENTS:
+1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
+2. Use a clean, modern UI design with professional aesthetics
+3. Include realistic UI elements: navigation bar, content area, buttons, icons
+4. Use a cohesive color scheme that feels premium and tech-forward
+5. Show the app in use with sample content relevant to the startup concept
+6. The design should look like a real production app, not a wireframe
+7. Include proper spacing, typography hierarchy, and visual balance
+8. Make it look like a polished screenshot from the App Store
+
+Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
+
+    const geminiResponse = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseModalities: ['IMAGE'],
+          }
+        })
+      }
+    );
+
+    if (!geminiResponse.ok) {
+      console.error('Mockup generation failed:', await geminiResponse.text());
+      return null;
+    }
+
+    const geminiResult = await geminiResponse.json();
+    const candidate = geminiResult.candidates?.[0];
+    const imagePart = candidate?.content?.parts?.find((part: { inlineData?: { data: string; mimeType: string } }) => part.inlineData);
+
+    if (!imagePart?.inlineData) {
+      console.error('No image data in mockup response');
+      return null;
+    }
+
+    return {
+      image: imagePart.inlineData.data,
+      mimeType: imagePart.inlineData.mimeType || 'image/png'
+    };
+  } catch (error) {
+    console.error('Error generating mockup:', error);
+    return null;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with origin validation
   const allowedOrigins = [
@@ -528,18 +596,42 @@ ${responseSchema}`;
       promptChain: analysisData.promptChain
     };
 
-    // Save to Firestore
+    // Generate mockup image in parallel with saving (optional - don't block on failure)
+    let mockupResult: { image: string; mimeType: string } | null = null;
+    try {
+      mockupResult = await generateMockupImage(
+        apiKey,
+        idea,
+        analysisData.name,
+        analysisData.interface
+      );
+    } catch (err) {
+      console.error('Mockup generation failed (non-blocking):', err);
+    }
+
+    // Save to Firestore with mockup data
     const analysesRef = db.collection('analyses');
-    const newAnalysis = {
+    const newAnalysis: Record<string, unknown> = {
       keyId: keyDoc.id,
       idea: idea.trim(),
       data: formattedData,
       createdAt: new Date(),
     };
 
+    // Add mockup fields if successfully generated
+    if (mockupResult) {
+      newAnalysis.mockupImage = mockupResult.image;
+      newAnalysis.mockupMimeType = mockupResult.mimeType;
+    }
+
     await analysesRef.add(newAnalysis);
 
-    return res.status(200).json(formattedData);
+    // Return formatted data with mockup if available
+    const responseData = mockupResult
+      ? { ...formattedData, mockupImage: mockupResult.image, mockupMimeType: mockupResult.mimeType }
+      : formattedData;
+
+    return res.status(200).json(responseData);
   } catch (error) {
     console.error('Analysis error:', error instanceof Error ? error.message : 'Unknown error');
     return res.status(500).json({ error: 'Failed to generate analysis' });

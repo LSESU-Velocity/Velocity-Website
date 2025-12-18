@@ -112,6 +112,8 @@ export interface AnalysisRecord {
     idea: string;
     data: AnalysisData;
     createdAt: string;
+    mockupImage?: string;      // base64 encoded image data (persisted)
+    mockupMimeType?: string;   // e.g., "image/png"
 }
 
 // API Functions
