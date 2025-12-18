@@ -506,8 +506,11 @@ ${responseSchema}`;
     const groundingMetadata: GroundingMetadata = candidate.groundingMetadata || {};
 
     // Log grounding info for debugging
+    console.log('=== GROUNDING DEBUG ===');
+    console.log('Has groundingMetadata:', !!candidate.groundingMetadata);
     console.log('Grounding queries used:', groundingMetadata.webSearchQueries);
     console.log('Number of grounding chunks:', groundingMetadata.groundingChunks?.length || 0);
+    console.log('Full candidate keys:', Object.keys(candidate));
 
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
