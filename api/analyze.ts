@@ -310,24 +310,24 @@ async function generateMockupImage(
   appDescription: string
 ): Promise<{ image: string; mimeType: string } | null> {
   try {
-    const prompt = `Generate a professional mobile app UI mockup for a startup app.
+    const prompt = `Generate a high-fidelity mobile app UI design for a startup.
 
 APP DETAILS:
 - Name: "${startupName || 'Startup App'}"
 - Concept: "${idea}"
 - Main Interface: "${appDescription || 'A modern mobile app interface'}"
 
-REQUIREMENTS:
-1. Create a single iPhone/smartphone mockup screenshot showing the main app screen
-2. Use a clean, modern UI design with professional aesthetics
-3. Include realistic UI elements: navigation bar, content area, buttons, icons
-4. Use a cohesive color scheme that feels premium and tech-forward
-5. Show the app in use with sample content relevant to the startup concept
-6. The design should look like a real production app, not a wireframe
-7. Include proper spacing, typography hierarchy, and visual balance
-8. Make it look like a polished screenshot from the App Store
+CRITICAL REQUIREMENTS:
+1. Generate ONLY the raw user interface screen.
+2. DO NOT include any phone device, bezel, hands, or background.
+3. The image must be a perfectly rectangular screen purely showing the UI.
+4. Use a clean, modern design with professional aesthetics.
+5. Include standard UI elements: status bar, navigation, content, buttons.
+6. Use a premium, tech-forward color scheme.
+7. Show realistic sample content relevant to the concept.
+8. Aspect ratio should be typical for mobile (e.g. 9:16).
 
-Style: Modern, minimal, professional iOS/Android app design. Dark or light theme based on what suits the concept best.`;
+Style: Modern, minimal, professional UI design. Dark or light theme as appropriate.`;
 
     const geminiResponse = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent',
