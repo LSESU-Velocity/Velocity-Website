@@ -710,69 +710,74 @@ export const Launchpad: React.FC = () => {
                     visible={showResults}
                   >
                     <div className="flex flex-col h-full">
-                      {/* Phone Mockup - consistent frame for all states */}
+                      {/* Mockup Display Area */}
                       <div className="flex-1 flex items-center justify-center py-2">
-                        <div className="relative w-full max-w-[180px] aspect-[9/21] bg-black border-[6px] border-[#1f1f1f] rounded-[2.5rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
-                          {/* Dynamic Notch */}
-                          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[40%] h-6 bg-[#1f1f1f] rounded-b-2xl z-20"></div>
-
-                          {/* Screen Content */}
-                          <div className="w-full h-full bg-[#0a0a0a] relative overflow-hidden">
-                            {/* AI Generated Mockup */}
-                            {mockupImage && !mockupLoading && (
-                              <img
-                                src={mockupImage}
-                                alt="App Mockup"
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-
-                            {/* Loading State */}
-                            {mockupLoading && (
-                              <div className="w-full h-full flex flex-col items-center justify-center">
-                                <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
-                                <span className="font-mono text-[9px] text-gray-400 text-center px-4 mt-2">
-                                  Generating mockup...
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Fallback wireframe UI */}
-                            {!mockupImage && !mockupLoading && (
-                              <div className="w-full h-full flex flex-col">
-                                {/* Status Bar Mock */}
-                                <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
-                                  <div className="text-[8px] font-mono text-white">9:41</div>
-                                  <div className="flex gap-1">
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                  </div>
-                                </div>
-
-                                {/* App Header */}
-                                <div className="px-4 py-2 flex items-center justify-between">
-                                  <div className="w-6 h-6 rounded-full bg-white/10"></div>
-                                  <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.identity.name}</span>
-                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
-                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
-                                  </div>
-                                </div>
-
-                                {/* Content skeleton */}
-                                <div className="flex-1 px-4 space-y-2">
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                </div>
-
-                                {/* Home Indicator */}
-                                <div className="h-4 w-full flex justify-center items-start">
-                                  <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
-                                </div>
-                              </div>
-                            )}
+                        {/* AI Generated Mockup - display directly without extra frame */}
+                        {mockupImage && !mockupLoading && (
+                          <div className="relative w-full max-w-[200px]">
+                            <img
+                              src={mockupImage}
+                              alt="App Mockup"
+                              className="w-full h-auto rounded-2xl shadow-2xl ring-1 ring-white/10"
+                            />
                           </div>
-                        </div>
+                        )}
+
+                        {/* Phone frame for loading and fallback states only */}
+                        {(!mockupImage || mockupLoading) && (
+                          <div className="relative w-full max-w-[160px] aspect-[9/19] bg-black border-[5px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
+                            {/* Dynamic Notch */}
+                            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[35%] h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
+
+                            {/* Screen Content */}
+                            <div className="w-full h-full bg-[#0a0a0a] relative overflow-hidden">
+                              {/* Loading State */}
+                              {mockupLoading && (
+                                <div className="w-full h-full flex flex-col items-center justify-center">
+                                  <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
+                                  <span className="font-mono text-[9px] text-gray-400 text-center px-4 mt-2">
+                                    Generating mockup...
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Fallback wireframe UI */}
+                              {!mockupImage && !mockupLoading && (
+                                <div className="w-full h-full flex flex-col">
+                                  {/* Status Bar Mock */}
+                                  <div className="h-7 w-full flex items-center justify-between px-3 pt-1">
+                                    <div className="text-[7px] font-mono text-white">9:41</div>
+                                    <div className="flex gap-1">
+                                      <div className="w-2.5 h-1.5 bg-white/20 rounded-[1px]"></div>
+                                      <div className="w-2.5 h-1.5 bg-white/20 rounded-[1px]"></div>
+                                    </div>
+                                  </div>
+
+                                  {/* App Header */}
+                                  <div className="px-3 py-1.5 flex items-center justify-between">
+                                    <div className="w-5 h-5 rounded-full bg-white/10"></div>
+                                    <span className="font-sans font-bold text-white text-xs truncate max-w-[70px]">{data.identity.name}</span>
+                                    <div className="w-5 h-5 rounded-full overflow-hidden border border-white/20">
+                                      <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
+                                    </div>
+                                  </div>
+
+                                  {/* Content skeleton */}
+                                  <div className="flex-1 px-3 space-y-1.5">
+                                    <div className="w-full h-8 bg-white/5 rounded-md border border-white/5"></div>
+                                    <div className="w-full h-8 bg-white/5 rounded-md border border-white/5"></div>
+                                    <div className="w-full h-8 bg-white/5 rounded-md border border-white/5"></div>
+                                  </div>
+
+                                  {/* Home Indicator */}
+                                  <div className="h-3 w-full flex justify-center items-start">
+                                    <div className="w-1/3 h-0.5 bg-white/20 rounded-full"></div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* AI Generated Label */}
