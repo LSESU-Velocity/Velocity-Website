@@ -906,12 +906,26 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Market Insights */}
-                        {data.validation.marketReports && data.validation.marketReports.length > 0 && (
+                        {/* Market Quick Stats */}
+                        {data.validation.marketQuickStats && data.validation.marketQuickStats.length > 0 ? (
+                          <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
+                            <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Market Quick Stats</p>
+
+                            {data.validation.marketQuickStats.slice(0, 3).map((stat: any, i: number) => (
+                              <div key={i} className="flex items-start gap-2 p-1.5 bg-white/[0.02] border border-white/5 rounded-sm hover:bg-white/[0.04] transition-colors">
+                                <div className="w-1.5 h-1.5 mt-1.5 bg-velocity-red rounded-full shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-mono text-[10px] text-white font-bold leading-tight">{stat.value}</p>
+                                  <p className="font-mono text-[8px] text-gray-400 leading-tight">{stat.stat}</p>
+                                </div>
+                                <span className="font-mono text-[7px] text-gray-500 shrink-0 mt-0.5">{stat.source}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : data.validation.marketReports && data.validation.marketReports.length > 0 && (
+                          /* Fallback to CAGR from market reports if no quick stats */
                           <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
                             <p className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">Market Insights</p>
-
-                            {/* CAGR Display */}
                             {data.validation.marketReports[0]?.keyStat && (
                               <div className="flex items-center gap-2 p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-sm">
                                 <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
@@ -925,16 +939,6 @@ export const Launchpad: React.FC = () => {
                                 </div>
                               </div>
                             )}
-
-                            {/* Key Market Trends */}
-                            <div className="space-y-1">
-                              {data.validation.marketReports.slice(0, 2).map((report: any, i: number) => (
-                                <div key={i} className="flex items-center gap-2 text-[9px]">
-                                  <div className="w-1 h-1 bg-velocity-red rounded-full shrink-0" />
-                                  <span className="text-gray-300 truncate">{report.title}</span>
-                                </div>
-                              ))}
-                            </div>
                           </div>
                         )}
 

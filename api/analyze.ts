@@ -71,6 +71,13 @@ const responseSchema = `{
       "url": "URL to the actual report or source"
     }
   ],
+  "marketQuickStats": [
+    {
+      "stat": "What this statistic measures (max 50 chars)",
+      "value": "The data value e.g. 67%, $2.3B, 23 min (max 25 chars)",
+      "source": "Publisher name e.g. Statista (max 20 chars)"
+    }
+  ],
   "competitors": [
     {
       "name": "Competitor Name (max 25 chars)",
@@ -306,6 +313,12 @@ MARKET REPORTS - FIND AUTHORITATIVE SOURCES:
 7. Include report title, publisher, and a key statistic (e.g., "Market size: $404B | CAGR: 13.4%")
 8. Provide direct URLs to the actual reports
 
+MARKET QUICK STATS - GROUNDING-SOURCED INSIGHTS:
+9. Extract 3-4 key market statistics directly from your Google Search results
+10. These should be factual data points about user behavior, adoption rates, or market trends
+11. Examples: "67% of users prefer social features" (value: "67%", stat: "Users prefer social features")
+12. Each stat MUST come from a verifiable source found via search - cite the publisher
+
 COMPETITOR PROFILES - VERIFIED DATA:
 9. For each competitor, search for their founding year, HQ location, funding raised, and employee count
 10. Include their actual website domain (e.g., notion.so, coda.io)
@@ -505,6 +518,7 @@ ${responseSchema}`;
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
         marketReports: analysisData.marketReports || [],
+        marketQuickStats: analysisData.marketQuickStats || [],
         riskAnalysis: analysisData.riskAnalysis,
         searchVolume: analysisData.searchVolume,
         marketGap: analysisData.marketGap,
