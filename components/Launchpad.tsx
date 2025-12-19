@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, Award, Sparkles, DollarSign, GraduationCap, Handshake } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
 import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
@@ -326,7 +326,8 @@ export const Launchpad: React.FC = () => {
   const [competitorIndex, setCompetitorIndex] = useState(0);
   const [monetizationIndex, setMonetizationIndex] = useState(0);
   const [riskIndex, setRiskIndex] = useState(0);
-  const [searchVolumeIndex, setSearchVolumeIndex] = useState(0);
+  const [revenueUserCount, setRevenueUserCount] = useState(100); // For revenue slider
+  const [revenuePrice, setRevenuePrice] = useState<number | null>(null); // null = use AI suggestion
   const [domainIndex, setDomainIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -480,7 +481,7 @@ export const Launchpad: React.FC = () => {
     setCompetitorIndex(0);
     setMonetizationIndex(0);
     setRiskIndex(0);
-    setSearchVolumeIndex(0);
+
     setDomainIndex(0);
     setMockupImage(null);
     setMockupLoading(false);
@@ -974,6 +975,67 @@ export const Launchpad: React.FC = () => {
                         </div>
                       </motion.div>
                     </AnimatePresence>
+
+                    {/* Revenue Dream Slider */}
+                    <div className="mt-4 pt-4 border-t border-white/10">
+                      <div className="flex items-center gap-2 mb-3">
+                        <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="font-mono text-[10px] text-emerald-400 uppercase tracking-widest">Revenue Calculator</span>
+                      </div>
+
+                      {/* User Count Slider */}
+                      <div className="mb-3">
+                        <div className="flex justify-between mb-1">
+                          <span className="font-mono text-[9px] text-gray-400">Users</span>
+                          <span className="font-mono text-[11px] text-white font-bold">{revenueUserCount.toLocaleString()}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="10000"
+                          step="10"
+                          value={revenueUserCount}
+                          onChange={(e) => setRevenueUserCount(parseInt(e.target.value))}
+                          className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-400 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(52,211,153,0.5)] [&::-webkit-slider-thumb]:cursor-pointer"
+                        />
+                        <div className="flex justify-between mt-0.5">
+                          <span className="font-mono text-[7px] text-gray-500">10</span>
+                          <span className="font-mono text-[7px] text-gray-500">10,000</span>
+                        </div>
+                      </div>
+
+                      {/* Price Input */}
+                      <div className="mb-3">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="font-mono text-[9px] text-gray-400">Monthly Price</span>
+                          <div className="flex items-center gap-1">
+                            <span className="font-mono text-[11px] text-white">£</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="999"
+                              value={revenuePrice ?? data.lseData?.suggestedPrice ?? 19}
+                              onChange={(e) => setRevenuePrice(parseFloat(e.target.value) || data.lseData?.suggestedPrice || 19)}
+                              className="w-14 bg-white/5 border border-white/20 rounded px-1.5 py-0.5 font-mono text-[11px] text-white text-right focus:outline-none focus:border-emerald-400/50"
+                            />
+                          </div>
+                        </div>
+                        {revenuePrice === null && (
+                          <span className="font-mono text-[7px] text-emerald-400/60">AI suggested price</span>
+                        )}
+                      </div>
+
+                      {/* Revenue Output */}
+                      <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-sm">
+                        <p className="font-mono text-[9px] text-emerald-400/80 uppercase tracking-widest mb-0.5">Monthly Revenue</p>
+                        <p className="font-sans font-bold text-2xl text-emerald-400">
+                          £{((revenuePrice ?? data.lseData?.suggestedPrice ?? 19) * revenueUserCount).toLocaleString()}
+                        </p>
+                        <p className="font-mono text-[8px] text-gray-400 mt-1">
+                          {revenueUserCount.toLocaleString()} users × £{revenuePrice ?? data.lseData?.suggestedPrice ?? 19}/mo
+                        </p>
+                      </div>
+                    </div>
                   </Widget>
                 </div>
 
@@ -1235,116 +1297,102 @@ export const Launchpad: React.FC = () => {
                       </Widget>
                     </div>
 
-                    {/* Bottom Left: Search Volume */}
+                    {/* Bottom Left: CV ROI Badge - Skills Unlocked */}
                     <Widget
-                      title="Search Volume"
-                      icon={BarChart3}
+                      title="CV ROI"
+                      icon={Award}
                       delay={0.3}
                       className="h-full min-h-[380px]"
                       visible={showResults}
-                      action={
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setSearchVolumeIndex((prev) => (prev - 1 + data.validation.searchVolume.length) % data.validation.searchVolume.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                            {searchVolumeIndex + 1}/{data.validation.searchVolume.length}
-                          </span>
-                          <button
-                            onClick={() => setSearchVolumeIndex((prev) => (prev + 1) % data.validation.searchVolume.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      }
                     >
                       <div className="h-full w-full flex flex-col">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={searchVolumeIndex}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col h-full"
-                          >
-                            <div className="flex items-center justify-between mb-2 shrink-0">
-                              <p className="font-mono text-[10px] text-white">
-                                "{data.validation.searchVolume[searchVolumeIndex].keyword}"
-                              </p>
-                              <div className="group/info relative">
-                                <div className="w-3.5 h-3.5 rounded-full border border-white/20 flex items-center justify-center cursor-help hover:border-velocity-red/50 transition-colors">
-                                  <span className="text-[8px] text-gray-400 group-hover/info:text-velocity-red transition-colors">?</span>
-                                </div>
-                                <div className="absolute bottom-full right-0 mb-2 w-48 p-2 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[8px] font-mono text-gray-400 opacity-0 group-hover/info:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl leading-relaxed">
-                                  <span className="text-white">100</span> = peak interest<br />
-                                  <span className="text-white">50</span> = half as popular<br />
-                                  <span className="text-white">0</span> = insufficient data
-                                  <div className="absolute top-full right-3 -mt-px border-4 border-transparent border-t-gray-900/95" />
+                        <div className="flex items-center gap-2 mb-3">
+                          <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+                          <span className="font-mono text-[9px] text-amber-400/80 uppercase tracking-widest">Skills Unlocked</span>
+                        </div>
+
+                        <p className="font-mono text-[9px] text-gray-400 mb-4">
+                          Building this will add these to your CV:
+                        </p>
+
+                        <div className="flex flex-wrap gap-2">
+                          {(data.lseData?.resumeKeywords || []).map((skill: string, i: number) => (
+                            <motion.div
+                              key={i}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: 0.4 + i * 0.1, type: "spring" }}
+                              className="relative group/skill"
+                            >
+                              {/* Shiny badge effect */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-yellow-300/30 to-amber-500/20 blur-sm group-hover/skill:blur-md transition-all" />
+                              <div className="relative px-3 py-2 bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-400/40 rounded-sm backdrop-blur-sm">
+                                <div className="flex items-center gap-1.5">
+                                  <Sparkles className="w-3 h-3 text-amber-400" />
+                                  <span className="font-mono text-[11px] text-amber-100 font-medium">{skill}</span>
                                 </div>
                               </div>
-                            </div>
-                            <div className="flex-1 relative overflow-hidden rounded" style={{ minHeight: '280px' }}>
-                              <GoogleTrends keyword={data.validation.searchVolume[searchVolumeIndex].keyword} />
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
+                            </motion.div>
+                          ))}
+                        </div>
+
+
                       </div>
                     </Widget>
 
-                    {/* Bottom Right: Biggest Risk */}
+                    {/* Bottom Right: The Unfair Advantage */}
                     <Widget
-                      title="THE BIGGEST RISK"
-                      icon={AlertTriangle}
+                      title="YOUR UNFAIR ADVANTAGE"
+                      icon={Sparkles}
                       delay={0.4}
                       className="h-full min-h-[380px]"
                       visible={showResults}
-                      action={
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                            {riskIndex + 1}/{data.validation.riskAnalysis.length}
-                          </span>
-                          <button
-                            onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      }
                     >
-                      <div className="flex flex-col gap-2 h-full justify-center">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={riskIndex}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col gap-2"
-                          >
-                            <div>
-                              <p className="font-mono text-[9px] text-velocity-red mb-0.5 uppercase tracking-widest">The Risk:</p>
-                              <p className="font-sans text-white text-xs leading-relaxed line-clamp-2">{data.validation.riskAnalysis[riskIndex].risk}</p>
+                      <div className="flex flex-col gap-4 h-full">
+                        {/* Strategy Card - Main Advantage */}
+                        <div className="relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10" />
+                          <div className="relative p-4 border border-purple-500/30 rounded-sm">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                                <Zap className="w-3 h-3 text-white" />
+                              </div>
+                              <span className="font-mono text-[10px] text-purple-300 uppercase tracking-widest">As an LSE Student</span>
                             </div>
-                            <div>
-                              <p className="font-mono text-[9px] text-blue-400 mb-0.5 uppercase tracking-widest">Product Feature:</p>
-                              <p className="font-sans text-gray-300 text-xs leading-relaxed line-clamp-2">
-                                {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
-                              </p>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
+                            <p className="font-sans text-sm text-white leading-relaxed">
+                              {data.lseData?.unfairAdvantage || "You have unique access to London's startup ecosystem, 12,000+ ambitious peers, and world-class faculty."}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* LSE Network - Societies to Partner With */}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Handshake className="w-3.5 h-3.5 text-blue-400" />
+                            <span className="font-mono text-[9px] text-blue-400/80 uppercase tracking-widest">Partner With</span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {(data.lseData?.lseSocieties || []).map((society: { name: string; reason: string }, i: number) => (
+                              <motion.a
+                                key={i}
+                                href={`https://www.lsesu.com/communities/societies/list/?q=${encodeURIComponent(society.name)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.5 + i * 0.1 }}
+                                className="block p-2 bg-white/5 border border-white/10 hover:border-blue-400/30 hover:bg-white/10 transition-all group/soc rounded-sm cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <span className="font-sans text-xs text-white font-medium group-hover/soc:text-blue-300 transition-colors">{society.name}</span>
+                                  <ExternalLink className="w-3 h-3 text-gray-500 group-hover/soc:text-blue-400 transition-colors" />
+                                </div>
+                                <p className="font-mono text-[9px] text-gray-400 mt-0.5 line-clamp-1">{society.reason}</p>
+                              </motion.a>
+                            ))}
+                          </div>
+                        </div>
                       </div>
                     </Widget>
                   </div>
@@ -1414,6 +1462,58 @@ export const Launchpad: React.FC = () => {
                           </motion.a>
                         ))}
                       </div>
+                    </div>
+                  </Widget>
+
+                  {/* The Biggest Risk - Moved to right column */}
+                  <Widget
+                    title="THE BIGGEST RISK"
+                    icon={AlertTriangle}
+                    delay={0.75}
+                    className="!h-auto !overflow-visible"
+                    visible={showResults}
+                    action={
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                          {riskIndex + 1}/{data.validation.riskAnalysis.length}
+                        </span>
+                        <button
+                          onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    }
+                  >
+                    <div className="flex flex-col gap-3">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={riskIndex}
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="flex flex-col gap-3"
+                        >
+                          <div>
+                            <p className="font-mono text-[9px] text-velocity-red mb-1 uppercase tracking-widest">The Risk:</p>
+                            <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskAnalysis[riskIndex].risk}</p>
+                          </div>
+                          <div className="pt-2 border-t border-white/5">
+                            <p className="font-mono text-[9px] text-blue-400 mb-1 uppercase tracking-widest">Product Feature to Mitigate:</p>
+                            <p className="font-sans text-gray-300 text-xs leading-relaxed">
+                              {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
                   </Widget>
 

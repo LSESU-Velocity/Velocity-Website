@@ -17,9 +17,9 @@ export interface AnalysisData {
     identity: {
         name: string;
         tagline: string;
-        colors: string[];
-        domain: string[];
-        available: boolean;
+        colors?: string[];
+        domain?: string[];
+        available?: boolean;
     };
     monetization: Array<{
         model: string;
@@ -30,9 +30,9 @@ export interface AnalysisData {
     visuals: {
         logoStyle: string;
         appInterface: string;
-        screens: Array<{ type: string; title: string }>;
+        screens?: Array<{ type: string; title: string }>;
     };
-    blueprint: {
+    blueprint?: {
         stack: string[];
         complexity: string;
         timeline: string;
@@ -45,7 +45,7 @@ export interface AnalysisData {
         competitors: number;
         competitorList: Array<{
             name: string;
-            usp: string;
+            usp?: string;
             weakness: string;
             x: number;
             y: number;
@@ -64,12 +64,8 @@ export interface AnalysisData {
         }>;
         riskAnalysis: Array<{
             risk: string;
-            mitigation: string;
+            mitigation?: string;
             productFeature: string;
-        }>;
-        searchVolume: Array<{
-            keyword: string;
-            data: Array<{ name: string; users: number }>;
         }>;
         marketGap: {
             xAxis: { label: string; low: string; high: string };
@@ -82,6 +78,12 @@ export interface AnalysisData {
             scalability: number;
             complexity: number;
         };
+    };
+    lseData?: {
+        resumeKeywords: string[];
+        unfairAdvantage: string;
+        lseSocieties: Array<{ name: string; reason: string }>;
+        suggestedPrice: number;
     };
     sources: {
         groundingChunks?: Array<{ uri: string; title: string }>;
@@ -105,6 +107,8 @@ export interface AnalysisData {
         type: string;
         members: string;
     }>;
+    mockupImage?: string;
+    mockupMimeType?: string;
 }
 
 export interface AnalysisRecord {

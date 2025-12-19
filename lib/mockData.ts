@@ -152,7 +152,17 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             { name: "Indie Hackers", type: "Forum", members: "Founders" },
             { name: "r/SaaS", type: "Reddit", members: "45k+" },
             { name: "Twitter/X Tech", type: "Social", members: "Viral" }
-        ]
+        ],
+        lseData: {
+            resumeKeywords: ["Product Management", "Full-Stack Development", "Growth Hacking", "UX Design", "Market Research"],
+            unfairAdvantage: "Access to 12,000+ ambitious LSE students as early adopters and beta testers in the heart of London.",
+            lseSocieties: [
+                { name: "LSE Entrepreneurs", reason: "Direct access to 500+ aspiring founders for feedback and early users" },
+                { name: "LSE Tech Society", reason: "Technical co-founders and developer community" },
+                { name: "LSE Finance Society", reason: "Potential investors and business-minded advisors" }
+            ],
+            suggestedPrice: 29
+        }
     };
 
     // Customize based on idea keywords
@@ -303,7 +313,17 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { name: "Bodybuilding.com", type: "Forum", members: "OGs" },
                 { name: "TikTok Fitness", type: "Social", members: "Viral" },
                 { name: "r/LSE", type: "Local", members: "Students" }
-            ]
+            ],
+            lseData: {
+                resumeKeywords: ["Mobile App Development", "Community Building", "User Acquisition", "Social Features", "HealthTech"],
+                unfairAdvantage: "LSE Sports facilities and student gym memberships give you direct access to 10,000+ gym-goers as test users.",
+                lseSocieties: [
+                    { name: "LSE Athletics Union", reason: "12,000 active members who regularly use the gym facilities" },
+                    { name: "LSE Entrepreneurs", reason: "Mentorship and validation from experienced founders" },
+                    { name: "LSE Health Society", reason: "Health-conscious students perfect for wellness features" }
+                ],
+                suggestedPrice: 4.99
+            }
         };
     }
 
@@ -343,7 +363,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                     competitorList: data.competitors,
                     marketReports: data.marketReports,
                     riskAnalysis: data.riskAnalysis,
-                    searchVolume: data.searchVolume,
                     marketGap: data.marketGap,
                     scores: {
                         viability: 75,
@@ -351,6 +370,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                         complexity: 45
                     }
                 },
+                lseData: data.lseData,
                 sources: data.sources,
                 customerSegments: data.customerSegments,
                 promptChain: data.promptChain

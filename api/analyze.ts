@@ -170,27 +170,34 @@ const responseSchema = {
       },
       required: ["xAxis", "yAxis", "yourPosition", "yourGap"]
     },
-    searchVolume: {
+    resumeKeywords: {
       type: "array",
       minItems: 3,
+      maxItems: 5,
+      items: { type: "string", description: "CV/resume skill keyword (max 25 chars each, e.g. 'Product Management', 'FinTech', 'Data Analysis')" },
+      description: "Skills an LSE student would gain/demonstrate by building this startup (max 5)"
+    },
+    unfairAdvantage: {
+      type: "string",
+      description: "The specific unfair advantage an LSE student has in building this idea (max 100 chars)"
+    },
+    lseSocieties: {
+      type: "array",
+      minItems: 3,
+      maxItems: 3,
       items: {
         type: "object",
         properties: {
-          keyword: { type: "string", description: "Relevant search keyword (max 40 chars)" },
-          data: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string", description: "Year label, e.g. Y1, Y2" },
-                users: { type: "number", description: "User count for that year" }
-              },
-              required: ["name", "users"]
-            }
-          }
+          name: { type: "string", description: "Specific LSE society name (max 40 chars, e.g. 'LSE Entrepreneurs')" },
+          reason: { type: "string", description: "Why partner with this society (max 60 chars)" }
         },
-        required: ["keyword", "data"]
-      }
+        required: ["name", "reason"]
+      },
+      description: "3 specific LSE societies to partner with for this startup"
+    },
+    suggestedPrice: {
+      type: "number",
+      description: "AI-suggested monthly price point in GBP for the primary product (e.g. 9.99, 29, 99)"
     },
     promptChain: {
       type: "array",
@@ -224,8 +231,9 @@ const responseSchema = {
   },
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
-    "riskAnalysis", "marketReports", "competitors", "marketGap", "searchVolume",
-    "promptChain", "distributionChannels", "viability", "scalability", "complexity"
+    "riskAnalysis", "marketReports", "competitors", "marketGap", "resumeKeywords",
+    "unfairAdvantage", "lseSocieties", "suggestedPrice", "promptChain", "distributionChannels",
+    "viability", "scalability", "complexity"
   ]
 };
 
@@ -575,7 +583,26 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3 search keywords, 3 prompt chain steps, and 5 distribution channels.`;
+LSE STUDENT FOCUS - CAREER ROI & NETWORKING:
+22. resumeKeywords: Identify 3-5 specific, high-value skills an LSE student would gain by building this startup
+    - Focus on skills that stand out on a CV for top-tier employers (consulting, banking, tech)
+    - Examples: "Product Management", "FinTech", "Growth Hacking", "API Integration", "Market Research"
+    - Make them specific and impressive, not generic
+
+23. unfairAdvantage: What SPECIFIC advantage does an LSE student have in building THIS idea? (max 100 chars)
+    - Consider: LSE network, London location, specific departments/courses, student access, age demographic
+    - Be specific, not generic. "Access to 12,000 students as beta testers" > "Good network"
+    
+24. lseSocieties: Identify 3 REAL LSE societies that would be strategic partners (search for actual LSE societies)
+    - Search for the LSE Societies list and pick relevant ones
+    - Examples: "LSE Entrepreneurs", "LSE Finance Society", "LSE Tech Society", "LSESU Ventures"
+    - Explain WHY each partnership would help (e.g., "Direct access to 500+ aspiring founders")
+
+25. suggestedPrice: Suggest a realistic monthly price point in GBP for the primary product offering
+    - Consider: student affordability, B2B vs B2C, freemium potential
+    - Provide a number like 9.99, 19, 29, 49, 99, etc.
+
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 3 LSE societies, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -690,13 +717,19 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
         competitorList: analysisData.competitors,
         marketReports: analysisData.marketReports || [],
         riskAnalysis: analysisData.riskAnalysis,
-        searchVolume: analysisData.searchVolume,
         marketGap: analysisData.marketGap,
         scores: {
           viability: analysisData.viability || 0,
           scalability: analysisData.scalability || 0,
           complexity: analysisData.complexity || 0
         }
+      },
+      // LSE-specific data
+      lseData: {
+        resumeKeywords: analysisData.resumeKeywords || [],
+        unfairAdvantage: analysisData.unfairAdvantage || '',
+        lseSocieties: analysisData.lseSocieties || [],
+        suggestedPrice: analysisData.suggestedPrice || 19
       },
       // Enhanced sources with grounding metadata
       sources: {
