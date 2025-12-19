@@ -82,7 +82,6 @@ export interface AnalysisData {
     lseData?: {
         resumeKeywords: string[];
         unfairAdvantage: string;
-        lseSocieties: Array<{ name: string; reason: string }>;
         suggestedPrice: number;
     };
     sources: {

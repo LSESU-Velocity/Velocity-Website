@@ -1311,7 +1311,7 @@ export const Launchpad: React.FC = () => {
                           <span className="font-mono text-[9px] text-amber-400/80 uppercase tracking-widest">Skills Unlocked</span>
                         </div>
 
-                        <p className="font-mono text-[9px] text-gray-400 mb-4">
+                        <p className="font-mono text-xs text-gray-400 mb-4">
                           Building this will add these to your CV:
                         </p>
 
@@ -1336,7 +1336,11 @@ export const Launchpad: React.FC = () => {
                           ))}
                         </div>
 
-
+                        <div className="mt-auto pt-4 border-t border-white/5">
+                          <p className="font-mono text-[10px] text-gray-400 leading-relaxed">
+                            Demonstrating these practical skills in a live project is highly valued by top recruiters in consulting, finance, and tech.
+                          </p>
+                        </div>
                       </div>
                     </Widget>
 
@@ -1365,34 +1369,7 @@ export const Launchpad: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* LSE Network - Societies to Partner With */}
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-3">
-                            <Handshake className="w-3.5 h-3.5 text-blue-400" />
-                            <span className="font-mono text-[9px] text-blue-400/80 uppercase tracking-widest">Partner With</span>
-                          </div>
 
-                          <div className="space-y-2">
-                            {(data.lseData?.lseSocieties || []).map((society: { name: string; reason: string }, i: number) => (
-                              <motion.a
-                                key={i}
-                                href={`https://www.lsesu.com/communities/societies/list/?q=${encodeURIComponent(society.name)}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.5 + i * 0.1 }}
-                                className="block p-2 bg-white/5 border border-white/10 hover:border-blue-400/30 hover:bg-white/10 transition-all group/soc rounded-sm cursor-pointer"
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span className="font-sans text-xs text-white font-medium group-hover/soc:text-blue-300 transition-colors">{society.name}</span>
-                                  <ExternalLink className="w-3 h-3 text-gray-500 group-hover/soc:text-blue-400 transition-colors" />
-                                </div>
-                                <p className="font-mono text-[9px] text-gray-400 mt-0.5 line-clamp-1">{society.reason}</p>
-                              </motion.a>
-                            ))}
-                          </div>
-                        </div>
                       </div>
                     </Widget>
                   </div>

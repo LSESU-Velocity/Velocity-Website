@@ -181,20 +181,7 @@ const responseSchema = {
       type: "string",
       description: "The specific unfair advantage an LSE student has in building this idea (max 100 chars)"
     },
-    lseSocieties: {
-      type: "array",
-      minItems: 3,
-      maxItems: 3,
-      items: {
-        type: "object",
-        properties: {
-          name: { type: "string", description: "Specific LSE society name (max 40 chars, e.g. 'LSE Entrepreneurs')" },
-          reason: { type: "string", description: "Why partner with this society (max 60 chars)" }
-        },
-        required: ["name", "reason"]
-      },
-      description: "3 specific LSE societies to partner with for this startup"
-    },
+
     suggestedPrice: {
       type: "number",
       description: "AI-suggested monthly price point in GBP for the primary product (e.g. 9.99, 29, 99)"
@@ -232,7 +219,7 @@ const responseSchema = {
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "riskAnalysis", "marketReports", "competitors", "marketGap", "resumeKeywords",
-    "unfairAdvantage", "lseSocieties", "suggestedPrice", "promptChain", "distributionChannels",
+    "unfairAdvantage", "suggestedPrice", "promptChain", "distributionChannels",
     "viability", "scalability", "complexity"
   ]
 };
@@ -593,16 +580,11 @@ LSE STUDENT FOCUS - CAREER ROI & NETWORKING:
     - Consider: LSE network, London location, specific departments/courses, student access, age demographic
     - Be specific, not generic. "Access to 12,000 students as beta testers" > "Good network"
     
-24. lseSocieties: Identify 3 REAL LSE societies that would be strategic partners (search for actual LSE societies)
-    - Search for the LSE Societies list and pick relevant ones
-    - Examples: "LSE Entrepreneurs", "LSE Finance Society", "LSE Tech Society", "LSESU Ventures"
-    - Explain WHY each partnership would help (e.g., "Direct access to 500+ aspiring founders")
-
-25. suggestedPrice: Suggest a realistic monthly price point in GBP for the primary product offering
+24. suggestedPrice: Suggest a realistic monthly price point in GBP for the primary product offering
     - Consider: student affordability, B2B vs B2C, freemium potential
     - Provide a number like 9.99, 19, 29, 49, 99, etc.
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 3 LSE societies, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -728,7 +710,6 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
       lseData: {
         resumeKeywords: analysisData.resumeKeywords || [],
         unfairAdvantage: analysisData.unfairAdvantage || '',
-        lseSocieties: analysisData.lseSocieties || [],
         suggestedPrice: analysisData.suggestedPrice || 19
       },
       // Enhanced sources with grounding metadata
