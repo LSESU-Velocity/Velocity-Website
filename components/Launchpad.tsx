@@ -921,7 +921,7 @@ export const Launchpad: React.FC = () => {
                     title="DAY 1 TASKS"
                     icon={CheckCircle2}
                     delay={0.15}
-                    className="!h-[280px]"
+                    className="!h-auto !overflow-visible"
                     visible={showResults}
                   >
                     <div className="flex flex-col gap-2 h-full overflow-y-auto">
