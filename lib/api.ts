@@ -86,7 +86,6 @@ export interface AnalysisData {
             description: string;
             category: 'research' | 'outreach' | 'build' | 'validate';
         }>;
-        suggestedPrice: number;
     };
     sources: {
         groundingChunks?: Array<{ uri: string; title: string }>;

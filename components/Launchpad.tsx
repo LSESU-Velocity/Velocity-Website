@@ -326,8 +326,6 @@ export const Launchpad: React.FC = () => {
   const [competitorIndex, setCompetitorIndex] = useState(0);
   const [monetizationIndex, setMonetizationIndex] = useState(0);
   const [riskIndex, setRiskIndex] = useState(0);
-  const [revenueUserCount, setRevenueUserCount] = useState(100); // For revenue slider
-  const [revenuePrice, setRevenuePrice] = useState<number | null>(null); // null = use AI suggestion
   const [domainIndex, setDomainIndex] = useState(0);
   const [promptChainIndex, setPromptChainIndex] = useState(0);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -977,68 +975,6 @@ export const Launchpad: React.FC = () => {
                     </AnimatePresence>
 
                   </Widget>
-
-                  {/* Revenue Calculator Widget */}
-                  <Widget
-                    title="Revenue Calculator"
-                    icon={DollarSign}
-                    delay={0.2}
-                    className="!h-[260px]"
-                    visible={showResults}
-                  >
-                    {/* User Count Slider */}
-                    <div className="mb-3">
-                      <div className="flex justify-between mb-1">
-                        <span className="font-mono text-[9px] text-gray-400">Users</span>
-                        <span className="font-mono text-[11px] text-white font-bold">{revenueUserCount.toLocaleString()}</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="10"
-                        max="10000"
-                        step="10"
-                        value={revenueUserCount}
-                        onChange={(e) => setRevenueUserCount(parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-400 [&::-webkit-slider-thumb]:shadow-[0_0_10px_rgba(52,211,153,0.5)] [&::-webkit-slider-thumb]:cursor-pointer"
-                      />
-                      <div className="flex justify-between mt-0.5">
-                        <span className="font-mono text-[7px] text-gray-500">10</span>
-                        <span className="font-mono text-[7px] text-gray-500">10,000</span>
-                      </div>
-                    </div>
-
-                    {/* Price Input */}
-                    <div className="mb-3">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-mono text-[9px] text-gray-400">Monthly Price</span>
-                        <div className="flex items-center gap-1">
-                          <span className="font-mono text-[11px] text-white">£</span>
-                          <input
-                            type="number"
-                            min="1"
-                            max="999"
-                            value={revenuePrice ?? data.lseData?.suggestedPrice ?? 19}
-                            onChange={(e) => setRevenuePrice(parseFloat(e.target.value) || data.lseData?.suggestedPrice || 19)}
-                            className="w-14 bg-white/5 border border-white/20 rounded px-1.5 py-0.5 font-mono text-[11px] text-white text-right focus:outline-none focus:border-emerald-400/50"
-                          />
-                        </div>
-                      </div>
-                      {revenuePrice === null && (
-                        <span className="font-mono text-[7px] text-emerald-400/60">AI suggested price</span>
-                      )}
-                    </div>
-
-                    {/* Revenue Output */}
-                    <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-sm">
-                      <p className="font-mono text-[9px] text-emerald-400/80 uppercase tracking-widest mb-0.5">Monthly Revenue</p>
-                      <p className="font-sans font-bold text-2xl text-emerald-400">
-                        £{((revenuePrice ?? data.lseData?.suggestedPrice ?? 19) * revenueUserCount).toLocaleString()}
-                      </p>
-                      <p className="font-mono text-[8px] text-gray-400 mt-1">
-                        {revenueUserCount.toLocaleString()} users × £{revenuePrice ?? data.lseData?.suggestedPrice ?? 19}/mo
-                      </p>
-                    </div>
-                  </Widget>
                 </div>
 
                 {/* Center Column: Analysis */}
@@ -1373,9 +1309,9 @@ export const Launchpad: React.FC = () => {
                               <div className="flex items-center gap-2 mb-1">
                                 <span className="font-sans text-xs text-white font-medium truncate">{item.task}</span>
                                 <span className={`font-mono text-[8px] px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${item.category === 'research' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                                    item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
-                                      item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                                        'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                                    item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                                      'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                                   }`}>{item.category}</span>
                               </div>
                               <p className="font-mono text-[10px] text-gray-400 leading-relaxed">{item.description}</p>

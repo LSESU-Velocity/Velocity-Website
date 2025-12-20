@@ -193,10 +193,6 @@ const responseSchema = {
       description: "5-7 actionable tasks to validate the idea starting from Day 1 - focus on customer discovery, problem validation, and quick wins"
     },
 
-    suggestedPrice: {
-      type: "number",
-      description: "AI-suggested monthly price point in GBP for the primary product (e.g. 9.99, 29, 99)"
-    },
     promptChain: {
       type: "array",
       minItems: 3,
@@ -230,7 +226,7 @@ const responseSchema = {
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "riskAnalysis", "marketReports", "competitors", "marketGap", "resumeKeywords",
-    "day1Tasks", "suggestedPrice", "promptChain", "distributionChannels",
+    "day1Tasks", "promptChain", "distributionChannels",
     "viability", "scalability", "complexity"
   ]
 };
@@ -594,11 +590,7 @@ LSE STUDENT FOCUS - CAREER ROI & NETWORKING:
     - Make tasks concrete and completable within hours/days, not weeks
     - Examples: "Post in r/fitness asking about gym buddy pain points", "DM 10 fitness influencers about their audience's struggles"
     
-24. suggestedPrice: Suggest a realistic monthly price point in GBP for the primary product offering
-    - Consider: student affordability, B2B vs B2C, freemium potential
-    - Provide a number like 9.99, 19, 29, 49, 99, etc.
-
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 5 day 1 tasks, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 5 day 1 tasks, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -723,8 +715,7 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
       // LSE-specific data
       lseData: {
         resumeKeywords: analysisData.resumeKeywords || [],
-        day1Tasks: analysisData.day1Tasks || [],
-        suggestedPrice: analysisData.suggestedPrice || 19
+        day1Tasks: analysisData.day1Tasks || []
       },
       // Enhanced sources with grounding metadata
       sources: {

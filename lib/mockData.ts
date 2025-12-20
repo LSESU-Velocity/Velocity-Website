@@ -161,8 +161,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { task: "Create a landing page", description: "Build a simple page to collect email signups and gauge interest", category: "build" as const },
                 { task: "Analyze 3 competitor products", description: "Sign up for free trials and document their pricing, features, and gaps", category: "research" as const },
                 { task: "DM 10 indie hackers", description: "Ask how they validated their ideas before building", category: "outreach" as const }
-            ],
-            suggestedPrice: 29
+            ]
         }
     };
 
@@ -323,8 +322,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                     { task: "Survey LSE sports clubs", description: "Email club presidents asking about member social needs", category: "research" as const },
                     { task: "Create a quick prototype", description: "Build a simple matching form to test the core concept", category: "build" as const },
                     { task: "DM 10 fitness influencers", description: "Ask what their followers struggle with socially in gyms", category: "outreach" as const }
-                ],
-                suggestedPrice: 4.99
+                ]
             }
         };
     }
