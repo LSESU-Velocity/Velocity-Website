@@ -80,7 +80,6 @@ export interface AnalysisData {
         };
     };
     lseData?: {
-        resumeKeywords: string[];
         day1Tasks: Array<{
             task: string;
             description: string;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, Award, Sparkles, DollarSign, GraduationCap, Handshake } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
 import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
@@ -1213,46 +1213,55 @@ export const Launchpad: React.FC = () => {
                       </Widget>
                     </div>
 
-                    {/* Bottom Left: CV ROI Badge - Skills Unlocked */}
+                    {/* Bottom Left: The Biggest Risk */}
                     <Widget
-                      title="CV ROI"
-                      icon={Award}
+                      title="THE BIGGEST RISK"
+                      icon={AlertTriangle}
                       delay={0.3}
                       className="h-full min-h-[380px]"
                       visible={showResults}
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                            {riskIndex + 1}/{data.validation.riskAnalysis.length}
+                          </span>
+                          <button
+                            onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
                     >
-                      <div className="h-full w-full flex flex-col">
-                        <div className="flex items-center gap-2 mb-3">
-                          <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
-                          <span className="font-mono text-[9px] text-amber-400/80 uppercase tracking-widest">Skills Unlocked</span>
-                        </div>
-
-                        <p className="font-mono text-xs text-gray-400 mb-4">
-                          Building this will add these to your CV:
-                        </p>
-
-                        <div className="flex flex-wrap gap-2">
-                          {(data.lseData?.resumeKeywords || []).map((skill: string, i: number) => (
-                            <motion.div
-                              key={i}
-                              initial={{ opacity: 0, scale: 0.8 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: 0.4 + i * 0.1, type: "spring" }}
-                              className="relative group/skill"
-                            >
-                              {/* Shiny badge effect */}
-                              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-yellow-300/30 to-amber-500/20 blur-sm group-hover/skill:blur-md transition-all" />
-                              <div className="relative px-3 py-2 bg-gradient-to-br from-amber-500/20 to-amber-600/10 border border-amber-400/40 rounded-sm backdrop-blur-sm">
-                                <div className="flex items-center gap-1.5">
-                                  <Sparkles className="w-3 h-3 text-amber-400" />
-                                  <span className="font-mono text-[11px] text-amber-100 font-medium">{skill}</span>
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-
-
+                      <div className="flex flex-col gap-3">
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={riskIndex}
+                            initial={{ opacity: 0, x: 10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: -10 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex flex-col gap-3"
+                          >
+                            <div>
+                              <p className="font-mono text-[9px] text-velocity-red mb-1 uppercase tracking-widest">The Risk:</p>
+                              <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskAnalysis[riskIndex].risk}</p>
+                            </div>
+                            <div className="pt-2 border-t border-white/5">
+                              <p className="font-mono text-[9px] text-blue-400 mb-1 uppercase tracking-widest">Product Feature to Mitigate:</p>
+                              <p className="font-sans text-gray-300 text-xs leading-relaxed">
+                                {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
+                              </p>
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
                       </div>
                     </Widget>
 
@@ -1381,58 +1390,6 @@ export const Launchpad: React.FC = () => {
                           </motion.a>
                         ))}
                       </div>
-                    </div>
-                  </Widget>
-
-                  {/* The Biggest Risk - Moved to right column */}
-                  <Widget
-                    title="THE BIGGEST RISK"
-                    icon={AlertTriangle}
-                    delay={0.75}
-                    className="!h-auto !overflow-visible"
-                    visible={showResults}
-                    action={
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronLeft className="w-3 h-3" />
-                        </button>
-                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                          {riskIndex + 1}/{data.validation.riskAnalysis.length}
-                        </span>
-                        <button
-                          onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                    }
-                  >
-                    <div className="flex flex-col gap-3">
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={riskIndex}
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          transition={{ duration: 0.2 }}
-                          className="flex flex-col gap-3"
-                        >
-                          <div>
-                            <p className="font-mono text-[9px] text-velocity-red mb-1 uppercase tracking-widest">The Risk:</p>
-                            <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskAnalysis[riskIndex].risk}</p>
-                          </div>
-                          <div className="pt-2 border-t border-white/5">
-                            <p className="font-mono text-[9px] text-blue-400 mb-1 uppercase tracking-widest">Product Feature to Mitigate:</p>
-                            <p className="font-sans text-gray-300 text-xs leading-relaxed">
-                              {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
-                            </p>
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
                     </div>
                   </Widget>
 

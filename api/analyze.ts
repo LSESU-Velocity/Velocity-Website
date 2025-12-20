@@ -170,13 +170,6 @@ const responseSchema = {
       },
       required: ["xAxis", "yAxis", "yourPosition", "yourGap"]
     },
-    resumeKeywords: {
-      type: "array",
-      minItems: 3,
-      maxItems: 5,
-      items: { type: "string", description: "CV/resume skill keyword (max 25 chars each, e.g. 'Product Management', 'FinTech', 'Data Analysis')" },
-      description: "Skills an LSE student would gain/demonstrate by building this startup (max 5)"
-    },
     day1Tasks: {
       type: "array",
       minItems: 5,
@@ -225,7 +218,7 @@ const responseSchema = {
   },
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
-    "riskAnalysis", "marketReports", "competitors", "marketGap", "resumeKeywords",
+    "riskAnalysis", "marketReports", "competitors", "marketGap",
     "day1Tasks", "promptChain", "distributionChannels",
     "viability", "scalability", "complexity"
   ]
@@ -577,20 +570,15 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-LSE STUDENT FOCUS - CAREER ROI & NETWORKING:
-22. resumeKeywords: Identify 3-5 specific, high-value skills an LSE student would gain by building this startup
-    - Focus on skills that stand out on a CV for top-tier employers (consulting, banking, tech)
-    - Examples: "Product Management", "FinTech", "Growth Hacking", "API Integration", "Market Research"
-    - Make them specific and impressive, not generic
-
-23. day1Tasks: Generate 5-7 specific, actionable tasks the founder should do starting TODAY to validate this idea
+LSE STUDENT FOCUS - DAY 1 VALIDATION:
+22. day1Tasks: Generate 5-7 specific, actionable tasks the founder should do starting TODAY to validate this idea
     - Focus on customer discovery: "Talk to 5 people who [specific problem]" 
     - Include specific questions to ask: "Ask gym-goers: What's your biggest frustration finding a workout partner?"
     - Mix of research, outreach, build, and validate categories
     - Make tasks concrete and completable within hours/days, not weeks
     - Examples: "Post in r/fitness asking about gym buddy pain points", "DM 10 fitness influencers about their audience's struggles"
     
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 5 day 1 tasks, 3 prompt chain steps, and 5 distribution channels.`;
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 5 day 1 tasks, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -714,7 +702,6 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
       },
       // LSE-specific data
       lseData: {
-        resumeKeywords: analysisData.resumeKeywords || [],
         day1Tasks: analysisData.day1Tasks || []
       },
       // Enhanced sources with grounding metadata

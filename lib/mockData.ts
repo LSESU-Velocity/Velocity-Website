@@ -154,7 +154,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             { name: "Twitter/X Tech", type: "Social", members: "Viral" }
         ],
         lseData: {
-            resumeKeywords: ["Product Management", "Full-Stack Development", "Growth Hacking", "UX Design", "Market Research"],
             day1Tasks: [
                 { task: "Post in r/startups", description: "Share your idea and ask for feedback on validation strategies", category: "outreach" as const },
                 { task: "Interview 5 potential users", description: "Ask what tools they currently use and their biggest frustrations", category: "research" as const },
@@ -315,7 +314,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { name: "r/LSE", type: "Local", members: "Students" }
             ],
             lseData: {
-                resumeKeywords: ["Mobile App Development", "Community Building", "User Acquisition", "Social Features", "HealthTech"],
                 day1Tasks: [
                     { task: "Talk to 5 gym-goers at LSE", description: "Ask about their biggest frustration finding workout partners", category: "research" as const },
                     { task: "Post in r/Fitness", description: "Ask the community how they currently find gym buddies", category: "outreach" as const },
