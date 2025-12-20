@@ -1259,11 +1259,7 @@ export const Launchpad: React.FC = () => {
                           ))}
                         </div>
 
-                        <div className="mt-auto pt-4 border-t border-white/5">
-                          <p className="font-mono text-[10px] text-gray-400 leading-relaxed">
-                            Demonstrating these practical skills in a live project is highly valued by top recruiters in consulting, finance, and tech.
-                          </p>
-                        </div>
+
                       </div>
                     </Widget>
 
