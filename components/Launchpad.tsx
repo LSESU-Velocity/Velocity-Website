@@ -918,62 +918,47 @@ export const Launchpad: React.FC = () => {
                   </Widget>
 
                   <Widget
-                    title="Monetization Strategy"
-                    icon={Coins}
+                    title="DAY 1 TASKS"
+                    icon={CheckCircle2}
                     delay={0.15}
                     className="!h-[280px]"
                     visible={showResults}
-                    action={
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronLeft className="w-3 h-3" />
-                        </button>
-                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                          {monetizationIndex + 1}/{data.monetization.length}
-                        </span>
-                        <button
-                          onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                        >
-                          <ChevronRight className="w-3 h-3" />
-                        </button>
-                      </div>
-                    }
                   >
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={monetizationIndex}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="space-y-3"
-                      >
-                        <div>
-                          <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
-                          <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
-                          <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
-                        </div>
-                        <div className="space-y-1 mb-3">
-                          {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
-                            <div key={i} className="flex items-center gap-2">
-                              <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
-                              <span className="text-xs text-gray-200">{strat}</span>
+                    <div className="flex flex-col gap-2 h-full overflow-y-auto">
+                      <p className="font-mono text-[9px] text-gray-400 uppercase tracking-widest mb-2">
+                        Start validating today
+                      </p>
+                      {(data.lseData?.day1Tasks || []).map((item: any, i: number) => (
+                        <motion.div
+                          key={i}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.5 + i * 0.08 }}
+                          className="flex items-start gap-2 p-2 bg-white/5 border border-white/5 rounded-sm hover:border-velocity-red/30 transition-colors group/task"
+                        >
+                          <div className="mt-0.5 w-4 h-4 rounded border border-white/20 flex-shrink-0 group-hover/task:border-velocity-red/50 transition-colors flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-sm bg-transparent group-hover/task:bg-velocity-red/30 transition-colors" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-sans text-xs text-white font-medium truncate">{item.task}</span>
+                              <span className={`font-mono text-[8px] px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${item.category === 'research' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                                  item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                                    'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                }`}>{item.category}</span>
                             </div>
-                          ))}
+                            <p className="font-mono text-[10px] text-gray-400 leading-relaxed">{item.description}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                      {(!data.lseData?.day1Tasks || data.lseData.day1Tasks.length === 0) && (
+                        <div className="flex flex-col items-center justify-center py-6 text-center">
+                          <CheckCircle2 className="w-8 h-8 text-gray-600 mb-2" />
+                          <p className="font-mono text-xs text-gray-500">No tasks generated</p>
                         </div>
-                        <div className="pt-2 border-t border-white/5">
-                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
-                          <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
-                            {data.monetization[monetizationIndex].examples}
-                          </p>
-                        </div>
-                      </motion.div>
-                    </AnimatePresence>
-
+                      )}
+                    </div>
                   </Widget>
                 </div>
 
@@ -1282,49 +1267,63 @@ export const Launchpad: React.FC = () => {
                       </div>
                     </Widget>
 
-                    {/* Bottom Right: Day 1 Tasks */}
+                    {/* Bottom Right: Monetization Strategy */}
                     <Widget
-                      title="DAY 1 TASKS"
-                      icon={CheckCircle2}
+                      title="Monetization Strategy"
+                      icon={Coins}
                       delay={0.4}
                       className="h-full min-h-[380px]"
                       visible={showResults}
-                    >
-                      <div className="flex flex-col gap-2 h-full overflow-y-auto">
-                        <p className="font-mono text-[9px] text-gray-400 uppercase tracking-widest mb-2">
-                          Start validating today
-                        </p>
-                        {(data.lseData?.day1Tasks || []).map((item: any, i: number) => (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 + i * 0.08 }}
-                            className="flex items-start gap-2 p-2 bg-white/5 border border-white/5 rounded-sm hover:border-velocity-red/30 transition-colors group/task"
+                      action={
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                           >
-                            <div className="mt-0.5 w-4 h-4 rounded border border-white/20 flex-shrink-0 group-hover/task:border-velocity-red/50 transition-colors flex items-center justify-center">
-                              <div className="w-2 h-2 rounded-sm bg-transparent group-hover/task:bg-velocity-red/30 transition-colors" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-sans text-xs text-white font-medium truncate">{item.task}</span>
-                                <span className={`font-mono text-[8px] px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${item.category === 'research' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                                  item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
-                                    item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                                      'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                  }`}>{item.category}</span>
-                              </div>
-                              <p className="font-mono text-[10px] text-gray-400 leading-relaxed">{item.description}</p>
-                            </div>
-                          </motion.div>
-                        ))}
-                        {(!data.lseData?.day1Tasks || data.lseData.day1Tasks.length === 0) && (
-                          <div className="flex flex-col items-center justify-center py-6 text-center">
-                            <CheckCircle2 className="w-8 h-8 text-gray-600 mb-2" />
-                            <p className="font-mono text-xs text-gray-500">No tasks generated</p>
+                            <ChevronLeft className="w-3 h-3" />
+                          </button>
+                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                            {monetizationIndex + 1}/{data.monetization.length}
+                          </span>
+                          <button
+                            onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
+                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          >
+                            <ChevronRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      }
+                    >
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={monetizationIndex}
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          transition={{ duration: 0.2 }}
+                          className="space-y-3"
+                        >
+                          <div>
+                            <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
+                            <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
+                            <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
                           </div>
-                        )}
-                      </div>
+                          <div className="space-y-1 mb-3">
+                            {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
+                              <div key={i} className="flex items-center gap-2">
+                                <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
+                                <span className="text-xs text-gray-200">{strat}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="pt-2 border-t border-white/5">
+                            <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
+                            <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
+                              {data.monetization[monetizationIndex].examples}
+                            </p>
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
                     </Widget>
                   </div>
                 </div>
