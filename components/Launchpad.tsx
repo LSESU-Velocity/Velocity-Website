@@ -906,14 +906,7 @@ export const Launchpad: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* AI Generated Label */}
-                      {mockupImage && (
-                        <div className="text-center pb-1">
-                          <span className="font-mono text-[8px] text-gray-500 uppercase tracking-widest">
-                            AI Generated
-                          </span>
-                        </div>
-                      )}
+
                     </div>
                   </Widget>
 
