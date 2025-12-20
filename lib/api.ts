@@ -81,7 +81,11 @@ export interface AnalysisData {
     };
     lseData?: {
         resumeKeywords: string[];
-        unfairAdvantage: string;
+        day1Tasks: Array<{
+            task: string;
+            description: string;
+            category: 'research' | 'outreach' | 'build' | 'validate';
+        }>;
         suggestedPrice: number;
     };
     sources: {

@@ -177,9 +177,20 @@ const responseSchema = {
       items: { type: "string", description: "CV/resume skill keyword (max 25 chars each, e.g. 'Product Management', 'FinTech', 'Data Analysis')" },
       description: "Skills an LSE student would gain/demonstrate by building this startup (max 5)"
     },
-    unfairAdvantage: {
-      type: "string",
-      description: "The specific unfair advantage an LSE student has in building this idea (max 100 chars)"
+    day1Tasks: {
+      type: "array",
+      minItems: 5,
+      maxItems: 5,
+      items: {
+        type: "object",
+        properties: {
+          task: { type: "string", description: "Short action-oriented task title (max 40 chars)" },
+          description: { type: "string", description: "Brief explanation of what to do and why (max 100 chars)" },
+          category: { type: "string", enum: ["research", "outreach", "build", "validate"], description: "Task category" }
+        },
+        required: ["task", "description", "category"]
+      },
+      description: "5-7 actionable tasks to validate the idea starting from Day 1 - focus on customer discovery, problem validation, and quick wins"
     },
 
     suggestedPrice: {
@@ -219,7 +230,7 @@ const responseSchema = {
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "riskAnalysis", "marketReports", "competitors", "marketGap", "resumeKeywords",
-    "unfairAdvantage", "suggestedPrice", "promptChain", "distributionChannels",
+    "day1Tasks", "suggestedPrice", "promptChain", "distributionChannels",
     "viability", "scalability", "complexity"
   ]
 };
@@ -576,15 +587,18 @@ LSE STUDENT FOCUS - CAREER ROI & NETWORKING:
     - Examples: "Product Management", "FinTech", "Growth Hacking", "API Integration", "Market Research"
     - Make them specific and impressive, not generic
 
-23. unfairAdvantage: What SPECIFIC advantage does an LSE student have in building THIS idea? (max 100 chars)
-    - Consider: LSE network, London location, specific departments/courses, student access, age demographic
-    - Be specific, not generic. "Access to 12,000 students as beta testers" > "Good network"
+23. day1Tasks: Generate 5-7 specific, actionable tasks the founder should do starting TODAY to validate this idea
+    - Focus on customer discovery: "Talk to 5 people who [specific problem]" 
+    - Include specific questions to ask: "Ask gym-goers: What's your biggest frustration finding a workout partner?"
+    - Mix of research, outreach, build, and validate categories
+    - Make tasks concrete and completable within hours/days, not weeks
+    - Examples: "Post in r/fitness asking about gym buddy pain points", "DM 10 fitness influencers about their audience's struggles"
     
 24. suggestedPrice: Suggest a realistic monthly price point in GBP for the primary product offering
     - Consider: student affordability, B2B vs B2C, freemium potential
     - Provide a number like 9.99, 19, 29, 49, 99, etc.
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 3-5 resume keywords, 5 day 1 tasks, 1 suggested price, 3 prompt chain steps, and 5 distribution channels.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -709,7 +723,7 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
       // LSE-specific data
       lseData: {
         resumeKeywords: analysisData.resumeKeywords || [],
-        unfairAdvantage: analysisData.unfairAdvantage || '',
+        day1Tasks: analysisData.day1Tasks || [],
         suggestedPrice: analysisData.suggestedPrice || 19
       },
       // Enhanced sources with grounding metadata

@@ -155,7 +155,13 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
         ],
         lseData: {
             resumeKeywords: ["Product Management", "Full-Stack Development", "Growth Hacking", "UX Design", "Market Research"],
-            unfairAdvantage: "Access to 12,000+ ambitious LSE students as early adopters and beta testers in the heart of London.",
+            day1Tasks: [
+                { task: "Post in r/startups", description: "Share your idea and ask for feedback on validation strategies", category: "outreach" as const },
+                { task: "Interview 5 potential users", description: "Ask what tools they currently use and their biggest frustrations", category: "research" as const },
+                { task: "Create a landing page", description: "Build a simple page to collect email signups and gauge interest", category: "build" as const },
+                { task: "Analyze 3 competitor products", description: "Sign up for free trials and document their pricing, features, and gaps", category: "research" as const },
+                { task: "DM 10 indie hackers", description: "Ask how they validated their ideas before building", category: "outreach" as const }
+            ],
             suggestedPrice: 29
         }
     };
@@ -311,7 +317,13 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             ],
             lseData: {
                 resumeKeywords: ["Mobile App Development", "Community Building", "User Acquisition", "Social Features", "HealthTech"],
-                unfairAdvantage: "LSE Sports facilities and student gym memberships give you direct access to 10,000+ gym-goers as test users.",
+                day1Tasks: [
+                    { task: "Talk to 5 gym-goers at LSE", description: "Ask about their biggest frustration finding workout partners", category: "research" as const },
+                    { task: "Post in r/Fitness", description: "Ask the community how they currently find gym buddies", category: "outreach" as const },
+                    { task: "Survey LSE sports clubs", description: "Email club presidents asking about member social needs", category: "research" as const },
+                    { task: "Create a quick prototype", description: "Build a simple matching form to test the core concept", category: "build" as const },
+                    { task: "DM 10 fitness influencers", description: "Ask what their followers struggle with socially in gyms", category: "outreach" as const }
+                ],
                 suggestedPrice: 4.99
             }
         };

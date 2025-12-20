@@ -1346,32 +1346,48 @@ export const Launchpad: React.FC = () => {
                       </div>
                     </Widget>
 
-                    {/* Bottom Right: The Unfair Advantage */}
+                    {/* Bottom Right: Day 1 Tasks */}
                     <Widget
-                      title="YOUR UNFAIR ADVANTAGE"
-                      icon={Sparkles}
+                      title="DAY 1 TASKS"
+                      icon={CheckCircle2}
                       delay={0.4}
                       className="h-full min-h-[380px]"
                       visible={showResults}
                     >
-                      <div className="flex flex-col gap-4 h-full">
-                        {/* Strategy Card - Main Advantage */}
-                        <div className="relative overflow-hidden">
-                          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-pink-500/10" />
-                          <div className="relative p-4 border border-purple-500/30 rounded-sm">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                                <Zap className="w-3 h-3 text-white" />
-                              </div>
-                              <span className="font-mono text-[10px] text-purple-300 uppercase tracking-widest">As an LSE Student</span>
+                      <div className="flex flex-col gap-2 h-full overflow-y-auto">
+                        <p className="font-mono text-[9px] text-gray-400 uppercase tracking-widest mb-2">
+                          Start validating today
+                        </p>
+                        {(data.lseData?.day1Tasks || []).map((item: any, i: number) => (
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.5 + i * 0.08 }}
+                            className="flex items-start gap-2 p-2 bg-white/5 border border-white/5 rounded-sm hover:border-velocity-red/30 transition-colors group/task"
+                          >
+                            <div className="mt-0.5 w-4 h-4 rounded border border-white/20 flex-shrink-0 group-hover/task:border-velocity-red/50 transition-colors flex items-center justify-center">
+                              <div className="w-2 h-2 rounded-sm bg-transparent group-hover/task:bg-velocity-red/30 transition-colors" />
                             </div>
-                            <p className="font-sans text-sm text-white leading-relaxed">
-                              {data.lseData?.unfairAdvantage || "You have unique access to London's startup ecosystem, 12,000+ ambitious peers, and world-class faculty."}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-sans text-xs text-white font-medium truncate">{item.task}</span>
+                                <span className={`font-mono text-[8px] px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${item.category === 'research' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                    item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
+                                      item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
+                                        'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  }`}>{item.category}</span>
+                              </div>
+                              <p className="font-mono text-[10px] text-gray-400 leading-relaxed">{item.description}</p>
+                            </div>
+                          </motion.div>
+                        ))}
+                        {(!data.lseData?.day1Tasks || data.lseData.day1Tasks.length === 0) && (
+                          <div className="flex flex-col items-center justify-center py-6 text-center">
+                            <CheckCircle2 className="w-8 h-8 text-gray-600 mb-2" />
+                            <p className="font-mono text-xs text-gray-500">No tasks generated</p>
                           </div>
-                        </div>
-
-
+                        )}
                       </div>
                     </Widget>
                   </div>
