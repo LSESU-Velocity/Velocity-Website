@@ -745,7 +745,7 @@ export const Launchpad: React.FC = () => {
                   type="text"
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
-                  placeholder="A Tinder-style app for finding gym partners..."
+                  placeholder="An AI-powered meal planning app that learns your tastes..."
                   className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-mono text-sm"
                   disabled={isGenerating}
                   maxLength={500}
