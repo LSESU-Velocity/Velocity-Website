@@ -28,4 +28,6 @@ dist-ssr
 *.env
 .env.local
 .env*.local
+.env.local.personal
+.env.local.society
 .vercel
