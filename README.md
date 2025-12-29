@@ -90,7 +90,6 @@ This project is open-source under the [MIT License](LICENSE). We believe in open
 
 <div align="center">
 
-Made with ❤️ by <a href="https://github.com/LSESU-Velocity">LSESU Velocity</a>
 
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/lsesu.velocity)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/lsesu-velocity/)
