@@ -8,12 +8,12 @@
 
 ## Features
 
-- 🚀 **AI-Powered Analysis** - Powered by Google Gemini for intelligent startup validation
-- 📊 **Market Funnel Analysis** - TAM, SAM, SOM breakdown for your target market
-- 🎯 **Competitor Research** - Identify competitors and your unique market position
-- 💰 **Monetization Strategy** - AI-generated revenue models and pricing suggestions
-- 📱 **App Mockup Generation** - Visual concept of your product
-- ✅ **Day 1 Tasks** - Actionable first steps to get started
+- **AI-Powered Analysis** - Powered by Google Gemini for intelligent startup validation
+- **Market Funnel Analysis** - TAM, SAM, SOM breakdown for your target market
+- **Competitor Research** - Identify competitors and your unique market position
+- **Monetisation Strategy** - AI-generated revenue models and pricing suggestions
+- **App Mockup Generation** - Visual concept of your product
+- **Day 1 Tasks** - Actionable first steps to get started
 
 ## Tech Stack
 
