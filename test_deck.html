@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Pitch Deck</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <style>
+    :root { --r-background-color: #0a0a0a; }
+    /* Ensure full height for iframe usage */
+    html, body, .reveal { height: 100%; min-height: 100vh; margin: 0; padding: 0; overflow: hidden; }
+    .reveal { font-family: system-ui, sans-serif; }
+    .reveal .controls, .reveal .progress { color: #10B981; }
+    .accent { color: #10B981; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+    <section>
+      <h1 class="r-fit-text">HOOK: THE FUTURE OF RUNNING</h1>
+    </section>
+    <section>
+      <h2>The Problem</h2>
+      <p class="r-fit-text accent">60% OF RUNNERS QUIT</p>
+      <p>Because they have no one to run with.</p>
+    </section>
+    <section>
+      <h1 class="accent">PaceMate</h1>
+      <p>Tinder for Runners</p>
+      <p class="fragment">Find your perfect running partner instantly.</p>
+    </section>
+    <section data-background-color="#10B981">
+      <h1 class="r-fit-text">Join the Waitlist</h1>
+      <p>pacemate.app</p>
+    </section>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  // Standard initialization for full-frame iframe
+  try {
+    Reveal.initialize({
+      hash: false,
+      keyboardCondition: 'focused',
+      controls: true,
+      progress: true,
+      center: true,
+      transition: 'slide'
+    }).then(() => {
+      console.log('Reveal initialized successfully');
+    }).catch(err => {
+      console.error('Reveal initialization failed:', err);
+    });
+  } catch (e) {
+    console.error('Reveal script error:', e);
+  }
+</script>
+</body>
+</html>

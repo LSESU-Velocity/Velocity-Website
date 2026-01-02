@@ -538,6 +538,8 @@ EXACT STRUCTURE - COPY THIS EXACTLY AND FILL IN CONTENT:
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
   <style>
     :root { --r-background-color: #0a0a0a; }
+    /* Ensure full height for iframe usage */
+    html, body, .reveal { height: 100%; min-height: 100vh; margin: 0; padding: 0; overflow: hidden; }
     .reveal { font-family: system-ui, sans-serif; }
     .reveal .controls, .reveal .progress { color: {CHOSEN_PRIMARY_COLOR}; }
     .accent { color: {CHOSEN_PRIMARY_COLOR}; }
@@ -579,16 +581,23 @@ EXACT STRUCTURE - COPY THIS EXACTLY AND FILL IN CONTENT:
 </div>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
 <script>
-  // IMPORTANT: embedded:true is required for iframe usage
-  Reveal.initialize({
-    hash: false,
-    embedded: true,
-    keyboardCondition: 'focused',
-    controls: true,
-    progress: true,
-    center: true,
-    transition: 'slide'
-  });
+  // Standard initialization for full-frame iframe
+  try {
+    Reveal.initialize({
+      hash: false,
+      keyboardCondition: 'focused',
+      controls: true,
+      progress: true,
+      center: true,
+      transition: 'slide'
+    }).then(() => {
+      console.log('Reveal initialized successfully');
+    }).catch(err => {
+      console.error('Reveal initialization failed:', err);
+    });
+  } catch (e) {
+    console.error('Reveal script error:', e);
+  }
 </script>
 </body>
 </html>
