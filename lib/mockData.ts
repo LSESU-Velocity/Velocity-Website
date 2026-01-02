@@ -202,23 +202,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             { segment: "Product Managers", age: "25-45", income: "High", interest: "Efficiency & Scaling" },
             { segment: "Hackathon Participants", age: "18-25", income: "Low", interest: "Speed & Prototyping" }
         ],
-        riskAnalysis: [
-            {
-                risk: "Building features users don't need.",
-                mitigation: "Presell 10 licenses before coding.",
-                productFeature: "Waitlist landing page with feature voting."
-            },
-            {
-                risk: "High customer acquisition cost (CAC).",
-                mitigation: "Focus on organic content marketing and SEO.",
-                productFeature: "Built-in SEO optimization tools and blog generator."
-            },
-            {
-                risk: "Technical debt accumulating early.",
-                mitigation: "Enforce strict code reviews and modular architecture.",
-                productFeature: "Automated linting and CI/CD pipeline integration."
-            }
-        ],
+
         competitors: [
             { name: "Vercel", usp: "One-click deployments", weakness: "Expensive at scale, vendor lock-in", x: 30, y: 60, founded: "2015", hq: "San Francisco", funding: "$313M raised", employees: "350+", website: "vercel.com" },
             { name: "Bubble", usp: "Visual no-code builder", weakness: "Limited customization, slow performance", x: 15, y: 75, founded: "2012", hq: "New York", funding: "$115M raised", employees: "200+", website: "bubble.io" },
@@ -289,15 +273,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             { name: "r/SaaS", type: "Reddit", members: "45k+" },
             { name: "Twitter/X Tech", type: "Social", members: "Viral" }
         ],
-        lseData: {
-            day1Tasks: [
-                { task: "Post in r/startups", description: "Share your idea and ask for feedback on validation strategies", category: "outreach" as const },
-                { task: "Interview 5 potential users", description: "Ask what tools they currently use and their biggest frustrations", category: "research" as const },
-                { task: "Create a landing page", description: "Build a simple page to collect email signups and gauge interest", category: "build" as const },
-                { task: "Analyze 3 competitor products", description: "Sign up for free trials and document their pricing, features, and gaps", category: "research" as const },
-                { task: "DM 10 indie hackers", description: "Ask how they validated their ideas before building", category: "outreach" as const }
-            ]
-        }
+
     };
 
     // Customize based on idea keywords
@@ -362,23 +338,7 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { segment: "Young Professionals", age: "23-30", income: "Medium-High", interest: "Networking & Health" },
                 { segment: "New Gym Goers", age: "Any", income: "Variable", interest: "Motivation & Support" }
             ],
-            riskAnalysis: [
-                {
-                    risk: "Users match but don't meet offline.",
-                    mitigation: "Host weekly group workouts to bridge online-to-offline gap.",
-                    productFeature: "Auto group-matching and in-app event scheduling."
-                },
-                {
-                    risk: "User safety concerns meeting strangers.",
-                    mitigation: "Implement ID verification and public meeting spot suggestions.",
-                    productFeature: "Identity verification badge and SOS alert system."
-                },
-                {
-                    risk: "High churn rate after finding a partner.",
-                    mitigation: "Add social feed features to keep users engaged post-match.",
-                    productFeature: "Community feed and workout streak gamification."
-                }
-            ],
+
             competitors: [
                 { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption", x: 75, y: 70, founded: "2018", hq: "London", funding: "$12M", employees: "50+", website: "fitbuddy.app" },
                 { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook", x: 30, y: 25, founded: "2020", hq: "Berlin", funding: "$3M", employees: "25+", website: "gymmate.io" },
@@ -449,15 +409,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { name: "TikTok Fitness", type: "Social", members: "Viral" },
                 { name: "r/LSE", type: "Local", members: "Students" }
             ],
-            lseData: {
-                day1Tasks: [
-                    { task: "Talk to 5 gym-goers at LSE", description: "Ask about their biggest frustration finding workout partners", category: "research" as const },
-                    { task: "Post in r/Fitness", description: "Ask the community how they currently find gym buddies", category: "outreach" as const },
-                    { task: "Survey LSE sports clubs", description: "Email club presidents asking about member social needs", category: "research" as const },
-                    { task: "Create a quick prototype", description: "Build a simple matching form to test the core concept", category: "build" as const },
-                    { task: "DM 10 fitness influencers", description: "Ask what their followers struggle with socially in gyms", category: "outreach" as const }
-                ]
-            }
         };
     }
 
@@ -496,7 +447,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                     competitors: 3,
                     competitorList: data.competitors,
                     marketReports: data.marketReports,
-                    riskAnalysis: data.riskAnalysis,
                     marketGap: data.marketGap,
                     scores: {
                         viability: 75,
@@ -504,7 +454,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                         complexity: 45
                     }
                 },
-                lseData: data.lseData,
                 sources: data.sources,
                 customerSegments: data.customerSegments,
                 promptChain: data.promptChain,

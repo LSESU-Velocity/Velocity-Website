@@ -62,11 +62,6 @@ export interface AnalysisData {
             keyStat: string;
             url: string;
         }>;
-        riskAnalysis: Array<{
-            risk: string;
-            mitigation?: string;
-            productFeature: string;
-        }>;
         marketGap: {
             xAxis: { label: string; low: string; high: string };
             yAxis: { label: string; low: string; high: string };
@@ -78,13 +73,6 @@ export interface AnalysisData {
             scalability: number;
             complexity: number;
         };
-    };
-    lseData?: {
-        day1Tasks: Array<{
-            task: string;
-            description: string;
-            category: 'research' | 'outreach' | 'build' | 'validate';
-        }>;
     };
     sources: {
         groundingChunks?: Array<{ uri: string; title: string }>;
@@ -108,8 +96,6 @@ export interface AnalysisData {
         type: string;
         members: string;
     }>;
-    mockupImage?: string;
-    mockupMimeType?: string;
     artifacts?: {
         waitlistHtml?: string;
         pitchDeckHtml?: string;
@@ -121,8 +107,6 @@ export interface AnalysisRecord {
     idea: string;
     data: AnalysisData;
     createdAt: string;
-    mockupImage?: string;      // base64 encoded image data (persisted)
-    mockupMimeType?: string;   // e.g., "image/png"
 }
 
 // API Functions

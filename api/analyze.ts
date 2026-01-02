@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import sharp from 'sharp';
 
 // Initialize Firebase locally to avoid import issues
 function initFirebase() {
@@ -93,18 +92,7 @@ const responseSchema = {
         required: ["segment", "age", "income", "interest"]
       }
     },
-    riskAnalysis: {
-      type: "array",
-      minItems: 3,
-      items: {
-        type: "object",
-        properties: {
-          risk: { type: "string", description: "Risk description (max 100 chars, complete sentence)" },
-          productFeature: { type: "string", description: "Feature that addresses this (max 80 chars)" }
-        },
-        required: ["risk", "productFeature"]
-      }
-    },
+
     marketReports: {
       type: "array",
       minItems: 3,
@@ -170,22 +158,6 @@ const responseSchema = {
       },
       required: ["xAxis", "yAxis", "yourPosition", "yourGap"]
     },
-    day1Tasks: {
-      type: "array",
-      minItems: 5,
-      maxItems: 5,
-      items: {
-        type: "object",
-        properties: {
-          task: { type: "string", description: "Short action-oriented task title (max 40 chars)" },
-          description: { type: "string", description: "Brief explanation of what to do and why (max 100 chars)" },
-          category: { type: "string", enum: ["research", "outreach", "build", "validate"], description: "Task category" }
-        },
-        required: ["task", "description", "category"]
-      },
-      description: "5-7 actionable tasks to validate the idea starting from Day 1 - focus on customer discovery, problem validation, and quick wins"
-    },
-
     promptChain: {
       type: "array",
       minItems: 3,
@@ -220,8 +192,8 @@ const responseSchema = {
   },
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
-    "riskAnalysis", "marketReports", "competitors", "marketGap",
-    "day1Tasks", "promptChain", "distributionChannels",
+    "marketReports", "competitors", "marketGap",
+    "promptChain", "distributionChannels",
     "viability", "scalability", "complexity",
     "waitlistHtml", "pitchDeckHtml"
   ]
@@ -300,92 +272,6 @@ async function resolveRedirectUrls(sources: { uri: string; title: string }[]): P
   return Promise.all(sources.map(resolveWithTimeout));
 }
 
-// Generate mockup image using Gemini 2.5 Flash Image
-async function generateMockupImage(
-  apiKey: string,
-  idea: string,
-  startupName: string,
-  appDescription: string
-): Promise<{ image: string; mimeType: string } | null> {
-  try {
-    const prompt = `Generate a mobile app UI screenshot.
-
-APP CONTEXT:
-- App Name: "${startupName || 'Startup App'}"
-- App Concept: ${idea}
-- Main Screen Purpose: ${appDescription || 'Primary app interface'}
-
-DESIGN AESTHETIC:
-Create a polished, modern, premium interface. Think: "What would a Y Combinator company's production app look like?"
-
-CONTENT - Make it feel real and premium:
-• Actual UI content relevant to "${idea}" - not placeholder text
-• A compelling hero section or main content area
-• Interactive elements (buttons, tabs, cards) that look tappable
-• Professional imagery or illustrations if appropriate
-• Bottom navigation or floating action button
-
-CRITICAL IMAGE DIMENSIONS:
-1. The output image MUST be a TALL VERTICAL rectangle with aspect ratio exactly 9:20 (width:height)
-2. The screenshot must touch the top and bottom edges of the canvas
-3. NO empty space, margins, padding, or background color around the UI
-4. NO phone frame, bezel, notch, or device body on the outer edge
-5. Think of it as a screenshot taken from inside a phone - just the screen content, edge to edge`;
-
-    const geminiResponse = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-goog-api-key': apiKey,
-        },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseModalities: ['IMAGE'],
-          }
-        })
-      }
-    );
-
-    if (!geminiResponse.ok) {
-      console.error('Mockup generation failed:', await geminiResponse.text());
-      return null;
-    }
-
-    const geminiResult = await geminiResponse.json();
-    const candidate = geminiResult.candidates?.[0];
-    const imagePart = candidate?.content?.parts?.find((part: { inlineData?: { data: string; mimeType: string } }) => part.inlineData);
-
-    if (!imagePart?.inlineData) {
-      console.error('No image data in mockup response');
-      return null;
-    }
-
-    // Compress the image using sharp to fit within Firestore's ~1MB field limit
-    const originalBuffer = Buffer.from(imagePart.inlineData.data, 'base64');
-    const originalSizeKB = Math.round(originalBuffer.length / 1024);
-    console.log(`Original mockup size: ${originalSizeKB}KB`);
-
-    // Compress to JPEG at 70% quality, resize if needed
-    const compressedBuffer = await sharp(originalBuffer)
-      .resize(800, 1600, { fit: 'inside', withoutEnlargement: true }) // Max dimensions
-      .jpeg({ quality: 70 })
-      .toBuffer();
-
-    const compressedSizeKB = Math.round(compressedBuffer.length / 1024);
-    console.log(`Compressed mockup size: ${compressedSizeKB}KB (${Math.round((1 - compressedBuffer.length / originalBuffer.length) * 100)}% reduction)`);
-
-    return {
-      image: compressedBuffer.toString('base64'),
-      mimeType: 'image/jpeg'
-    };
-  } catch (error) {
-    console.error('Error generating mockup:', error);
-    return null;
-  }
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with origin validation
@@ -573,40 +459,117 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-LSE STUDENT FOCUS - DAY 1 VALIDATION:
-22. day1Tasks: Generate 5-7 specific, actionable tasks the founder should do starting TODAY to validate this idea
-    - Focus on customer discovery: "Talk to 5 people who [specific problem]" 
-    - Include specific questions to ask: "Ask gym-goers: What's your biggest frustration finding a workout partner?"
-    - Mix of research, outreach, build, and validate categories
-    - Make tasks concrete and completable within hours/days, not weeks
-    - Examples: "Post in r/fitness asking about gym buddy pain points", "DM 10 fitness influencers about their audience's struggles"
-
-IMPORTANT - GENERATE TWO ADDITIONAL HTML OUTPUTS:
+IMPORTANT - GENERATE TWO HTML ARTIFACT OUTPUTS:
 
 WAITLIST LANDING PAGE (waitlistHtml):
-Generate a complete, production-ready index.html landing page for the startup.
-- Use Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
-- Include: Hero with startup name/tagline, 3 key benefit bullet points, email signup form, and footer
-- Form action: "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse"
-- Aesthetics: Dark theme, modern, mobile responsive, subtle hover animations
-- Output ONLY the complete HTML, no markdown code blocks
+Generate a STUNNING, production-ready landing page that would impress Y Combinator.
+MUST include these exact elements:
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{Startup Name}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { DEFAULT: '#FF1F1F', dark: '#CC0000' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.03); }
+    .glow { box-shadow: 0 0 60px rgba(255,31,31,0.15); }
+    .gradient-text { background: linear-gradient(135deg, #fff 0%, #FF1F1F 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen antialiased">
+
+DESIGN REQUIREMENTS:
+- Hero: Massive bold headline (text-5xl md:text-7xl font-black), gradient text effect, startup tagline below
+- Floating orb/glow effect in background using CSS radial gradients
+- 3 benefit cards with glassmorphism effect (backdrop-blur, semi-transparent bg, subtle border)
+- Each benefit card should have an icon (use emoji or SVG), bold title, and description
+- Email signup form with: sleek dark input, glowing red CTA button with hover animation
+- Form action should be "#" (placeholder)
+- Social proof line: "Join 2,000+ founders waiting"
+- Footer with copyright
+- Subtle grid pattern background overlay
+- Smooth hover transitions on all interactive elements
+- Mobile responsive (use md: breakpoints)
+
+Output ONLY valid HTML, no markdown code blocks.
 
 PITCH DECK (pitchDeckHtml):
-Generate a complete Reveal.js HTML pitch deck for the startup.
-- Use Reveal.js via CDN (jsDelivr v5)
-- Include 6 Slides: 
-  1. Hook (Impactful problem statement)
-  2. Problem (Pain point & stat)
-  3. Solution (Startup name & what it does)
-  4. Market (TAM/SAM/SOM visual breakdown)
-  5. Business Model (Revenue strategy)
-  6. Ask (Funding/Users)
-- Aesthetics: Dark theme with #FF1F1F (velocity red) accent color
-- Typography: Large, bold, minimal text (max 20 words per slide)
-- Initialize Reveal at the end of the script
-- Output ONLY the complete HTML, no markdown code blocks
+Generate a complete, properly formatted Reveal.js presentation.
+MUST follow this EXACT structure:
 
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 5 day 1 tasks, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{Startup} Pitch Deck</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
+  <style>
+    :root {
+      --r-main-color: #fff;
+      --r-heading-color: #fff;
+      --r-background-color: #0a0a0a;
+      --r-link-color: #FF1F1F;
+    }
+    .reveal { font-family: 'Inter', system-ui, sans-serif; }
+    .reveal .controls { color: #FF1F1F; }
+    .reveal .progress { color: #FF1F1F; height: 4px; }
+    .accent { color: #FF1F1F; }
+    .stat { font-size: 4em; font-weight: 900; }
+  </style>
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+    <section><!-- Slide 1: Hook --></section>
+    <section><!-- Slide 2: Problem --></section>
+    <section><!-- Slide 3: Solution --></section>
+    <section><!-- Slide 4: Market (TAM/SAM/SOM) --></section>
+    <section><!-- Slide 5: Business Model --></section>
+    <section data-background-color="#FF1F1F"><!-- Slide 6: Ask/CTA --></section>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({
+    hash: true,
+    controls: true,
+    progress: true,
+    center: true,
+    transition: 'slide'
+  });
+</script>
+</body>
+</html>
+
+SLIDE CONTENT RULES:
+- Slide 1: One powerful hook statement in huge text (r-fit-text class)
+- Slide 2: Problem with a shocking statistic
+- Slide 3: {Startup Name} with tagline and brief description
+- Slide 4: TAM/SAM/SOM in a 3-column grid with actual values from the market analysis
+- Slide 5: Revenue model with pricing
+- Slide 6: Red background, white text, clear call-to-action
+- Max 20 words per slide, use fragment class for progressive reveals
+- Use r-fit-text class for headlines that should fill the screen
+
+Output ONLY valid HTML, no markdown code blocks.
+
+Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 market reports, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -720,17 +683,12 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
         marketReports: analysisData.marketReports || [],
-        riskAnalysis: analysisData.riskAnalysis,
         marketGap: analysisData.marketGap,
         scores: {
           viability: analysisData.viability || 0,
           scalability: analysisData.scalability || 0,
           complexity: analysisData.complexity || 0
         }
-      },
-      // LSE-specific data
-      lseData: {
-        day1Tasks: analysisData.day1Tasks || []
       },
       // Enhanced sources with grounding metadata
       sources: {
@@ -750,42 +708,18 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
       }
     };
 
-    // Generate mockup image in parallel with saving (optional - don't block on failure)
-    let mockupResult: { image: string; mimeType: string } | null = null;
-    try {
-      mockupResult = await generateMockupImage(
-        apiKey,
-        idea,
-        analysisData.name,
-        analysisData.interface
-      );
-    } catch (err) {
-      console.error('Mockup generation failed (non-blocking):', err);
-    }
-
-    // Save to Firestore with mockup data
+    // Save to Firestore
     const analysesRef = db.collection('analyses');
-    const newAnalysis: Record<string, unknown> = {
+    const newAnalysis = {
       keyId: keyDoc.id,
       idea: idea.trim(),
       data: formattedData,
       createdAt: new Date(),
     };
 
-    // Add mockup fields if successfully generated
-    if (mockupResult) {
-      newAnalysis.mockupImage = mockupResult.image;
-      newAnalysis.mockupMimeType = mockupResult.mimeType;
-    }
-
     await analysesRef.add(newAnalysis);
 
-    // Return formatted data with mockup if available
-    const responseData = mockupResult
-      ? { ...formattedData, mockupImage: mockupResult.image, mockupMimeType: mockupResult.mimeType }
-      : formattedData;
-
-    return res.status(200).json(responseData);
+    return res.status(200).json(formattedData);
   } catch (error) {
     console.error('Analysis error:', error instanceof Error ? error.message : 'Unknown error');
     return res.status(500).json({ error: 'Failed to generate analysis' });
