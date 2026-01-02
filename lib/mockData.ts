@@ -132,9 +132,17 @@ const MOCK_PITCH_DECK_HTML = `<!doctype html>
         </section>
     </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
 <script>
-    Reveal.initialize({ hash: true, controls: true, progress: true, center: true, transition: 'slide' });
+    Reveal.initialize({ 
+        hash: false, 
+        embedded: true,
+        keyboardCondition: 'focused',
+        controls: true, 
+        progress: true, 
+        center: true, 
+        transition: 'slide' 
+    });
 </script>
 </body>
 </html>`;
