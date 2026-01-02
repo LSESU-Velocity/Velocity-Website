@@ -566,7 +566,7 @@ Generate a complete, properly formatted Reveal.js presentation with the SAME uni
     <section><!-- Slide 1: Hook --></section>
     <section><!-- Slide 2: Problem --></section>
     <section><!-- Slide 3: Solution --></section>
-    <section><!-- Slide 4: Market (TAM/SAM/SOM) --></section>
+    <section><!-- Slide 4: Customer Segments & Pain Points --></section>
     <section><!-- Slide 5: Business Model --></section>
     <section data-background-color="{CHOSEN_PRIMARY_COLOR}"><!-- Slide 6: Ask/CTA --></section>
   </div>
@@ -588,7 +588,7 @@ SLIDE CONTENT RULES:
 - Slide 1: One powerful hook statement specific to this startup (not generic)
 - Slide 2: Problem with a shocking statistic relevant to THIS industry
 - Slide 3: {Startup Name} with tagline and brief description
-- Slide 4: TAM/SAM/SOM in a 3-column grid with ACTUAL values from the market analysis above
+- Slide 4: Customer segments (2-3) with their key pain points - use the customerSegments data
 - Slide 5: Revenue model with specific pricing from the monetization analysis
 - Slide 6: Brand-colored background, white text, clear industry-appropriate call-to-action
 - Max 20 words per slide, use fragment class for progressive reveals
