@@ -331,8 +331,7 @@ export const Launchpad: React.FC = () => {
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [showResults, setShowResults] = useState(false);
-  const [mockupImage, setMockupImage] = useState<string | null>(null);
-  const [mockupLoading, setMockupLoading] = useState(false);
+
 
 
   // Pitch Deck State
@@ -507,8 +506,6 @@ export const Launchpad: React.FC = () => {
     setRiskIndex(0);
 
     setDomainIndex(0);
-    setMockupImage(null);
-    setMockupLoading(false);
     setPromptChainIndex(0);
     setLoadingStep(0);
 
@@ -516,11 +513,6 @@ export const Launchpad: React.FC = () => {
     try {
       const result = await generateAnalysis(authKey!, idea);
       setData(result);
-
-      // Check if mockup was returned with analysis (new behavior)
-      if ((result as any).mockupImage && (result as any).mockupMimeType) {
-        setMockupImage(`data:${(result as any).mockupMimeType};base64,${(result as any).mockupImage}`);
-      }
 
       // Refresh history after new analysis
       if (authKey) {
@@ -540,14 +532,6 @@ export const Launchpad: React.FC = () => {
     setIdea(record.idea);
     setShowHistory(false);
     setShowResults(true);
-
-
-    // Use persisted mockup if available
-    if (record.mockupImage && record.mockupMimeType) {
-      setMockupImage(`data:${record.mockupMimeType};base64,${record.mockupImage}`);
-    } else {
-      setMockupImage(null); // Will trigger regeneration as fallback
-    }
   };
 
   // Delete an analysis from history
