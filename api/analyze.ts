@@ -459,11 +459,40 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-IMPORTANT - GENERATE TWO HTML ARTIFACT OUTPUTS:
+IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS:
+
+CRITICAL - MAKE EACH DESIGN UNIQUE:
+Before generating HTML, choose a UNIQUE visual identity for this specific startup based on its industry, target audience, and brand personality:
+
+1. COLOR PALETTE (pick ONE that fits the startup's industry):
+   - Tech/SaaS: Electric blue (#3B82F6) + cyan accents
+   - Health/Fitness: Vibrant green (#10B981) + lime accents
+   - Finance/Business: Deep purple (#8B5CF6) + gold accents
+   - Food/Delivery: Warm orange (#F97316) + yellow accents
+   - Social/Dating: Hot pink (#EC4899) + purple accents
+   - Education: Teal (#14B8A6) + sky blue accents
+   - Travel: Ocean blue (#0EA5E9) + sunset orange accents
+   - AI/Automation: Neon green (#22C55E) + black
+   - Gaming/Entertainment: Electric purple (#A855F7) + neon pink
+   - Sustainability/Eco: Forest green (#16A34A) + earth tones
+   - Default/Other: Choose a distinctive color that matches the startup's personality
+
+2. LAYOUT STYLE (pick ONE, vary based on startup type):
+   - Centered Hero: Large centered headline, stacked content
+   - Split Layout: Image/graphic on one side, content on other
+   - Card Grid: Features displayed in a grid of glassmorphism cards
+   - Minimal Single Column: Clean, lots of whitespace, single flow
+   - Bold Asymmetric: Off-center elements, creative positioning
+
+3. TYPOGRAPHY VIBE (pick ONE that matches brand):
+   - Bold/Impactful: Extra-large headlines, minimal body text
+   - Elegant/Refined: Lighter weights, generous letter-spacing
+   - Playful/Friendly: Rounded feels, varied sizes
+   - Technical/Precise: Monospace accents, structured hierarchy
 
 WAITLIST LANDING PAGE (waitlistHtml):
-Generate a STUNNING, production-ready landing page that would impress Y Combinator.
-MUST include these exact elements:
+Generate a STUNNING, production-ready landing page with the UNIQUE visual identity chosen above.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -476,7 +505,7 @@ MUST include these exact elements:
       theme: {
         extend: {
           colors: {
-            brand: { DEFAULT: '#FF1F1F', dark: '#CC0000' }
+            brand: { DEFAULT: '{CHOSEN_PRIMARY_COLOR}', dark: '{CHOSEN_DARK_COLOR}' }
           }
         }
       }
@@ -486,30 +515,27 @@ MUST include these exact elements:
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.03); }
-    .glow { box-shadow: 0 0 60px rgba(255,31,31,0.15); }
-    .gradient-text { background: linear-gradient(135deg, #fff 0%, #FF1F1F 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .glow { box-shadow: 0 0 60px {CHOSEN_PRIMARY_COLOR}26; }
+    .gradient-text { background: linear-gradient(135deg, #fff 0%, {CHOSEN_PRIMARY_COLOR} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   </style>
 </head>
-<body class="bg-black text-white min-h-screen antialiased">
+<body class="bg-[#0a0a0a] text-white min-h-screen antialiased">
 
 DESIGN REQUIREMENTS:
-- Hero: Massive bold headline (text-5xl md:text-7xl font-black), gradient text effect, startup tagline below
-- Floating orb/glow effect in background using CSS radial gradients
-- 3 benefit cards with glassmorphism effect (backdrop-blur, semi-transparent bg, subtle border)
-- Each benefit card should have an icon (use emoji or SVG), bold title, and description
-- Email signup form with: sleek dark input, glowing red CTA button with hover animation
-- Form action should be "#" (placeholder)
-- Social proof line: "Join 2,000+ founders waiting"
-- Footer with copyright
-- Subtle grid pattern background overlay
-- Smooth hover transitions on all interactive elements
-- Mobile responsive (use md: breakpoints)
+- Use the CHOSEN color palette - replace all color references with the selected brand color
+- Apply the CHOSEN layout style
+- Hero: Massive bold headline with gradient-text effect using brand color
+- Floating orb/glow effect in background using brand color with low opacity
+- 3 benefit cards specific to THIS startup's value propositions (not generic)
+- Email signup form with brand-colored glowing CTA button
+- Social proof line customized to industry (e.g., "Join 2,000+ fitness enthusiasts" or "Trusted by 500+ startups")
+- Footer with startup-specific copyright
+- Mobile responsive
 
 Output ONLY valid HTML, no markdown code blocks.
 
 PITCH DECK (pitchDeckHtml):
-Generate a complete, properly formatted Reveal.js presentation.
-MUST follow this EXACT structure:
+Generate a complete, properly formatted Reveal.js presentation with the SAME unique visual identity.
 
 <!doctype html>
 <html lang="en">
@@ -524,13 +550,14 @@ MUST follow this EXACT structure:
       --r-main-color: #fff;
       --r-heading-color: #fff;
       --r-background-color: #0a0a0a;
-      --r-link-color: #FF1F1F;
+      --r-link-color: {CHOSEN_PRIMARY_COLOR};
     }
     .reveal { font-family: 'Inter', system-ui, sans-serif; }
-    .reveal .controls { color: #FF1F1F; }
-    .reveal .progress { color: #FF1F1F; height: 4px; }
-    .accent { color: #FF1F1F; }
+    .reveal .controls { color: {CHOSEN_PRIMARY_COLOR}; }
+    .reveal .progress { color: {CHOSEN_PRIMARY_COLOR}; height: 4px; }
+    .accent { color: {CHOSEN_PRIMARY_COLOR}; }
     .stat { font-size: 4em; font-weight: 900; }
+    .brand-bg { background-color: {CHOSEN_PRIMARY_COLOR}; }
   </style>
 </head>
 <body>
@@ -541,7 +568,7 @@ MUST follow this EXACT structure:
     <section><!-- Slide 3: Solution --></section>
     <section><!-- Slide 4: Market (TAM/SAM/SOM) --></section>
     <section><!-- Slide 5: Business Model --></section>
-    <section data-background-color="#FF1F1F"><!-- Slide 6: Ask/CTA --></section>
+    <section data-background-color="{CHOSEN_PRIMARY_COLOR}"><!-- Slide 6: Ask/CTA --></section>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
@@ -558,14 +585,15 @@ MUST follow this EXACT structure:
 </html>
 
 SLIDE CONTENT RULES:
-- Slide 1: One powerful hook statement in huge text (r-fit-text class)
-- Slide 2: Problem with a shocking statistic
+- Slide 1: One powerful hook statement specific to this startup (not generic)
+- Slide 2: Problem with a shocking statistic relevant to THIS industry
 - Slide 3: {Startup Name} with tagline and brief description
-- Slide 4: TAM/SAM/SOM in a 3-column grid with actual values from the market analysis
-- Slide 5: Revenue model with pricing
-- Slide 6: Red background, white text, clear call-to-action
+- Slide 4: TAM/SAM/SOM in a 3-column grid with ACTUAL values from the market analysis above
+- Slide 5: Revenue model with specific pricing from the monetization analysis
+- Slide 6: Brand-colored background, white text, clear industry-appropriate call-to-action
 - Max 20 words per slide, use fragment class for progressive reveals
 - Use r-fit-text class for headlines that should fill the screen
+- All content must be specific to THIS startup - no placeholder text
 
 Output ONLY valid HTML, no markdown code blocks.
 
