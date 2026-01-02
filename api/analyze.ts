@@ -187,8 +187,14 @@ const responseSchema = {
     viability: { type: "number", description: "0-100 score for how likely this is to succeed" },
     scalability: { type: "number", description: "0-100 score for how easily this can scale" },
     complexity: { type: "number", description: "0-100 score for how hard this is to build (higher = more complex)" },
-    waitlistHtml: { type: "string", description: "Complete landing page HTML with Tailwind CDN" },
-    pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
+    waitlistHtml: {
+      type: "string",
+      description: "Complete landing page HTML. Must include: <!DOCTYPE html>, <script src='https://cdn.tailwindcss.com'></script>, Inter font import, glassmorphism cards, gradient text, email form, brand colors matching startup industry. Output raw HTML only, no markdown."
+    },
+    pitchDeckHtml: {
+      type: "string",
+      description: "Complete Reveal.js HTML. CRITICAL STRUCTURE: Must have <div class='reveal'><div class='slides'> with exactly 6 <section> tags. ALL content MUST be inside <section> tags - each section is one slide. Include: CDN links (reveal.js@5.1.0), Reveal.initialize() script at end. Slides: 1-Hook, 2-Problem+stat, 3-Solution, 4-Customer segments, 5-Business model, 6-CTA with brand background color. Output raw HTML only, no markdown."
+    }
   },
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
@@ -459,143 +465,23 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
-IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS:
+IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS (waitlistHtml and pitchDeckHtml):
 
-CRITICAL - MAKE EACH DESIGN UNIQUE:
-Before generating HTML, choose a UNIQUE visual identity for this specific startup based on its industry, target audience, and brand personality:
+Choose a UNIQUE visual identity based on the startup's industry:
+- Tech/SaaS: #3B82F6 (blue)
+- Health/Fitness: #10B981 (green)
+- Finance/Business: #8B5CF6 (purple)
+- Food/Delivery: #F97316 (orange)
+- Social/Dating: #EC4899 (pink)
+- Education: #14B8A6 (teal)
+- Travel: #0EA5E9 (ocean blue)
+- AI/Automation: #22C55E (neon green)
+- Gaming: #A855F7 (electric purple)
+- Sustainability: #16A34A (forest green)
 
-1. COLOR PALETTE (pick ONE that fits the startup's industry):
-   - Tech/SaaS: Electric blue (#3B82F6) + cyan accents
-   - Health/Fitness: Vibrant green (#10B981) + lime accents
-   - Finance/Business: Deep purple (#8B5CF6) + gold accents
-   - Food/Delivery: Warm orange (#F97316) + yellow accents
-   - Social/Dating: Hot pink (#EC4899) + purple accents
-   - Education: Teal (#14B8A6) + sky blue accents
-   - Travel: Ocean blue (#0EA5E9) + sunset orange accents
-   - AI/Automation: Neon green (#22C55E) + black
-   - Gaming/Entertainment: Electric purple (#A855F7) + neon pink
-   - Sustainability/Eco: Forest green (#16A34A) + earth tones
-   - Default/Other: Choose a distinctive color that matches the startup's personality
+For waitlistHtml: Use Tailwind CDN, glassmorphism cards, gradient text with brand color, email signup form, mobile responsive.
 
-2. LAYOUT STYLE (pick ONE, vary based on startup type):
-   - Centered Hero: Large centered headline, stacked content
-   - Split Layout: Image/graphic on one side, content on other
-   - Card Grid: Features displayed in a grid of glassmorphism cards
-   - Minimal Single Column: Clean, lots of whitespace, single flow
-   - Bold Asymmetric: Off-center elements, creative positioning
-
-3. TYPOGRAPHY VIBE (pick ONE that matches brand):
-   - Bold/Impactful: Extra-large headlines, minimal body text
-   - Elegant/Refined: Lighter weights, generous letter-spacing
-   - Playful/Friendly: Rounded feels, varied sizes
-   - Technical/Precise: Monospace accents, structured hierarchy
-
-WAITLIST LANDING PAGE (waitlistHtml):
-Generate a STUNNING, production-ready landing page with the UNIQUE visual identity chosen above.
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{Startup Name}</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            brand: { DEFAULT: '{CHOSEN_PRIMARY_COLOR}', dark: '{CHOSEN_DARK_COLOR}' }
-          }
-        }
-      }
-    }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.03); }
-    .glow { box-shadow: 0 0 60px {CHOSEN_PRIMARY_COLOR}26; }
-    .gradient-text { background: linear-gradient(135deg, #fff 0%, {CHOSEN_PRIMARY_COLOR} 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  </style>
-</head>
-<body class="bg-[#0a0a0a] text-white min-h-screen antialiased">
-
-DESIGN REQUIREMENTS:
-- Use the CHOSEN color palette - replace all color references with the selected brand color
-- Apply the CHOSEN layout style
-- Hero: Massive bold headline with gradient-text effect using brand color
-- Floating orb/glow effect in background using brand color with low opacity
-- 3 benefit cards specific to THIS startup's value propositions (not generic)
-- Email signup form with brand-colored glowing CTA button
-- Social proof line customized to industry (e.g., "Join 2,000+ fitness enthusiasts" or "Trusted by 500+ startups")
-- Footer with startup-specific copyright
-- Mobile responsive
-
-Output ONLY valid HTML, no markdown code blocks.
-
-PITCH DECK (pitchDeckHtml):
-Generate a complete, properly formatted Reveal.js presentation with the SAME unique visual identity.
-
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{Startup} Pitch Deck</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css">
-  <style>
-    :root {
-      --r-main-color: #fff;
-      --r-heading-color: #fff;
-      --r-background-color: #0a0a0a;
-      --r-link-color: {CHOSEN_PRIMARY_COLOR};
-    }
-    .reveal { font-family: 'Inter', system-ui, sans-serif; }
-    .reveal .controls { color: {CHOSEN_PRIMARY_COLOR}; }
-    .reveal .progress { color: {CHOSEN_PRIMARY_COLOR}; height: 4px; }
-    .accent { color: {CHOSEN_PRIMARY_COLOR}; }
-    .stat { font-size: 4em; font-weight: 900; }
-    .brand-bg { background-color: {CHOSEN_PRIMARY_COLOR}; }
-  </style>
-</head>
-<body>
-<div class="reveal">
-  <div class="slides">
-    <section><!-- Slide 1: Hook --></section>
-    <section><!-- Slide 2: Problem --></section>
-    <section><!-- Slide 3: Solution --></section>
-    <section><!-- Slide 4: Customer Segments & Pain Points --></section>
-    <section><!-- Slide 5: Business Model --></section>
-    <section data-background-color="{CHOSEN_PRIMARY_COLOR}"><!-- Slide 6: Ask/CTA --></section>
-  </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
-<script>
-  Reveal.initialize({
-    hash: true,
-    controls: true,
-    progress: true,
-    center: true,
-    transition: 'slide'
-  });
-</script>
-</body>
-</html>
-
-SLIDE CONTENT RULES:
-- Slide 1: One powerful hook statement specific to this startup (not generic)
-- Slide 2: Problem with a shocking statistic relevant to THIS industry
-- Slide 3: {Startup Name} with tagline and brief description
-- Slide 4: Customer segments (2-3) with their key pain points - use the customerSegments data
-- Slide 5: Revenue model with specific pricing from the monetization analysis
-- Slide 6: Brand-colored background, white text, clear industry-appropriate call-to-action
-- Max 20 words per slide, use fragment class for progressive reveals
-- Use r-fit-text class for headlines that should fill the screen
-- All content must be specific to THIS startup - no placeholder text
-
-Output ONLY valid HTML, no markdown code blocks.
+For pitchDeckHtml: Follow the EXACT structure in the schema description. Use Reveal.js 5.1.0 CDN. Each <section> = one slide. ALL content inside <section> tags.
 
 Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 market reports, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
