@@ -214,13 +214,16 @@ const responseSchema = {
     },
     viability: { type: "number", description: "0-100 score for how likely this is to succeed" },
     scalability: { type: "number", description: "0-100 score for how easily this can scale" },
-    complexity: { type: "number", description: "0-100 score for how hard this is to build (higher = more complex)" }
+    complexity: { type: "number", description: "0-100 score for how hard this is to build (higher = more complex)" },
+    waitlistHtml: { type: "string", description: "Complete landing page HTML with Tailwind CDN" },
+    pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "riskAnalysis", "marketReports", "competitors", "marketGap",
     "day1Tasks", "promptChain", "distributionChannels",
-    "viability", "scalability", "complexity"
+    "viability", "scalability", "complexity",
+    "waitlistHtml", "pitchDeckHtml"
   ]
 };
 
@@ -577,8 +580,33 @@ LSE STUDENT FOCUS - DAY 1 VALIDATION:
     - Mix of research, outreach, build, and validate categories
     - Make tasks concrete and completable within hours/days, not weeks
     - Examples: "Post in r/fitness asking about gym buddy pain points", "DM 10 fitness influencers about their audience's struggles"
-    
-Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 5 day 1 tasks, 3 prompt chain steps, and 5 distribution channels.`;
+
+IMPORTANT - GENERATE TWO ADDITIONAL HTML OUTPUTS:
+
+WAITLIST LANDING PAGE (waitlistHtml):
+Generate a complete, production-ready index.html landing page for the startup.
+- Use Tailwind CSS via CDN: <script src="https://cdn.tailwindcss.com"></script>
+- Include: Hero with startup name/tagline, 3 key benefit bullet points, email signup form, and footer
+- Form action: "https://docs.google.com/forms/d/e/YOUR_FORM_ID/formResponse"
+- Aesthetics: Dark theme, modern, mobile responsive, subtle hover animations
+- Output ONLY the complete HTML, no markdown code blocks
+
+PITCH DECK (pitchDeckHtml):
+Generate a complete Reveal.js HTML pitch deck for the startup.
+- Use Reveal.js via CDN (jsDelivr v5)
+- Include 6 Slides: 
+  1. Hook (Impactful problem statement)
+  2. Problem (Pain point & stat)
+  3. Solution (Startup name & what it does)
+  4. Market (TAM/SAM/SOM visual breakdown)
+  5. Business Model (Revenue strategy)
+  6. Ask (Funding/Users)
+- Aesthetics: Dark theme with #FF1F1F (velocity red) accent color
+- Typography: Large, bold, minimal text (max 20 words per slide)
+- Initialize Reveal at the end of the script
+- Output ONLY the complete HTML, no markdown code blocks
+
+Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitors, 3-4 market reports, 5 day 1 tasks, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
     // Use REST API with Google Search grounding enabled
     const apiKey = process.env.GEMINI_API_KEY;
@@ -715,7 +743,11 @@ Generate 3 monetization strategies, 3 customer segments, 3 risks, 3-5 competitor
         competitors: competitorSources.length > 0 ? competitorSources : (analysisData.sources?.competitors || [])
       },
       customerSegments: analysisData.customerSegments,
-      promptChain: analysisData.promptChain
+      promptChain: analysisData.promptChain,
+      artifacts: {
+        waitlistHtml: analysisData.waitlistHtml,
+        pitchDeckHtml: analysisData.pitchDeckHtml
+      }
     };
 
     // Generate mockup image in parallel with saving (optional - don't block on failure)

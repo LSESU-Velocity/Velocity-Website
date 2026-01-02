@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2 } from 'lucide-react';
+import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, Download, Presentation, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
 import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
@@ -333,6 +333,32 @@ export const Launchpad: React.FC = () => {
   const [showResults, setShowResults] = useState(false);
   const [mockupImage, setMockupImage] = useState<string | null>(null);
   const [mockupLoading, setMockupLoading] = useState(false);
+
+
+  // Pitch Deck State
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPitchDeckFullscreen, setShowPitchDeckFullscreen] = useState(false);
+
+  // Helper functions for new widgets
+  const downloadHtml = (html: string, filename: string) => {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  const openInNewTab = (html: string) => {
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  };
 
   const [deletingId, setDeletingId] = useState<string | null>(null); // Track which analysis is being deleted
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null); // Track which analysis is showing delete confirmation
@@ -843,115 +869,124 @@ export const Launchpad: React.FC = () => {
                     visible={showResults}
                   >
                     <div className="flex flex-col h-full">
-                      {/* Phone Mockup */}
+                      {/* Phone Mockup with Waitlist Preview */}
                       <div className="flex-1 flex items-center justify-center py-4">
-                        <div className="relative w-full max-w-[220px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10">
+                        <div className="relative w-full max-w-[220px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10 group/phone">
                           {/* Dynamic Notch */}
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-5 bg-[#1f1f1f] rounded-b-xl z-20"></div>
 
-                          {/* Screen Content */}
-                          <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center">
-                            {mockupLoading && (
+                          {/* Screen Content - Live Waitlist Preview */}
+                          <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center overflow-hidden">
+                            {data.artifacts?.waitlistHtml ? (
+                              <div className="w-full h-full bg-white relative">
+                                <iframe
+                                  srcDoc={data.artifacts.waitlistHtml}
+                                  title="Waitlist Preview"
+                                  className="w-[200%] h-[200%] origin-top-left scale-50 border-0"
+                                  sandbox="allow-scripts"
+                                />
+                                {/* Overlay to prevent interaction inside phone but allow seeing it */}
+                                <div className="absolute inset-0 z-10 bg-transparent" />
+                              </div>
+                            ) : (
+                              /* Loading State */
                               <div className="flex flex-col items-center gap-2">
                                 <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
                                 <span className="font-mono text-[9px] text-gray-400 text-center px-4">
-                                  Generating mockup...
+                                  Generating waitlist...
                                 </span>
-                              </div>
-                            )}
-
-                            {mockupImage && !mockupLoading && (
-                              <img
-                                src={mockupImage}
-                                alt="App Mockup"
-                                className="w-full h-full object-cover"
-                              />
-                            )}
-
-                            {!mockupImage && !mockupLoading && (
-                              /* Fallback wireframe UI */
-                              <div className="w-full h-full flex flex-col">
-                                {/* Status Bar Mock */}
-                                <div className="h-8 w-full flex items-center justify-between px-4 pt-1">
-                                  <div className="text-[8px] font-mono text-white">9:41</div>
-                                  <div className="flex gap-1">
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                    <div className="w-3 h-2 bg-white/20 rounded-[1px]"></div>
-                                  </div>
-                                </div>
-
-                                {/* App Header */}
-                                <div className="px-4 py-2 flex items-center justify-between">
-                                  <div className="w-6 h-6 rounded-full bg-white/10"></div>
-                                  <span className="font-sans font-bold text-white text-sm truncate max-w-[80px]">{data.identity.name}</span>
-                                  <div className="w-6 h-6 rounded-full overflow-hidden border border-white/20">
-                                    <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${data.identity.name}`} alt="User" className="w-full h-full" />
-                                  </div>
-                                </div>
-
-                                {/* Content skeleton */}
-                                <div className="flex-1 px-4 space-y-2">
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                  <div className="w-full h-10 bg-white/5 rounded-lg border border-white/5"></div>
-                                </div>
-
-                                {/* Home Indicator */}
-                                <div className="h-4 w-full flex justify-center items-start">
-                                  <div className="w-1/3 h-1 bg-white/20 rounded-full"></div>
-                                </div>
                               </div>
                             )}
                           </div>
                         </div>
                       </div>
 
-
-                    </div>
-                  </Widget>
-
-                  <Widget
-                    title="DAY 1 TASKS"
-                    icon={CheckCircle2}
-                    delay={0.15}
-                    className="!h-auto !overflow-visible"
-                    visible={showResults}
-                  >
-                    <div className="flex flex-col gap-2 h-full overflow-y-auto">
-                      <p className="font-mono text-[9px] text-gray-400 uppercase tracking-widest mb-2">
-                        Start validating today
-                      </p>
-                      {(data.lseData?.day1Tasks || []).map((item: any, i: number) => (
-                        <motion.div
-                          key={i}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.5 + i * 0.08 }}
-                          className="flex items-start gap-2 p-2 bg-white/5 border border-white/5 rounded-sm hover:border-velocity-red/30 transition-colors group/task"
-                        >
-                          <div className="mt-0.5 w-4 h-4 rounded border border-white/20 flex-shrink-0 group-hover/task:border-velocity-red/50 transition-colors flex items-center justify-center">
-                            <div className="w-2 h-2 rounded-sm bg-transparent group-hover/task:bg-velocity-red/30 transition-colors" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-sans text-xs text-white font-medium truncate">{item.task}</span>
-                              <span className={`font-mono text-[8px] px-1.5 py-0.5 rounded uppercase flex-shrink-0 ${item.category === 'research' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
-                                item.category === 'outreach' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' :
-                                  item.category === 'build' ? 'bg-green-500/20 text-green-300 border border-green-500/30' :
-                                    'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                                }`}>{item.category}</span>
-                            </div>
-                            <p className="font-mono text-[10px] text-gray-400 leading-relaxed">{item.description}</p>
-                          </div>
-                        </motion.div>
-                      ))}
-                      {(!data.lseData?.day1Tasks || data.lseData.day1Tasks.length === 0) && (
-                        <div className="flex flex-col items-center justify-center py-6 text-center">
-                          <CheckCircle2 className="w-8 h-8 text-gray-600 mb-2" />
-                          <p className="font-mono text-xs text-gray-500">No tasks generated</p>
+                      {/* Waitlist Actions */}
+                      {data.artifacts?.waitlistHtml && (
+                        <div className="flex items-center justify-center gap-2 mt-2">
+                          <button
+                            onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'index.html')}
+                            className="p-2 bg-velocity-red/10 border border-velocity-red/30 rounded hover:bg-velocity-red/20 text-velocity-red transition-colors group/btn relative"
+                            title="Download index.html"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => copyToClipboard(data.artifacts!.waitlistHtml!)}
+                            className="p-2 bg-white/5 border border-white/10 rounded hover:bg-white/10 text-gray-300 transition-colors"
+                            title="Copy HTML"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)}
+                            className="p-2 bg-white/5 border border-white/10 rounded hover:bg-white/10 text-gray-300 transition-colors"
+                            title="Open in New Tab"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </button>
                         </div>
                       )}
                     </div>
+                  </Widget>
+
+                  {/* Monetization Strategy - Moved to Left Column */}
+                  <Widget
+                    title="Monetization Strategy"
+                    icon={Coins}
+                    delay={0.4}
+                    className="!h-auto !overflow-visible"
+                    visible={showResults}
+                    action={
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronLeft className="w-3 h-3" />
+                        </button>
+                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                          {monetizationIndex + 1}/{data.monetization.length}
+                        </span>
+                        <button
+                          onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
+                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                        >
+                          <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    }
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={monetizationIndex}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="space-y-3"
+                      >
+                        <div>
+                          <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
+                          <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
+                          <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
+                        </div>
+                        <div className="space-y-1 mb-3">
+                          {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
+                            <div key={i} className="flex items-center gap-2">
+                              <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
+                              <span className="text-xs text-gray-200">{strat}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="pt-2 border-t border-white/5">
+                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
+                          <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
+                            {data.monetization[monetizationIndex].examples}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
                   </Widget>
                 </div>
 
@@ -1213,116 +1248,76 @@ export const Launchpad: React.FC = () => {
                       </Widget>
                     </div>
 
-                    {/* Bottom Left: The Biggest Risk */}
-                    <Widget
-                      title="THE BIGGEST RISK"
-                      icon={AlertTriangle}
-                      delay={0.3}
-                      className="h-full min-h-[380px]"
-                      visible={showResults}
-                      action={
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setRiskIndex((prev) => (prev - 1 + data.validation.riskAnalysis.length) % data.validation.riskAnalysis.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                            {riskIndex + 1}/{data.validation.riskAnalysis.length}
-                          </span>
-                          <button
-                            onClick={() => setRiskIndex((prev) => (prev + 1) % data.validation.riskAnalysis.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      }
-                    >
-                      <div className="flex flex-col gap-3">
-                        <AnimatePresence mode="wait">
-                          <motion.div
-                            key={riskIndex}
-                            initial={{ opacity: 0, x: 10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: -10 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex flex-col gap-3"
-                          >
-                            <div>
-                              <p className="font-mono text-[9px] text-velocity-red mb-1 uppercase tracking-widest">The Risk:</p>
-                              <p className="font-sans text-white text-xs leading-relaxed">{data.validation.riskAnalysis[riskIndex].risk}</p>
-                            </div>
-                            <div className="pt-2 border-t border-white/5">
-                              <p className="font-mono text-[9px] text-blue-400 mb-1 uppercase tracking-widest">Product Feature to Mitigate:</p>
-                              <p className="font-sans text-gray-300 text-xs leading-relaxed">
-                                {data.validation.riskAnalysis[riskIndex].productFeature || "Regenerate to see feature"}
-                              </p>
-                            </div>
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
-                    </Widget>
-
-                    {/* Bottom Right: Monetization Strategy */}
-                    <Widget
-                      title="Monetization Strategy"
-                      icon={Coins}
-                      delay={0.4}
-                      className="h-full min-h-[380px]"
-                      visible={showResults}
-                      action={
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronLeft className="w-3 h-3" />
-                          </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
-                            {monetizationIndex + 1}/{data.monetization.length}
-                          </span>
-                          <button
-                            onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                          >
-                            <ChevronRight className="w-3 h-3" />
-                          </button>
-                        </div>
-                      }
-                    >
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={monetizationIndex}
-                          initial={{ opacity: 0, x: 10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          transition={{ duration: 0.2 }}
-                          className="space-y-3"
-                        >
-                          <div>
-                            <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
-                            <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
-                            <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
-                          </div>
-                          <div className="space-y-1 mb-3">
-                            {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
-                              <div key={i} className="flex items-center gap-2">
-                                <div className="w-1 h-1 bg-velocity-red rounded-full"></div>
-                                <span className="text-xs text-gray-200">{strat}</span>
+                    {/* Pitch Deck Generator - Replaces Day 1 Tasks & Monetization & Risk */}
+                    <div className="col-span-1 md:col-span-2">
+                      <Widget
+                        title="PITCH DECK GENERATOR"
+                        icon={Presentation}
+                        delay={0.3}
+                        className="h-full min-h-[400px]"
+                        visible={showResults}
+                      >
+                        <div className="flex flex-col h-full gap-4">
+                          {data.artifacts?.pitchDeckHtml ? (
+                            <>
+                              {/* Slide Preview */}
+                              <div className="flex-1 bg-black border border-white/10 relative rounded overflow-hidden group/slide">
+                                <iframe
+                                  srcDoc={data.artifacts.pitchDeckHtml}
+                                  className="w-full h-full border-0"
+                                  title="Pitch Deck Preview"
+                                  id="pitch-deck-preview"
+                                  sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
+                                />
+                                {/* Overlay for quick actions */}
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/slide:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
+                                  <div className="pointer-events-auto flex items-center gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const newWindow = window.open('', '_blank');
+                                        newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
+                                      }}
+                                      className="px-4 py-2 bg-velocity-red text-white uppercase font-mono text-xs tracking-widest hover:bg-red-600 transition-colors"
+                                    >
+                                      Present Fullscreen
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            ))}
-                          </div>
-                          <div className="pt-2 border-t border-white/5">
-                            <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
-                            <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
-                              {data.monetization[monetizationIndex].examples}
-                            </p>
-                          </div>
-                        </motion.div>
-                      </AnimatePresence>
-                    </Widget>
+
+                              {/* Controls */}
+                              <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                                <div className="flex gap-2">
+                                  <button
+                                    onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-mono text-gray-300"
+                                  >
+                                    <Download className="w-3 h-3" /> HTML
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      const printWindow = window.open('', '_blank');
+                                      printWindow?.document.write(data.artifacts!.pitchDeckHtml! + '<script>window.onload = () => { window.print(); window.close(); }</script>');
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-mono text-gray-300"
+                                  >
+                                    <FileText className="w-3 h-3" /> PDF
+                                  </button>
+                                </div>
+                                <div className="font-mono text-[10px] text-gray-500">
+                                  Powered by Reveal.js
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                              <Loader2 className="w-8 h-8 text-velocity-red animate-spin" />
+                              <p className="font-mono text-xs text-gray-400">Generating pitch deck...</p>
+                            </div>
+                          )}
+                        </div>
+                      </Widget>
+                    </div>
                   </div>
                 </div>
 

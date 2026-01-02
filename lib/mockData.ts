@@ -3,6 +3,142 @@
 
 import type { AnalysisData } from './api';
 
+const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NAME}} - Launching Soon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#FF1F1F',
+                            dark: '#CC0000',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-black text-white font-sans antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand/20 rounded-full blur-[128px] pointer-events-none"></div>
+        <div class="relative z-10 max-w-md w-full text-center space-y-8">
+            <div class="inline-flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <span class="font-bold text-xl tracking-tight">{{NAME}}</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
+                {{TAGLINE}} <br/>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-orange-500">Launch sooner.</span>
+            </h1>
+            <p class="text-gray-400 text-lg">
+                The best way to validate your idea. Join the waitlist today.
+            </p>
+            <div class="grid gap-3 text-left">
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div class="w-2 h-2 rounded-full bg-brand"></div>
+                    <span class="text-sm font-medium">Early Access</span>
+                </div>
+                <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div class="w-2 h-2 rounded-full bg-brand"></div>
+                    <span class="text-sm font-medium">Exclusive Features</span>
+                </div>
+            </div>
+            <form class="flex gap-2" onsubmit="event.preventDefault(); alert('Joined!');">
+                <input type="email" placeholder="enter@email.com" class="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand transition-colors" required>
+                <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-[0_0_20px_rgba(255,31,31,0.3)]">
+                    Join
+                </button>
+            </form>
+            <p class="text-xs text-gray-600">Join 2,000+ founders waiting for access.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+const MOCK_PITCH_DECK_HTML = `<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{NAME}} Pitch Deck</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/black.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --r-main-color: #fff; --r-heading-color: #fff; --r-background-color: #000; --r-link-color: #FF1F1F; --r-selection-color: #FF1F1F; }
+        .reveal .controls { color: #FF1F1F; }
+        .reveal .progress { color: #FF1F1F; }
+        .accent { color: #FF1F1F; }
+        .bg-gradient { background: linear-gradient(135deg, rgba(255,31,31,0.1) 0%, rgba(0,0,0,0) 100%); }
+    </style>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+        <section data-background-color="#000">
+            <h2 class="r-fit-text font-bold">The Future of Tech</h2>
+            <p class="fragment text-gray-400">Is here.</p>
+        </section>
+        <section class="bg-gradient">
+            <h3 class="text-red-500 uppercase tracking-widest text-lg mb-4">The Problem</h3>
+            <h2 class="font-bold mb-8">Inefficiency</h2>
+            <div class="flex flex-col gap-6 text-2xl">
+                <div class="fragment bg-white/10 p-6 rounded-lg border-l-4 border-red-500">
+                    Traditional solutions are <span class="text-red-500 font-bold">too slow</span>.
+                </div>
+                <div class="fragment bg-white/10 p-6 rounded-lg border-l-4 border-red-500">
+                    Costs are <span class="text-red-500 font-bold">too high</span>.
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="flex items-center justify-center gap-4 mb-8">
+                <div class="w-16 h-16 bg-red-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <h1 class="font-bold tracking-tighter m-0">{{NAME}}</h1>
+            </div>
+            <p class="text-2xl text-gray-300">The solution you've been <span class="text-white font-bold underline decoration-red-500">waiting for</span>.</p>
+        </section>
+        <section>
+             <h3 class="text-gray-500 uppercase tracking-widest text-lg mb-8">The Market</h3>
+             <div class="grid grid-cols-3 gap-4">
+                 <div class="bg-white/5 p-8 rounded-lg">
+                     <div class="text-sm text-gray-400 uppercase">TAM</div>
+                     <div class="text-5xl font-bold text-white mb-2">$150B</div>
+                 </div>
+                 <div class="bg-white/10 p-8 rounded-lg scale-110 shadow-[0_0_30px_rgba(255,31,31,0.1)] border border-red-500/30">
+                     <div class="text-sm text-gray-400 uppercase">SAM</div>
+                     <div class="text-5xl font-bold text-red-500 mb-2">$12B</div>
+                 </div>
+                 <div class="bg-white/5 p-8 rounded-lg">
+                     <div class="text-sm text-gray-400 uppercase">SOM</div>
+                     <div class="text-5xl font-bold text-white mb-2">$500K</div>
+                 </div>
+             </div>
+        </section>
+        <section data-background-color="#FF1F1F">
+            <h2 class="text-white font-bold mb-4">Invest Now</h2>
+            <p class="text-white/80 text-xl">{{NAME}} - {{TAGLINE}}</p>
+        </section>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.js"></script>
+<script>
+    Reveal.initialize({ hash: true, controls: true, progress: true, center: true, transition: 'slide' });
+</script>
+</body>
+</html>`;
+
 export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
     const lowercaseIdea = idea.toLowerCase();
 
@@ -371,7 +507,11 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 lseData: data.lseData,
                 sources: data.sources,
                 customerSegments: data.customerSegments,
-                promptChain: data.promptChain
+                promptChain: data.promptChain,
+                artifacts: {
+                    waitlistHtml: MOCK_WAITLIST_HTML.replace(/{{NAME}}/g, data.name).replace(/{{TAGLINE}}/g, data.tagline),
+                    pitchDeckHtml: MOCK_PITCH_DECK_HTML.replace(/{{NAME}}/g, data.name).replace(/{{TAGLINE}}/g, data.tagline)
+                }
             });
         }, 1500); // Shorter delay for dev mode
     });

@@ -110,6 +110,10 @@ export interface AnalysisData {
     }>;
     mockupImage?: string;
     mockupMimeType?: string;
+    artifacts?: {
+        waitlistHtml?: string;
+        pitchDeckHtml?: string;
+    };
 }
 
 export interface AnalysisRecord {
