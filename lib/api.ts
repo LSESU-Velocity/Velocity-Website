@@ -75,8 +75,6 @@ export interface AnalysisData {
         };
     };
     sources: {
-        groundingChunks?: Array<{ uri: string; title: string }>;
-        searchQueries?: string[];
         market: Array<{ name: string; url: string }>;
         competitors: Array<{ name: string; url: string }>;
     };

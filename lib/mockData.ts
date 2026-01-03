@@ -189,13 +189,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             { title: "UK Tech Startup Landscape", publisher: "Tech Nation", keyStat: "$14.4B invested in 2023", url: "https://technation.io/reports" }
         ],
         sources: {
-            groundingChunks: [
-                { uri: "https://statista.com/outlooks/developer-tools-market-2024", title: "Statista: Developer Tools Market Report 2024" },
-                { uri: "https://gov.uk/business-statistics-uk-2024", title: "UK Business Statistics 2024" },
-                { uri: "https://g2.com/categories/developer-tools", title: "G2: Best Developer Tools Software" },
-                { uri: "https://capterra.com/development-software", title: "Capterra: Development Software Reviews" }
-            ],
-            searchQueries: ["UK developer tools market size 2024", "startup tools competitors 2024", "SaaS market UK"],
             market: [
                 { name: "Statista UK Tech Report 2024", url: "https://statista.com" },
                 { name: "Gov.uk Business Statistics", url: "https://gov.uk" }
@@ -325,13 +318,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 { title: "Health & Fitness App Trends", publisher: "Statista", keyStat: "Global users: 1.1B", url: "https://statista.com/fitness-apps" }
             ],
             sources: {
-                groundingChunks: [
-                    { uri: "https://ukactive.com/reports/fitness-market-2024", title: "UK Active: Fitness Market Report 2024" },
-                    { uri: "https://mintel.com/gym-health-clubs-uk", title: "Mintel: UK Gym & Health Clubs Analysis" },
-                    { uri: "https://apps.apple.com/charts/fitness", title: "App Store: Top Fitness Apps" },
-                    { uri: "https://trustpilot.com/categories/fitness-apps", title: "TrustPilot: Fitness App Reviews" }
-                ],
-                searchQueries: ["UK fitness app market size 2024", "gym partner app competitors", "fitness social apps UK"],
                 market: [
                     { name: "UK Active Fitness Report 2024", url: "https://ukactive.com" },
                     { name: "Mintel Gym & Health Clubs", url: "https://mintel.com" }

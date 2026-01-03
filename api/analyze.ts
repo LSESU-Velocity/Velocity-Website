@@ -199,79 +199,6 @@ const responseSchema = {
   ]
 };
 
-// Interface for grounding metadata from Google Search
-interface GroundingChunk {
-  web?: {
-    uri: string;
-    title: string;
-  };
-}
-
-interface GroundingSupport {
-  segment?: {
-    startIndex?: number;
-    endIndex?: number;
-    text?: string;
-  };
-  groundingChunkIndices?: number[];
-}
-
-interface GroundingMetadata {
-  webSearchQueries?: string[];
-  groundingChunks?: GroundingChunk[];
-  groundingSupports?: GroundingSupport[];
-  searchEntryPoint?: {
-    renderedContent?: string;
-  };
-}
-
-// Resolve a single redirect URL to its final destination
-async function resolveRedirectUrl(url: string): Promise<string> {
-  try {
-    // Only resolve vertexaisearch redirect URLs
-    if (!url.includes('vertexaisearch.cloud.google.com/grounding-api-redirect')) {
-      return url;
-    }
-
-    // Follow the redirect with a HEAD request to get the final URL
-    const response = await fetch(url, {
-      method: 'HEAD',
-      redirect: 'follow',
-    });
-
-    // The response.url will be the final URL after all redirects
-    return response.url;
-  } catch (error) {
-    console.error('Failed to resolve redirect URL:', url, error);
-    // Return original URL if resolution fails
-    return url;
-  }
-}
-
-// Resolve multiple redirect URLs in parallel with a timeout
-async function resolveRedirectUrls(sources: { uri: string; title: string }[]): Promise<{ uri: string; title: string }[]> {
-  const TIMEOUT_MS = 5000; // 5 second timeout for all URL resolutions
-
-  const resolveWithTimeout = async (source: { uri: string; title: string }) => {
-    try {
-      const resolvedUri = await Promise.race([
-        resolveRedirectUrl(source.uri),
-        new Promise<string>((_, reject) =>
-          setTimeout(() => reject(new Error('Timeout')), TIMEOUT_MS)
-        )
-      ]) as string;
-
-      return { uri: resolvedUri, title: source.title };
-    } catch {
-      // Return original on timeout or error
-      return source;
-    }
-  };
-
-  // Resolve all URLs in parallel
-  return Promise.all(sources.map(resolveWithTimeout));
-}
-
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Enable CORS with origin validation
@@ -357,7 +284,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     // === END RATE LIMITING ===
 
-    // Build the prompt for Gemini with Google Search grounding
+    // Build the prompt for Gemini
     const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
 
 STARTUP IDEA: "${idea}"
@@ -613,7 +540,7 @@ Output ONLY valid HTML, no markdown code blocks.
 
 Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 market reports, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
-    // Use REST API with Google Search grounding enabled
+    // Use REST API to call Gemini
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not configured' });
@@ -629,7 +556,6 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
         },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          tools: [{ google_search: {} }],
           generationConfig: {
             temperature: 0.7,
             topP: 0.9,
@@ -649,21 +575,14 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
 
     const geminiResult = await geminiResponse.json();
 
-    // Extract the response text and grounding metadata
+
+    // Extract the response text
     const candidate = geminiResult.candidates?.[0];
     if (!candidate) {
       return res.status(500).json({ error: 'No response from Gemini' });
     }
 
     let text = candidate.content?.parts?.[0]?.text || '';
-    const groundingMetadata: GroundingMetadata = candidate.groundingMetadata || {};
-
-    // Log grounding info for debugging
-    console.log('=== GROUNDING DEBUG ===');
-    console.log('Has groundingMetadata:', !!candidate.groundingMetadata);
-    console.log('Grounding queries used:', groundingMetadata.webSearchQueries);
-    console.log('Number of grounding chunks:', groundingMetadata.groundingChunks?.length || 0);
-    console.log('Full candidate keys:', Object.keys(candidate));
 
     // Clean up the response - remove markdown code blocks if present
     text = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -676,34 +595,6 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
       console.error('Failed to parse Gemini response:', text);
       return res.status(500).json({ error: 'Failed to parse AI response' });
     }
-
-    // Extract sources from grounding metadata
-    const groundingChunks = groundingMetadata.groundingChunks || [];
-    const searchQueries = groundingMetadata.webSearchQueries || [];
-
-    // Format grounding sources for the frontend (initial extraction)
-    const rawGroundingSources = groundingChunks.map((chunk: GroundingChunk) => ({
-      uri: chunk.web?.uri || '',
-      title: chunk.web?.title || 'Source'
-    })).filter((source: { uri: string; title: string }) => source.uri); // Filter out empty URIs
-
-    // Resolve redirect URLs to actual source URLs
-    // This converts vertexaisearch.cloud.google.com/grounding-api-redirect/... to actual source URLs
-    const groundingSources = await resolveRedirectUrls(rawGroundingSources);
-
-    console.log('Resolved grounding sources:', groundingSources.map(s => s.uri));
-
-    // Create categorized sources from grounding data
-    // First half for market data, second half for competitors (rough heuristic)
-    const midpoint = Math.ceil(groundingSources.length / 2);
-    const marketSources = groundingSources.slice(0, midpoint).map((s: { uri: string; title: string }) => ({
-      name: s.title,
-      url: s.uri
-    }));
-    const competitorSources = groundingSources.slice(midpoint).map((s: { uri: string; title: string }) => ({
-      name: s.title,
-      url: s.uri
-    }));
 
     // Reshape data to match Launchpad.tsx expectations
     const formattedData = {
@@ -732,15 +623,9 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
           complexity: analysisData.complexity || 0
         }
       },
-      // Enhanced sources with grounding metadata
       sources: {
-        // All grounding sources with full metadata
-        groundingChunks: groundingSources,
-        // Search queries used by the model
-        searchQueries: searchQueries,
-        // Categorized sources for backward compatibility
-        market: marketSources.length > 0 ? marketSources : (analysisData.sources?.market || []),
-        competitors: competitorSources.length > 0 ? competitorSources : (analysisData.sources?.competitors || [])
+        market: analysisData.sources?.market || [],
+        competitors: analysisData.sources?.competitors || []
       },
       customerSegments: analysisData.customerSegments,
       promptChain: analysisData.promptChain,
