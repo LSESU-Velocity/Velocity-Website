@@ -113,7 +113,7 @@ export const Features: React.FC = () => {
                             Why Join <span className="text-velocity-red">Velocity?</span>
                         </h2>
                         <p className="font-mono text-gray-500 text-sm uppercase tracking-widest">
-                            Velocity provides the structured pathway to turn your ambition into a deployed product.
+                            We provide the tools, network, and skills you need to ship.
                         </p>
                     </div>
 
