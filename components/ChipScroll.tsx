@@ -295,7 +295,9 @@ export const ChipScroll: React.FC = () => {
                         className="absolute inset-0 flex items-center justify-center pointer-events-auto"
                         style={{ opacity: ctaOpacity }}
                     >
-                        <div className="text-center px-6">
+                        {/* Dark backdrop for visibility */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/80 to-black/90" />
+                        <div className="text-center px-6 relative z-10">
                             <h2 className="font-sans font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tighter text-white/90 mb-4 md:mb-6"
                                 style={{ textShadow: '0 0 60px rgba(255,255,255,0.15)' }}>
                                 Velocity is Here.
