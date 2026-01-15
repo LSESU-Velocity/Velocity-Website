@@ -1,5 +1,5 @@
 import React from 'react';
-import { Hero } from './Hero';
+import { ChipScroll } from './ChipScroll';
 import { Roadmap } from './Roadmap';
 import { Features } from './Features';
 import { TechStack } from './TechStack';
@@ -7,7 +7,7 @@ import { TechStack } from './TechStack';
 export const Home: React.FC = () => {
   return (
     <>
-      <Hero />
+      <ChipScroll />
       <TechStack />
       <Roadmap />
       <Features />

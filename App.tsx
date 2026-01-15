@@ -9,9 +9,9 @@ import { Launchpad } from './components/Launchpad';
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="relative min-h-screen overflow-x-hidden selection:bg-velocity-red selection:text-white bg-velocity-black">
+      <div className="relative min-h-screen selection:bg-velocity-red selection:text-white bg-velocity-black">
         <BackgroundGrid />
-        
+
         <div className="relative z-10 flex flex-col">
           <Navbar />
           <main>
