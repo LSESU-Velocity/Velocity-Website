@@ -239,18 +239,6 @@ export const ChipScroll: React.FC = () => {
 
                 {/* Text Overlays */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    {/* Section 1: Introducing (0-20%) */}
-                    <motion.div
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{ opacity: introOpacity }}
-                    >
-                        <div className="text-center px-6">
-                            <h2 className="font-sans font-black text-5xl sm:text-6xl md:text-7xl lg:text-8xl tracking-tighter text-white/90"
-                                style={{ textShadow: '0 0 60px rgba(255,255,255,0.15)' }}>
-                                Introducing
-                            </h2>
-                        </div>
-                    </motion.div>
 
                     {/* Section 2: The Future of Shipping (20-45%) */}
                     <motion.div

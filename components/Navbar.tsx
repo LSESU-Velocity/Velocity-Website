@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Terminal } from 'lucide-react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
@@ -9,6 +9,23 @@ const LOGO_URL = "/Velocity-logo-black.png";
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Track scroll position to show/hide navbar
+  useEffect(() => {
+    const handleScrollVisibility = () => {
+      // Show navbar after scrolling past the hero section (400vh = 4 * window.innerHeight)
+      const heroHeight = window.innerHeight * 4;
+      const shouldShow = window.scrollY > heroHeight || location.pathname !== '/';
+      setIsVisible(shouldShow);
+    };
+
+    // Check on mount
+    handleScrollVisibility();
+
+    window.addEventListener('scroll', handleScrollVisibility);
+    return () => window.removeEventListener('scroll', handleScrollVisibility);
+  }, [location.pathname]);
 
   const handleScroll = (e: React.MouseEvent<HTMLElement>, id: string) => {
     e.preventDefault();
@@ -47,9 +64,12 @@ export const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
+      initial={{ y: -100, opacity: 0 }}
+      animate={{
+        y: isVisible ? 0 : -100,
+        opacity: isVisible ? 1 : 0
+      }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 backdrop-blur-sm bg-velocity-black/50 border-b border-white/5"
     >
       <div className="flex items-center gap-4 group cursor-pointer" onClick={handleLogoClick}>
