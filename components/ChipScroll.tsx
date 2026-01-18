@@ -39,7 +39,7 @@ export const ChipScroll: React.FC = () => {
 
     // Transform scroll progress to frame index - animation completes at 70% scroll
     // This leaves 30% of scroll for the final frame to stay visible with CTA
-    const frameIndex = useTransform(scrollYProgress, [0, 0.70], [0, TOTAL_FRAMES - 1]);
+    const frameIndex = useTransform(scrollYProgress, [0, 0.70], [0, TOTAL_FRAMES - 1], { clamp: true });
 
     // Text opacity transforms based on scroll progress
     const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.15, 0.22], [0, 1, 1, 0]);
