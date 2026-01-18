@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Rocket, Loader2 } from 'lucide-react';
 import { Button } from './ui/Button';
 
-const TOTAL_FRAMES = 80;
+const TOTAL_FRAMES = 97;
 const IMAGE_PATH = '/sequence/ezgif-frame-';
 
 // Preload all images and return array of Image objects
@@ -37,8 +37,9 @@ export const ChipScroll: React.FC = () => {
         offset: ['start start', 'end end']
     });
 
-    // Transform scroll progress to frame index (0 to 79)
-    const frameIndex = useTransform(scrollYProgress, [0, 1], [0, TOTAL_FRAMES - 1]);
+    // Transform scroll progress to frame index - animation completes at 70% scroll
+    // This leaves 30% of scroll for the final frame to stay visible with CTA
+    const frameIndex = useTransform(scrollYProgress, [0, 0.70], [0, TOTAL_FRAMES - 1]);
 
     // Text opacity transforms based on scroll progress
     const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.15, 0.22], [0, 1, 1, 0]);
