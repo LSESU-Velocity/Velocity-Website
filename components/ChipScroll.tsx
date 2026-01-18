@@ -39,7 +39,11 @@ export const ChipScroll: React.FC = () => {
 
     // Transform scroll progress to frame index - animation completes at 70% scroll
     // This leaves 30% of scroll for the final frame to stay visible with CTA
-    const frameIndex = useTransform(scrollYProgress, [0, 0.70], [0, TOTAL_FRAMES - 1], { clamp: true });
+    // Using custom function for explicit clamping (better mobile scroll handling)
+    const frameIndex = useTransform(scrollYProgress, (progress) => {
+        const normalizedProgress = Math.min(progress / 0.70, 1);
+        return normalizedProgress * (TOTAL_FRAMES - 1);
+    });
 
     // Text opacity transforms based on scroll progress
     const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.15, 0.22], [0, 1, 1, 0]);
@@ -226,7 +230,7 @@ export const ChipScroll: React.FC = () => {
     return (
         <div
             ref={containerRef}
-            className="h-[400vh] relative bg-black z-20"
+            className="h-[800vh] relative bg-black z-20"
         >
             {/* Sticky canvas container */}
             <div
