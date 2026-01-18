@@ -14,8 +14,8 @@ export const Navbar: React.FC = () => {
   // Track scroll position to show/hide navbar
   useEffect(() => {
     const handleScrollVisibility = () => {
-      // Show navbar after scrolling past the hero section (400vh = 4 * window.innerHeight)
-      const heroHeight = window.innerHeight * 4;
+      // Show navbar after scrolling past the hero section (800vh = 8 * window.innerHeight)
+      const heroHeight = window.innerHeight * 8;
       const shouldShow = window.scrollY > heroHeight || location.pathname !== '/';
       setIsVisible(shouldShow);
     };
