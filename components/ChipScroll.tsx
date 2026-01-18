@@ -292,7 +292,7 @@ export const ChipScroll: React.FC = () => {
                                 Velocity is Here.
                             </h2>
                             <p className="text-white/60 font-sans text-base md:text-lg lg:text-xl mb-8 md:mb-10 max-w-md mx-auto">
-                                Stop pitching. Start building.
+                                Ship first. Polish later.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
