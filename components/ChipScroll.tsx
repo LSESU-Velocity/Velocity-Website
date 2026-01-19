@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Rocket, Loader2 } from 'lucide-react';
+import { ArrowRight, Rocket, Loader2, ChevronDown } from 'lucide-react';
 import { Button } from './ui/Button';
 
 const TOTAL_FRAMES = 97;
@@ -46,7 +46,7 @@ export const ChipScroll: React.FC = () => {
     });
 
     // Text opacity transforms based on scroll progress
-    const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.15, 0.22], [0, 1, 1, 0]);
+    const introOpacity = useTransform(scrollYProgress, [0, 0.08, 0.15], [1, 1, 0]);
     const futureOpacity = useTransform(scrollYProgress, [0.18, 0.25, 0.38, 0.45], [0, 1, 1, 0]);
     const speedOpacity = useTransform(scrollYProgress, [0.42, 0.50, 0.62, 0.70], [0, 1, 1, 0]);
     const ctaOpacity = useTransform(scrollYProgress, [0, 0.60, 0.65, 0.75, 1], [0, 0, 0, 1, 1]);
@@ -244,6 +244,22 @@ export const ChipScroll: React.FC = () => {
 
                 {/* Text Overlays */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+
+                    {/* Section 1: Intro Hint (0-15%) */}
+                    <motion.div
+                        className="absolute inset-0 flex flex-col items-center justify-end pb-16 md:pb-24"
+                        style={{ opacity: introOpacity }}
+                    >
+                        <p className="text-white/50 font-sans text-sm md:text-base tracking-widest uppercase mb-4">
+                            The journey begins
+                        </p>
+                        <motion.div
+                            animate={{ y: [0, 8, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                        >
+                            <ChevronDown className="w-6 h-6 md:w-8 md:h-8 text-white/40" />
+                        </motion.div>
+                    </motion.div>
 
                     {/* Section 2: The Future of Shipping (20-45%) */}
                     <motion.div
