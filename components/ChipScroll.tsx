@@ -109,6 +109,7 @@ export const ChipScroll: React.FC = () => {
                 const aspectRatio = img.width / img.height;
                 const containerWidth = canvas.parentElement?.clientWidth || window.innerWidth;
                 const containerHeight = canvas.parentElement?.clientHeight || window.innerHeight;
+                const dpr = window.devicePixelRatio || 1;
 
                 let drawWidth, drawHeight;
 
@@ -121,15 +122,23 @@ export const ChipScroll: React.FC = () => {
                     drawHeight = drawWidth / aspectRatio;
                 }
 
-                canvas.width = containerWidth;
-                canvas.height = containerHeight;
+                // Set canvas resolution for HiDPI displays
+                canvas.width = containerWidth * dpr;
+                canvas.height = containerHeight * dpr;
+                canvas.style.width = `${containerWidth}px`;
+                canvas.style.height = `${containerHeight}px`;
+                ctx.scale(dpr, dpr);
+
+                // Re-apply image smoothing after scale
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
 
                 // Clear and draw
                 ctx.fillStyle = '#000000';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillRect(0, 0, containerWidth, containerHeight);
 
-                const x = (canvas.width - drawWidth) / 2;
-                const y = (canvas.height - drawHeight) / 2;
+                const x = (containerWidth - drawWidth) / 2;
+                const y = (containerHeight - drawHeight) / 2;
 
                 ctx.drawImage(img, x, y, drawWidth, drawHeight);
             }
@@ -141,6 +150,7 @@ export const ChipScroll: React.FC = () => {
             const aspectRatio = img.width / img.height;
             const containerWidth = canvas.parentElement?.clientWidth || window.innerWidth;
             const containerHeight = canvas.parentElement?.clientHeight || window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
 
             let drawWidth, drawHeight;
 
@@ -152,14 +162,22 @@ export const ChipScroll: React.FC = () => {
                 drawHeight = drawWidth / aspectRatio;
             }
 
-            canvas.width = containerWidth;
-            canvas.height = containerHeight;
+            // Set canvas resolution for HiDPI displays
+            canvas.width = containerWidth * dpr;
+            canvas.height = containerHeight * dpr;
+            canvas.style.width = `${containerWidth}px`;
+            canvas.style.height = `${containerHeight}px`;
+            ctx.scale(dpr, dpr);
+
+            // Re-apply image smoothing after scale
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
 
             ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, containerWidth, containerHeight);
 
-            const x = (canvas.width - drawWidth) / 2;
-            const y = (canvas.height - drawHeight) / 2;
+            const x = (containerWidth - drawWidth) / 2;
+            const y = (containerHeight - drawHeight) / 2;
 
             ctx.drawImage(img, x, y, drawWidth, drawHeight);
         }
@@ -182,6 +200,7 @@ export const ChipScroll: React.FC = () => {
                     const aspectRatio = img.width / img.height;
                     const containerWidth = canvas.parentElement?.clientWidth || window.innerWidth;
                     const containerHeight = canvas.parentElement?.clientHeight || window.innerHeight;
+                    const dpr = window.devicePixelRatio || 1;
 
                     let drawWidth, drawHeight;
 
@@ -193,14 +212,22 @@ export const ChipScroll: React.FC = () => {
                         drawHeight = drawWidth / aspectRatio;
                     }
 
-                    canvas.width = containerWidth;
-                    canvas.height = containerHeight;
+                    // Set canvas resolution for HiDPI displays
+                    canvas.width = containerWidth * dpr;
+                    canvas.height = containerHeight * dpr;
+                    canvas.style.width = `${containerWidth}px`;
+                    canvas.style.height = `${containerHeight}px`;
+                    ctx.scale(dpr, dpr);
+
+                    // Re-apply image smoothing after scale
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
 
                     ctx.fillStyle = '#000000';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillRect(0, 0, containerWidth, containerHeight);
 
-                    const x = (canvas.width - drawWidth) / 2;
-                    const y = (canvas.height - drawHeight) / 2;
+                    const x = (containerWidth - drawWidth) / 2;
+                    const y = (containerHeight - drawHeight) / 2;
 
                     ctx.drawImage(img, x, y, drawWidth, drawHeight);
                 }
