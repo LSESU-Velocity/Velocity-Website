@@ -96,6 +96,10 @@ export const ChipScroll: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
+        // Enable high-quality image smoothing
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
         const unsubscribe = frameIndex.on('change', (latest) => {
             const index = Math.min(Math.round(latest), TOTAL_FRAMES - 1);
             const img = images[index];
