@@ -297,12 +297,12 @@ export const ChipScroll: React.FC = () => {
                         className="absolute inset-0 flex items-center"
                         style={{ opacity: futureOpacity }}
                     >
-                        <div className="px-8 md:px-16 lg:px-24 max-w-xl">
-                            <h2 className="font-sans font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight text-white/90 leading-tight"
+                        <div className="px-4 sm:px-6 md:px-16 lg:px-24 max-w-2xl">
+                            <h2 className="font-sans font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl tracking-tight text-white/90 leading-tight"
                                 style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
                                 The Future of
-                                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400">
-                                    Shipping
+                                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400 whitespace-nowrap">
+                                    AI Entrepreneurship
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md">
@@ -316,8 +316,8 @@ export const ChipScroll: React.FC = () => {
                         className="absolute inset-0 flex items-center justify-end"
                         style={{ opacity: speedOpacity }}
                     >
-                        <div className="px-8 md:px-16 lg:px-24 text-right max-w-xl">
-                            <h2 className="font-sans font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight text-white/90 leading-tight"
+                        <div className="px-6 md:px-16 lg:px-24 text-right max-w-2xl">
+                            <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tight text-white/90 leading-tight"
                                 style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
                                 From Idea to
                                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400">
