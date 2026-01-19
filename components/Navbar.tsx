@@ -94,16 +94,7 @@ export const Navbar: React.FC = () => {
           Launchpad
         </Link>
 
-        {['Manifesto', 'Roadmap', 'Builders'].map((item) => (
-          <a
-            key={item}
-            href={`#${item.toLowerCase()}`}
-            onClick={(e) => handleScroll(e, item.toLowerCase())}
-            className="font-mono text-xs text-gray-400 hover:text-velocity-red uppercase tracking-widest transition-colors"
-          >
-            {item}
-          </a>
-        ))}
+
         <a
           href="https://www.lsesu.com/communities/societies/group/Velocity/"
           target="_blank"
