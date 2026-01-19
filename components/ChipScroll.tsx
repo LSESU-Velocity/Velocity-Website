@@ -319,13 +319,13 @@ export const ChipScroll: React.FC = () => {
                         <div className="px-8 md:px-16 lg:px-24 text-right max-w-xl">
                             <h2 className="font-sans font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight text-white/90 leading-tight"
                                 style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
-                                Built for
+                                From Idea to
                                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400">
-                                    Speed.
+                                    Launch.
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg">
-                                Designed for Scale.
+                                In weeks, not years.
                             </p>
                         </div>
                     </motion.div>
