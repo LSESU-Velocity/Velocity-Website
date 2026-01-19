@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Rocket, Loader2, ChevronDown } from 'lucide-react';
 import { Button } from './ui/Button';
 
-const TOTAL_FRAMES = 97;
-const IMAGE_PATH = '/sequence/ezgif-frame-';
+const TOTAL_FRAMES = 210;
+const IMAGE_PATH = '/webp-sequence/frame-';
 
 // Preload all images and return array of Image objects
 const preloadImages = (): Promise<HTMLImageElement[]> => {
@@ -15,7 +15,7 @@ const preloadImages = (): Promise<HTMLImageElement[]> => {
         const promise = new Promise<HTMLImageElement>((resolve, reject) => {
             const img = new Image();
             const frameNumber = String(i).padStart(3, '0');
-            img.src = `${IMAGE_PATH}${frameNumber}.png`;
+            img.src = `${IMAGE_PATH}${frameNumber}.webp`;
             img.onload = () => resolve(img);
             img.onerror = reject;
         });
@@ -48,8 +48,8 @@ export const ChipScroll: React.FC = () => {
     // Text opacity transforms based on scroll progress
     const introOpacity = useTransform(scrollYProgress, [0, 0.05, 0.10], [1, 1, 0]);
     const futureOpacity = useTransform(scrollYProgress, [0.10, 0.15, 0.25, 0.30], [0, 1, 1, 0]);
-    const speedOpacity = useTransform(scrollYProgress, [0.28, 0.33, 0.42, 0.48], [0, 1, 1, 0]);
-    const ctaOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48, 0.55, 1], [0, 0, 0, 1, 1]);
+    const speedOpacity = useTransform(scrollYProgress, [0.28, 0.33, 0.48, 0.55], [0, 1, 1, 0]);
+    const ctaOpacity = useTransform(scrollYProgress, [0, 0.50, 0.55, 0.65, 1], [0, 0, 0, 1, 1]);
 
     // Load images on mount
     useEffect(() => {
@@ -62,7 +62,7 @@ export const ChipScroll: React.FC = () => {
                 const promise = new Promise<HTMLImageElement>((resolve, reject) => {
                     const img = new Image();
                     const frameNumber = String(i).padStart(3, '0');
-                    img.src = `${IMAGE_PATH}${frameNumber}.png`;
+                    img.src = `${IMAGE_PATH}${frameNumber}.webp`;
                     img.onload = () => {
                         loadedCount++;
                         setLoadingProgress(Math.round((loadedCount / TOTAL_FRAMES) * 100));
