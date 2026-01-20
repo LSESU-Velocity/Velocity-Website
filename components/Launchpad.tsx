@@ -203,7 +203,7 @@ const AnimatedScoreBar = ({
           {/* Centered percentage display */}
           <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center">
             <span
-              className="font-mono font-medium text-sm tracking-tight tabular-nums leading-none"
+              className="font-sans font-medium text-sm tracking-tight tabular-nums leading-none"
               style={{ color: dialColor }}
             >
               {currentValue}%
@@ -213,7 +213,7 @@ const AnimatedScoreBar = ({
       </div>
 
       {/* Label below the dial */}
-      <span className="font-mono text-[9px] text-gray-300 uppercase tracking-widest mt-1">
+      <span className="font-sans text-[9px] text-gray-300 uppercase tracking-widest mt-1">
         {label}
       </span>
     </div>
@@ -265,7 +265,7 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
             <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
               <Icon className="w-3.5 h-3.5 text-gray-200 group-hover:text-velocity-red transition-colors duration-300" />
             </div>
-            <span className="font-mono text-[10px] text-gray-200 uppercase tracking-widest">{title}</span>
+            <span className="font-sans text-[10px] text-gray-200 uppercase tracking-widest">{title}</span>
           </div>
           {action}
         </div>
@@ -291,7 +291,7 @@ const GoogleTrends = ({ keyword }: { keyword: string }) => {
         <div className="absolute inset-0 flex items-center justify-center bg-white/5 z-10">
           <div className="flex flex-col items-center gap-2">
             <Loader2 className="w-4 h-4 text-velocity-red animate-spin" />
-            <span className="font-mono text-[9px] text-gray-400">Loading trends...</span>
+            <span className="font-sans text-[9px] text-gray-400">Loading trends...</span>
           </div>
         </div>
       )}
@@ -574,7 +574,7 @@ export const Launchpad: React.FC = () => {
                 className="p-2 bg-white/[0.02] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all flex items-center gap-2 group"
               >
                 <History className="w-4 h-4 group-hover:text-velocity-red transition-colors" />
-                <span className="text-sm font-mono hidden sm:inline">History</span>
+                <span className="text-sm font-sans hidden sm:inline">History</span>
                 {history.length > 0 && (
                   <span className="bg-velocity-red text-white text-xs px-1.5 py-0.5">
                     {history.length}
@@ -601,11 +601,11 @@ export const Launchpad: React.FC = () => {
                         <div className="p-1.5 bg-white/5 border border-white/10">
                           <History className="w-3.5 h-3.5 text-velocity-red" />
                         </div>
-                        <span className="font-mono text-[10px] text-gray-300 uppercase tracking-widest">Previous Analyses</span>
+                        <span className="font-sans text-[10px] text-gray-300 uppercase tracking-widest">Previous Analyses</span>
                       </div>
                       <div className="max-h-72 overflow-y-auto">
                         {history.length === 0 ? (
-                          <p className="p-4 font-mono text-xs text-gray-500">No analyses yet</p>
+                          <p className="p-4 font-sans text-xs text-gray-500">No analyses yet</p>
                         ) : (
                           history.map((record) => (
                             <div
@@ -616,15 +616,15 @@ export const Launchpad: React.FC = () => {
                                 onClick={() => loadFromHistory(record)}
                                 className="flex-1 text-left min-w-0"
                               >
-                                <p className="font-mono text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
-                                <p className="font-mono text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
+                                <p className="font-sans text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
+                                <p className="font-sans text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
                                   {new Date(record.createdAt).toLocaleDateString()}
                                 </p>
                               </button>
                               <div className="relative flex items-center">
                                 {confirmDeleteId === record.id ? (
                                   <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1">
-                                    <span className="font-mono text-[9px] text-gray-400 whitespace-nowrap">Delete?</span>
+                                    <span className="font-sans text-[9px] text-gray-400 whitespace-nowrap">Delete?</span>
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -632,7 +632,7 @@ export const Launchpad: React.FC = () => {
                                         setConfirmDeleteId(null);
                                       }}
                                       disabled={deletingId === record.id}
-                                      className="font-mono text-[9px] text-velocity-red hover:text-white transition-colors disabled:opacity-50"
+                                      className="font-sans text-[9px] text-velocity-red hover:text-white transition-colors disabled:opacity-50"
                                     >
                                       {deletingId === record.id ? (
                                         <Loader2 className="w-3 h-3 animate-spin" />
@@ -646,7 +646,7 @@ export const Launchpad: React.FC = () => {
                                         e.stopPropagation();
                                         setConfirmDeleteId(null);
                                       }}
-                                      className="font-mono text-[9px] text-gray-400 hover:text-white transition-colors"
+                                      className="font-sans text-[9px] text-gray-400 hover:text-white transition-colors"
                                     >
                                       No
                                     </button>
@@ -686,7 +686,7 @@ export const Launchpad: React.FC = () => {
         ) : (
           <button
             onClick={() => setShowLoginModal(true)}
-            className="px-4 py-2 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red text-white font-mono text-sm uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
+            className="px-4 py-2 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red text-white font-sans text-sm uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
           >
             Login
           </button>
@@ -735,7 +735,7 @@ export const Launchpad: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-mono text-sm md:text-base text-gray-400 max-w-xl mb-12 leading-relaxed"
+            className="font-sans text-sm md:text-base text-gray-400 max-w-xl mb-12 leading-relaxed"
           >
             You've got the spark. We'll find your market, your customers, and your starting point.
           </motion.p>
@@ -756,14 +756,14 @@ export const Launchpad: React.FC = () => {
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
                   placeholder="An AI-powered meal planning app that learns your tastes..."
-                  className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-mono text-sm"
+                  className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-sans text-sm"
                   disabled={isGenerating}
                   maxLength={500}
                 />
                 <button
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 border-2 bg-velocity-darkRed/20 border-velocity-red/50 text-white shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_50px_rgba(255,31,31,0.6)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="relative px-8 py-4 font-sans text-sm uppercase tracking-widest transition-all duration-300 border-2 bg-velocity-darkRed/20 border-velocity-red/50 text-white shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_50px_rgba(255,31,31,0.6)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -790,7 +790,7 @@ export const Launchpad: React.FC = () => {
                   {React.createElement(loadingSteps[loadingStep].icon, {
                     className: "w-4 h-4 text-velocity-red"
                   })}
-                  <span className="font-mono text-sm text-gray-400">
+                  <span className="font-sans text-sm text-gray-400">
                     {loadingSteps[loadingStep].text}...
                   </span>
                 </div>
@@ -824,7 +824,7 @@ export const Launchpad: React.FC = () => {
                   />
                 </div>
                 {/* Percentage indicator */}
-                <span className="font-mono text-[10px] text-gray-500 mt-2">
+                <span className="font-sans text-[10px] text-gray-500 mt-2">
                   {loadingPercent}%
                 </span>
               </motion.div>
@@ -876,7 +876,7 @@ export const Launchpad: React.FC = () => {
                               /* Loading State */
                               <div className="flex flex-col items-center gap-2">
                                 <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
-                                <span className="font-mono text-[9px] text-gray-400 text-center px-4">
+                                <span className="font-sans text-[9px] text-gray-400 text-center px-4">
                                   Generating waitlist...
                                 </span>
                               </div>
@@ -929,7 +929,7 @@ export const Launchpad: React.FC = () => {
                         >
                           <ChevronLeft className="w-3 h-3" />
                         </button>
-                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                        <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {monetizationIndex + 1}/{data.monetization.length}
                         </span>
                         <button
@@ -951,9 +951,9 @@ export const Launchpad: React.FC = () => {
                         className="space-y-3"
                       >
                         <div>
-                          <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
+                          <p className="font-sans text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Model</p>
                           <p className="font-sans font-bold text-white text-sm">{data.monetization[monetizationIndex].model}</p>
-                          <p className="font-mono text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
+                          <p className="font-sans text-velocity-red text-xs mt-0.5">{data.monetization[monetizationIndex].pricing}</p>
                         </div>
                         <div className="space-y-1 mb-3">
                           {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
@@ -964,8 +964,8 @@ export const Launchpad: React.FC = () => {
                           ))}
                         </div>
                         <div className="pt-2 border-t border-white/5">
-                          <p className="font-mono text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
-                          <p className="font-mono text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
+                          <p className="font-sans text-[9px] text-blue-400 uppercase tracking-widest mb-1">Who Does This Well</p>
+                          <p className="font-sans text-[10px] text-gray-300 leading-relaxed flex items-center gap-1.5">
                             {data.monetization[monetizationIndex].examples}
                           </p>
                         </div>
@@ -985,10 +985,10 @@ export const Launchpad: React.FC = () => {
                   >
                     <div className="inline-flex items-center gap-2 text-velocity-red mb-1">
                       <CheckCircle2 className="w-3 h-3" />
-                      <span className="font-mono text-[9px] uppercase tracking-widest">Analysis Complete</span>
+                      <span className="font-sans text-[9px] uppercase tracking-widest">Analysis Complete</span>
                     </div>
                     <h2 className="font-sans font-bold text-2xl md:text-3xl tracking-tight text-white mb-0.5">{data.identity.name}</h2>
-                    <p className="font-mono text-gray-400 text-[10px] italic">{data.identity.tagline}</p>
+                    <p className="font-sans text-gray-400 text-[10px] italic">{data.identity.tagline}</p>
                   </motion.div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1000,12 +1000,12 @@ export const Launchpad: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-200 font-bold">TAM</span>
+                                <span className="font-sans text-[10px] text-gray-200 font-bold">TAM</span>
                                 <span className="text-[9px] text-gray-400 uppercase tracking-wide">Total Market</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-white leading-none">{data.validation.tam.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
+                            <p className="font-sans text-[9px] text-gray-400 text-right max-w-[50%] leading-tight">{data.validation.tam.label}</p>
                           </div>
                         </div>
 
@@ -1014,12 +1014,12 @@ export const Launchpad: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-gray-200 font-bold">SAM</span>
+                                <span className="font-sans text-[10px] text-gray-200 font-bold">SAM</span>
                                 <span className="text-[9px] text-gray-400 uppercase tracking-wide">Serviceable</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.sam.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
+                            <p className="font-sans text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.sam.label}</p>
                           </div>
                         </div>
 
@@ -1028,12 +1028,12 @@ export const Launchpad: React.FC = () => {
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="font-mono text-[10px] text-velocity-red font-bold">SOM</span>
+                                <span className="font-sans text-[10px] text-velocity-red font-bold">SOM</span>
                                 <span className="text-[9px] text-gray-300 uppercase tracking-wide">Target</span>
                               </div>
                               <p className="font-sans font-bold text-2xl text-gray-100 leading-none">{data.validation.som.value}</p>
                             </div>
-                            <p className="font-mono text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
+                            <p className="font-sans text-[9px] text-gray-300 text-right max-w-[50%] leading-tight">{data.validation.som.label}</p>
                           </div>
                         </div>
                       </div>
@@ -1054,7 +1054,7 @@ export const Launchpad: React.FC = () => {
                           >
                             <ChevronLeft className="w-3 h-3" />
                           </button>
-                          <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                          <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                             {competitorIndex + 1}/{data.validation.competitorList.length}
                           </span>
                           <button
@@ -1078,16 +1078,16 @@ export const Launchpad: React.FC = () => {
                           <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent pointer-events-none" />
 
                           {/* Axis labels - positioned in outer margin */}
-                          <div className="absolute top-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-300 z-10">
+                          <div className="absolute top-1 left-1/2 -translate-x-1/2 font-sans text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.yAxis.high}
                           </div>
-                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 font-mono text-[8px] text-gray-300 z-10">
+                          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 font-sans text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.yAxis.low}
                           </div>
-                          <div className="absolute left-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-300 z-10">
+                          <div className="absolute left-1 top-1/2 -translate-y-1/2 font-sans text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.xAxis.low}
                           </div>
-                          <div className="absolute right-1 top-1/2 -translate-y-1/2 font-mono text-[8px] text-gray-300 z-10">
+                          <div className="absolute right-1 top-1/2 -translate-y-1/2 font-sans text-[8px] text-gray-300 z-10">
                             {data.validation.marketGap?.xAxis.high}
                           </div>
 
@@ -1116,7 +1116,7 @@ export const Launchpad: React.FC = () => {
                                   <div className="w-3 h-3 rounded-full border-2 transition-all duration-300 shadow-lg bg-gray-900 border-gray-600 hover:bg-gray-800 hover:border-gray-400 z-10" />
                                 )}
 
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[9px] font-mono text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900/95 backdrop-blur-md border border-white/10 rounded text-[9px] font-sans text-white whitespace-nowrap opacity-0 group-hover/dot:opacity-100 transition-opacity pointer-events-none z-30 shadow-xl">
                                   <div className="font-bold">{comp.name}</div>
                                   <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px border-4 border-transparent border-t-gray-900/95" />
                                 </div>
@@ -1160,7 +1160,7 @@ export const Launchpad: React.FC = () => {
                                   href={`https://${data.validation.competitorList[competitorIndex].website}`}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="font-mono text-[9px] text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
+                                  className="font-sans text-[9px] text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1"
                                 >
                                   {data.validation.competitorList[competitorIndex].website}
                                   <ExternalLink className="w-2.5 h-2.5" />
@@ -1172,25 +1172,25 @@ export const Launchpad: React.FC = () => {
                             {(data.validation.competitorList[competitorIndex].founded || data.validation.competitorList[competitorIndex].funding) && (
                               <div className="flex flex-wrap gap-x-3 gap-y-1 pl-4">
                                 {data.validation.competitorList[competitorIndex].founded && (
-                                  <span className="font-mono text-[9px] text-gray-400">
+                                  <span className="font-sans text-[9px] text-gray-400">
                                     🏢 {data.validation.competitorList[competitorIndex].founded}
                                   </span>
                                 )}
                                 {data.validation.competitorList[competitorIndex].hq && (
-                                  <span className="font-mono text-[9px] text-gray-400">
+                                  <span className="font-sans text-[9px] text-gray-400">
                                     📍 {data.validation.competitorList[competitorIndex].hq}
                                   </span>
                                 )}
 
                                 {data.validation.competitorList[competitorIndex].employees && (
-                                  <span className="font-mono text-[9px] text-gray-400">
+                                  <span className="font-sans text-[9px] text-gray-400">
                                     👥 {data.validation.competitorList[competitorIndex].employees}
                                   </span>
                                 )}
                               </div>
                             )}
 
-                            <p className="font-mono text-[10px] text-gray-300 leading-relaxed pl-4">
+                            <p className="font-sans text-[10px] text-gray-300 leading-relaxed pl-4">
                               <span className="text-gray-400">Weakness:</span> {data.validation.competitorList[competitorIndex].weakness}
                             </p>
                           </motion.div>
@@ -1200,7 +1200,7 @@ export const Launchpad: React.FC = () => {
                         <div className="mt-auto pt-2 border-t border-white/5">
                           <div className="flex items-center gap-2 mb-1">
                             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                            <span className="font-mono text-[9px] text-emerald-400 uppercase tracking-widest">Your Gap</span>
+                            <span className="font-sans text-[9px] text-emerald-400 uppercase tracking-widest">Your Gap</span>
                           </div>
                           <p className="font-sans text-xs text-white leading-relaxed pl-4">
                             {data.validation.marketGap?.yourGap}
@@ -1261,7 +1261,7 @@ export const Launchpad: React.FC = () => {
                                         const newWindow = window.open('', '_blank');
                                         newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
                                       }}
-                                      className="px-4 py-2 bg-velocity-red text-white uppercase font-mono text-xs tracking-widest hover:bg-red-600 transition-colors"
+                                      className="px-4 py-2 bg-velocity-red text-white uppercase font-sans text-xs tracking-widest hover:bg-red-600 transition-colors"
                                     >
                                       Present Fullscreen
                                     </button>
@@ -1274,7 +1274,7 @@ export const Launchpad: React.FC = () => {
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-mono text-gray-300"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-sans text-gray-300"
                                   >
                                     <Download className="w-3 h-3" /> HTML
                                   </button>
@@ -1283,12 +1283,12 @@ export const Launchpad: React.FC = () => {
                                       const printWindow = window.open('', '_blank');
                                       printWindow?.document.write(data.artifacts!.pitchDeckHtml! + '<script>window.onload = () => { window.print(); window.close(); }</script>');
                                     }}
-                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-mono text-gray-300"
+                                    className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-sm transition-colors text-xs font-sans text-gray-300"
                                   >
                                     <FileText className="w-3 h-3" /> PDF
                                   </button>
                                 </div>
-                                <div className="font-mono text-[10px] text-gray-500">
+                                <div className="font-sans text-[10px] text-gray-500">
                                   Powered by Reveal.js
                                 </div>
                               </div>
@@ -1296,7 +1296,7 @@ export const Launchpad: React.FC = () => {
                           ) : (
                             <div className="flex-1 flex flex-col items-center justify-center gap-3">
                               <Loader2 className="w-8 h-8 text-velocity-red animate-spin" />
-                              <p className="font-mono text-xs text-gray-400">Generating pitch deck...</p>
+                              <p className="font-sans text-xs text-gray-400">Generating pitch deck...</p>
                             </div>
                           )}
                         </div>
@@ -1319,13 +1319,13 @@ export const Launchpad: React.FC = () => {
                         >
                           <div className="flex justify-between items-start mb-1">
                             <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
-                            <span className="font-mono text-[9px] text-gray-200 border border-white/10 px-1 rounded bg-black/30">{segment.age}</span>
+                            <span className="font-sans text-[9px] text-gray-200 border border-white/10 px-1 rounded bg-black/30">{segment.age}</span>
                           </div>
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-mono">
+                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-sans">
                               <span className="text-velocity-red">Target:</span> {segment.interest}
                             </div>
-                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-mono">
+                            <div className="flex items-center gap-2 text-[9px] text-gray-200 font-sans">
                               <span className="text-blue-400">Income:</span> {segment.income}
                             </div>
                           </div>
@@ -1337,7 +1337,7 @@ export const Launchpad: React.FC = () => {
                   <Widget title="Distribution Channels" icon={MessageCircle} delay={0.7} visible={showResults} className="!h-auto !overflow-visible">
                     <div className="flex flex-col gap-3">
                       <div className="flex items-center justify-between">
-                        <p className="font-mono text-[9px] text-gray-300 uppercase tracking-widest">
+                        <p className="font-sans text-[9px] text-gray-300 uppercase tracking-widest">
                           Where Your Users Hang Out
                         </p>
                         <div className="text-[8px] px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-gray-300">TOP 5</div>
@@ -1363,8 +1363,8 @@ export const Launchpad: React.FC = () => {
                             </div>
 
                             <div className="flex items-center gap-2 relative z-10">
-                              <span className="font-mono text-[8px] text-gray-300 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
-                              <span className="font-mono text-[9px] text-velocity-red font-bold">{channel.members}</span>
+                              <span className="font-sans text-[8px] text-gray-300 border border-white/5 px-1.5 py-0.5 rounded uppercase bg-black/20 group-hover/channel:border-white/10 transition-colors">{channel.type}</span>
+                              <span className="font-sans text-[9px] text-velocity-red font-bold">{channel.members}</span>
                             </div>
                           </motion.a>
                         ))}
@@ -1386,7 +1386,7 @@ export const Launchpad: React.FC = () => {
                         >
                           <ChevronLeft className="w-3 h-3" />
                         </button>
-                        <span className="font-mono text-[9px] text-gray-400 tabular-nums px-1 select-none">
+                        <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {promptChainIndex + 1}/{data.promptChain.length}
                         </span>
                         <button
@@ -1411,14 +1411,14 @@ export const Launchpad: React.FC = () => {
                           >
                             {/* Step Header */}
                             <div className="shrink-0">
-                              <p className="font-mono text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
+                              <p className="font-sans text-[10px] text-gray-300 mb-1 uppercase tracking-widest">Step {data.promptChain[promptChainIndex].step}</p>
                               <p className="font-sans font-bold text-white text-sm">{data.promptChain[promptChainIndex].title}</p>
                             </div>
 
                             {/* Prompt content */}
                             <div className="relative group/prompt flex-1 min-h-0">
                               <div
-                                className="p-3 bg-white/5 border border-white/10 font-mono text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.08] transition-all duration-300"
+                                className="p-3 bg-white/5 border border-white/10 font-sans text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.08] transition-all duration-300"
                                 onClick={() => {
                                   navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
                                 }}
@@ -1426,7 +1426,7 @@ export const Launchpad: React.FC = () => {
                                 {data.promptChain[promptChainIndex].prompt}
                               </div>
                               <div className="absolute top-2 right-2 opacity-0 group-hover/prompt:opacity-100 transition-opacity pointer-events-none">
-                                <div className="flex items-center gap-1 bg-velocity-red px-2 py-1 text-[8px] font-mono text-white uppercase tracking-wider">
+                                <div className="flex items-center gap-1 bg-velocity-red px-2 py-1 text-[8px] font-sans text-white uppercase tracking-wider">
                                   <Copy className="w-2.5 h-2.5" /> Copy
                                 </div>
                               </div>
@@ -1457,7 +1457,7 @@ export const Launchpad: React.FC = () => {
                           href="https://www.lsesu.com/communities/societies/group/Velocity/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-mono text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center flex items-center justify-center gap-2"
+                          className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-sans text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center flex items-center justify-center gap-2"
                         >
                           Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
                         </a>

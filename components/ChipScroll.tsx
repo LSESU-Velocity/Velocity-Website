@@ -243,7 +243,7 @@ export const ChipScroll: React.FC = () => {
         return (
             <div className="h-screen w-full flex flex-col items-center justify-center bg-black">
                 <Loader2 className="w-12 h-12 text-white/60 animate-spin mb-6" />
-                <div className="text-white/60 font-mono text-sm tracking-wide">
+                <div className="text-white/60 font-sans text-sm tracking-wide">
                     Loading experience... {loadingProgress}%
                 </div>
                 <div className="w-48 h-1 bg-white/10 mt-4 overflow-hidden">
@@ -360,7 +360,7 @@ export const ChipScroll: React.FC = () => {
 
                                 <Link
                                     to="/launchpad"
-                                    className="relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden bg-transparent border-white/30 text-white hover:border-white hover:bg-white/5 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] gap-3"
+                                    className="relative px-8 py-4 font-sans font-medium text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden bg-transparent border-white/30 text-white hover:border-white hover:bg-white/5 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] gap-3"
                                     style={{ borderRadius: '0px' }}
                                 >
                                     <Rocket className="w-5 h-5" />

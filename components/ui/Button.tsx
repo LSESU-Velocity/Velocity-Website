@@ -17,16 +17,16 @@ interface ButtonProps extends Omit<HTMLMotionProps<"button">, "onClick"> {
   onClick?: React.MouseEventHandler<HTMLButtonElement | HTMLAnchorElement>;
 }
 
-export const Button: React.FC<ButtonProps> = ({ 
-  className, 
-  variant = 'primary', 
-  children, 
+export const Button: React.FC<ButtonProps> = ({
+  className,
+  variant = 'primary',
+  children,
   href,
   onClick,
-  ...props 
+  ...props
 }) => {
-  const baseStyles = "relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden";
-  
+  const baseStyles = "relative px-8 py-4 font-sans font-medium text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden";
+
   const variants = {
     primary: `
       bg-velocity-darkRed/20 border-velocity-red/50 text-white 
@@ -53,17 +53,17 @@ export const Button: React.FC<ButtonProps> = ({
           <span className="absolute bottom-0 right-0 w-1 h-1 bg-white opacity-50" />
         </>
       )}
-      
+
       {/* Subtle sheen for primary button */}
       {variant === 'primary' && (
-         <span className="absolute inset-0 opacity-20 bg-gradient-to-br from-transparent via-white/10 to-transparent pointer-events-none" />
+        <span className="absolute inset-0 opacity-20 bg-gradient-to-br from-transparent via-white/10 to-transparent pointer-events-none" />
       )}
     </>
   );
 
   if (href) {
     const isInternal = href.startsWith('#');
-    
+
     return (
       <motion.a
         href={href}

@@ -59,10 +59,10 @@ const itemVariants: Variants = {
 export const Roadmap: React.FC = () => {
   return (
     <section id="roadmap" className="py-24 px-6 border-t border-white/5 relative overflow-hidden">
-        {/* Background glow for this section */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-velocity-red/5 blur-[100px] pointer-events-none" />
+      {/* Background glow for this section */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-velocity-red/5 blur-[100px] pointer-events-none" />
 
-      <motion.div 
+      <motion.div
         className="max-w-7xl mx-auto"
         variants={containerVariants}
         initial="hidden"
@@ -71,41 +71,41 @@ export const Roadmap: React.FC = () => {
       >
         <motion.div variants={itemVariants} className="mb-16 text-center md:text-left">
           <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight mb-2">THE PIPELINE</h2>
-          <p className="font-mono text-gray-500 text-sm uppercase tracking-widest">From conception to production</p>
+          <p className="font-sans text-gray-500 text-sm uppercase tracking-widest">From conception to production</p>
         </motion.div>
 
         <div className="relative flex flex-col md:flex-row justify-between items-start gap-8">
-            
-            {/* Connecting line (hidden on mobile) */}
-            <motion.div 
-              initial={{ scaleX: 0, originX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5, duration: 1 }}
-              className="hidden md:block absolute top-8 left-0 right-0 h-[1px] bg-gradient-to-r from-gray-800 via-velocity-red to-gray-800 z-0" 
-            />
 
-            {steps.map((step, index) => (
-                <motion.div 
-                    key={index}
-                    variants={itemVariants}
-                    className="relative z-10 flex-1 bg-velocity-black md:bg-transparent p-4 md:p-0 border border-white/5 md:border-none w-full"
-                >
-                    <div className="flex flex-col items-center md:items-start">
-                        {/* Icon Box */}
-                        <div className={`w-16 h-16 bg-velocity-black border ${step.border} flex items-center justify-center mb-6 shadow-lg z-10 relative group transition-colors duration-300`}>
-                            <div className={`absolute inset-0 ${step.color.includes('red') ? 'bg-velocity-red/10' : 'bg-white/5'} opacity-0 group-hover:opacity-100 transition-opacity`} />
-                            <step.icon className={`w-6 h-6 ${step.color}`} />
-                        </div>
+          {/* Connecting line (hidden on mobile) */}
+          <motion.div
+            initial={{ scaleX: 0, originX: 0 }}
+            whileInView={{ scaleX: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 1 }}
+            className="hidden md:block absolute top-8 left-0 right-0 h-[1px] bg-gradient-to-r from-gray-800 via-velocity-red to-gray-800 z-0"
+          />
 
-                        <div className="text-center md:text-left">
-                            <span className="font-mono text-xs text-velocity-red/80 font-bold mb-2 block tracking-widest uppercase">{step.timeline}</span>
-                            <h3 className="font-sans font-bold text-xl text-white mb-2">{step.title}</h3>
-                            <p className="font-mono text-sm text-gray-400 leading-relaxed">{step.desc}</p>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
+          {steps.map((step, index) => (
+            <motion.div
+              key={index}
+              variants={itemVariants}
+              className="relative z-10 flex-1 bg-velocity-black md:bg-transparent p-4 md:p-0 border border-white/5 md:border-none w-full"
+            >
+              <div className="flex flex-col items-center md:items-start">
+                {/* Icon Box */}
+                <div className={`w-16 h-16 bg-velocity-black border ${step.border} flex items-center justify-center mb-6 shadow-lg z-10 relative group transition-colors duration-300`}>
+                  <div className={`absolute inset-0 ${step.color.includes('red') ? 'bg-velocity-red/10' : 'bg-white/5'} opacity-0 group-hover:opacity-100 transition-opacity`} />
+                  <step.icon className={`w-6 h-6 ${step.color}`} />
+                </div>
+
+                <div className="text-center md:text-left">
+                  <span className="font-sans text-xs text-velocity-red/80 font-bold mb-2 block tracking-widest uppercase">{step.timeline}</span>
+                  <h3 className="font-sans font-bold text-xl text-white mb-2">{step.title}</h3>
+                  <p className="font-sans text-sm text-gray-400 leading-relaxed">{step.desc}</p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       </motion.div>
     </section>

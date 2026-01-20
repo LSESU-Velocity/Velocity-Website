@@ -82,14 +82,14 @@ export const Navbar: React.FC = () => {
         </div>
         <div className="flex flex-col">
           <span className="font-sans font-bold text-2xl tracking-tighter text-white leading-none">VELOCITY</span>
-          <span className="font-mono text-xs text-gray-500 tracking-[0.2em]">LSESU SOCIETY</span>
+          <span className="font-sans text-xs text-gray-500 tracking-[0.2em]">LSESU SOCIETY</span>
         </div>
       </div>
 
       <div className="hidden md:flex items-center gap-8">
         <Link
           to="/launchpad"
-          className={`font-mono text-xs uppercase tracking-widest transition-colors ${location.pathname === '/launchpad' ? 'text-velocity-red font-bold' : 'text-gray-400 hover:text-velocity-red'}`}
+          className={`font-sans text-xs uppercase tracking-widest transition-colors ${location.pathname === '/launchpad' ? 'text-velocity-red font-bold' : 'text-gray-400 hover:text-velocity-red'}`}
         >
           Launchpad
         </Link>
@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
           href="https://www.lsesu.com/communities/societies/group/Velocity/"
           target="_blank"
           rel="noopener noreferrer"
-          className="px-4 py-2 text-xs font-mono font-bold bg-white text-black hover:bg-velocity-red hover:text-white transition-colors"
+          className="px-4 py-2 text-xs font-sans font-bold bg-white text-black hover:bg-velocity-red hover:text-white transition-colors"
         >
           JOIN_NOW
         </a>

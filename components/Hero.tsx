@@ -85,7 +85,7 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.4, duration: 0.6 }}
-          className="font-mono text-sm md:text-lg text-gray-400 max-w-2xl mb-10 leading-relaxed"
+          className="font-sans text-sm md:text-lg text-gray-400 max-w-2xl mb-10 leading-relaxed"
         >
           The LSE society for shipping products at the speed of AI. <br className="hidden md:block" />
           Stop creating pitch decks, start building products.
@@ -110,7 +110,7 @@ export const Hero: React.FC = () => {
 
           <Link
             to="/launchpad"
-            className="relative px-8 py-4 font-mono text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden bg-transparent border-white/30 text-white hover:border-white hover:bg-white/5 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] gap-3 w-full md:w-auto"
+            className="relative px-8 py-4 font-sans text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden bg-transparent border-white/30 text-white hover:border-white hover:bg-white/5 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] gap-3 w-full md:w-auto"
             style={{ borderRadius: '0px' }}
           >
             <Rocket className="w-5 h-5" />

@@ -60,7 +60,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ step, title, description, ico
             <div>
                 <div className="flex justify-between items-start mb-8">
                     <div className="relative">
-                        <span className="font-mono text-6xl font-bold text-white/5 select-none group-hover:text-velocity-red/10 transition-colors duration-500">
+                        <span className="font-sans text-6xl font-bold text-white/5 select-none group-hover:text-velocity-red/10 transition-colors duration-500">
                             {step}
                         </span>
                         <div className="absolute top-1/2 left-1 -translate-y-1/2 ml-1">
@@ -75,13 +75,13 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ step, title, description, ico
                 <h3 className="font-sans font-bold text-xl md:text-2xl text-white mb-4 group-hover:text-velocity-red transition-colors duration-500">
                     {title}
                 </h3>
-                <p className="font-mono text-sm leading-relaxed text-zinc-500 group-hover:text-zinc-400 transition-colors duration-500">
+                <p className="font-sans text-sm leading-relaxed text-zinc-500 group-hover:text-zinc-400 transition-colors duration-500">
                     {description}
                 </p>
             </div>
 
             <div className="mt-8 pt-6 border-t border-white/5 flex items-center gap-2 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-75">
-                <span className="font-mono text-xs uppercase tracking-wider text-velocity-red">Learn more</span>
+                <span className="font-sans text-xs uppercase tracking-wider text-velocity-red">Learn more</span>
                 <ArrowRight className="w-3 h-3 text-velocity-red" />
             </div>
         </motion.div>
@@ -112,7 +112,7 @@ export const Features: React.FC = () => {
                         <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2 uppercase">
                             Why Join <span className="text-velocity-red">Velocity?</span>
                         </h2>
-                        <p className="font-mono text-gray-500 text-sm uppercase tracking-widest">
+                        <p className="font-sans text-gray-500 text-sm uppercase tracking-widest">
                             We provide the tools, network, and skills you need to ship.
                         </p>
                     </div>

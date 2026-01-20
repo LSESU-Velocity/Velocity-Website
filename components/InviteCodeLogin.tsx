@@ -108,7 +108,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                 <h2 className="font-sans font-bold text-2xl text-center text-white mb-2 tracking-tight">
                                     {success ? 'Access Granted!' : 'Enter Access Key'}
                                 </h2>
-                                <p className="font-mono text-sm text-gray-400 text-center mb-6">
+                                <p className="font-sans text-sm text-gray-400 text-center mb-6">
                                     {success
                                         ? 'Welcome to Launchpad'
                                         : 'Enter your invite key to access Launchpad'}
@@ -128,7 +128,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                                 placeholder="VEL-XXXX-XXXX"
                                                 disabled={isLoading}
                                                 className={`w-full px-4 py-3 bg-black/30 border ${error ? 'border-red-500' : 'border-white/10'
-                                                    } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-mono text-center text-lg tracking-wider`}
+                                                    } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-sans text-center text-lg tracking-wider`}
                                                 autoFocus
                                             />
                                         </div>
@@ -138,7 +138,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                             <motion.div
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
-                                                className="flex items-center gap-2 text-red-400 font-mono text-xs justify-center"
+                                                className="flex items-center gap-2 text-red-400 font-sans text-xs justify-center"
                                             >
                                                 <AlertCircle className="w-4 h-4" />
                                                 {error}
@@ -149,7 +149,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                         <button
                                             type="submit"
                                             disabled={isLoading || !key.trim()}
-                                            className="w-full py-3 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red disabled:bg-gray-800 disabled:border-gray-700 disabled:cursor-not-allowed text-white font-mono text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
+                                            className="w-full py-3 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red disabled:bg-gray-800 disabled:border-gray-700 disabled:cursor-not-allowed text-white font-sans text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
                                         >
                                             {isLoading ? (
                                                 <>
@@ -164,7 +164,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                 )}
 
                                 {/* Footer */}
-                                <p className="font-mono text-gray-500 text-[10px] text-center mt-6 uppercase tracking-wider">
+                                <p className="font-sans text-gray-500 text-[10px] text-center mt-6 uppercase tracking-wider">
                                     Don't have a key? Contact the Velocity team
                                 </p>
                             </div>

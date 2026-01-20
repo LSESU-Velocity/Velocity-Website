@@ -32,13 +32,13 @@ export const TechStack: React.FC = () => {
           animation-play-state: paused !important;
         }
       `}</style>
-      
+
       <div className="flex relative max-w-[100vw] marquee-container group select-none">
         {/* Gradient Masks for fade effect */}
         <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-velocity-black to-transparent z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-velocity-black to-transparent z-20 pointer-events-none" />
 
-        <div 
+        <div
           className="flex flex-shrink-0 gap-16 pr-16 marquee-content"
           style={{ width: "max-content" }}
         >
@@ -74,31 +74,31 @@ const MarqueeItem: React.FC<MarqueeItemProps> = ({ item }) => {
 
   return (
     <>
-      <div 
+      <div
         ref={itemRef}
         className="relative flex items-center gap-3 group/item cursor-help py-2"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsHovered(false)}
       >
-          <div className="w-1.5 h-1.5 bg-velocity-red rounded-full opacity-50 group-hover/item:scale-150 transition-transform duration-300" />
-          <span className="font-mono text-lg text-gray-500 font-bold tracking-widest opacity-70 group-hover/item:opacity-100 group-hover/item:text-white group-hover/item:shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all whitespace-nowrap">
-              {item.name}
-          </span>
+        <div className="w-1.5 h-1.5 bg-velocity-red rounded-full opacity-50 group-hover/item:scale-150 transition-transform duration-300" />
+        <span className="font-sans text-lg text-gray-500 font-bold tracking-widest opacity-70 group-hover/item:opacity-100 group-hover/item:text-white group-hover/item:shadow-[0_0_10px_rgba(255,255,255,0.5)] transition-all whitespace-nowrap">
+          {item.name}
+        </span>
       </div>
-      
+
       <PortalTooltip isVisible={isHovered} coords={coords} item={item} />
     </>
   );
 };
 
-const PortalTooltip = ({ 
-  isVisible, 
-  coords, 
-  item 
-}: { 
-  isVisible: boolean, 
-  coords: { left: number, top: number }, 
-  item: { name: string, desc: string } 
+const PortalTooltip = ({
+  isVisible,
+  coords,
+  item
+}: {
+  isVisible: boolean,
+  coords: { left: number, top: number },
+  item: { name: string, desc: string }
 }) => {
   if (typeof document === 'undefined') return null;
 
@@ -118,34 +118,34 @@ const PortalTooltip = ({
           }}
           className="w-72 z-[9999] pointer-events-none"
         >
-            <div className="bg-[#0A0A0A] border border-white/10 px-5 py-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] relative">
-                  {/* Decorative corners */}
-                  <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-velocity-red/50" />
-                  <div className="absolute top-0 right-0 w-2 h-2 border-r border-t border-velocity-red/50" />
-                  <div className="absolute bottom-0 left-0 w-2 h-2 border-l border-b border-velocity-red/50" />
-                  <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-velocity-red/50" />
-                
-                {/* Scanline effect */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none" />
+          <div className="bg-[#0A0A0A] border border-white/10 px-5 py-4 shadow-[0_20px_50px_-10px_rgba(0,0,0,0.8)] relative">
+            {/* Decorative corners */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-l border-t border-velocity-red/50" />
+            <div className="absolute top-0 right-0 w-2 h-2 border-r border-t border-velocity-red/50" />
+            <div className="absolute bottom-0 left-0 w-2 h-2 border-l border-b border-velocity-red/50" />
+            <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-velocity-red/50" />
 
-                <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
-                    <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-velocity-red animate-pulse" />
-                        <span className="font-mono text-[10px] text-velocity-red tracking-widest uppercase">
-                            PROTOCOL
-                        </span>
-                    </div>
-                    <span className="font-mono text-[9px] text-gray-600">v1.0</span>
-                </div>
-                
-                <h4 className="font-sans font-bold text-white text-sm mb-1">{item.name}</h4>
-                <p className="font-mono text-xs text-gray-400 leading-relaxed">
-                    {item.desc}
-                </p>
+            {/* Scanline effect */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/[0.02] to-transparent pointer-events-none" />
+
+            <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-velocity-red animate-pulse" />
+                <span className="font-sans text-[10px] text-velocity-red tracking-widest uppercase">
+                  PROTOCOL
+                </span>
+              </div>
+              <span className="font-sans text-[9px] text-gray-600">v1.0</span>
             </div>
-            
-            {/* Connecting line */}
-            <div className="w-[1px] h-6 bg-gradient-to-b from-white/20 to-transparent mx-auto" />
+
+            <h4 className="font-sans font-bold text-white text-sm mb-1">{item.name}</h4>
+            <p className="font-sans text-xs text-gray-400 leading-relaxed">
+              {item.desc}
+            </p>
+          </div>
+
+          {/* Connecting line */}
+          <div className="w-[1px] h-6 bg-gradient-to-b from-white/20 to-transparent mx-auto" />
         </motion.div>
       )}
     </AnimatePresence>,
