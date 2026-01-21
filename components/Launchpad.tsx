@@ -836,13 +836,18 @@ export const Launchpad: React.FC = () => {
                 {/* Left Column: App Mockup & Monetization */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
                   <Widget
-                    title="App Mockup"
+                    title="Waitlist Preview"
                     icon={Smartphone}
                     delay={0.1}
                     className="flex-1"
                     visible={showResults}
                   >
                     <div className="flex flex-col h-full">
+                      {/* Explanation Text */}
+                      <p className="font-sans text-[11px] text-gray-400 leading-relaxed mb-3">
+                        <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves people care enough to give you their email—that's real validation. Perfect if you're still building, or want to test demand before you start.
+                      </p>
+
                       {/* Phone Mockup with Waitlist Preview */}
                       <div className="flex-1 flex items-center justify-center py-4">
                         <div className="relative w-full max-w-[220px] aspect-[9/19] bg-black border-[6px] border-[#1f1f1f] rounded-[2rem] overflow-hidden shadow-2xl ring-1 ring-white/10 group/phone">
