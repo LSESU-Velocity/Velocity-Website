@@ -102,9 +102,11 @@ export const Navbar: React.FC = () => {
         opacity: isVisible ? 1 : 0
       }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5 md:px-12"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5 md:px-12 backdrop-blur-xl"
       style={{
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 100%)',
+        background: 'rgba(0, 0, 0, 0.7)',
+        maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
       }}
     >
       {/* Left: Logo */}
