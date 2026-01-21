@@ -237,7 +237,7 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
       animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
       transition={{ duration: 0.5, delay: visible ? delay : 0 }}
       onMouseMove={handleMouseMove}
-      className={`relative group bg-white/[0.03] border border-white/10 overflow-hidden h-full flex flex-col backdrop-blur-md shadow-2xl ${className}`}
+      className={`relative group bg-gradient-to-b from-white/[0.03] to-transparent border border-white/5 ring-1 ring-white/5 overflow-hidden h-full flex flex-col backdrop-blur-md shadow-2xl rounded-2xl ${className}`}
     >
       {/* Spotlight Effect */}
       <motion.div
@@ -245,23 +245,21 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
         style={{
           background: useMotionTemplate`
             radial-gradient(
-              450px circle at ${mouseX}px ${mouseY}px,
-              rgba(255, 31, 31, 0.1),
+              500px circle at ${mouseX}px ${mouseY}px,
+              rgba(255, 31, 31, 0.06),
               transparent 80%
             )
           `,
         }}
       />
 
-
-
-      <div className="relative z-10 p-4 h-full flex flex-col">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-white/5 border border-white/10 group-hover:border-velocity-red/50 group-hover:bg-velocity-red/10 transition-colors duration-300">
-              <Icon className="w-3.5 h-3.5 text-gray-200 group-hover:text-velocity-red transition-colors duration-300" />
+      <div className="relative z-10 p-6 h-full flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white/5 border border-white/5 rounded-xl group-hover:border-velocity-red/30 group-hover:bg-velocity-red/10 transition-colors duration-300">
+              <Icon className="w-4 h-4 text-gray-300 group-hover:text-velocity-red transition-colors duration-300" />
             </div>
-            <span className="font-sans text-[10px] text-gray-200 uppercase tracking-widest">{title}</span>
+            <span className="font-sans text-[10px] text-gray-300 uppercase tracking-widest font-medium">{title}</span>
           </div>
           {action}
         </div>
@@ -917,18 +915,18 @@ export const Launchpad: React.FC = () => {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                         >
-                          <ChevronLeft className="w-3 h-3" />
+                          <ChevronLeft className="w-3.5 h-3.5" />
                         </button>
                         <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {monetizationIndex + 1}/{data.monetization.length}
                         </span>
                         <button
                           onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                         >
-                          <ChevronRight className="w-3 h-3" />
+                          <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     }
@@ -988,7 +986,8 @@ export const Launchpad: React.FC = () => {
                     <Widget title="Market Funnel" icon={TrendingUp} delay={0.2} className="h-full min-h-[380px]" visible={showResults}>
                       <div className="flex flex-col h-full justify-center gap-4 py-2">
                         {/* TAM - Wide Bar */}
-                        <div className="w-full bg-white/5 border border-white/10 p-3 rounded-sm hover:bg-white/10 transition-colors">
+                        {/* TAM - Wide Bar */}
+                        <div className="w-full bg-white/5 border border-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
@@ -1002,7 +1001,8 @@ export const Launchpad: React.FC = () => {
                         </div>
 
                         {/* SAM - Medium Bar */}
-                        <div className="w-[85%] mx-auto bg-white/10 border border-white/10 p-3 rounded-sm hover:bg-white/15 transition-colors">
+                        {/* SAM - Medium Bar */}
+                        <div className="w-[85%] mx-auto bg-white/5 border border-white/5 p-4 rounded-lg hover:bg-white/10 transition-colors">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
@@ -1016,7 +1016,8 @@ export const Launchpad: React.FC = () => {
                         </div>
 
                         {/* SOM - Narrow Bar */}
-                        <div className="w-[70%] mx-auto bg-velocity-red/30 shadow-[0_4px_20px_rgba(255,31,31,0.1)] border border-velocity-red/50 p-3 rounded-sm">
+                        {/* SOM - Narrow Bar */}
+                        <div className="w-[70%] mx-auto bg-velocity-red/20 shadow-[0_4px_20px_rgba(255,31,31,0.1)] border border-velocity-red/40 p-4 rounded-lg">
                           <div className="flex justify-between items-start">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
@@ -1042,18 +1043,18 @@ export const Launchpad: React.FC = () => {
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                           >
-                            <ChevronLeft className="w-3 h-3" />
+                            <ChevronLeft className="w-3.5 h-3.5" />
                           </button>
                           <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                             {competitorIndex + 1}/{data.validation.competitorList.length}
                           </span>
                           <button
                             onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
-                            className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                            className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                           >
-                            <ChevronRight className="w-3 h-3" />
+                            <ChevronRight className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       }
@@ -1061,7 +1062,7 @@ export const Launchpad: React.FC = () => {
                       <div className="flex flex-col h-full py-1 gap-3">
 
                         {/* Perceptual Map */}
-                        <div className="relative w-full h-44 bg-white/[0.03] border border-white/10 rounded-sm shrink-0 overflow-hidden group/map">
+                        <div className="relative w-full h-44 bg-white/[0.02] border border-white/5 rounded-2xl shrink-0 overflow-hidden group/map">
 
                           {/* Central Axis Lines - span full container */}
                           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
@@ -1307,7 +1308,7 @@ export const Launchpad: React.FC = () => {
                           initial={{ opacity: 0, x: -10 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: 0.4 + i * 0.1 }}
-                          className="bg-white/5 border border-white/5 p-2 rounded-sm hover:border-velocity-red/30 transition-colors"
+                          className="bg-white/5 border border-white/5 p-3 rounded-xl hover:border-velocity-red/30 transition-colors"
                         >
                           <div className="flex justify-between items-start mb-1">
                             <span className="font-sans font-bold text-white text-xs">{segment.segment}</span>
@@ -1345,7 +1346,7 @@ export const Launchpad: React.FC = () => {
                             initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.8 + i * 0.1 }}
-                            className="flex items-center justify-between p-2 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-sm cursor-pointer relative overflow-hidden"
+                            className="flex items-center justify-between p-3 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-xl cursor-pointer relative overflow-hidden"
                           >
                             <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
 
@@ -1374,18 +1375,18 @@ export const Launchpad: React.FC = () => {
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                         >
-                          <ChevronLeft className="w-3 h-3" />
+                          <ChevronLeft className="w-3.5 h-3.5" />
                         </button>
                         <span className="font-sans text-[9px] text-gray-400 tabular-nums px-1 select-none">
                           {promptChainIndex + 1}/{data.promptChain.length}
                         </span>
                         <button
                           onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
-                          className="w-5 h-5 flex items-center justify-center rounded-sm bg-white/5 border border-white/10 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                          className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                         >
-                          <ChevronRight className="w-3 h-3" />
+                          <ChevronRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     }
@@ -1410,7 +1411,7 @@ export const Launchpad: React.FC = () => {
                             {/* Prompt content */}
                             <div className="relative group/prompt flex-1 min-h-0">
                               <div
-                                className="p-3 bg-white/5 border border-white/10 font-sans text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.08] transition-all duration-300"
+                                className="p-4 bg-white/5 border border-white/5 font-sans text-[10px] text-gray-300 h-full overflow-y-auto leading-relaxed cursor-pointer hover:border-velocity-red/30 hover:bg-white/[0.08] transition-all duration-300 rounded-lg"
                                 onClick={() => {
                                   navigator.clipboard.writeText(data.promptChain[promptChainIndex].prompt);
                                 }}
@@ -1449,7 +1450,7 @@ export const Launchpad: React.FC = () => {
                           href="https://www.lsesu.com/communities/societies/group/Velocity/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-full py-2.5 bg-velocity-red/20 border border-velocity-red/50 text-white font-sans text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center flex items-center justify-center gap-2"
+                          className="w-full py-3 bg-velocity-red/20 border border-velocity-red/50 text-white font-sans text-[9px] uppercase tracking-widest hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_20px_rgba(255,31,31,0.3)] transition-all duration-300 text-center flex items-center justify-center gap-2 rounded-full"
                         >
                           Need help building? Join Velocity <ArrowRight className="w-3 h-3" />
                         </a>
