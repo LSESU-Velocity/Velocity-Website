@@ -836,7 +836,7 @@ export const Launchpad: React.FC = () => {
                 {/* Left Column: App Mockup & Monetization */}
                 <div className="lg:col-span-3 flex flex-col gap-4">
                   <Widget
-                    title="Waitlist Preview"
+                    title="Waitlist Inspiration"
                     icon={Smartphone}
                     delay={0.1}
                     className="flex-1"
@@ -845,7 +845,7 @@ export const Launchpad: React.FC = () => {
                     <div className="flex flex-col h-full">
                       {/* Explanation Text */}
                       <p className="font-sans text-[11px] text-gray-400 leading-relaxed mb-3">
-                        <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves people care enough to give you their email—that's real validation. Perfect if you're still building, or want to test demand before you start.
+                        <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves people care enough to give you their email—that's real validation. Perfect if you're still building, or want to test demand before you start. Use this as a starting point—edit, improve, and make it yours.
                       </p>
 
                       {/* Phone Mockup with Waitlist Preview */}
@@ -1230,13 +1230,17 @@ export const Launchpad: React.FC = () => {
                     {/* Pitch Deck Generator - Replaces Day 1 Tasks & Monetization & Risk */}
                     <div className="col-span-1 md:col-span-2">
                       <Widget
-                        title="PITCH DECK GENERATOR"
+                        title="Pitch Deck Inspiration"
                         icon={Presentation}
                         delay={0.3}
                         className="h-full min-h-[400px]"
                         visible={showResults}
                       >
                         <div className="flex flex-col h-full gap-4">
+                          {/* Explanation Text */}
+                          <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
+                            <span className="text-white font-medium">Build first, pitch second.</span> A product speaks louder than slides—but a pitch deck can complement your build by articulating your vision visually. Use this as a starting point to customise.
+                          </p>
                           {data.artifacts?.pitchDeckHtml ? (
                             <>
                               {/* Slide Preview */}
