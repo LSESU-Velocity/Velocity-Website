@@ -51,11 +51,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ step, title, description, ico
                 }}
             />
 
-            {/* Subtle grid texture */}
-            <div
-                className="absolute inset-0 opacity-[0.02] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.05]"
-                style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-            />
+
 
             <div>
                 <div className="flex justify-between items-start mb-8">

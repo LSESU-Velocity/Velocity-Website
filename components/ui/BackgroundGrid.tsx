@@ -10,7 +10,7 @@ export const BackgroundGrid: React.FC = () => {
       mouseX.set(e.clientX);
       mouseY.set(e.clientY);
     };
-    
+
     // Initialize center position to avoid jump
     mouseX.set(window.innerWidth / 2);
     mouseY.set(window.innerHeight / 2);
@@ -21,17 +21,10 @@ export const BackgroundGrid: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden bg-velocity-black">
-      {/* Base Grid */}
-      <div 
-        className="absolute inset-0 opacity-[0.15]" 
-        style={{
-            backgroundImage: 'linear-gradient(to right, #333 1px, transparent 1px), linear-gradient(to bottom, #333 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
-        }}
-      />
-      
+
+
       {/* Mouse Spotlight - Moving Red Glow */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 transition-opacity duration-300"
         style={{
           background: useMotionTemplate`radial-gradient(600px circle at ${mouseX}px ${mouseY}px, rgba(255, 31, 31, 0.08), transparent 40%)`

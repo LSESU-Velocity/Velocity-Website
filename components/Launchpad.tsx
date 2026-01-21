@@ -253,11 +253,7 @@ const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action
         }}
       />
 
-      {/* Grid Background */}
-      <div
-        className="absolute inset-0 opacity-[0.03] pointer-events-none transition-opacity duration-500 group-hover:opacity-[0.07]"
-        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-      />
+
 
       <div className="relative z-10 p-4 h-full flex flex-col">
         <div className="flex items-center justify-between mb-3">
@@ -591,11 +587,7 @@ export const Launchpad: React.FC = () => {
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute top-full right-0 mt-2 w-80 bg-white/[0.02] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md"
                   >
-                    {/* Grid Background */}
-                    <div
-                      className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                      style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-                    />
+
                     <div className="relative z-10">
                       <div className="p-4 border-b border-white/10 flex items-center gap-2">
                         <div className="p-1.5 bg-white/5 border border-white/10">

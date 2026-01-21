@@ -72,11 +72,7 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                         className="fixed inset-0 z-50 flex items-center justify-center p-6"
                     >
                         <div className="relative w-full max-w-md bg-white/[0.02] border border-white/10 p-8 shadow-2xl overflow-hidden backdrop-blur-md">
-                            {/* Grid Background */}
-                            <div
-                                className="absolute inset-0 opacity-[0.03] pointer-events-none"
-                                style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '24px 24px' }}
-                            />
+
 
                             {/* Close button */}
                             <button
