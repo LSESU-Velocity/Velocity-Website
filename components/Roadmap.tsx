@@ -58,7 +58,13 @@ const itemVariants: Variants = {
 
 export const Roadmap: React.FC = () => {
   return (
-    <section id="roadmap" className="py-24 px-6 border-t border-white/5 relative overflow-hidden">
+    <section id="roadmap" className="py-24 px-6 relative overflow-hidden">
+      {/* Top Gradient Blend */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#000000] to-transparent z-10 pointer-events-none" />
+
+      {/* Bottom Gradient Blend */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#000000] to-transparent z-10 pointer-events-none" />
+
       {/* Background glow for this section */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[200px] bg-velocity-red/5 blur-[100px] pointer-events-none" />
 
