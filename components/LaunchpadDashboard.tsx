@@ -259,7 +259,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                 >
                                     <div className="flex flex-col h-full py-1 gap-6">
                                         {/* Map */}
-                                        <div className="relative w-full h-48 bg-white/[0.02] border border-white/5 rounded-2xl shrink-0 overflow-hidden group/map">
+                                        <div className="relative w-full h-56 bg-white/[0.02] border border-white/5 rounded-2xl shrink-0 overflow-hidden group/map">
                                             {/* Axis Lines */}
                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                                                 <div className="w-full h-px bg-white/10" />
