@@ -710,13 +710,13 @@ export const Launchpad: React.FC = () => {
 
           <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
             <AnimatedText
-              text="READY TO BUILD?"
+              text="Ready to build?"
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
               delay={0.2}
             />
             <AnimatedText
-              text="START HERE."
-              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#F5E3A8] via-[#D4AF37] to-[#8A6E2F] pb-4 drop-shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+              text="Start here."
+              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4 drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]"
               delay={0.8}
             />
           </h1>
@@ -725,7 +725,7 @@ export const Launchpad: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-sans text-sm md:text-base text-gray-400 max-w-xl mb-12 leading-relaxed"
+            className="font-sans text-sm md:text-base text-white max-w-3xl mb-12 leading-relaxed text-balance"
           >
             You've got the spark. We'll find your market, your customers, and your starting point.
           </motion.p>
@@ -737,29 +737,31 @@ export const Launchpad: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.6 }}
             onSubmit={handleLaunch}
-            className="w-full max-w-2xl"
+            className="w-full max-w-3xl relative z-20"
           >
-            <div className="relative group">
-              <div className="flex flex-col sm:flex-row gap-4 bg-white/[0.02] border border-white/10 p-2 group-hover:border-white/20 transition-colors">
+            <div className="relative group rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500 hover:shadow-[0_0_50px_rgba(220,38,38,0.2)]">
+              <div className="flex items-center gap-3 bg-neutral-900/80 rounded-full p-2 pl-6 border border-white/5 transition-all duration-500 group-hover:bg-neutral-900/60 focus-within:bg-neutral-900/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
+
                 <input
                   type="text"
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
                   placeholder="An AI-powered meal planning app that learns your tastes..."
-                  className="flex-1 bg-transparent text-white px-4 py-4 outline-none placeholder:text-gray-600 font-sans text-sm"
+                  className="flex-1 bg-transparent text-white px-2 py-3 outline-none placeholder:text-gray-500 font-sans text-lg appearance-none"
                   disabled={isGenerating}
                   maxLength={500}
                 />
+
                 <button
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative px-8 py-4 font-sans text-sm uppercase tracking-widest transition-all duration-300 border-2 bg-velocity-darkRed/20 border-velocity-red/50 text-white shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:bg-velocity-red hover:border-velocity-red hover:shadow-[0_0_50px_rgba(255,31,31,0.6)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                  className="relative px-8 py-3.5 rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] hover:bg-red-600 hover:shadow-[0_0_30px_rgba(220,38,38,0.6)] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
                   ) : (
                     <>
-                      Launch <ArrowRight className="w-4 h-4" />
+                      Launch <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                     </>
                   )}
                 </button>
