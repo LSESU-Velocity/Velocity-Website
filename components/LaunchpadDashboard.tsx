@@ -70,11 +70,59 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                            {/* Executive Summary */}
-                            <div className="lg:col-span-7">
-                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="h-full">
+                            {/* Waitlist Inspiration */}
+                            <div className="lg:col-span-3">
+                                <Widget title="Waitlist Inspiration" icon={Smartphone} visible={showResults} className="h-full">
+                                    <div className="flex flex-col h-full items-center gap-6 p-4">
+                                        <p className="font-sans text-xs text-gray-400 text-center max-w-sm">
+                                            <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves demand.
+                                        </p>
+
+                                        <div className="relative w-full max-w-[240px] aspect-[9/19] bg-black border-[8px] border-[#1f1f1f] rounded-[3rem] overflow-hidden shadow-2xl ring-1 ring-white/10 group/phone">
+                                            <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center overflow-hidden">
+                                                {data.artifacts?.waitlistHtml ? (
+                                                    <div className="w-full h-full bg-white relative">
+                                                        <iframe
+                                                            srcDoc={data.artifacts.waitlistHtml}
+                                                            title="Waitlist Preview"
+                                                            className="w-[200%] h-[200%] origin-top-left scale-50 border-0"
+                                                            sandbox="allow-scripts"
+                                                        />
+                                                        <div className="absolute inset-0 z-10 bg-transparent" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {data.artifacts?.waitlistHtml && (
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'index.html')}
+                                                    className="flex items-center gap-2 px-4 py-2 bg-velocity-red text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-900/20"
+                                                >
+                                                    <Download className="w-3.5 h-3.5" /> Download
+                                                </button>
+                                                <button
+                                                    onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)}
+                                                    className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                                                >
+                                                    <ExternalLink className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Widget>
+                            </div>
+
+                            {/* Executive Summary & Pitch Deck */}
+                            <div className="lg:col-span-5 flex flex-col gap-6">
+                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="h-[48%]">
                                     <div className="flex flex-col gap-6 h-full p-2">
-                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed">
+                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed overflow-y-auto max-h-[140px] pr-2">
                                             {data.validation.aiInsight}
                                         </p>
 
@@ -85,10 +133,60 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         </div>
                                     </div>
                                 </Widget>
+
+                                {/* Pitch Deck */}
+                                <Widget
+                                    title="Pitch Deck Inspiration"
+                                    icon={Presentation}
+                                    visible={showResults}
+                                    className="h-[48%] min-h-[300px]"
+                                >
+                                    <div className="flex flex-col h-full gap-4">
+                                        <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
+                                            <span className="text-white font-medium">Build first, pitch second.</span> Use this as a starting point.
+                                        </p>
+
+                                        {data.artifacts?.pitchDeckHtml ? (
+                                            <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden group/slide">
+                                                <iframe
+                                                    srcDoc={data.artifacts.pitchDeckHtml}
+                                                    className="w-full h-full border-0"
+                                                    title="Pitch Deck Preview"
+                                                    id="pitch-deck-preview"
+                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
+                                                />
+                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/slide:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-sm">
+                                                    <div className="pointer-events-auto flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => {
+                                                                const newWindow = window.open('', '_blank');
+                                                                newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
+                                                            }}
+                                                            className="px-6 py-2.5 bg-white text-black uppercase font-sans text-xs font-bold tracking-widest hover:scale-105 transition-transform rounded-full"
+                                                        >
+                                                            Fullscreen
+                                                        </button>
+                                                        <button
+                                                            onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
+                                                            className="p-2.5 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                                                        >
+                                                            <Download className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                                                <Loader2 className="w-8 h-8 text-velocity-red animate-spin" />
+                                                <p className="font-sans text-xs text-gray-400">Generating pitch deck...</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </Widget>
                             </div>
 
                             {/* Market Position */}
-                            <div className="lg:col-span-5">
+                            <div className="lg:col-span-4">
                                 <Widget
                                     title="Market Position"
                                     icon={Target}
@@ -378,164 +476,70 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                             <div className="h-px bg-white/10 flex-1"></div>
                         </div>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {/* Waitlist */}
-                            <Widget title="Waitlist Inspiration" icon={Smartphone} visible={showResults}>
-                                <div className="flex flex-col h-full items-center gap-6 p-4">
-                                    <p className="font-sans text-xs text-gray-400 text-center max-w-sm">
-                                        <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves demand.
-                                    </p>
+                        <div className="grid grid-cols-1 gap-6">
 
-                                    <div className="relative w-full max-w-[240px] aspect-[9/19] bg-black border-[8px] border-[#1f1f1f] rounded-[3rem] overflow-hidden shadow-2xl ring-1 ring-white/10 group/phone">
-                                        <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center overflow-hidden">
-                                            {data.artifacts?.waitlistHtml ? (
-                                                <div className="w-full h-full bg-white relative">
-                                                    <iframe
-                                                        srcDoc={data.artifacts.waitlistHtml}
-                                                        title="Waitlist Preview"
-                                                        className="w-[200%] h-[200%] origin-top-left scale-50 border-0"
-                                                        sandbox="allow-scripts"
-                                                    />
-                                                    <div className="absolute inset-0 z-10 bg-transparent" />
-                                                </div>
-                                            ) : (
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {data.artifacts?.waitlistHtml && (
-                                        <div className="flex items-center gap-3">
-                                            <button
-                                                onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'index.html')}
-                                                className="flex items-center gap-2 px-4 py-2 bg-velocity-red text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-900/20"
-                                            >
-                                                <Download className="w-3.5 h-3.5" /> Download
-                                            </button>
-                                            <button
-                                                onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)}
-                                                className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
-                                            >
-                                                <ExternalLink className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            </Widget>
-
-                            {/* Pitch Deck */}
+                            {/* Prompt Chain */}
                             <Widget
-                                title="Pitch Deck Inspiration"
-                                icon={Presentation}
+                                title="Prompt Chain"
+                                icon={Terminal}
                                 visible={showResults}
-                                className="h-full min-h-[400px]"
+                                action={
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                        </button>
+                                        <span className="font-sans text-[10px] text-gray-400 tabular-nums px-2 select-none">
+                                            {promptChainIndex + 1}/{data.promptChain.length}
+                                        </span>
+                                        <button
+                                            onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                        >
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                }
                             >
-                                <div className="flex flex-col h-full gap-4">
-                                    <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
-                                        <span className="text-white font-medium">Build first, pitch second.</span> Use this as a starting point.
-                                    </p>
+                                <div className="flex flex-col h-full min-h-[300px]">
+                                    <AnimatePresence mode="wait">
+                                        <motion.div
+                                            key={promptChainIndex}
+                                            initial={{ opacity: 0, x: 10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            exit={{ opacity: 0, x: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="flex-1 flex flex-col gap-4"
+                                        >
+                                            <div>
+                                                <p className="font-sans text-[10px] text-gray-400 mb-1 uppercase tracking-widest font-medium">Step {data.promptChain[promptChainIndex].step}</p>
+                                                <p className="font-sans font-bold text-white text-lg">{data.promptChain[promptChainIndex].title}</p>
+                                            </div>
 
-                                    {data.artifacts?.pitchDeckHtml ? (
-                                        <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden group/slide">
-                                            <iframe
-                                                srcDoc={data.artifacts.pitchDeckHtml}
-                                                className="w-full h-full border-0"
-                                                title="Pitch Deck Preview"
-                                                id="pitch-deck-preview"
-                                                sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
-                                            />
-                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/slide:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-sm">
-                                                <div className="pointer-events-auto flex items-center gap-3">
-                                                    <button
-                                                        onClick={() => {
-                                                            const newWindow = window.open('', '_blank');
-                                                            newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
-                                                        }}
-                                                        className="px-6 py-2.5 bg-white text-black uppercase font-sans text-xs font-bold tracking-widest hover:scale-105 transition-transform rounded-full"
-                                                    >
-                                                        Fullscreen
-                                                    </button>
-                                                    <button
-                                                        onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
-                                                        className="p-2.5 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
-                                                    >
-                                                        <Download className="w-4 h-4" />
-                                                    </button>
+                                            <div
+                                                className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-6 font-mono text-sm text-gray-300 overflow-y-auto max-h-[400px] leading-relaxed relative group/prompt cursor-pointer hover:bg-white/[0.07] transition-colors"
+                                                onClick={() => copyToClipboard(data.promptChain[promptChainIndex].prompt)}
+                                            >
+                                                {data.promptChain[promptChainIndex].prompt}
+
+                                                <div className="absolute top-4 right-4 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
+                                                    <div className="flex items-center gap-2 bg-velocity-red text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                                                        <Copy className="w-3 h-3" /> Copy
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ) : (
-                                        <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                                            <Loader2 className="w-8 h-8 text-velocity-red animate-spin" />
-                                            <p className="font-sans text-xs text-gray-400">Generating pitch deck...</p>
-                                        </div>
-                                    )}
+                                        </motion.div>
+                                    </AnimatePresence>
                                 </div>
                             </Widget>
                         </div>
-
-                        {/* Prompt Chain */}
-                        <Widget
-                            title="Prompt Chain"
-                            icon={Terminal}
-                            visible={showResults}
-                            action={
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
-                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                                    >
-                                        <ChevronLeft className="w-4 h-4" />
-                                    </button>
-                                    <span className="font-sans text-[10px] text-gray-400 tabular-nums px-2 select-none">
-                                        {promptChainIndex + 1}/{data.promptChain.length}
-                                    </span>
-                                    <button
-                                        onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
-                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
-                                    >
-                                        <ChevronRight className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            }
-                        >
-                            <div className="flex flex-col h-full min-h-[300px]">
-                                <AnimatePresence mode="wait">
-                                    <motion.div
-                                        key={promptChainIndex}
-                                        initial={{ opacity: 0, x: 10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -10 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="flex-1 flex flex-col gap-4"
-                                    >
-                                        <div>
-                                            <p className="font-sans text-[10px] text-gray-400 mb-1 uppercase tracking-widest font-medium">Step {data.promptChain[promptChainIndex].step}</p>
-                                            <p className="font-sans font-bold text-white text-lg">{data.promptChain[promptChainIndex].title}</p>
-                                        </div>
-
-                                        <div
-                                            className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-6 font-mono text-sm text-gray-300 overflow-y-auto max-h-[400px] leading-relaxed relative group/prompt cursor-pointer hover:bg-white/[0.07] transition-colors"
-                                            onClick={() => copyToClipboard(data.promptChain[promptChainIndex].prompt)}
-                                        >
-                                            {data.promptChain[promptChainIndex].prompt}
-
-                                            <div className="absolute top-4 right-4 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
-                                                <div className="flex items-center gap-2 bg-velocity-red text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
-                                                    <Copy className="w-3 h-3" /> Copy
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                </AnimatePresence>
-                            </div>
-                        </Widget>
                     </div>
 
                 </motion.div>
-            )}
-        </AnimatePresence>
+            )
+            }
+        </AnimatePresence >
     );
 };
