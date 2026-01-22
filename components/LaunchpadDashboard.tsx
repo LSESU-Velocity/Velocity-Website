@@ -569,6 +569,14 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                 </div>
                             </Widget>
                         </div>
+
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="text-center mt-4 pt-3 border-t border-white/5 pb-1">
+                        <p className="font-sans text-[10px] text-white/20 font-medium tracking-wide">
+                            Velocity AI can make mistakes. Please verify important information.
+                        </p>
                     </div>
 
                 </motion.div>
