@@ -83,12 +83,23 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                 {data.artifacts?.waitlistHtml ? (
                                                     <div className="w-full h-full bg-white relative">
                                                         <iframe
-                                                            srcDoc={data.artifacts.waitlistHtml}
+                                                            srcDoc={data.artifacts.waitlistHtml.replace('</head>', `
+                                                                <style>
+                                                                    html, body {
+                                                                        overflow: auto;
+                                                                        scrollbar-width: none;
+                                                                        -ms-overflow-style: none;
+                                                                    }
+                                                                    html::-webkit-scrollbar, body::-webkit-scrollbar {
+                                                                        display: none;
+                                                                    }
+                                                                </style>
+                                                                </head>
+                                                            `)}
                                                             title="Waitlist Preview"
                                                             className="w-[200%] h-[200%] origin-top-left scale-50 border-0"
                                                             sandbox="allow-scripts"
                                                         />
-                                                        <div className="absolute inset-0 z-10 bg-transparent" />
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col items-center gap-2">
