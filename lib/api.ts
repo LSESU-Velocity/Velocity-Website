@@ -46,6 +46,7 @@ export interface AnalysisData {
         competitorList: Array<{
             name: string;
             usp?: string;
+            strength: string;
             weakness: string;
             x: number;
             y: number;

@@ -205,9 +205,9 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
         ],
 
         competitors: [
-            { name: "Vercel", usp: "One-click deployments", weakness: "Expensive at scale, vendor lock-in", x: 30, y: 60, founded: "2015", hq: "San Francisco", funding: "$313M raised", employees: "350+", website: "vercel.com" },
-            { name: "Bubble", usp: "Visual no-code builder", weakness: "Limited customization, slow performance", x: 15, y: 75, founded: "2012", hq: "New York", funding: "$115M raised", employees: "200+", website: "bubble.io" },
-            { name: "Replit", usp: "Browser-based IDE", weakness: "Not production-ready, limited enterprise features", x: 40, y: 40, founded: "2016", hq: "San Francisco", funding: "$222M raised", employees: "100+", website: "replit.com" }
+            { name: "Vercel", usp: "One-click deployments", strength: "Industry-leading developer experience and deployment speed.", weakness: "Expensive at scale, vendor lock-in", x: 30, y: 60, founded: "2015", hq: "San Francisco", funding: "$313M raised", employees: "350+", website: "vercel.com" },
+            { name: "Bubble", usp: "Visual no-code builder", strength: "Powerful visual editor for complex applications without code.", weakness: "Limited customization, slow performance", x: 15, y: 75, founded: "2012", hq: "New York", funding: "$115M raised", employees: "200+", website: "bubble.io" },
+            { name: "Replit", usp: "Browser-based IDE", strength: "Instant collaborative coding environment accessible from anywhere.", weakness: "Not production-ready, limited enterprise features", x: 40, y: 40, founded: "2016", hq: "San Francisco", funding: "$222M raised", employees: "100+", website: "replit.com" }
         ],
         marketGap: {
             xAxis: { label: "Ease of Use", low: "Simple", high: "Complex" },
@@ -334,9 +334,9 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             ],
 
             competitors: [
-                { name: "FitBuddy", usp: "Focuses on finding personal trainers", weakness: "Expensive subscription, low student adoption", x: 75, y: 70, founded: "2018", hq: "London", funding: "$12M", employees: "50+", website: "fitbuddy.app" },
-                { name: "GymMate", usp: "Tracks workout progress", weakness: "No social features, purely a logbook", x: 30, y: 25, founded: "2020", hq: "Berlin", funding: "$3M", employees: "25+", website: "gymmate.io" },
-                { name: "SpotMe", usp: "Large user base in US", weakness: "Very few users in London/UK", x: 60, y: 80, founded: "2017", hq: "Los Angeles", funding: "$28M", employees: "100+", website: "spotme.fit" }
+                { name: "FitBuddy", usp: "Focuses on finding personal trainers", strength: "Established network of certified personal trainers.", weakness: "Expensive subscription, low student adoption", x: 75, y: 70, founded: "2018", hq: "London", funding: "$12M", employees: "50+", website: "fitbuddy.app" },
+                { name: "GymMate", usp: "Tracks workout progress", strength: "Comprehensive workout logging and progress tracking.", weakness: "No social features, purely a logbook", x: 30, y: 25, founded: "2020", hq: "Berlin", funding: "$3M", employees: "25+", website: "gymmate.io" },
+                { name: "SpotMe", usp: "Large user base in US", strength: "Large, active community of gym-goers in the US.", weakness: "Very few users in London/UK", x: 60, y: 80, founded: "2017", hq: "Los Angeles", funding: "$28M", employees: "100+", website: "spotme.fit" }
             ],
             marketGap: {
                 xAxis: { label: "Social Features", low: "Solo", high: "Community" },

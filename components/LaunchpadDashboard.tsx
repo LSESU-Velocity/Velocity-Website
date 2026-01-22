@@ -350,6 +350,11 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                     )}
                                                 </div>
 
+                                                <p className="font-sans text-sm text-gray-300 leading-relaxed pl-4 border-l-2 border-emerald-500/30">
+                                                    <span className="text-emerald-400 uppercase text-[10px] tracking-widest block mb-1">Strength</span>
+                                                    {data.validation.competitorList[competitorIndex].strength}
+                                                </p>
+
                                                 <p className="font-sans text-sm text-gray-300 leading-relaxed pl-4 border-l-2 border-white/10">
                                                     <span className="text-gray-500 uppercase text-[10px] tracking-widest block mb-1">Weakness</span>
                                                     {data.validation.competitorList[competitorIndex].weakness}
