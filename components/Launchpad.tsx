@@ -18,11 +18,7 @@ export const Launchpad: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
-  const [competitorIndex, setCompetitorIndex] = useState(0);
-  const [monetizationIndex, setMonetizationIndex] = useState(0);
-  const [riskIndex, setRiskIndex] = useState(0);
-  const [domainIndex, setDomainIndex] = useState(0);
-  const [promptChainIndex, setPromptChainIndex] = useState(0);
+
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingPercent, setLoadingPercent] = useState(0);
   const [showResults, setShowResults] = useState(false);
@@ -196,12 +192,7 @@ export const Launchpad: React.FC = () => {
     setData(null);
     setError(null);
     setShowResults(false);
-    setCompetitorIndex(0);
-    setMonetizationIndex(0);
-    setRiskIndex(0);
 
-    setDomainIndex(0);
-    setPromptChainIndex(0);
     setLoadingStep(0);
 
 

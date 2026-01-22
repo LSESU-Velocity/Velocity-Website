@@ -184,9 +184,7 @@ const responseSchema = {
         required: ["name", "type", "members"]
       }
     },
-    viability: { type: "number", description: "0-100 score for how likely this is to succeed" },
-    scalability: { type: "number", description: "0-100 score for how easily this can scale" },
-    complexity: { type: "number", description: "0-100 score for how hard this is to build (higher = more complex)" },
+
     waitlistHtml: { type: "string", description: "Complete landing page HTML with Tailwind CDN" },
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
@@ -194,7 +192,6 @@ const responseSchema = {
     "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "marketReports", "competitors", "marketGap",
     "promptChain", "distributionChannels",
-    "viability", "scalability", "complexity",
     "waitlistHtml", "pitchDeckHtml"
   ]
 };
@@ -317,10 +314,7 @@ COMPETITOR DISCOVERY - TWO-STEP PROCESS (CRITICAL):
 11. Include their actual website domain (e.g., notion.so, coda.io)
 12. Use Crunchbase, LinkedIn, or company websites as sources for company details
 
-SCORING:
-12. Viability score (0-100): How likely is this to succeed? Consider market fit, timing, competition
-13. Scalability score (0-100): How easily can this scale? Consider tech, ops, market size
-14. Complexity score (0-100): How hard is this to build? Higher = more complex
+
 
 CHARACTER LIMITS - ABSOLUTELY CRITICAL (MUST FOLLOW):
 15. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
@@ -617,11 +611,7 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
         competitorList: analysisData.competitors,
         marketReports: analysisData.marketReports || [],
         marketGap: analysisData.marketGap,
-        scores: {
-          viability: analysisData.viability || 0,
-          scalability: analysisData.scalability || 0,
-          complexity: analysisData.complexity || 0
-        }
+
       },
       sources: {
         market: analysisData.sources?.market || [],

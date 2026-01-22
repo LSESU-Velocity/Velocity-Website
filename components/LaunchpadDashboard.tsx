@@ -5,7 +5,7 @@ import {
     Smartphone, Presentation, Terminal, ChevronLeft, ChevronRight,
     Download, Copy, ExternalLink, FileText, Loader2
 } from 'lucide-react';
-import { Widget, AnimatedScoreBar } from './LaunchpadWidgets';
+import { Widget } from './LaunchpadWidgets';
 
 interface LaunchpadDashboardProps {
     data: any;
@@ -119,18 +119,12 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                             </div>
 
                             {/* Executive Summary & Pitch Deck */}
-                            <div className="lg:col-span-5 flex flex-col gap-6">
-                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="h-[48%]">
-                                    <div className="flex flex-col gap-6 h-full p-2">
-                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed overflow-y-auto max-h-[140px] pr-2">
+                            <div className="lg:col-span-5 flex flex-col gap-6 h-full">
+                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="flex-1">
+                                    <div className="flex flex-col h-full">
+                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0 mt-2">
                                             {data.validation.aiInsight}
                                         </p>
-
-                                        <div className="mt-auto grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
-                                            <AnimatedScoreBar label="Viability" targetValue={data.validation.scores?.viability ?? 80} delay={0.3} visible={showResults} />
-                                            <AnimatedScoreBar label="Scalability" targetValue={data.validation.scores?.scalability ?? 60} delay={0.4} visible={showResults} />
-                                            <AnimatedScoreBar label="Complexity" targetValue={data.validation.scores?.complexity ?? 40} delay={0.5} visible={showResults} invertColor />
-                                        </div>
                                     </div>
                                 </Widget>
 
@@ -139,7 +133,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     title="Pitch Deck Inspiration"
                                     icon={Presentation}
                                     visible={showResults}
-                                    className="h-[48%] min-h-[300px]"
+                                    className="flex-1 min-h-0"
                                 >
                                     <div className="flex flex-col h-full gap-4">
                                         <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
