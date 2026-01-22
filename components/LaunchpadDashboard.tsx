@@ -134,6 +134,45 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     icon={Presentation}
                                     visible={showResults}
                                     className="flex-1 min-h-0"
+                                    action={data.artifacts?.pitchDeckHtml && (
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={() => {
+                                                    const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
+                                                    iframe?.contentWindow?.postMessage({ type: 'prevSlide' }, '*');
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                            >
+                                                <ChevronLeft className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
+                                                    iframe?.contentWindow?.postMessage({ type: 'nextSlide' }, '*');
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    const newWindow = window.open('', '_blank');
+                                                    newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                title="Open in fullscreen"
+                                            >
+                                                <ExternalLink className="w-4 h-4" />
+                                            </button>
+                                            <button
+                                                onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                title="Download"
+                                            >
+                                                <Download className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
                                 >
                                     <div className="flex flex-col h-full gap-4">
                                         <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
@@ -141,7 +180,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         </p>
 
                                         {data.artifacts?.pitchDeckHtml ? (
-                                            <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden group/slide">
+                                            <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden">
                                                 <iframe
                                                     srcDoc={data.artifacts.pitchDeckHtml}
                                                     className="w-full h-full border-0"
@@ -149,25 +188,6 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                     id="pitch-deck-preview"
                                                     sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
                                                 />
-                                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/slide:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-sm">
-                                                    <div className="pointer-events-auto flex items-center gap-3">
-                                                        <button
-                                                            onClick={() => {
-                                                                const newWindow = window.open('', '_blank');
-                                                                newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
-                                                            }}
-                                                            className="px-6 py-2.5 bg-white text-black uppercase font-sans text-xs font-bold tracking-widest hover:scale-105 transition-transform rounded-full"
-                                                        >
-                                                            Fullscreen
-                                                        </button>
-                                                        <button
-                                                            onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
-                                                            className="p-2.5 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
-                                                        >
-                                                            <Download className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             </div>
                                         ) : (
                                             <div className="flex-1 flex flex-col items-center justify-center gap-3">
