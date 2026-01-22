@@ -250,7 +250,7 @@ export const Launchpad: React.FC = () => {
 
 
   return (
-    <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden">
+    <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden bg-neutral-900">
       {/* Login Modal */}
       <InviteCodeLogin
         isOpen={showLoginModal}
