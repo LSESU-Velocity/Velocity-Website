@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2, Zap, Target, Users, Coins, MessageCircle,
     Smartphone, Presentation, Terminal, ChevronLeft, ChevronRight,
-    Download, Copy, ExternalLink, FileText, Loader2
+    Download, Copy, ExternalLink, FileText, Loader2, ArrowRight
 } from 'lucide-react';
 import { Widget } from './LaunchpadWidgets';
 
@@ -571,6 +571,24 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                         </div>
 
                     </div>
+
+                    {/* CTA */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5 }}
+                        className="flex flex-col items-center justify-center py-12 mt-8 border-t border-white/5"
+                    >
+                        <a
+                            href="https://www.lsesu.com/communities/societies/group/Velocity/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-8 py-4 bg-velocity-red text-white text-sm font-bold uppercase tracking-wider rounded-full hover:bg-red-600 transition-all shadow-[0_0_20px_rgba(255,31,31,0.3)] hover:shadow-[0_0_30px_rgba(255,31,31,0.5)] hover:scale-105 active:scale-95"
+                        >
+                            Join Velocity & Start Building <ArrowRight className="w-4 h-4" />
+                        </a>
+                    </motion.div>
 
                     {/* Disclaimer */}
                     <div className="text-center mt-4 pt-3 border-t border-white/5 pb-1">
