@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, Download, Presentation, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -557,131 +558,135 @@ export const Launchpad: React.FC = () => {
         onLogin={login}
       />
 
-      {/* Auth Status Bar */}
-      <div className="fixed top-24 right-6 z-[60] flex items-center gap-3">
-        {isAuthenticated ? (
-          <>
-            {/* History Button */}
-            <div className="relative">
-              <button
-                onClick={() => setShowHistory(!showHistory)}
-                className="p-2 bg-white/[0.02] border border-white/10 hover:border-white/20 text-gray-400 hover:text-white transition-all flex items-center gap-2 group"
-              >
-                <History className="w-4 h-4 group-hover:text-velocity-red transition-colors" />
-                <span className="text-sm font-sans hidden sm:inline">History</span>
-                {history.length > 0 && (
-                  <span className="bg-velocity-red text-white text-xs px-1.5 py-0.5">
-                    {history.length}
-                  </span>
-                )}
-              </button>
+      {/* Portal Buttons to Navbar */}
+      {typeof document !== 'undefined' && document.getElementById('navbar-actions') && createPortal(
+        <>
+          {isAuthenticated ? (
+            <>
+              {/* History Button */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className={`p-2 rounded-full transition-all flex items-center gap-2 group ${showHistory ? 'text-white bg-white/10' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+                >
+                  <History className="w-5 h-5 group-hover:text-velocity-red transition-colors" />
+                  {history.length > 0 && (
+                    <span className="bg-velocity-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full absolute -top-1 -right-1">
+                      {history.length}
+                    </span>
+                  )}
+                </button>
 
-              {/* History Dropdown */}
-              <AnimatePresence>
-                {showHistory && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute top-full right-0 mt-2 w-80 bg-white/[0.02] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md"
-                  >
+                {/* History Dropdown */}
+                <AnimatePresence>
+                  {showHistory && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      className="absolute top-full right-0 mt-4 w-80 bg-black/90 border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl z-[70]"
+                    >
 
-                    <div className="relative z-10">
-                      <div className="p-4 border-b border-white/10 flex items-center gap-2">
-                        <div className="p-1.5 bg-white/5 border border-white/10">
-                          <History className="w-3.5 h-3.5 text-velocity-red" />
+                      <div className="relative z-10">
+                        <div className="p-4 border-b border-white/10 flex items-center gap-2 bg-white/5">
+                          <div className="p-1.5 bg-white/5 border border-white/10 rounded-md">
+                            <History className="w-3.5 h-3.5 text-velocity-red" />
+                          </div>
+                          <span className="font-sans text-[10px] text-gray-300 uppercase tracking-widest font-bold">Previous Analyses</span>
                         </div>
-                        <span className="font-sans text-[10px] text-gray-300 uppercase tracking-widest">Previous Analyses</span>
-                      </div>
-                      <div className="max-h-72 overflow-y-auto">
-                        {history.length === 0 ? (
-                          <p className="p-4 font-sans text-xs text-gray-500">No analyses yet</p>
-                        ) : (
-                          history.map((record) => (
-                            <div
-                              key={record.id}
-                              className="w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group"
-                            >
-                              <button
-                                onClick={() => loadFromHistory(record)}
-                                className="flex-1 text-left min-w-0"
-                              >
-                                <p className="font-sans text-sm text-white truncate group-hover:text-velocity-red transition-colors">{record.idea}</p>
-                                <p className="font-sans text-[10px] text-gray-500 mt-1 uppercase tracking-wider">
-                                  {new Date(record.createdAt).toLocaleDateString()}
-                                </p>
-                              </button>
-                              <div className="relative flex items-center">
-                                {confirmDeleteId === record.id ? (
-                                  <div className="flex items-center gap-1.5 bg-white/5 border border-white/10 px-2 py-1">
-                                    <span className="font-sans text-[9px] text-gray-400 whitespace-nowrap">Delete?</span>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteAnalysis(e, record.id);
-                                        setConfirmDeleteId(null);
-                                      }}
-                                      disabled={deletingId === record.id}
-                                      className="font-sans text-[9px] text-velocity-red hover:text-white transition-colors disabled:opacity-50"
-                                    >
-                                      {deletingId === record.id ? (
-                                        <Loader2 className="w-3 h-3 animate-spin" />
-                                      ) : (
-                                        'Yes'
-                                      )}
-                                    </button>
-                                    <span className="text-gray-600">|</span>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setConfirmDeleteId(null);
-                                      }}
-                                      className="font-sans text-[9px] text-gray-400 hover:text-white transition-colors"
-                                    >
-                                      No
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setConfirmDeleteId(record.id);
-                                    }}
-                                    className="p-1.5 text-gray-500 hover:text-velocity-red hover:bg-white/5 transition-all"
-                                    title="Delete analysis"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
-                                )}
-                              </div>
+                        <div className="max-h-72 overflow-y-auto custom-scrollbar">
+                          {history.length === 0 ? (
+                            <div className="p-8 text-center bg-black/50">
+                              <History className="w-8 h-8 text-gray-700 mx-auto mb-2" />
+                              <p className="font-sans text-xs text-gray-500">No analyses yet</p>
                             </div>
-                          ))
-                        )}
+                          ) : (
+                            history.map((record) => (
+                              <div
+                                key={record.id}
+                                className="w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group cursor-pointer"
+                                onClick={() => loadFromHistory(record)}
+                              >
+                                <div className="flex-1 text-left min-w-0">
+                                  <p className="font-sans text-sm text-gray-200 truncate group-hover:text-velocity-red transition-colors font-medium">{record.idea}</p>
+                                  <p className="font-sans text-[10px] text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-2">
+                                    <span>{new Date(record.createdAt).toLocaleDateString()}</span>
+                                    <span className="w-1 h-1 bg-white/20 rounded-full"></span>
+                                    <span>{new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                  </p>
+                                </div>
+                                <div className="relative flex items-center">
+                                  {confirmDeleteId === record.id ? (
+                                    <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md" onClick={e => e.stopPropagation()}>
+                                      <span className="font-sans text-[9px] text-red-300 whitespace-nowrap">Delete?</span>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteAnalysis(e, record.id);
+                                          setConfirmDeleteId(null);
+                                        }}
+                                        disabled={deletingId === record.id}
+                                        className="font-sans text-[9px] text-white bg-red-500/50 hover:bg-red-500 px-1.5 rounded transition-colors disabled:opacity-50"
+                                      >
+                                        {deletingId === record.id ? (
+                                          <Loader2 className="w-3 h-3 animate-spin" />
+                                        ) : (
+                                          'Y'
+                                        )}
+                                      </button>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setConfirmDeleteId(null);
+                                        }}
+                                        className="font-sans text-[9px] text-gray-400 hover:text-white transition-colors px-1"
+                                      >
+                                        N
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setConfirmDeleteId(record.id);
+                                      }}
+                                      className="p-2 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                      title="Delete analysis"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
 
-            {/* Logout Button */}
+              {/* Logout Button */}
+              <button
+                onClick={logout}
+                className="p-2 rounded-full text-white/60 hover:text-velocity-red hover:bg-velocity-red/10 transition-all"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
+              </button>
+            </>
+          ) : (
             <button
-              onClick={logout}
-              className="p-2 bg-white/[0.02] border border-white/10 hover:border-velocity-red/50 text-gray-400 hover:text-velocity-red transition-all group"
-              title="Logout"
+              onClick={() => setShowLoginModal(true)}
+              className="px-5 py-2 bg-white text-black hover:bg-gray-200 font-sans text-xs font-bold uppercase tracking-widest transition-all rounded-full"
             >
-              <LogOut className="w-4 h-4" />
+              Login
             </button>
-          </>
-        ) : (
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="px-4 py-2 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red text-white font-sans text-sm uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
-          >
-            Login
-          </button>
-        )}
-      </div>
+          )}
+        </>,
+        document.getElementById('navbar-actions')!
+      )}
 
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Error Display */}
