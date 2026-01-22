@@ -1,0 +1,541 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    CheckCircle2, Zap, Target, Users, Coins, MessageCircle,
+    Smartphone, Presentation, Terminal, ChevronLeft, ChevronRight,
+    Download, Copy, ExternalLink, FileText, Loader2
+} from 'lucide-react';
+import { Widget, AnimatedScoreBar } from './LaunchpadWidgets';
+
+interface LaunchpadDashboardProps {
+    data: any;
+    showResults: boolean;
+}
+
+export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, showResults }) => {
+    const [competitorIndex, setCompetitorIndex] = useState(0);
+    const [monetizationIndex, setMonetizationIndex] = useState(0);
+    const [promptChainIndex, setPromptChainIndex] = useState(0);
+
+    const downloadHtml = (html: string, filename: string) => {
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+    };
+
+    const openInNewTab = (html: string) => {
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    };
+
+    return (
+        <AnimatePresence>
+            {showResults && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex flex-col gap-16 max-w-[1400px] mx-auto py-8"
+                >
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="text-center"
+                    >
+                        <div className="inline-flex items-center gap-2 text-velocity-red mb-3">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span className="font-sans text-[10px] uppercase tracking-widest font-bold">Analysis Complete</span>
+                        </div>
+                        <h2 className="font-sans font-black text-4xl md:text-5xl tracking-tight text-white mb-3">{data.identity.name}</h2>
+                        <p className="font-sans text-gray-400 text-sm md:text-base italic max-w-2xl mx-auto">{data.identity.tagline}</p>
+                    </motion.div>
+
+                    {/* Phase 1: Validation */}
+                    <div className="flex flex-col gap-8">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="h-px bg-white/10 flex-1"></div>
+                            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Phase 1: Validation</span>
+                            <div className="h-px bg-white/10 flex-1"></div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                            {/* Executive Summary */}
+                            <div className="lg:col-span-7">
+                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="h-full">
+                                    <div className="flex flex-col gap-6 h-full p-2">
+                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed">
+                                            {data.validation.aiInsight}
+                                        </p>
+
+                                        <div className="mt-auto grid grid-cols-3 gap-4 pt-6 border-t border-white/5">
+                                            <AnimatedScoreBar label="Viability" targetValue={data.validation.scores?.viability ?? 80} delay={0.3} visible={showResults} />
+                                            <AnimatedScoreBar label="Scalability" targetValue={data.validation.scores?.scalability ?? 60} delay={0.4} visible={showResults} />
+                                            <AnimatedScoreBar label="Complexity" targetValue={data.validation.scores?.complexity ?? 40} delay={0.5} visible={showResults} invertColor />
+                                        </div>
+                                    </div>
+                                </Widget>
+                            </div>
+
+                            {/* Market Position */}
+                            <div className="lg:col-span-5">
+                                <Widget
+                                    title="Market Position"
+                                    icon={Target}
+                                    visible={showResults}
+                                    className="min-h-[400px]"
+                                    action={
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            >
+                                                <ChevronLeft className="w-4 h-4" />
+                                            </button>
+                                            <span className="font-sans text-[10px] text-gray-400 tabular-nums px-2 select-none">
+                                                {competitorIndex + 1}/{data.validation.competitorList.length}
+                                            </span>
+                                            <button
+                                                onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    }
+                                >
+                                    <div className="flex flex-col h-full py-1 gap-6">
+                                        {/* Map */}
+                                        <div className="relative w-full h-48 bg-white/[0.02] border border-white/5 rounded-2xl shrink-0 overflow-hidden group/map">
+                                            {/* Axis Lines */}
+                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                                <div className="w-full h-px bg-white/10" />
+                                            </div>
+                                            <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-white/10 pointer-events-none" />
+
+                                            {/* Labels */}
+                                            <div className="absolute top-2 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                                {data.validation.marketGap?.yAxis.high}
+                                            </div>
+                                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                                {data.validation.marketGap?.yAxis.low}
+                                            </div>
+                                            <div className="absolute left-2 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                                {data.validation.marketGap?.xAxis.low}
+                                            </div>
+                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                                {data.validation.marketGap?.xAxis.high}
+                                            </div>
+
+                                            {/* Dots */}
+                                            <div className="absolute top-6 right-6 bottom-6 left-6">
+                                                {data.validation.competitorList.map((comp: any, i: number) => (
+                                                    <motion.div
+                                                        key={comp.name}
+                                                        initial={{ scale: 0, opacity: 0 }}
+                                                        animate={{ scale: 1, opacity: 1 }}
+                                                        transition={{ delay: 0.5 + i * 0.1, type: "spring" }}
+                                                        className="absolute group/dot cursor-pointer"
+                                                        style={{
+                                                            left: `${comp.x}%`,
+                                                            bottom: `${comp.y}%`,
+                                                            transform: 'translate(-50%, 50%)'
+                                                        }}
+                                                        onClick={() => setCompetitorIndex(i)}
+                                                    >
+                                                        {competitorIndex === i ? (
+                                                            <div className="w-5 h-5 rounded-full bg-velocity-red border-[3px] border-black shadow-[0_0_20px_rgba(255,31,31,0.8)] relative z-20 flex items-center justify-center">
+                                                                <div className="w-1.5 h-1.5 bg-white rounded-full" />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-3 h-3 rounded-full bg-gray-600 border border-black/50 hover:bg-gray-400 transition-colors z-10" />
+                                                        )}
+                                                    </motion.div>
+                                                ))}
+
+                                                {/* Your position */}
+                                                <motion.div
+                                                    initial={{ scale: 0, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    transition={{ delay: 0.8, type: "spring" }}
+                                                    className="absolute z-20"
+                                                    style={{
+                                                        left: `${data.validation.marketGap?.yourPosition.x ?? 50}%`,
+                                                        bottom: `${data.validation.marketGap?.yourPosition.y ?? 50}%`,
+                                                        transform: 'translate(-50%, 50%)'
+                                                    }}
+                                                >
+                                                    <div className="w-5 h-5 rounded-full bg-emerald-500 border-[3px] border-black shadow-[0_0_12px_rgba(16,185,129,0.6)]" />
+                                                </motion.div>
+                                            </div>
+                                        </div>
+
+                                        {/* Info */}
+                                        <AnimatePresence mode="wait">
+                                            <motion.div
+                                                key={competitorIndex}
+                                                initial={{ opacity: 0, x: 10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                exit={{ opacity: 0, x: -10 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="space-y-4"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-2 h-2 rounded-full bg-velocity-red" />
+                                                        <span className="font-sans font-bold text-white text-lg">{data.validation.competitorList[competitorIndex].name}</span>
+                                                    </div>
+                                                    {data.validation.competitorList[competitorIndex].website && (
+                                                        <a
+                                                            href={`https://${data.validation.competitorList[competitorIndex].website}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="font-sans text-[10px] text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1 uppercase tracking-wider"
+                                                        >
+                                                            Visit Website <ExternalLink className="w-3 h-3" />
+                                                        </a>
+                                                    )}
+                                                </div>
+
+                                                <p className="font-sans text-sm text-gray-300 leading-relaxed pl-4 border-l-2 border-white/10">
+                                                    <span className="text-gray-500 uppercase text-[10px] tracking-widest block mb-1">Weakness</span>
+                                                    {data.validation.competitorList[competitorIndex].weakness}
+                                                </p>
+                                            </motion.div>
+                                        </AnimatePresence>
+
+                                        {/* Gap */}
+                                        <div className="mt-auto pt-4 border-t border-white/5">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                                <span className="font-sans text-[10px] text-emerald-400 uppercase tracking-widest font-bold">Your Gap</span>
+                                            </div>
+                                            <p className="font-sans text-sm text-white leading-relaxed pl-4">
+                                                {data.validation.marketGap?.yourGap}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </Widget>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Phase 2: Strategy */}
+                    <div className="flex flex-col gap-8">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="h-px bg-white/10 flex-1"></div>
+                            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Phase 2: Strategy</span>
+                            <div className="h-px bg-white/10 flex-1"></div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {/* Customer Segments */}
+                            <Widget title="Customer Segments" icon={Users} visible={showResults} className="h-full">
+                                <div className="space-y-4 pt-2">
+                                    {data.customerSegments.map((segment: any, i: number) => (
+                                        <motion.div
+                                            key={i}
+                                            initial={{ opacity: 0, x: -10 }}
+                                            animate={{ opacity: 1, x: 0 }}
+                                            transition={{ delay: 0.4 + i * 0.1 }}
+                                            className="bg-white/5 border border-white/5 p-4 rounded-2xl hover:bg-white/10 transition-colors"
+                                        >
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="font-sans font-bold text-white text-sm">{segment.segment}</span>
+                                                <span className="font-sans text-[10px] text-gray-200 border border-white/10 px-2 py-0.5 rounded-full bg-black/50">{segment.age}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1.5">
+                                                <div className="flex items-start gap-2 text-[11px] text-gray-300 font-sans">
+                                                    <span className="text-velocity-red min-w-[40px] font-medium">Target:</span>
+                                                    <span>{segment.interest}</span>
+                                                </div>
+                                                <div className="flex items-start gap-2 text-[11px] text-gray-300 font-sans">
+                                                    <span className="text-blue-400 min-w-[40px] font-medium">Income:</span>
+                                                    <span>{segment.income}</span>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </Widget>
+
+                            {/* Monetization */}
+                            <Widget
+                                title="Monetization Strategy"
+                                icon={Coins}
+                                visible={showResults}
+                                className="h-full"
+                                action={
+                                    <div className="flex items-center gap-1.5">
+                                        <button
+                                            onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                        >
+                                            <ChevronLeft className="w-4 h-4" />
+                                        </button>
+                                        <span className="font-sans text-[10px] text-gray-400 tabular-nums px-2 select-none">
+                                            {monetizationIndex + 1}/{data.monetization.length}
+                                        </span>
+                                        <button
+                                            onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                        >
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                }
+                            >
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={monetizationIndex}
+                                        initial={{ opacity: 0, x: 10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex flex-col h-full gap-4 pt-2"
+                                    >
+                                        <div>
+                                            <p className="font-sans text-[10px] text-gray-400 mb-1 uppercase tracking-widest font-medium">Model</p>
+                                            <p className="font-sans font-black text-white text-2xl tracking-tight leading-none mb-2">{data.monetization[monetizationIndex].model}</p>
+                                            <p className="font-sans text-velocity-red font-bold text-sm tracking-wide">{data.monetization[monetizationIndex].pricing}</p>
+                                        </div>
+
+                                        <div className="space-y-2 mb-4 bg-white/5 p-4 rounded-xl border border-white/5">
+                                            {data.monetization[monetizationIndex].strategies.map((strat: string, i: number) => (
+                                                <div key={i} className="flex items-start gap-3">
+                                                    <CheckCircle2 className="w-3.5 h-3.5 text-velocity-red mt-0.5 flex-shrink-0" />
+                                                    <span className="text-xs text-gray-200 leading-snug">{strat}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="mt-auto">
+                                            <p className="font-sans text-[10px] text-blue-400 uppercase tracking-widest mb-2 font-medium">Who Does This Well</p>
+                                            <p className="font-sans text-xs text-gray-400 leading-relaxed italic border-l-2 border-white/10 pl-3">
+                                                {data.monetization[monetizationIndex].examples}
+                                            </p>
+                                        </div>
+                                    </motion.div>
+                                </AnimatePresence>
+                            </Widget>
+
+                            {/* Channels */}
+                            <Widget title="Distribution Channels" icon={MessageCircle} visible={showResults} className="h-full">
+                                <div className="flex flex-col gap-3 pt-2">
+                                    <div className="flex items-center justify-between mb-2">
+                                        <p className="font-sans text-[9px] text-gray-400 uppercase tracking-widest">
+                                            Where Your Users Hang Out
+                                        </p>
+                                        <div className="text-[9px] px-2 py-0.5 bg-white/5 border border-white/10 rounded-full text-gray-300 font-medium">TOP 5</div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3">
+                                        {data.distributionChannels.map((channel: any, i: number) => (
+                                            <motion.a
+                                                href={`https://google.com/search?q=${encodeURIComponent(channel.name)}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                key={i}
+                                                initial={{ opacity: 0, x: -10 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.8 + i * 0.1 }}
+                                                className="flex items-center justify-between p-4 bg-white/5 border border-white/5 hover:bg-white/10 hover:border-velocity-red/30 transition-all group/channel rounded-2xl cursor-pointer relative overflow-hidden"
+                                            >
+                                                <div className="absolute inset-0 bg-velocity-red/5 translate-x-[-100%] group-hover/channel:translate-x-0 transition-transform duration-500 ease-out" />
+
+                                                <div className="flex items-center gap-3 relative z-10">
+                                                    <div className="w-2 h-2 rounded-full bg-velocity-red group-hover/channel:scale-125 transition-transform duration-300 shadow-[0_0_10px_rgba(255,31,31,0.5)]" />
+                                                    <span className="font-sans text-sm text-gray-200 font-bold group-hover/channel:text-white transition-colors">{channel.name}</span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 relative z-10">
+                                                    <span className="font-sans text-[9px] text-gray-400 border border-white/5 px-2 py-0.5 rounded-full uppercase bg-black/20 font-medium">{channel.type}</span>
+                                                    <span className="font-sans text-[10px] text-velocity-red font-bold">{channel.members}</span>
+                                                </div>
+                                            </motion.a>
+                                        ))}
+                                    </div>
+                                </div>
+                            </Widget>
+                        </div>
+                    </div>
+
+                    {/* Phase 3: Execution */}
+                    <div className="flex flex-col gap-8">
+                        <div className="flex items-center gap-4 mb-2">
+                            <div className="h-px bg-white/10 flex-1"></div>
+                            <span className="font-sans text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Phase 3: Execution</span>
+                            <div className="h-px bg-white/10 flex-1"></div>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {/* Waitlist */}
+                            <Widget title="Waitlist Inspiration" icon={Smartphone} visible={showResults}>
+                                <div className="flex flex-col h-full items-center gap-6 p-4">
+                                    <p className="font-sans text-xs text-gray-400 text-center max-w-sm">
+                                        <span className="text-white font-medium">Gauge real interest.</span> A waitlist proves demand.
+                                    </p>
+
+                                    <div className="relative w-full max-w-[240px] aspect-[9/19] bg-black border-[8px] border-[#1f1f1f] rounded-[3rem] overflow-hidden shadow-2xl ring-1 ring-white/10 group/phone">
+                                        <div className="w-full h-full bg-[#0a0a0a] relative flex flex-col items-center justify-center overflow-hidden">
+                                            {data.artifacts?.waitlistHtml ? (
+                                                <div className="w-full h-full bg-white relative">
+                                                    <iframe
+                                                        srcDoc={data.artifacts.waitlistHtml}
+                                                        title="Waitlist Preview"
+                                                        className="w-[200%] h-[200%] origin-top-left scale-50 border-0"
+                                                        sandbox="allow-scripts"
+                                                    />
+                                                    <div className="absolute inset-0 z-10 bg-transparent" />
+                                                </div>
+                                            ) : (
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <Loader2 className="w-6 h-6 text-velocity-red animate-spin" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {data.artifacts?.waitlistHtml && (
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'index.html')}
+                                                className="flex items-center gap-2 px-4 py-2 bg-velocity-red text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-900/20"
+                                            >
+                                                <Download className="w-3.5 h-3.5" /> Download
+                                            </button>
+                                            <button
+                                                onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)}
+                                                className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                                            >
+                                                <ExternalLink className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </Widget>
+
+                            {/* Pitch Deck */}
+                            <Widget
+                                title="Pitch Deck Inspiration"
+                                icon={Presentation}
+                                visible={showResults}
+                                className="h-full min-h-[400px]"
+                            >
+                                <div className="flex flex-col h-full gap-4">
+                                    <p className="font-sans text-[11px] text-gray-400 leading-relaxed">
+                                        <span className="text-white font-medium">Build first, pitch second.</span> Use this as a starting point.
+                                    </p>
+
+                                    {data.artifacts?.pitchDeckHtml ? (
+                                        <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden group/slide">
+                                            <iframe
+                                                srcDoc={data.artifacts.pitchDeckHtml}
+                                                className="w-full h-full border-0"
+                                                title="Pitch Deck Preview"
+                                                id="pitch-deck-preview"
+                                                sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
+                                            />
+                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/slide:opacity-100 transition-opacity flex items-center justify-center pointer-events-none backdrop-blur-sm">
+                                                <div className="pointer-events-auto flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            const newWindow = window.open('', '_blank');
+                                                            newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
+                                                        }}
+                                                        className="px-6 py-2.5 bg-white text-black uppercase font-sans text-xs font-bold tracking-widest hover:scale-105 transition-transform rounded-full"
+                                                    >
+                                                        Fullscreen
+                                                    </button>
+                                                    <button
+                                                        onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
+                                                        className="p-2.5 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                                                    >
+                                                        <Download className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                                            <Loader2 className="w-8 h-8 text-velocity-red animate-spin" />
+                                            <p className="font-sans text-xs text-gray-400">Generating pitch deck...</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </Widget>
+                        </div>
+
+                        {/* Prompt Chain */}
+                        <Widget
+                            title="Prompt Chain"
+                            icon={Terminal}
+                            visible={showResults}
+                            action={
+                                <div className="flex items-center gap-1.5">
+                                    <button
+                                        onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <span className="font-sans text-[10px] text-gray-400 tabular-nums px-2 select-none">
+                                        {promptChainIndex + 1}/{data.promptChain.length}
+                                    </span>
+                                    <button
+                                        onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
+                                        className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            }
+                        >
+                            <div className="flex flex-col h-full min-h-[300px]">
+                                <AnimatePresence mode="wait">
+                                    <motion.div
+                                        key={promptChainIndex}
+                                        initial={{ opacity: 0, x: 10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        exit={{ opacity: 0, x: -10 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex-1 flex flex-col gap-4"
+                                    >
+                                        <div>
+                                            <p className="font-sans text-[10px] text-gray-400 mb-1 uppercase tracking-widest font-medium">Step {data.promptChain[promptChainIndex].step}</p>
+                                            <p className="font-sans font-bold text-white text-lg">{data.promptChain[promptChainIndex].title}</p>
+                                        </div>
+
+                                        <div
+                                            className="flex-1 bg-white/5 border border-white/5 rounded-2xl p-6 font-mono text-sm text-gray-300 overflow-y-auto max-h-[400px] leading-relaxed relative group/prompt cursor-pointer hover:bg-white/[0.07] transition-colors"
+                                            onClick={() => copyToClipboard(data.promptChain[promptChainIndex].prompt)}
+                                        >
+                                            {data.promptChain[promptChainIndex].prompt}
+
+                                            <div className="absolute top-4 right-4 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
+                                                <div className="flex items-center gap-2 bg-velocity-red text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
+                                                    <Copy className="w-3 h-3" /> Copy
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                </AnimatePresence>
+                            </div>
+                        </Widget>
+                    </div>
+
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+};
