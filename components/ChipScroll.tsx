@@ -298,15 +298,15 @@ export const ChipScroll: React.FC = () => {
                         style={{ opacity: futureOpacity }}
                     >
                         <div className="px-4 sm:px-6 md:px-16 lg:px-24 max-w-2xl">
-                            <h2 className="font-sans font-bold text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl tracking-tight text-white/90 leading-tight"
-                                style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
-                                The Future of
+                            <h2 className="font-sans font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tighter text-white/90 leading-none"
+                                style={{ textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
+                                AI-Native
                                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400 whitespace-nowrap">
-                                    AI Entrepreneurship
+                                    Founders.
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md">
-                                Where LSE students transform ideas into products at unprecedented speed.
+                                Where LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
                             </p>
                         </div>
                     </motion.div>
@@ -317,11 +317,11 @@ export const ChipScroll: React.FC = () => {
                         style={{ opacity: speedOpacity }}
                     >
                         <div className="px-6 md:px-16 lg:px-24 text-right max-w-2xl">
-                            <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tight text-white/90 leading-tight"
-                                style={{ textShadow: '0 0 40px rgba(255,255,255,0.1)' }}>
+                            <h2 className="font-sans font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tighter text-white/90 leading-none"
+                                style={{ textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
                                 From Idea to
                                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-velocity-red to-red-400">
-                                    Launch.
+                                    Prototype.
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg">
