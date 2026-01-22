@@ -141,18 +141,34 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                     const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
                                                     iframe?.contentWindow?.postMessage({ type: 'prevSlide' }, '*');
                                                 }}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-300 group/nav"
                                             >
-                                                <ChevronLeft className="w-4 h-4" />
+                                                <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-50 group-hover/nav:opacity-100 transition-opacity">
+                                                    <path d="M8.5 14.5L2 8L8.5 1.5" stroke="url(#gradient-left)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <defs>
+                                                        <linearGradient id="gradient-left" x1="8.5" y1="1.5" x2="2" y2="14.5" gradientUnits="userSpaceOnUse">
+                                                            <stop stopColor="#FF1F8C" />
+                                                            <stop offset="1" stopColor="#FF8F1F" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
                                             </button>
                                             <button
                                                 onClick={() => {
                                                     const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
                                                     iframe?.contentWindow?.postMessage({ type: 'nextSlide' }, '*');
                                                 }}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/5 transition-all duration-300 group/nav"
                                             >
-                                                <ChevronRight className="w-4 h-4" />
+                                                <svg width="10" height="16" viewBox="0 0 10 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-50 group-hover/nav:opacity-100 transition-opacity">
+                                                    <path d="M1.5 1.5L8 8L1.5 14.5" stroke="url(#gradient-right)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                    <defs>
+                                                        <linearGradient id="gradient-right" x1="1.5" y1="1.5" x2="8" y2="14.5" gradientUnits="userSpaceOnUse">
+                                                            <stop stopColor="#FF1F8C" />
+                                                            <stop offset="1" stopColor="#FF8F1F" />
+                                                        </linearGradient>
+                                                    </defs>
+                                                </svg>
                                             </button>
                                             <button
                                                 onClick={() => {
@@ -182,7 +198,22 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         {data.artifacts?.pitchDeckHtml ? (
                                             <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden">
                                                 <iframe
-                                                    srcDoc={data.artifacts.pitchDeckHtml}
+                                                    srcDoc={data.artifacts.pitchDeckHtml.replace('</body>', `
+                                                        <script>
+                                                            window.addEventListener('message', (event) => {
+                                                                if (event.data.type === 'prevSlide') {
+                                                                    Reveal.prev();
+                                                                } else if (event.data.type === 'nextSlide') {
+                                                                    Reveal.next();
+                                                                }
+                                                            });
+                                                        </script>
+                                                        <style>
+                                                            html, body { height: 100%; overflow: hidden !important; }
+                                                            .reveal { height: 100% !important; }
+                                                        </style>
+                                                        </body>
+                                                    `)}
                                                     className="w-full h-full border-0"
                                                     title="Pitch Deck Preview"
                                                     id="pitch-deck-preview"
