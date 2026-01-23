@@ -76,10 +76,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ step, title, description, ico
                 </p>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-white/5 flex items-center gap-2 opacity-0 transform translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-75">
-                <span className="font-sans text-xs uppercase tracking-wider text-velocity-red">Learn more</span>
-                <ArrowRight className="w-3 h-3 text-velocity-red" />
-            </div>
+
         </motion.div>
     );
 };
@@ -105,8 +102,8 @@ export const Features: React.FC = () => {
                         I'll put the header above the grid to let the 3 steps shine. 
                     */}
                     <div className="lg:col-span-3 mb-16 md:text-center max-w-3xl mx-auto">
-                        <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2 uppercase">
-                            Why Join <span className="text-velocity-red">Velocity?</span>
+                        <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2">
+                            Why join <span className="text-velocity-red">Velocity?</span>
                         </h2>
                         <p className="font-sans text-gray-500 text-sm uppercase tracking-widest">
                             We provide the tools, network, and skills you need to ship.
