@@ -242,6 +242,15 @@ export const Launchpad: React.FC = () => {
 
   return (
     <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden bg-neutral-900">
+      {/* Black Background Overlay with Fade */}
+      <div
+        className="absolute top-0 left-0 w-full bg-black pointer-events-none"
+        style={{
+          height: '85vh',
+          maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+        }}
+      />
       {/* Login Modal */}
       <InviteCodeLogin
         isOpen={showLoginModal}
@@ -407,12 +416,12 @@ export const Launchpad: React.FC = () => {
           <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
             <AnimatedText
               text="Ready to build?"
-              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
+              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
               delay={0.2}
             />
             <AnimatedText
               text="Start here."
-              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
+              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
               delay={1.5}
             />
           </h1>
