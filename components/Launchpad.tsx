@@ -444,15 +444,15 @@ export const Launchpad: React.FC = () => {
             onSubmit={handleLaunch}
             className="w-full max-w-3xl relative z-20"
           >
-            <div className="relative group rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500">
-              <div className="flex items-center gap-3 bg-neutral-900/80 rounded-full p-2 pl-6 border border-white/5 transition-all duration-500 group-hover:bg-neutral-900/60 focus-within:bg-neutral-900/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
+            <div className="relative group rounded-2xl md:rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-neutral-900/80 rounded-2xl md:rounded-full p-3 md:p-2 md:pl-6 border border-white/5 transition-all duration-500 group-hover:bg-neutral-900/60 focus-within:bg-neutral-900/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
 
                 <input
                   type="text"
                   value={idea}
                   onChange={(e) => setIdea(e.target.value)}
                   placeholder="An AI-powered meal planning app that learns your tastes..."
-                  className="flex-1 bg-transparent text-white px-2 py-3 outline-none placeholder:text-gray-500 font-sans text-lg appearance-none"
+                  className="flex-1 bg-transparent text-white px-2 py-3 outline-none placeholder:text-gray-500 font-sans text-base md:text-lg appearance-none w-full"
                   disabled={isGenerating}
                   maxLength={500}
                 />
@@ -460,7 +460,7 @@ export const Launchpad: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative px-8 py-3.5 rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn"
+                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-[1.02] md:hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn shadow-lg md:shadow-none"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
