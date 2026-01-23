@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { SCROLL_DISTANCE } from './ChipScroll';
 
 // Points to the file in the /public folder
 const LOGO_URL = "/Velocity-logo-black.png";
@@ -9,8 +10,6 @@ const LOGO_URL = "/Velocity-logo-black.png";
 const navItems = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
-  { label: 'Pipeline', path: '/#pipeline', isSection: true },
-  { label: 'Features', path: '/#features', isSection: true },
 ];
 
 export const Navbar: React.FC = () => {
@@ -22,8 +21,8 @@ export const Navbar: React.FC = () => {
   // Track scroll position to show/hide navbar
   useEffect(() => {
     const handleScrollVisibility = () => {
-      // Show navbar after scrolling past the hero section (800vh = 8 * window.innerHeight)
-      const heroHeight = window.innerHeight * 8;
+      // Show navbar after scrolling past the chipscroll animation
+      const heroHeight = SCROLL_DISTANCE;
       const shouldShow = window.scrollY > heroHeight || location.pathname !== '/';
       setIsVisible(shouldShow);
     };

@@ -9,7 +9,7 @@ const IMAGE_PATH = '/webp-sequence/frame-';
 
 // Fixed scroll distance in pixels - ensures consistent experience across all devices
 // This is the actual scrollable distance beyond the first viewport
-const SCROLL_DISTANCE = 3000;
+export const SCROLL_DISTANCE = 3000;
 
 // Phase breakpoints in pixels (from start of scroll)
 // Shifting everything earlier to guarantee massive buffer at the end
