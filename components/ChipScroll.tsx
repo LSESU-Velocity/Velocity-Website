@@ -9,20 +9,20 @@ const IMAGE_PATH = '/webp-sequence/frame-';
 
 // Fixed scroll distance in pixels - ensures consistent experience across all devices
 // This is the actual scrollable distance beyond the first viewport
-const SCROLL_DISTANCE = 2400;
+const SCROLL_DISTANCE = 3000;
 
 // Phase breakpoints in pixels (from start of scroll)
 // Shifting everything earlier to guarantee massive buffer at the end
 const PHASE_PIXELS = {
-    introEnd: 100,           // Quick intro
-    futureStart: 50,         // "AI-Native Founders" starts early
-    futureEnd: 550,          // Ends at 550px
-    speedStart: 450,         // "From Idea to Prototype" starts
-    speedEnd: 950,           // Ends at 950px
-    animationEnd: 900,       // Frame animation completes at 900px
-    ctaStart: 850,           // CTA starts appearing
-    ctaFull: 1050,           // CTA fully visible by 1050px
-    // Remaining 1350px (from 1050 to 2400) is pure visibility buffer
+    introEnd: 200,           // Quick intro
+    futureStart: 300,        // "AI-Native Founders" starts later
+    futureEnd: 800,          // Ends at 800px
+    speedStart: 700,         // "From Idea to Prototype" starts
+    speedEnd: 1200,          // Ends at 1200px
+    animationEnd: 1150,      // Frame animation completes at 1150px
+    ctaStart: 1100,          // CTA starts appearing
+    ctaFull: 1350,           // CTA fully visible by 1350px
+    // Remaining 1650px (from 1350 to 3000) is pure visibility buffer
 };
 
 // Preload all images and return array of Image objects
@@ -334,7 +334,7 @@ export const ChipScroll: React.FC = () => {
         <div
             ref={containerRef}
             className="relative bg-black z-20"
-            style={{ height: 'calc(100vh + 2400px)' }}
+            style={{ height: 'calc(100vh + 3000px)' }}
         >
             {/* Sticky canvas container */}
             <div
@@ -367,10 +367,10 @@ export const ChipScroll: React.FC = () => {
 
                     {/* Section 2: The Future of Shipping (20-45%) */}
                     <motion.div
-                        className="absolute inset-0 flex items-center"
+                        className="absolute inset-0 flex items-start pt-32 justify-center sm:items-center sm:pt-0 sm:justify-start"
                         style={{ opacity: futureOpacity }}
                     >
-                        <div className="px-4 sm:px-6 md:px-16 lg:px-24 max-w-2xl">
+                        <div className="px-4 sm:px-6 md:px-16 lg:px-24 max-w-2xl text-center sm:text-left">
                             <h2 className="font-sans font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tighter text-white/90 leading-none"
                                 style={{ textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
                                 AI-Native
@@ -378,7 +378,7 @@ export const ChipScroll: React.FC = () => {
                                     Founders.
                                 </span>
                             </h2>
-                            <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md">
+                            <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md mx-auto sm:mx-0">
                                 Where LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
                             </p>
                         </div>
@@ -386,10 +386,10 @@ export const ChipScroll: React.FC = () => {
 
                     {/* Section 3: Built for Speed (45-70%) */}
                     <motion.div
-                        className="absolute inset-0 flex items-center justify-end"
+                        className="absolute inset-0 flex items-end pb-32 justify-center sm:items-center sm:pb-0 sm:justify-end"
                         style={{ opacity: speedOpacity }}
                     >
-                        <div className="px-6 md:px-16 lg:px-24 text-right max-w-2xl">
+                        <div className="px-6 md:px-16 lg:px-24 text-center sm:text-right max-w-2xl">
                             <h2 className="font-sans font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl tracking-tighter text-white/90 leading-none"
                                 style={{ textShadow: '0 0 20px rgba(255,255,255,0.1)' }}>
                                 From Idea to
