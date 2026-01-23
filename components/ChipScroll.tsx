@@ -7,6 +7,24 @@ import { Button } from './ui/Button';
 const TOTAL_FRAMES = 210;
 const IMAGE_PATH = '/webp-sequence/frame-';
 
+// Fixed scroll distance in pixels - ensures consistent experience across all devices
+// This is the actual scrollable distance beyond the first viewport
+const SCROLL_DISTANCE = 2400;
+
+// Phase breakpoints in pixels (from start of scroll)
+// Shifting everything earlier to guarantee massive buffer at the end
+const PHASE_PIXELS = {
+    introEnd: 100,           // Quick intro
+    futureStart: 50,         // "AI-Native Founders" starts early
+    futureEnd: 550,          // Ends at 550px
+    speedStart: 450,         // "From Idea to Prototype" starts
+    speedEnd: 950,           // Ends at 950px
+    animationEnd: 900,       // Frame animation completes at 900px
+    ctaStart: 850,           // CTA starts appearing
+    ctaFull: 1050,           // CTA fully visible by 1050px
+    // Remaining 1350px (from 1050 to 2400) is pure visibility buffer
+};
+
 // Preload all images and return array of Image objects
 const preloadImages = (): Promise<HTMLImageElement[]> => {
     const promises: Promise<HTMLImageElement>[] = [];
@@ -32,24 +50,78 @@ export const ChipScroll: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [loadingProgress, setLoadingProgress] = useState(0);
 
+    // Constant helper to convert pixels to scroll progress (0-1)
+    const toProgress = (px: number) => Math.min(px / SCROLL_DISTANCE, 1);
+
     const { scrollYProgress } = useScroll({
         target: containerRef,
         offset: ['start start', 'end end']
     });
 
-    // Transform scroll progress to frame index - animation completes at 50% scroll
-    // This leaves 50% of scroll for the final frame to stay visible with CTA
-    // Using custom function for explicit clamping (better mobile scroll handling)
+    // Helper function for linear interpolation between keyframes
+    const interpolate = (progress: number, inputRange: number[], outputRange: number[]) => {
+        // Clamp progress to input range
+        if (progress <= inputRange[0]) return outputRange[0];
+        if (progress >= inputRange[inputRange.length - 1]) return outputRange[outputRange.length - 1];
+
+        // Find the segment
+        for (let i = 0; i < inputRange.length - 1; i++) {
+            if (progress >= inputRange[i] && progress <= inputRange[i + 1]) {
+                const segmentProgress = (progress - inputRange[i]) / (inputRange[i + 1] - inputRange[i]);
+                return outputRange[i] + segmentProgress * (outputRange[i + 1] - outputRange[i]);
+            }
+        }
+        return outputRange[outputRange.length - 1];
+    };
+
+    // Transform scroll progress to frame index
+    // Animation completes early so last frame holds during the buffer
     const frameIndex = useTransform(scrollYProgress, (progress) => {
-        const normalizedProgress = Math.min(progress / 0.50, 1);
+        const endProgress = toProgress(PHASE_PIXELS.animationEnd);
+        const normalizedProgress = Math.min(progress / endProgress, 1);
         return normalizedProgress * (TOTAL_FRAMES - 1);
     });
 
-    // Text opacity transforms based on scroll progress
-    const introOpacity = useTransform(scrollYProgress, [0, 0.05, 0.10], [1, 1, 0]);
-    const futureOpacity = useTransform(scrollYProgress, [0.10, 0.15, 0.25, 0.30], [0, 1, 1, 0]);
-    const speedOpacity = useTransform(scrollYProgress, [0.28, 0.33, 0.48, 0.55], [0, 1, 1, 0]);
-    const ctaOpacity = useTransform(scrollYProgress, [0, 0.50, 0.55, 0.65, 1], [0, 0, 0, 1, 1]);
+    // Text opacity transforms
+    const introOpacity = useTransform(scrollYProgress, (progress) => {
+        return interpolate(progress, [0, 0.02, toProgress(PHASE_PIXELS.introEnd)], [1, 1, 0]);
+    });
+
+    const futureOpacity = useTransform(scrollYProgress, (progress) => {
+        return interpolate(progress,
+            [
+                toProgress(PHASE_PIXELS.futureStart),
+                toProgress(PHASE_PIXELS.futureStart + 100),
+                toProgress(PHASE_PIXELS.futureEnd - 100),
+                toProgress(PHASE_PIXELS.futureEnd)
+            ],
+            [0, 1, 1, 0]
+        );
+    });
+
+    const speedOpacity = useTransform(scrollYProgress, (progress) => {
+        return interpolate(progress,
+            [
+                toProgress(PHASE_PIXELS.speedStart),
+                toProgress(PHASE_PIXELS.speedStart + 100),
+                toProgress(PHASE_PIXELS.speedEnd - 150),
+                toProgress(PHASE_PIXELS.speedEnd)
+            ],
+            [0, 1, 1, 0]
+        );
+    });
+
+    const ctaOpacity = useTransform(scrollYProgress, (progress) => {
+        return interpolate(progress,
+            [
+                0,
+                toProgress(PHASE_PIXELS.ctaStart),
+                toProgress(PHASE_PIXELS.ctaFull),
+                1
+            ],
+            [0, 0, 1, 1]
+        );
+    });
 
     // Load images on mount
     useEffect(() => {
@@ -261,7 +333,8 @@ export const ChipScroll: React.FC = () => {
     return (
         <div
             ref={containerRef}
-            className="h-[400vh] relative bg-black z-20"
+            className="relative bg-black z-20"
+            style={{ height: 'calc(100vh + 2400px)' }}
         >
             {/* Sticky canvas container */}
             <div
