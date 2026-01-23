@@ -584,12 +584,13 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                     </div>
 
                     {/* CTA */}
+                    {/* CTA */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5 }}
-                        className="flex flex-col items-center justify-center py-12 mt-8 border-t border-white/5"
+                        className="flex flex-col items-center justify-center py-2 mt-0"
                     >
                         <a
                             href="https://www.lsesu.com/communities/societies/group/Velocity/"
@@ -602,7 +603,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                     </motion.div>
 
                     {/* Disclaimer */}
-                    <div className="text-center mt-4 pt-3 border-t border-white/5 pb-1">
+                    <div className="text-center pb-8">
                         <p className="font-sans text-[10px] text-white/20 font-medium tracking-wide">
                             Velocity AI can make mistakes. Please verify important information.
                         </p>
