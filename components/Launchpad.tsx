@@ -412,7 +412,7 @@ export const Launchpad: React.FC = () => {
             />
             <AnimatedText
               text="Start here."
-              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4 drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]"
+              className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
               delay={0.8}
             />
           </h1>
@@ -435,7 +435,7 @@ export const Launchpad: React.FC = () => {
             onSubmit={handleLaunch}
             className="w-full max-w-3xl relative z-20"
           >
-            <div className="relative group rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500 hover:shadow-[0_0_50px_rgba(220,38,38,0.2)]">
+            <div className="relative group rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500">
               <div className="flex items-center gap-3 bg-neutral-900/80 rounded-full p-2 pl-6 border border-white/5 transition-all duration-500 group-hover:bg-neutral-900/60 focus-within:bg-neutral-900/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
 
                 <input
@@ -451,7 +451,7 @@ export const Launchpad: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative px-8 py-3.5 rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] hover:bg-red-600 hover:shadow-[0_0_30px_rgba(220,38,38,0.6)] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn"
+                  className="relative px-8 py-3.5 rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
