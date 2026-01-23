@@ -24,19 +24,19 @@ export const AnimatedText = ({
         visible: {
             opacity: 1,
             y: 0,
+            filter: "blur(0px)",
             transition: {
-                type: "spring",
-                damping: 12,
-                stiffness: 100,
+                duration: 0.8,
+                ease: [0.2, 0.65, 0.3, 0.9], // Custom cubic-bezier for "premium" feel
             }
         },
         hidden: {
             opacity: 0,
             y: 20,
+            filter: "blur(10px)",
             transition: {
-                type: "spring",
-                damping: 12,
-                stiffness: 100,
+                duration: 0.8,
+                ease: [0.2, 0.65, 0.3, 0.9],
             }
         }
     };

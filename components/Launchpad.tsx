@@ -413,7 +413,7 @@ export const Launchpad: React.FC = () => {
             <AnimatedText
               text="Start here."
               className="font-sans font-black text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
-              delay={0.8}
+              delay={1.5}
             />
           </h1>
 
