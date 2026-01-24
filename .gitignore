@@ -25,6 +25,16 @@ dist-ssr
 
 # Firebase service account keys (NEVER commit these!)
 *firebase-adminsdk*.json
+service-account*.json
+credentials.json
+secrets.json
+
+# Private keys
+*.pem
+*.key
+
+# Next.js
+.next/
 *.env
 .env.local
 .env*.local
