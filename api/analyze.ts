@@ -493,10 +493,10 @@ Output ONLY valid HTML, no markdown code blocks.
 
 Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
-    // User message content (untrusted) - contains ONLY the sanitized idea
-    const userMessage = `Please analyze this startup idea: ${sanitizedIdea}`;
+    // Combine system instruction and user message into a single prompt
+    // This proved to be more reliable for token usage than separating them
+    const combinedPrompt = `${systemInstruction}\n\nSTARTUP IDEA: "${sanitizedIdea}"`;
 
-    // Use REST API to call Gemini with proper chat structure (system vs user)
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: 'GEMINI_API_KEY is not configured' });
@@ -511,10 +511,7 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 prom
           'x-goog-api-key': apiKey,
         },
         body: JSON.stringify({
-          // System instruction is separate from user content - prevents injection
-          systemInstruction: { parts: [{ text: systemInstruction }] },
-          // User content is clearly marked as coming from the user
-          contents: [{ role: 'user', parts: [{ text: userMessage }] }],
+          contents: [{ parts: [{ text: combinedPrompt }] }],
           generationConfig: {
             temperature: 0.7,
             topP: 0.9,
