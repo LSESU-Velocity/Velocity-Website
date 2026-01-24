@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { clearAuthCookie, setCorsHeaders } from '../lib/serverAuth';
+import { clearAuthCookie, setCorsHeaders } from '../lib/serverAuth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Handle CORS
