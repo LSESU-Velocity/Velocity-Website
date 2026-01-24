@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getAuthKey, setCorsHeaders } from './utils/auth';
 
 // Initialize Firebase locally to avoid import issues
 function initFirebase() {
@@ -26,34 +27,16 @@ function initFirebase() {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS with origin validation
-    const allowedOrigins = [
-        'https://lsesuvelocity.com',
-        'https://www.lsesuvelocity.com',
-        'https://velocity-website-five.vercel.app',
-        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
-    ].filter(Boolean);
-
-    if (process.env.NODE_ENV === 'development') {
-        allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
-    }
-
-    const origin = req.headers.origin || '';
-    // Strict CORS: only allow explicitly listed origins
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'GET, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
+    // Handle CORS with credentials support
+    if (setCorsHeaders(req, res)) {
         return res.status(200).end();
     }
 
-    const key = req.query.key as string;
+    // Get auth key from cookie
+    const key = getAuthKey(req);
 
     if (!key) {
-        return res.status(400).json({ error: 'Key is required' });
+        return res.status(401).json({ error: 'Not authenticated' });
     }
 
     try {

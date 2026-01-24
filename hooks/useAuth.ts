@@ -1,49 +1,46 @@
 import { useState, useEffect, useCallback } from 'react';
-import { login as apiLogin, LoginResponse } from '../lib/api';
-
-const AUTH_KEY = 'velocity_auth_key';
+import { login as apiLogin, logout as apiLogout, checkAuth, LoginResponse } from '../lib/api';
 
 interface UseAuthReturn {
     isAuthenticated: boolean;
     isLoading: boolean;
-    authKey: string | null;
     login: (key: string) => Promise<LoginResponse>;
-    logout: () => void;
+    logout: () => Promise<void>;
 }
 
 export function useAuth(): UseAuthReturn {
-    const [authKey, setAuthKey] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Load key from localStorage on mount
+    // Check auth status on mount (via /api/me)
     useEffect(() => {
-        const storedKey = localStorage.getItem(AUTH_KEY);
-        if (storedKey) {
-            setAuthKey(storedKey);
-        }
-        setIsLoading(false);
+        checkAuth()
+            .then((authenticated) => {
+                setIsAuthenticated(authenticated);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
     }, []);
 
     const login = useCallback(async (key: string): Promise<LoginResponse> => {
         const response = await apiLogin(key);
 
         if (response.valid) {
-            localStorage.setItem(AUTH_KEY, key);
-            setAuthKey(key);
+            setIsAuthenticated(true);
         }
 
         return response;
     }, []);
 
-    const logout = useCallback(() => {
-        localStorage.removeItem(AUTH_KEY);
-        setAuthKey(null);
+    const logout = useCallback(async () => {
+        await apiLogout();
+        setIsAuthenticated(false);
     }, []);
 
     return {
-        isAuthenticated: !!authKey,
+        isAuthenticated,
         isLoading,
-        authKey,
         login,
         logout,
     };

@@ -9,7 +9,6 @@ const DEV_TEST_KEYS = IS_DEV ? (import.meta.env.VITE_DEV_KEYS?.split(',') || [])
 
 export interface LoginResponse {
     valid: boolean;
-    keyId?: string;
     error?: string;
 }
 
@@ -117,19 +116,19 @@ export async function login(key: string): Promise<LoginResponse> {
         console.log('[DEV MODE] Login bypassed with test key:', key);
         return {
             valid: true,
-            keyId: 'dev-mode-key-id'
         };
     }
 
     const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ key }),
     });
     return response.json();
 }
 
-export async function generateAnalysis(key: string, idea: string): Promise<AnalysisData> {
+export async function generateAnalysis(idea: string): Promise<AnalysisData> {
     // DEV MODE BYPASS: Use mock data generator instead of hitting the backend
     if (IS_DEV) {
         console.log('[DEV MODE] Using mock analysis for:', idea);
@@ -139,7 +138,8 @@ export async function generateAnalysis(key: string, idea: string): Promise<Analy
     const response = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, idea }),
+        credentials: 'include',
+        body: JSON.stringify({ idea }),
     });
 
     if (!response.ok) {
@@ -163,14 +163,16 @@ export async function generateAnalysis(key: string, idea: string): Promise<Analy
     return response.json();
 }
 
-export async function getAnalyses(key: string): Promise<AnalysisRecord[]> {
+export async function getAnalyses(): Promise<AnalysisRecord[]> {
     // DEV MODE BYPASS: Return empty history in dev mode
     if (IS_DEV) {
         console.log('[DEV MODE] Returning empty analysis history');
         return [];
     }
 
-    const response = await fetch(`${API_BASE}/analyses?key=${encodeURIComponent(key)}`);
+    const response = await fetch(`${API_BASE}/analyses`, {
+        credentials: 'include',
+    });
 
     if (!response.ok) {
         const error = await response.json();
@@ -180,7 +182,7 @@ export async function getAnalyses(key: string): Promise<AnalysisRecord[]> {
     return response.json();
 }
 
-export async function deleteAnalysis(key: string, analysisId: string): Promise<void> {
+export async function deleteAnalysis(analysisId: string): Promise<void> {
     // DEV MODE BYPASS: Just log and return in dev mode
     if (IS_DEV) {
         console.log('[DEV MODE] Would delete analysis:', analysisId);
@@ -188,14 +190,47 @@ export async function deleteAnalysis(key: string, analysisId: string): Promise<v
     }
 
     const response = await fetch(
-        `${API_BASE}/analyses?key=${encodeURIComponent(key)}&id=${encodeURIComponent(analysisId)}`,
-        { method: 'DELETE' }
+        `${API_BASE}/analyses?id=${encodeURIComponent(analysisId)}`,
+        {
+            method: 'DELETE',
+            credentials: 'include',
+        }
     );
 
     if (!response.ok) {
         const error = await response.json();
         throw new Error(error.error || 'Failed to delete analysis');
     }
+}
+
+// Check current auth status via cookie
+export async function checkAuth(): Promise<boolean> {
+    if (IS_DEV) {
+        return false; // In dev mode, always start logged out
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/me`, {
+            credentials: 'include',
+        });
+        const data = await response.json();
+        return data.authenticated === true;
+    } catch {
+        return false;
+    }
+}
+
+// Logout - clear auth cookie
+export async function logout(): Promise<void> {
+    if (IS_DEV) {
+        console.log('[DEV MODE] Logout called');
+        return;
+    }
+
+    await fetch(`${API_BASE}/logout`, {
+        method: 'POST',
+        credentials: 'include',
+    });
 }
 
 

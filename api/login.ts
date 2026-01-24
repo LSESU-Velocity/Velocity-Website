@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
+import { setAuthCookie, setCorsHeaders } from './utils/auth';
 
 // Rate limiting constants
 const LOGIN_RATE_LIMIT = 10; // Max attempts per window
@@ -65,28 +66,8 @@ async function checkRateLimitFirestore(db: FirebaseFirestore.Firestore, ip: stri
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Enable CORS with origin validation
-    const allowedOrigins = [
-        'https://lsesuvelocity.com',
-        'https://www.lsesuvelocity.com',
-        'https://velocity-website-five.vercel.app',
-        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
-    ].filter(Boolean);
-
-    // Allow localhost in development
-    if (process.env.NODE_ENV === 'development') {
-        allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
-    }
-
-    const origin = req.headers.origin || '';
-    // Strict CORS: only allow explicitly listed origins
-    if (allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', origin);
-    }
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
+    // Handle CORS with credentials support
+    if (setCorsHeaders(req, res)) {
         return res.status(200).end();
     }
 
@@ -124,10 +105,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
 
         const keyDoc = snapshot.docs[0];
+        const keyCode = keyDoc.data().code as string;
+
+        // Set the auth cookie instead of returning the key
+        setAuthCookie(res, keyCode);
 
         return res.status(200).json({
             valid: true,
-            keyId: keyDoc.id,
         });
     } catch (error: unknown) {
         console.error('Login error:', error instanceof Error ? error.message : 'Unknown error');

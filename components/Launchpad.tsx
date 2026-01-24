@@ -10,7 +10,7 @@ import { AnimatedText } from './LaunchpadWidgets';
 // Components moved to LaunchpadWidgets.tsx and LaunchpadDashboard.tsx
 
 export const Launchpad: React.FC = () => {
-  const { isAuthenticated, isLoading: authLoading, authKey, login, logout } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, login, logout } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [idea, setIdea] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
@@ -56,10 +56,10 @@ export const Launchpad: React.FC = () => {
 
   // Fetch history when authenticated
   useEffect(() => {
-    if (isAuthenticated && authKey) {
-      getAnalyses(authKey).then(setHistory).catch(console.error);
+    if (isAuthenticated) {
+      getAnalyses().then(setHistory).catch(console.error);
     }
-  }, [isAuthenticated, authKey]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (data && !isGenerating) {
@@ -197,13 +197,11 @@ export const Launchpad: React.FC = () => {
 
 
     try {
-      const result = await generateAnalysis(authKey!, idea);
+      const result = await generateAnalysis(idea);
       setData(result);
 
       // Refresh history after new analysis
-      if (authKey) {
-        getAnalyses(authKey).then(setHistory).catch(console.error);
-      }
+      getAnalyses().then(setHistory).catch(console.error);
     } catch (err: any) {
       setError(err.message || 'Failed to generate analysis');
       console.error('Analysis error:', err);
@@ -224,11 +222,11 @@ export const Launchpad: React.FC = () => {
   const handleDeleteAnalysis = async (e: React.MouseEvent, recordId: string) => {
     e.stopPropagation(); // Prevent triggering loadFromHistory
 
-    if (!authKey || deletingId) return;
+    if (deletingId) return;
 
     setDeletingId(recordId);
     try {
-      await deleteAnalysis(authKey, recordId);
+      await deleteAnalysis(recordId);
       // Update local state to remove the deleted item
       setHistory(prev => prev.filter(record => record.id !== recordId));
     } catch (err) {
