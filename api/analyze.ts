@@ -260,27 +260,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
 
-    // Count analyses made by this key today
-    const rateLimitQuery = await db.collection('analyses')
+    // Pre-check rate limit (non-atomic, just to fail fast before expensive AI call)
+    // The actual atomic check happens after AI processing in the transaction
+    const preCheckQuery = await db.collection('analyses')
       .where('keyId', '==', keyDoc.id)
       .where('createdAt', '>=', today)
       .count()
       .get();
 
-    const todayCount = rateLimitQuery.data().count;
-    const remaining = Math.max(0, DAILY_LIMIT - todayCount - 1); // -1 for the current request
+    const preCheckCount = preCheckQuery.data().count;
 
-    if (todayCount >= DAILY_LIMIT) {
+    if (preCheckCount >= DAILY_LIMIT) {
       const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
       return res.status(429).json({
         error: `Daily limit reached (${DAILY_LIMIT} analyses). Try again tomorrow.`,
         limit: DAILY_LIMIT,
-        used: todayCount,
+        used: preCheckCount,
         remaining: 0,
         resetsAt: tomorrow.toISOString()
       });
     }
-    // === END RATE LIMITING ===
+    // === END PRE-CHECK (actual atomic check happens in transaction below) ===
 
     // Build the prompt for Gemini
     const prompt = `You are a startup analyst and market researcher. Analyze this startup idea and provide comprehensive data.
@@ -626,16 +626,49 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
       }
     };
 
-    // Save to Firestore
+    // Save to Firestore with ATOMIC rate limit check using a transaction
+    // This prevents race conditions where parallel requests bypass the limit
     const analysesRef = db.collection('analyses');
-    const newAnalysis = {
-      keyId: keyDoc.id,
-      idea: idea.trim(),
-      data: formattedData,
-      createdAt: new Date(),
-    };
 
-    await analysesRef.add(newAnalysis);
+    try {
+      await db.runTransaction(async (transaction) => {
+        // Re-check rate limit inside the transaction (atomic read)
+        const rateLimitQuery = await db.collection('analyses')
+          .where('keyId', '==', keyDoc.id)
+          .where('createdAt', '>=', today)
+          .count()
+          .get();
+
+        const currentCount = rateLimitQuery.data().count;
+
+        if (currentCount >= DAILY_LIMIT) {
+          // Throw to abort the transaction - this will be caught below
+          throw new Error('RATE_LIMIT_EXCEEDED');
+        }
+
+        // Create the new analysis document atomically
+        const newAnalysisRef = analysesRef.doc();
+        transaction.set(newAnalysisRef, {
+          keyId: keyDoc.id,
+          idea: idea.trim(),
+          data: formattedData,
+          createdAt: new Date(),
+        });
+      });
+    } catch (txError) {
+      if (txError instanceof Error && txError.message === 'RATE_LIMIT_EXCEEDED') {
+        const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+        return res.status(429).json({
+          error: `Daily limit reached (${DAILY_LIMIT} analyses). Try again tomorrow.`,
+          limit: DAILY_LIMIT,
+          used: DAILY_LIMIT,
+          remaining: 0,
+          resetsAt: tomorrow.toISOString()
+        });
+      }
+      // Re-throw other transaction errors
+      throw txError;
+    }
 
     return res.status(200).json(formattedData);
   } catch (error) {
