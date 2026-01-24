@@ -212,7 +212,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                     className="w-full h-full border-0"
                                                     title="Pitch Deck Preview"
                                                     id="pitch-deck-preview"
-                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms allow-same-origin"
+                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms"
                                                 />
                                             </div>
                                         ) : (
