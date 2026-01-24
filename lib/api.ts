@@ -125,6 +125,21 @@ export async function login(key: string): Promise<LoginResponse> {
         credentials: 'include',
         body: JSON.stringify({ key }),
     });
+
+    if (!response.ok) {
+        let errorMessage = 'Login failed';
+        try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorMessage;
+        } catch {
+            // If JSON parse fails (e.g. 500 HTML), get text
+            const text = await response.text();
+            console.error('API Error (Non-JSON):', text);
+            errorMessage = `Server Error (${response.status})`;
+        }
+        return { valid: false, error: errorMessage };
+    }
+
     return response.json();
 }
 

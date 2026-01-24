@@ -68,7 +68,7 @@ export function setCorsHeaders(req: VercelRequest, res: VercelResponse): boolean
 
     // Check exact match OR your project's Vercel preview deployments
     const isAllowed = allowedOrigins.includes(origin) ||
-        /^https:\/\/velocity-website-[\w]+-lsesuvelocitys-projects\.vercel\.app$/.test(origin);
+        /^https:\/\/velocity-website-[\w-]+-lsesuvelocitys-projects\.vercel\.app$/.test(origin);
 
     if (isAllowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
