@@ -47,37 +47,7 @@ const responseSchema = {
         required: ["model", "pricing", "strategies", "examples"]
       }
     },
-    market: {
-      type: "object",
-      properties: {
-        tam: {
-          type: "object",
-          properties: {
-            value: { type: "string", description: "e.g. $XXB" },
-            label: { type: "string", description: "Total industry market (max 40 chars)" }
-          },
-          required: ["value", "label"]
-        },
-        sam: {
-          type: "object",
-          properties: {
-            value: { type: "string", description: "e.g. $XXM" },
-            label: { type: "string", description: "Reachable with this product (max 40 chars)" }
-          },
-          required: ["value", "label"]
-        },
-        som: {
-          type: "object",
-          properties: {
-            value: { type: "string", description: "e.g. $XXK" },
-            label: { type: "string", description: "Year 1 realistic target (max 40 chars)" }
-          },
-          required: ["value", "label"]
-        },
-        aiInsight: { type: "string", description: "2-3 sentence market analysis (max 280 chars, complete sentences)" }
-      },
-      required: ["tam", "sam", "som", "aiInsight"]
-    },
+    aiInsight: { type: "string", description: "2-3 sentence market analysis and executive summary (max 280 chars, complete sentences)" },
     customerSegments: {
       type: "array",
       minItems: 3,
@@ -93,20 +63,6 @@ const responseSchema = {
       }
     },
 
-    marketReports: {
-      type: "array",
-      minItems: 3,
-      items: {
-        type: "object",
-        properties: {
-          title: { type: "string", description: "Report title - Publisher, Year (max 50 chars)" },
-          publisher: { type: "string", description: "Publisher name (max 25 chars)" },
-          keyStat: { type: "string", description: "Key stat: value | metric (max 40 chars)" },
-          url: { type: "string", description: "URL to the actual report or source" }
-        },
-        required: ["title", "publisher", "keyStat", "url"]
-      }
-    },
     competitors: {
       type: "array",
       minItems: 3,
@@ -118,12 +74,9 @@ const responseSchema = {
           weakness: { type: "string", description: "Their weakness you can exploit (max 100 chars, complete sentence)" },
           x: { type: "number", description: "0-100 position on X-axis (based on xAxis definition)" },
           y: { type: "number", description: "0-100 position on Y-axis (general-purpose tools=10-30, specialized=70-90)" },
-          founded: { type: "string", description: "Founding year (max 10 chars, e.g. 2016)" },
-          hq: { type: "string", description: "HQ location (max 15 chars, e.g. San Francisco)" },
-          employees: { type: "string", description: "Employee count (max 10 chars, e.g. 500+)" },
           website: { type: "string", description: "Company website domain (e.g. notion.so)" }
         },
-        required: ["name", "strength", "weakness", "x", "y", "founded", "hq", "employees", "website"]
+        required: ["name", "strength", "weakness", "x", "y", "website"]
       }
     },
     marketGap: {
@@ -190,8 +143,8 @@ const responseSchema = {
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
-    "name", "tagline", "interface", "monetization", "market", "customerSegments",
-    "marketReports", "competitors", "marketGap",
+    "name", "tagline", "interface", "monetization", "aiInsight", "customerSegments",
+    "competitors", "marketGap",
     "promptChain", "distributionChannels",
     "waitlistHtml", "pitchDeckHtml"
   ]
@@ -287,35 +240,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
 STARTUP IDEA: "${idea}"
 
-CRITICAL INSTRUCTIONS - USE GOOGLE SEARCH FOR REAL DATA:
-1. Search for REAL, CURRENT market size data - use actual industry reports
-
-TAM/SAM/SOM CALCULATION - BE REALISTIC AND SPECIFIC:
-- TAM (Total Addressable Market): The ENTIRE global/regional market for this problem. Use industry reports.
-- SAM (Serviceable Addressable Market): The portion of TAM reachable with THIS specific product/business model, limited by geography (focus on UK/Europe initially), language, pricing tier, and distribution capabilities.
-- SOM (Serviceable Obtainable Market): The REALISTIC revenue a bootstrapped startup can capture in Year 1-2. This should be VERY conservative:
-  * Calculate as 1-3% of SAM maximum for a new entrant
-  * Consider: no brand recognition, limited marketing budget, small team
-  * Base on acquiring a specific, achievable number of customers (e.g., "2,000 users × £10/mo = £240K")
-  * SOM should feel achievable, not aspirational - this is the STARTING POINT
-  * If SAM is £500M, SOM should NOT exceed £5-15M for Year 1
-2. Search for real market trends and growth data
-3. For distribution channels, find REAL communities (actual subreddits, Discord servers, forums)
-4. All market figures should come from verifiable sources you find via search
-
-MARKET REPORTS - FIND AUTHORITATIVE SOURCES:
-5. Search for 3-4 real market research reports from sources like Statista, Grand View Research, IBISWorld, McKinsey, etc.
-6. Include report title, publisher, and a key statistic (e.g., "Market size: $404B | CAGR: 13.4%")
-7. Provide direct URLs to the actual reports
-
-COMPETITOR DISCOVERY - TWO-STEP PROCESS (CRITICAL):
-8. FIRST: Search for WHO the competitors are - use queries like "[category] competitors 2024", "top [industry] tools", "best [product type] alternatives", "[problem space] startups" to DISCOVER competitors via web search
-9. DO NOT rely on your internal knowledge to identify competitors - let the search results reveal the current market players
-10. SECOND: For each competitor discovered via search, THEN search for their details (founding year, HQ, employees, website)
-11. Include their actual website domain (e.g., notion.so, coda.io)
-12. Use Crunchbase, LinkedIn, or company websites as sources for company details
-
-
+CRITICAL INSTRUCTIONS:
+1. For distribution channels, identify REAL communities (actual subreddits, Discord servers, forums) where target users gather
+2. Identify 3-5 real competitors in the space
+3. Include competitor website domains (e.g., notion.so, coda.io)
 
 CHARACTER LIMITS - ABSOLUTELY CRITICAL (MUST FOLLOW):
 15. STRICTLY respect all character limits specified in the schema (e.g., "max 60 chars")
@@ -533,7 +461,7 @@ CRITICAL RULES:
 
 Output ONLY valid HTML, no markdown code blocks.
 
-Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 market reports, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
+Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
     // Use REST API to call Gemini
     const apiKey = process.env.GEMINI_API_KEY;
@@ -604,19 +532,10 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3-4 ma
       },
       distributionChannels: analysisData.distributionChannels,
       validation: {
-        tam: analysisData.market.tam,
-        sam: analysisData.market.sam,
-        som: analysisData.market.som,
-        aiInsight: analysisData.market.aiInsight,
+        aiInsight: analysisData.aiInsight,
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
-        marketReports: analysisData.marketReports || [],
         marketGap: analysisData.marketGap,
-
-      },
-      sources: {
-        market: analysisData.sources?.market || [],
-        competitors: analysisData.sources?.competitors || []
       },
       customerSegments: analysisData.customerSegments,
       promptChain: analysisData.promptChain,
