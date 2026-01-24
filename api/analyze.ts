@@ -47,7 +47,13 @@ const responseSchema = {
         required: ["model", "pricing", "strategies", "examples"]
       }
     },
-    aiInsight: { type: "string", description: "2-3 sentence market analysis and executive summary (max 280 chars, complete sentences)" },
+    market: {
+      type: "object",
+      properties: {
+        aiInsight: { type: "string", description: "2-3 sentence market analysis (max 280 chars, complete sentences)" }
+      },
+      required: ["aiInsight"]
+    },
     customerSegments: {
       type: "array",
       minItems: 3,
@@ -143,7 +149,7 @@ const responseSchema = {
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
-    "name", "tagline", "interface", "monetization", "aiInsight", "customerSegments",
+    "name", "tagline", "interface", "monetization", "market", "customerSegments",
     "competitors", "marketGap",
     "promptChain", "distributionChannels",
     "waitlistHtml", "pitchDeckHtml"
@@ -532,7 +538,7 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 prom
       },
       distributionChannels: analysisData.distributionChannels,
       validation: {
-        aiInsight: analysisData.aiInsight,
+        aiInsight: analysisData.market.aiInsight,
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
         marketGap: analysisData.marketGap,
