@@ -51,13 +51,18 @@ export function clearAuthCookie(res: VercelResponse): void {
 /**
  * Set CORS headers that allow credentials (cookies).
  * Must be called before sending a response when cookies are involved.
+ * 
+ * ALLOWED_ORIGINS env var format: comma-separated URLs
+ * Example: "https://site.com,https://staging.app"
  */
 export function setCorsHeaders(req: VercelRequest, res: VercelResponse): boolean {
-    const allowedOrigins = [
-        'https://lsesuvelocity.com',
-        'https://www.lsesuvelocity.com',
-        'https://velocity-website-taupe.vercel.app',
-    ];
+    // Load allowed origins from environment variable (keeps staging URLs out of source code)
+    const envOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) || [];
+
+    // Fallback to production domain if env var not set
+    const allowedOrigins = envOrigins.length > 0
+        ? envOrigins
+        : ['https://lsesuvelocity.com', 'https://www.lsesuvelocity.com'];
 
     // Allow localhost in development
     if (process.env.NODE_ENV === 'development') {
