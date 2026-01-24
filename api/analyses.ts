@@ -139,11 +139,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 .limit(20)
                 .get();
 
-            const analyses = analysesSnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt?.toDate?.()?.toISOString() || doc.data().createdAt,
-            }));
+            // Explicitly select only safe fields to return (DTO pattern)
+            // This prevents internal fields (keyId, future: userIP, internal_notes, etc.) from leaking
+            const analyses = analysesSnapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    idea: data.idea,
+                    data: data.data,
+                    createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
+                    // DO NOT return keyId, userIP, or other internal fields
+                };
+            });
 
             return res.status(200).json(analyses);
         }
