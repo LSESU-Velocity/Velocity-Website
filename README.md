@@ -4,23 +4,34 @@
 <img width="200" alt="Velocity Logo" src="public/Velocity-logo-black.png" />
 </div>
 
-**Velocity Launchpad** is an AI-powered startup idea validation tool built for LSE students. Enter your business idea and get instant analysis including market positioning, competitor research, monetization strategies, and actionable next steps.
+**Velocity Launchpad** is an AI-powered startup idea validation tool built for LSE students. Enter your business idea and get instant analysis including market positioning, competitor research, monetisation strategies, and actionable next steps — all powered by Google Gemini.
 
 ## Features
 
-- **AI-Powered Analysis** - Powered by Google Gemini for intelligent startup validation
-- **Market Funnel Analysis** - TAM, SAM, SOM breakdown for your target market
-- **Competitor Research** - Identify competitors and your unique market position
-- **Monetisation Strategy** - AI-generated revenue models and pricing suggestions
-- **App Mockup Generation** - Visual concept of your product
-- **Day 1 Tasks** - Actionable first steps to get started
+### Phase 1: Validation
+- **AI Executive Summary** — Instant market analysis of your startup idea
+- **Waitlist Landing Page** — Download a production-ready HTML landing page to gauge interest
+- **Pitch Deck Generator** — Interactive Reveal.js presentation with problem, solution, and business model slides
+- **Market Position Map** — Visual perceptual map showing competitors and your unique gap
+
+### Phase 2: Strategy
+- **Customer Segments** — Identify 3+ target demographics with income levels and pain points
+- **Monetisation Strategy** — Multiple revenue models (Freemium, Subscription, etc.) with pricing suggestions
+- **Distribution Channels** — Top 5 real communities (Reddit, Discord, forums) where your users hang out
+
+### Phase 3: Execution
+- **Prompt Chain** — Step-by-step prompts to build your MVP with AI coding assistants
+
+## Privacy Note
+
+> ⚠️ **Data Processing Disclosure**: This tool sends your startup ideas and descriptions to the Google Gemini API for AI-powered analysis. Please avoid submitting sensitive personal information, confidential business data, or proprietary ideas during testing or use. All submitted content is processed by Google's servers according to their [privacy policy](https://policies.google.com/privacy).
 
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Framer Motion
 - **Backend**: Vercel Serverless Functions
-- **AI**: Google Gemini API
-- **Database**: Firebase Firestore
+- **AI**: Google Gemini API (gemini-3-flash-preview)
+- **Database**: Firebase Firestore (access key management & rate limiting)
 - **Hosting**: Vercel
 
 ## Getting Started
@@ -51,10 +62,10 @@
    ```
 
 4. Configure your `.env.local` with:
-   - `GEMINI_API_KEY` - Your Google Gemini API key
-   - `FIREBASE_PROJECT_ID` - Your Firebase project ID
-   - `FIREBASE_CLIENT_EMAIL` - Firebase service account email
-   - `FIREBASE_PRIVATE_KEY` - Firebase private key
+   - `GEMINI_API_KEY` — Your Google Gemini API key
+   - `FIREBASE_PROJECT_ID` — Your Firebase project ID
+   - `FIREBASE_CLIENT_EMAIL` — Firebase service account email
+   - `FIREBASE_PRIVATE_KEY` — Firebase private key
 
 5. Run the development server:
    ```bash
@@ -71,8 +82,17 @@ This project is configured for deployment on Vercel. Simply connect your GitHub 
 
 ```
 ├── api/                 # Vercel serverless API routes
+│   ├── analyze.ts       # Main AI analysis endpoint
+│   ├── login.ts         # Access key authentication
+│   └── me.ts            # Session validation
 ├── components/          # React components
-├── lib/                 # Utility functions and types
+│   ├── Launchpad.tsx    # Main launchpad UI
+│   ├── LaunchpadDashboard.tsx  # Results dashboard
+│   └── ...
+├── lib/                 # Utility functions
+│   ├── api.ts           # Frontend API client
+│   ├── firebase.ts      # Firebase configuration
+│   └── serverAuth.ts    # Server-side authentication
 ├── hooks/               # Custom React hooks
 ├── public/              # Static assets
 └── index.html           # Main HTML entry point
