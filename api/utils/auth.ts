@@ -56,9 +56,8 @@ export function setCorsHeaders(req: VercelRequest, res: VercelResponse): boolean
     const allowedOrigins = [
         'https://lsesuvelocity.com',
         'https://www.lsesuvelocity.com',
-        'https://velocity-website-five.vercel.app',
-        process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '',
-    ].filter(Boolean);
+        'https://velocity-website-taupe.vercel.app',
+    ];
 
     // Allow localhost in development
     if (process.env.NODE_ENV === 'development') {
@@ -67,7 +66,11 @@ export function setCorsHeaders(req: VercelRequest, res: VercelResponse): boolean
 
     const origin = req.headers.origin || '';
 
-    if (allowedOrigins.includes(origin)) {
+    // Check exact match OR your project's Vercel preview deployments
+    const isAllowed = allowedOrigins.includes(origin) ||
+        /^https:\/\/velocity-website-[\w]+-lsesuvelocitys-projects\.vercel\.app$/.test(origin);
+
+    if (isAllowed) {
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.setHeader('Access-Control-Allow-Credentials', 'true');
     }
