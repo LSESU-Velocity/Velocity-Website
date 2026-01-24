@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { setAuthCookie, setCorsHeaders } from './utils/auth';
+import { setAuthCookie, setCorsHeaders } from '../lib/serverAuth';
 
 // Rate limiting constants
 const LOGIN_RATE_LIMIT = 10; // Max attempts per window

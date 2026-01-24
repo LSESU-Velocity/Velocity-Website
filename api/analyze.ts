@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { getAuthKey, setCorsHeaders } from './utils/auth';
+import { getAuthKey, setCorsHeaders } from '../lib/serverAuth';
 
 // Initialize Firebase locally to avoid import issues
 function initFirebase() {
