@@ -18,32 +18,25 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     const [promptChainIndex, setPromptChainIndex] = useState(0);
     const pitchDeckIframeRef = useRef<HTMLIFrameElement>(null);
 
-    // Prepare pitch deck HTML with message listener for slide navigation
-    // Also inject a permissive CSP meta tag to ensure scripts can run
+    // Prepare pitch deck HTML for secure iframe rendering
+    // Uses external /deck-runtime.js instead of inline scripts to maintain strict CSP
     const getPitchDeckHtml = () => {
         if (!data?.artifacts?.pitchDeckHtml) return '';
         
-        // First, inject a permissive CSP meta tag in the head to allow inline scripts
-        let html = data.artifacts.pitchDeckHtml.replace('<head>', `<head>
-            <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">`);
+        let html = data.artifacts.pitchDeckHtml;
         
-        // Then add the message listener and styles before </body>
+        // Remove any existing inline Reveal.initialize script (API may include it)
+        html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
+        
+        // Inject external runtime script + styles before </body>
+        // The external script handles Reveal init + postMessage navigation
         html = html.replace('</body>', `
-            <script>
-                window.addEventListener('message', (event) => {
-                    if (event.data.type === 'prevSlide') {
-                        Reveal.prev();
-                    } else if (event.data.type === 'nextSlide') {
-                        Reveal.next();
-                    }
-                });
-            </script>
-            <style>
-                html, body { height: 100%; overflow: hidden !important; }
-                .reveal { height: 100% !important; }
-            </style>
-            </body>
-        `);
+    <script src="/deck-runtime.js"></script>
+    <style>
+        html, body { height: 100%; overflow: hidden !important; }
+        .reveal { height: 100% !important; }
+    </style>
+</body>`);
         
         return html;
     };
@@ -227,7 +220,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                     className="w-full h-full border-0"
                                                     title="Pitch Deck Preview"
                                                     id="pitch-deck-preview"
-                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms"
+                                                    sandbox="allow-scripts allow-same-origin allow-modals allow-popups allow-forms"
                                                 />
                                             </div>
                                         ) : (
