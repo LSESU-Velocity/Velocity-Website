@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2, Zap, Target, Users, Coins, MessageCircle,
@@ -16,6 +16,39 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     const [competitorIndex, setCompetitorIndex] = useState(0);
     const [monetizationIndex, setMonetizationIndex] = useState(0);
     const [promptChainIndex, setPromptChainIndex] = useState(0);
+    const [pitchDeckBlobUrl, setPitchDeckBlobUrl] = useState<string | null>(null);
+    const pitchDeckIframeRef = useRef<HTMLIFrameElement>(null);
+
+    // Create blob URL for pitch deck to bypass CSP restrictions on inline scripts
+    useEffect(() => {
+        if (data?.artifacts?.pitchDeckHtml) {
+            // Inject the message listener script for slide navigation
+            const htmlWithMessageListener = data.artifacts.pitchDeckHtml.replace('</body>', `
+                <script>
+                    window.addEventListener('message', (event) => {
+                        if (event.data.type === 'prevSlide') {
+                            Reveal.prev();
+                        } else if (event.data.type === 'nextSlide') {
+                            Reveal.next();
+                        }
+                    });
+                </script>
+                <style>
+                    html, body { height: 100%; overflow: hidden !important; }
+                    .reveal { height: 100% !important; }
+                </style>
+                </body>
+            `);
+            
+            const blob = new Blob([htmlWithMessageListener], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            setPitchDeckBlobUrl(url);
+
+            return () => {
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [data?.artifacts?.pitchDeckHtml]);
 
     const downloadHtml = (html: string, filename: string) => {
         const blob = new Blob([html], { type: 'text/html' });
@@ -145,12 +178,11 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     icon={Presentation}
                                     visible={showResults}
                                     className="flex-1 min-h-0"
-                                    action={data.artifacts?.pitchDeckHtml && (
+                                    action={data.artifacts?.pitchDeckHtml && pitchDeckBlobUrl && (
                                         <div className="flex items-center gap-1.5">
                                             <button
                                                 onClick={() => {
-                                                    const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
-                                                    iframe?.contentWindow?.postMessage({ type: 'prevSlide' }, '*');
+                                                    pitchDeckIframeRef.current?.contentWindow?.postMessage({ type: 'prevSlide' }, '*');
                                                 }}
                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                                             >
@@ -158,8 +190,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             </button>
                                             <button
                                                 onClick={() => {
-                                                    const iframe = document.getElementById('pitch-deck-preview') as HTMLIFrameElement;
-                                                    iframe?.contentWindow?.postMessage({ type: 'nextSlide' }, '*');
+                                                    pitchDeckIframeRef.current?.contentWindow?.postMessage({ type: 'nextSlide' }, '*');
                                                 }}
                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
                                             >
@@ -190,29 +221,14 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             <span className="text-white font-medium">Build first, pitch second.</span> Use this as a starting point.
                                         </p>
 
-                                        {data.artifacts?.pitchDeckHtml ? (
+                                        {data.artifacts?.pitchDeckHtml && pitchDeckBlobUrl ? (
                                             <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden">
                                                 <iframe
-                                                    srcDoc={data.artifacts.pitchDeckHtml.replace('</body>', `
-                                                        <script>
-                                                            window.addEventListener('message', (event) => {
-                                                                if (event.data.type === 'prevSlide') {
-                                                                    Reveal.prev();
-                                                                } else if (event.data.type === 'nextSlide') {
-                                                                    Reveal.next();
-                                                                }
-                                                            });
-                                                        </script>
-                                                        <style>
-                                                            html, body { height: 100%; overflow: hidden !important; }
-                                                            .reveal { height: 100% !important; }
-                                                        </style>
-                                                        </body>
-                                                    `)}
+                                                    ref={pitchDeckIframeRef}
+                                                    src={pitchDeckBlobUrl}
                                                     className="w-full h-full border-0"
                                                     title="Pitch Deck Preview"
                                                     id="pitch-deck-preview"
-                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms"
                                                 />
                                             </div>
                                         ) : (
