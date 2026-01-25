@@ -42,19 +42,17 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     };
 
     // Prepare pitch deck HTML for standalone viewing (new tab/fullscreen)
-    // Inlines the runtime script since external paths won't work from Blob URLs
-    // Also replaces CDN URLs with absolute local URLs for offline support
+    // Uses local reveal.js files for offline support
+    // The new window inherits origin from opener, so relative URLs work
     const getStandalonePitchDeckHtml = () => {
         if (!data?.artifacts?.pitchDeckHtml) return '';
         
         let html = data.artifacts.pitchDeckHtml;
-        const origin = window.location.origin;
         
-        // Replace CDN URLs with absolute local URLs for offline support
-        // Using absolute URLs so they work from Blob URL context
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.css/g, `${origin}/reveal/reveal.css`);
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/theme\/black\.css/g, `${origin}/reveal/theme/black.css`);
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.js/g, `${origin}/reveal/reveal.js`);
+        // Replace CDN URLs with local paths (works because new window has same origin)
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.css/g, '/reveal/reveal.css');
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/theme\/black\.css/g, '/reveal/theme/black.css');
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.js/g, '/reveal/reveal.js');
         
         // Remove any existing inline Reveal.initialize script (API may include it)
         html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
@@ -103,9 +101,12 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     };
 
     const openInNewTab = (html: string) => {
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+        const newWindow = window.open('', '_blank');
+        if (newWindow) {
+            newWindow.document.open();
+            newWindow.document.write(html);
+            newWindow.document.close();
+        }
     };
 
     return (
