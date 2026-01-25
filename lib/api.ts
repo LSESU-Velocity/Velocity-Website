@@ -107,6 +107,12 @@ export interface AnalysisRecord {
     createdAt: string;
 }
 
+export interface AnalysesResponse {
+    analyses: AnalysisRecord[];
+    hasMore: boolean;
+    nextCursor: string | null;
+}
+
 // API Functions
 const API_BASE = '/api';
 
@@ -178,14 +184,20 @@ export async function generateAnalysis(idea: string): Promise<AnalysisData> {
     return response.json();
 }
 
-export async function getAnalyses(): Promise<AnalysisRecord[]> {
+export async function getAnalyses(options?: { cursor?: string; limit?: number }): Promise<AnalysesResponse> {
     // DEV MODE BYPASS: Return empty history in dev mode
     if (IS_DEV) {
         console.log('[DEV MODE] Returning empty analysis history');
-        return [];
+        return { analyses: [], hasMore: false, nextCursor: null };
     }
 
-    const response = await fetch(`${API_BASE}/analyses`, {
+    const params = new URLSearchParams();
+    if (options?.cursor) params.set('cursor', options.cursor);
+    if (options?.limit) params.set('limit', options.limit.toString());
+
+    const url = `${API_BASE}/analyses${params.toString() ? `?${params}` : ''}`;
+
+    const response = await fetch(url, {
         credentials: 'include',
     });
 

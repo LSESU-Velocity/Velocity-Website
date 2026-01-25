@@ -130,18 +130,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(200).json({ success: true });
         }
 
-        // Handle GET request
+        // Handle GET request with cursor-based pagination
         if (req.method === 'GET') {
+            const limit = Math.min(Math.max(parseInt(req.query.limit as string) || 20, 1), 50); // Default 20, max 50
+            const cursor = req.query.cursor as string | undefined; // ISO timestamp of last item
+
             const analysesRef = db.collection('analyses');
-            const analysesSnapshot = await analysesRef
+            let query = analysesRef
                 .where('keyId', '==', keyDoc.id)
-                .orderBy('createdAt', 'desc')
-                .limit(20)
-                .get();
+                .orderBy('createdAt', 'desc');
+
+            // If cursor provided, start after that timestamp
+            if (cursor) {
+                const cursorDate = new Date(cursor);
+                if (!isNaN(cursorDate.getTime())) {
+                    query = query.startAfter(cursorDate);
+                }
+            }
+
+            // Fetch one extra to determine if there are more results
+            const analysesSnapshot = await query.limit(limit + 1).get();
+
+            const hasMore = analysesSnapshot.docs.length > limit;
+            const docs = hasMore ? analysesSnapshot.docs.slice(0, limit) : analysesSnapshot.docs;
 
             // Explicitly select only safe fields to return (DTO pattern)
             // This prevents internal fields (keyId, future: userIP, internal_notes, etc.) from leaking
-            const analyses = analysesSnapshot.docs.map(doc => {
+            const analyses = docs.map(doc => {
                 const data = doc.data();
                 return {
                     id: doc.id,
@@ -152,7 +167,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 };
             });
 
-            return res.status(200).json(analyses);
+            // Get the cursor for the next page (timestamp of the last item)
+            const nextCursor = analyses.length > 0 ? analyses[analyses.length - 1].createdAt : null;
+
+            return res.status(200).json({
+                analyses,
+                hasMore,
+                nextCursor: hasMore ? nextCursor : null,
+            });
         }
 
         return res.status(405).json({ error: 'Method not allowed' });

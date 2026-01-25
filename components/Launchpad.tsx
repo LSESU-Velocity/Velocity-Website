@@ -4,7 +4,7 @@ import { motion, AnimatePresence, useMotionTemplate, useMotionValue, Variants } 
 import { Rocket, CheckCircle2, Cpu, Target, BarChart3, Palette, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, Coins, Copy, Terminal, AlertTriangle, ChevronLeft, ChevronRight, Users, MessageCircle, BookOpen, ExternalLink, LogOut, History, Trash2, Download, Presentation, FileText } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { InviteCodeLogin } from './InviteCodeLogin';
-import { generateAnalysis, getAnalyses, AnalysisRecord, deleteAnalysis } from '../lib/api';
+import { generateAnalysis, getAnalyses, AnalysisRecord, AnalysesResponse, deleteAnalysis } from '../lib/api';
 import { LaunchpadDashboard } from './LaunchpadDashboard';
 import { AnimatedText } from './LaunchpadWidgets';
 // Components moved to LaunchpadWidgets.tsx and LaunchpadDashboard.tsx
@@ -18,6 +18,9 @@ export const Launchpad: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<AnalysisRecord[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [historyHasMore, setHistoryHasMore] = useState(false);
+  const [historyNextCursor, setHistoryNextCursor] = useState<string | null>(null);
+  const [loadingMoreHistory, setLoadingMoreHistory] = useState(false);
 
   const [loadingStep, setLoadingStep] = useState(0);
   const [loadingPercent, setLoadingPercent] = useState(0);
@@ -57,9 +60,30 @@ export const Launchpad: React.FC = () => {
   // Fetch history when authenticated
   useEffect(() => {
     if (isAuthenticated) {
-      getAnalyses().then(setHistory).catch(console.error);
+      getAnalyses().then((response) => {
+        setHistory(response.analyses);
+        setHistoryHasMore(response.hasMore);
+        setHistoryNextCursor(response.nextCursor);
+      }).catch(console.error);
     }
   }, [isAuthenticated]);
+
+  // Load more history items
+  const loadMoreHistory = async () => {
+    if (loadingMoreHistory || !historyNextCursor) return;
+    
+    setLoadingMoreHistory(true);
+    try {
+      const response = await getAnalyses({ cursor: historyNextCursor });
+      setHistory(prev => [...prev, ...response.analyses]);
+      setHistoryHasMore(response.hasMore);
+      setHistoryNextCursor(response.nextCursor);
+    } catch (err) {
+      console.error('Failed to load more history:', err);
+    } finally {
+      setLoadingMoreHistory(false);
+    }
+  };
 
   useEffect(() => {
     if (data && !isGenerating) {
@@ -201,7 +225,11 @@ export const Launchpad: React.FC = () => {
       setData(result);
 
       // Refresh history after new analysis
-      getAnalyses().then(setHistory).catch(console.error);
+      getAnalyses().then((response) => {
+        setHistory(response.analyses);
+        setHistoryHasMore(response.hasMore);
+        setHistoryNextCursor(response.nextCursor);
+      }).catch(console.error);
     } catch (err: any) {
       setError(err.message || 'Failed to generate analysis');
       console.error('Analysis error:', err);
@@ -299,64 +327,86 @@ export const Launchpad: React.FC = () => {
                               <p className="font-sans text-xs text-gray-500">No analyses yet</p>
                             </div>
                           ) : (
-                            history.map((record) => (
-                              <div
-                                key={record.id}
-                                className="w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group cursor-pointer"
-                                onClick={() => loadFromHistory(record)}
-                              >
-                                <div className="flex-1 text-left min-w-0">
-                                  <p className="font-sans text-sm text-gray-200 truncate group-hover:text-velocity-red transition-colors font-medium">{record.idea}</p>
-                                  <p className="font-sans text-[10px] text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-2">
-                                    <span>{new Date(record.createdAt).toLocaleDateString()}</span>
-                                    <span className="w-1 h-1 bg-white/20 rounded-full"></span>
-                                    <span>{new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                  </p>
+                            <>
+                              {history.map((record) => (
+                                <div
+                                  key={record.id}
+                                  className="w-full p-4 flex items-center gap-3 hover:bg-white/5 transition-all border-b border-white/5 last:border-0 group cursor-pointer"
+                                  onClick={() => loadFromHistory(record)}
+                                >
+                                  <div className="flex-1 text-left min-w-0">
+                                    <p className="font-sans text-sm text-gray-200 truncate group-hover:text-velocity-red transition-colors font-medium">{record.idea}</p>
+                                    <p className="font-sans text-[10px] text-gray-500 mt-1 uppercase tracking-wider flex items-center gap-2">
+                                      <span>{new Date(record.createdAt).toLocaleDateString()}</span>
+                                      <span className="w-1 h-1 bg-white/20 rounded-full"></span>
+                                      <span>{new Date(record.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                    </p>
+                                  </div>
+                                  <div className="relative flex items-center">
+                                    {confirmDeleteId === record.id ? (
+                                      <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md" onClick={e => e.stopPropagation()}>
+                                        <span className="font-sans text-[9px] text-red-300 whitespace-nowrap">Delete?</span>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteAnalysis(e, record.id);
+                                            setConfirmDeleteId(null);
+                                          }}
+                                          disabled={deletingId === record.id}
+                                          className="font-sans text-[9px] text-white bg-red-500/50 hover:bg-red-500 px-1.5 rounded transition-colors disabled:opacity-50"
+                                        >
+                                          {deletingId === record.id ? (
+                                            <Loader2 className="w-3 h-3 animate-spin" />
+                                          ) : (
+                                            'Y'
+                                          )}
+                                        </button>
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setConfirmDeleteId(null);
+                                          }}
+                                          className="font-sans text-[9px] text-gray-400 hover:text-white transition-colors px-1"
+                                        >
+                                          N
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setConfirmDeleteId(record.id);
+                                        }}
+                                        className="p-2 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                        title="Delete analysis"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="relative flex items-center">
-                                  {confirmDeleteId === record.id ? (
-                                    <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-md" onClick={e => e.stopPropagation()}>
-                                      <span className="font-sans text-[9px] text-red-300 whitespace-nowrap">Delete?</span>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteAnalysis(e, record.id);
-                                          setConfirmDeleteId(null);
-                                        }}
-                                        disabled={deletingId === record.id}
-                                        className="font-sans text-[9px] text-white bg-red-500/50 hover:bg-red-500 px-1.5 rounded transition-colors disabled:opacity-50"
-                                      >
-                                        {deletingId === record.id ? (
-                                          <Loader2 className="w-3 h-3 animate-spin" />
-                                        ) : (
-                                          'Y'
-                                        )}
-                                      </button>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setConfirmDeleteId(null);
-                                        }}
-                                        className="font-sans text-[9px] text-gray-400 hover:text-white transition-colors px-1"
-                                      >
-                                        N
-                                      </button>
-                                    </div>
+                              ))}
+                              {/* Load More Button */}
+                              {historyHasMore && (
+                                <button
+                                  onClick={loadMoreHistory}
+                                  disabled={loadingMoreHistory}
+                                  className="w-full p-3 flex items-center justify-center gap-2 text-gray-400 hover:text-white hover:bg-white/5 transition-all border-t border-white/10 disabled:opacity-50"
+                                >
+                                  {loadingMoreHistory ? (
+                                    <>
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                      <span className="font-sans text-xs">Loading...</span>
+                                    </>
                                   ) : (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setConfirmDeleteId(record.id);
-                                      }}
-                                      className="p-2 text-gray-600 hover:text-red-400 hover:bg-red-500/10 rounded-full transition-all opacity-0 group-hover:opacity-100"
-                                      title="Delete analysis"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
+                                    <>
+                                      <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+                                      <span className="font-sans text-xs">Load older analyses</span>
+                                    </>
                                   )}
-                                </div>
-                              </div>
-                            ))
+                                </button>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
