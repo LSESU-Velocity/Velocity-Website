@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     CheckCircle2, Zap, Target, Users, Coins, MessageCircle,
@@ -16,39 +16,37 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     const [competitorIndex, setCompetitorIndex] = useState(0);
     const [monetizationIndex, setMonetizationIndex] = useState(0);
     const [promptChainIndex, setPromptChainIndex] = useState(0);
-    const [pitchDeckBlobUrl, setPitchDeckBlobUrl] = useState<string | null>(null);
     const pitchDeckIframeRef = useRef<HTMLIFrameElement>(null);
 
-    // Create blob URL for pitch deck to bypass CSP restrictions on inline scripts
-    useEffect(() => {
-        if (data?.artifacts?.pitchDeckHtml) {
-            // Inject the message listener script for slide navigation
-            const htmlWithMessageListener = data.artifacts.pitchDeckHtml.replace('</body>', `
-                <script>
-                    window.addEventListener('message', (event) => {
-                        if (event.data.type === 'prevSlide') {
-                            Reveal.prev();
-                        } else if (event.data.type === 'nextSlide') {
-                            Reveal.next();
-                        }
-                    });
-                </script>
-                <style>
-                    html, body { height: 100%; overflow: hidden !important; }
-                    .reveal { height: 100% !important; }
-                </style>
-                </body>
-            `);
-            
-            const blob = new Blob([htmlWithMessageListener], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            setPitchDeckBlobUrl(url);
-
-            return () => {
-                URL.revokeObjectURL(url);
-            };
-        }
-    }, [data?.artifacts?.pitchDeckHtml]);
+    // Prepare pitch deck HTML with message listener for slide navigation
+    // Also inject a permissive CSP meta tag to ensure scripts can run
+    const getPitchDeckHtml = () => {
+        if (!data?.artifacts?.pitchDeckHtml) return '';
+        
+        // First, inject a permissive CSP meta tag in the head to allow inline scripts
+        let html = data.artifacts.pitchDeckHtml.replace('<head>', `<head>
+            <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">`);
+        
+        // Then add the message listener and styles before </body>
+        html = html.replace('</body>', `
+            <script>
+                window.addEventListener('message', (event) => {
+                    if (event.data.type === 'prevSlide') {
+                        Reveal.prev();
+                    } else if (event.data.type === 'nextSlide') {
+                        Reveal.next();
+                    }
+                });
+            </script>
+            <style>
+                html, body { height: 100%; overflow: hidden !important; }
+                .reveal { height: 100% !important; }
+            </style>
+            </body>
+        `);
+        
+        return html;
+    };
 
     const downloadHtml = (html: string, filename: string) => {
         const blob = new Blob([html], { type: 'text/html' });
@@ -178,7 +176,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     icon={Presentation}
                                     visible={showResults}
                                     className="flex-1 min-h-0"
-                                    action={data.artifacts?.pitchDeckHtml && pitchDeckBlobUrl && (
+                                    action={data.artifacts?.pitchDeckHtml && (
                                         <div className="flex items-center gap-1.5">
                                             <button
                                                 onClick={() => {
@@ -221,14 +219,15 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             <span className="text-white font-medium">Build first, pitch second.</span> Use this as a starting point.
                                         </p>
 
-                                        {data.artifacts?.pitchDeckHtml && pitchDeckBlobUrl ? (
+                                        {data.artifacts?.pitchDeckHtml ? (
                                             <div className="flex-1 bg-black border border-white/10 relative rounded-2xl overflow-hidden">
                                                 <iframe
                                                     ref={pitchDeckIframeRef}
-                                                    src={pitchDeckBlobUrl}
+                                                    srcDoc={getPitchDeckHtml()}
                                                     className="w-full h-full border-0"
                                                     title="Pitch Deck Preview"
                                                     id="pitch-deck-preview"
+                                                    sandbox="allow-scripts allow-modals allow-popups allow-forms"
                                                 />
                                             </div>
                                         ) : (
