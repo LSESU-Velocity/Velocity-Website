@@ -41,6 +41,53 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
         return html;
     };
 
+    // Prepare pitch deck HTML for standalone viewing (new tab/fullscreen)
+    // Inlines the runtime script since external paths won't work from Blob URLs
+    // Also replaces CDN URLs with absolute local URLs for offline support
+    const getStandalonePitchDeckHtml = () => {
+        if (!data?.artifacts?.pitchDeckHtml) return '';
+        
+        let html = data.artifacts.pitchDeckHtml;
+        const origin = window.location.origin;
+        
+        // Replace CDN URLs with absolute local URLs for offline support
+        // Using absolute URLs so they work from Blob URL context
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.css/g, `${origin}/reveal/reveal.css`);
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/theme\/black\.css/g, `${origin}/reveal/theme/black.css`);
+        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.js/g, `${origin}/reveal/reveal.js`);
+        
+        // Remove any existing inline Reveal.initialize script (API may include it)
+        html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
+        
+        // Inject inlined runtime script + styles before </body>
+        html = html.replace('</body>', `
+    <script>
+        // Initialize Reveal.js when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Reveal !== 'undefined') {
+                Reveal.initialize({
+                    hash: false,
+                    controls: true,
+                    progress: true,
+                    center: true,
+                    transition: 'slide',
+                    embedded: false,
+                    keyboardCondition: null
+                }).catch(function(err) {
+                    console.error('Reveal.js initialization failed:', err);
+                });
+            }
+        });
+    </script>
+    <style>
+        html, body { height: 100%; overflow: hidden !important; }
+        .reveal { height: 100% !important; }
+    </style>
+</body>`);
+        
+        return html;
+    };
+
     const downloadHtml = (html: string, filename: string) => {
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
@@ -188,10 +235,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                 <ChevronRight className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    const newWindow = window.open('', '_blank');
-                                                    newWindow?.document.write(data.artifacts!.pitchDeckHtml!);
-                                                }}
+                                                onClick={() => openInNewTab(getStandalonePitchDeckHtml())}
                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
                                                 title="Open in fullscreen"
                                             >
