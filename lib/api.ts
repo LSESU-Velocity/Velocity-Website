@@ -37,9 +37,6 @@ export interface AnalysisData {
         timeline: string;
     };
     validation: {
-        tam: { value: string; label: string };
-        sam: { value: string; label: string };
-        som: { value: string; label: string };
         aiInsight: string;
         competitors: number;
         competitorList: Array<{

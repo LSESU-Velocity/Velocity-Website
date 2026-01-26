@@ -109,23 +109,6 @@ const MOCK_PITCH_DECK_HTML = `<!doctype html>
             </div>
             <p class="text-2xl text-gray-300">The solution you've been <span class="text-white font-bold underline decoration-red-500">waiting for</span>.</p>
         </section>
-        <section>
-             <h3 class="text-gray-500 uppercase tracking-widest text-lg mb-8">The Market</h3>
-             <div class="grid grid-cols-3 gap-4">
-                 <div class="bg-white/5 p-8 rounded-lg">
-                     <div class="text-sm text-gray-400 uppercase">TAM</div>
-                     <div class="text-5xl font-bold text-white mb-2">$150B</div>
-                 </div>
-                 <div class="bg-white/10 p-8 rounded-lg scale-110 shadow-[0_0_30px_rgba(255,31,31,0.1)] border border-red-500/30">
-                     <div class="text-sm text-gray-400 uppercase">SAM</div>
-                     <div class="text-5xl font-bold text-red-500 mb-2">$12B</div>
-                 </div>
-                 <div class="bg-white/5 p-8 rounded-lg">
-                     <div class="text-sm text-gray-400 uppercase">SOM</div>
-                     <div class="text-5xl font-bold text-white mb-2">$500K</div>
-                 </div>
-             </div>
-        </section>
         <section data-background-color="#FF1F1F">
             <h2 class="text-white font-bold mb-4">Invest Now</h2>
             <p class="text-white/80 text-xl">{{NAME}} - {{TAGLINE}}</p>
@@ -178,9 +161,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             }
         ],
         market: {
-            tam: { value: "$150B", label: "Global Developer Tools Market" },
-            sam: { value: "$12B", label: "UK SaaS & Startup Tools" },
-            som: { value: "$500K", label: "LSE Founders & Tech Students" },
             aiInsight: "VelocityApp targets a high-growth segment of UK founders ($150B TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
         },
         marketReports: [
@@ -307,9 +287,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 }
             ],
             market: {
-                tam: { value: "$5.3B", label: "UK Fitness App Market" },
-                sam: { value: "$420M", label: "London Fitness Tech" },
-                som: { value: "$75K", label: "LSE Students & Staff" },
                 aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With $5.3B UK fitness app TAM, the opportunity is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
             },
             marketReports: [
@@ -434,9 +411,6 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 },
                 distributionChannels: data.distributionChannels,
                 validation: {
-                    tam: data.market.tam,
-                    sam: data.market.sam,
-                    som: data.market.som,
                     aiInsight: data.market.aiInsight,
                     competitors: 3,
                     competitorList: data.competitors,
