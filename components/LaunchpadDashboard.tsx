@@ -41,49 +41,6 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
         return html;
     };
 
-    // Prepare pitch deck HTML for standalone viewing (new tab/fullscreen)
-    // Uses CDN URLs to ensure resources load correctly in new window context
-    const getStandalonePitchDeckHtml = () => {
-        if (!data?.artifacts?.pitchDeckHtml) return '';
-        
-        let html = data.artifacts.pitchDeckHtml;
-        
-        // Keep CDN URLs as-is (don't replace with local paths)
-        // The new window opened via document.write() won't have same origin context,
-        // so CDN URLs are more reliable than relative paths
-        
-        // Remove any existing inline Reveal.initialize script (API may include it)
-        html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
-        
-        // Inject inlined runtime script + styles before </body>
-        html = html.replace('</body>', `
-    <script>
-        // Initialize Reveal.js when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof Reveal !== 'undefined') {
-                Reveal.initialize({
-                    hash: false,
-                    controls: true,
-                    progress: true,
-                    center: true,
-                    transition: 'slide',
-                    embedded: false,
-                    keyboardCondition: null
-                }).catch(function(err) {
-                    console.error('Reveal.js initialization failed:', err);
-                });
-            }
-        });
-    </script>
-    <style>
-        html, body { height: 100%; overflow: hidden !important; }
-        .reveal { height: 100% !important; }
-    </style>
-</body>`);
-        
-        return html;
-    };
-
     const downloadHtml = (html: string, filename: string) => {
         const blob = new Blob([html], { type: 'text/html' });
         const url = URL.createObjectURL(blob);
@@ -99,12 +56,16 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     };
 
     const openInNewTab = (html: string) => {
-        const newWindow = window.open('', '_blank');
-        if (newWindow) {
-            newWindow.document.open();
-            newWindow.document.write(html);
-            newWindow.document.close();
-        }
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    };
+
+    const openPitchDeckFullscreen = (pitchDeckHtml: string) => {
+        // Store deck HTML so a same-origin viewer page can load it reliably
+        const key = `velocity:deck:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(key, pitchDeckHtml);
+        window.open(`/deck-viewer.html#${encodeURIComponent(key)}`, '_blank');
     };
 
     return (
@@ -234,7 +195,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                 <ChevronRight className="w-4 h-4" />
                                             </button>
                                             <button
-                                                onClick={() => openInNewTab(getStandalonePitchDeckHtml())}
+                                                onClick={() => openPitchDeckFullscreen(data.artifacts!.pitchDeckHtml!)}
                                                 className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
                                                 title="Open in fullscreen"
                                             >

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pitch Deck</title>
+    <link rel="stylesheet" href="/reveal/reveal.css" />
+    <link rel="stylesheet" href="/reveal/theme/black.css" />
+    <style>
+      :root {
+        --r-background-color: #0a0a0a;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: var(--r-background-color);
+      }
+      #error {
+        display: none;
+        height: 100%;
+        color: #fff;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+      #error code {
+        display: inline-block;
+        padding: 2px 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 6px;
+      }
+      .reveal {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="error">
+      <h1 style="margin: 0 0 12px 0; font-size: 18px">Pitch deck failed to load</h1>
+      <p style="margin: 0; opacity: 0.8; line-height: 1.6">
+        This viewer expects a deck key in the URL hash, e.g. <code>#velocity:deck:...</code>.
+      </p>
+    </div>
+
+    <div class="reveal">
+      <div class="slides" id="slides"></div>
+    </div>
+
+    <script src="/reveal/reveal.js"></script>
+    <script>
+      function showError(message) {
+        var el = document.getElementById("error");
+        el.style.display = "block";
+        if (message) {
+          var p = document.createElement("p");
+          p.style.margin = "12px 0 0 0";
+          p.style.opacity = "0.8";
+          p.textContent = message;
+          el.appendChild(p);
+        }
+      }
+
+      function extractSlidesInnerHtml(deckHtml) {
+        try {
+          var doc = new DOMParser().parseFromString(deckHtml, "text/html");
+          var slides =
+            doc.querySelector(".reveal .slides") ||
+            doc.querySelector(".slides");
+          return slides ? slides.innerHTML : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      (function init() {
+        var key = "";
+        try {
+          key = decodeURIComponent((location.hash || "").slice(1));
+        } catch (e) {
+          key = (location.hash || "").slice(1);
+        }
+
+        if (!key) {
+          showError("Missing deck key.");
+          return;
+        }
+
+        var deckHtml = null;
+        try {
+          deckHtml = localStorage.getItem(key);
+        } catch (e) {}
+
+        if (!deckHtml) {
+          showError("Deck content not found in localStorage for key: " + key);
+          return;
+        }
+
+        // Best-effort cleanup (safe if it fails).
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {}
+
+        var slidesInner = extractSlidesInnerHtml(deckHtml);
+        if (!slidesInner) {
+          showError("Could not extract slides from deck HTML.");
+          return;
+        }
+
+        document.getElementById("slides").innerHTML = slidesInner;
+
+        if (typeof Reveal === "undefined") {
+          showError("Reveal.js failed to load from /reveal/reveal.js.");
+          return;
+        }
+
+        Reveal.initialize({
+          hash: false,
+          controls: true,
+          progress: true,
+          center: true,
+          transition: "slide",
+        }).catch(function (err) {
+          showError("Reveal.initialize() failed: " + (err && err.message ? err.message : String(err)));
+        });
+      })();
+    </script>
+  </body>
+</html>
