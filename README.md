@@ -9,7 +9,7 @@
 ## Features
 
 ### Phase 1: Validation
-- **AI Executive Summary** — Instant market analysis of your startup idea
+- **Industry Insights** — Instant market analysis of your startup idea
 - **Waitlist Landing Page** — Download a production-ready HTML landing page to gauge interest
 - **Pitch Deck Generator** — Interactive Reveal.js presentation with problem, solution, and business model slides
 - **Market Position Map** — Visual perceptual map showing competitors and your unique gap

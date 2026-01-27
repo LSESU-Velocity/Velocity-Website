@@ -22,12 +22,12 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     // Uses external /deck-runtime.js instead of inline scripts to maintain strict CSP
     const getPitchDeckHtml = () => {
         if (!data?.artifacts?.pitchDeckHtml) return '';
-        
+
         let html = data.artifacts.pitchDeckHtml;
-        
+
         // Remove any existing inline Reveal.initialize script (API may include it)
         html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
-        
+
         // Inject external runtime script + styles before </body>
         // The external script handles Reveal init + postMessage navigation
         html = html.replace('</body>', `
@@ -37,7 +37,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
         .reveal { height: 100% !important; }
     </style>
 </body>`);
-        
+
         return html;
     };
 
@@ -160,9 +160,9 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                 </Widget>
                             </div>
 
-                            {/* Executive Summary & Pitch Deck */}
+                            {/* Industry Insights & Pitch Deck */}
                             <div className="lg:col-span-5 flex flex-col gap-6 h-full">
-                                <Widget title="AI Executive Summary" icon={Zap} visible={showResults} className="flex-1">
+                                <Widget title="Industry Insights" icon={Zap} visible={showResults} className="flex-1">
                                     <div className="flex flex-col h-full">
                                         <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0 mt-2">
                                             {data.validation.aiInsight}
