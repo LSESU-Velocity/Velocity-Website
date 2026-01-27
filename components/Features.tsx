@@ -97,9 +97,8 @@ export const Features: React.FC = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-                    {/* Header Section - takes up one slot or sits above? 
-                        The prompt asked for 3 steps, usually these are side by side. 
-                        I'll put the header above the grid to let the 3 steps shine. 
+                    {/* Header Section
+                    
                     */}
                     <div className="lg:col-span-3 mb-16 md:text-center max-w-3xl mx-auto">
                         <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2">

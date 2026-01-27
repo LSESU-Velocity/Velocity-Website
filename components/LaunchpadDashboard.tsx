@@ -42,17 +42,15 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     };
 
     // Prepare pitch deck HTML for standalone viewing (new tab/fullscreen)
-    // Uses local reveal.js files for offline support
-    // The new window inherits origin from opener, so relative URLs work
+    // Uses CDN URLs to ensure resources load correctly in new window context
     const getStandalonePitchDeckHtml = () => {
         if (!data?.artifacts?.pitchDeckHtml) return '';
         
         let html = data.artifacts.pitchDeckHtml;
         
-        // Replace CDN URLs with local paths (works because new window has same origin)
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.css/g, '/reveal/reveal.css');
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/theme\/black\.css/g, '/reveal/theme/black.css');
-        html = html.replace(/https:\/\/cdn\.jsdelivr\.net\/npm\/reveal\.js@[\d.]+\/dist\/reveal\.js/g, '/reveal/reveal.js');
+        // Keep CDN URLs as-is (don't replace with local paths)
+        // The new window opened via document.write() won't have same origin context,
+        // so CDN URLs are more reliable than relative paths
         
         // Remove any existing inline Reveal.initialize script (API may include it)
         html = html.replace(/<script>[\s\S]*?Reveal\.initialize[\s\S]*?<\/script>/gi, '');
