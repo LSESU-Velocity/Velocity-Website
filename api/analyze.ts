@@ -122,12 +122,13 @@ const responseSchema = {
     promptChain: {
       type: "array",
       minItems: 3,
+      maxItems: 3,
       items: {
         type: "object",
         properties: {
-          step: { type: "number", description: "Step number" },
-          title: { type: "string", description: "Step title (max 40 chars)" },
-          prompt: { type: "string", description: "Full prompt for AI coding assistant to build MVP (max 300 chars, actionable and complete)" }
+          step: { type: "number", description: "Step number (1, 2, or 3)" },
+          title: { type: "string", description: "Short step title (max 40 chars, e.g. 'Scaffold & Navigation', 'Core Interaction', 'Persistence & Auth')" },
+          prompt: { type: "string", description: "Complete prompt for AI coding tool (600-900 chars). Must mention the user's idea explicitly, include tech stack once, and end with 2-4 acceptance criteria bullets." }
         },
         required: ["step", "title", "prompt"]
       }
@@ -339,6 +340,68 @@ STEP 5 - VALIDATION before responding:
 - If all competitors cluster in one quadrant, RECONSIDER your axis choices
 - The map should tell a story about market segmentation
 
+PROMPT CHAIN - CRITICAL INSTRUCTIONS FOR AI CODING TOOL PROMPTS:
+
+The promptChain generates 3 starter prompts that users paste into AI coding tools (Replit Agent, Lovable, Cursor, etc.) to build their app from scratch. These prompts must be:
+- BEGINNER-AGENT-FRIENDLY: Clear, actionable, not overly specific, not requiring niche services
+- PROGRESSIVE: Each prompt builds on the previous one
+- GROUNDED IN THE USER'S IDEA: Always mention the specific idea (e.g., "dating app for runners"), never generic "the app"
+- TECH-STACK AWARE: Mention the stack once clearly, then focus on readable requirements
+
+TECH STACK SELECTION (keep simple):
+- Mobile-first ideas or apps that imply mobile: Use "React Native with Expo and TypeScript"
+- Web apps or unclear: Use "React with TypeScript (Vite)"
+- Only mention backend/database if Prompt 3 needs persistence - pick ONE simple option (e.g., "Firebase" or "Supabase"), don't list multiple vendors
+- AVOID: Kubernetes, microservices, complex infrastructure, paid APIs, obscure libraries
+
+WHAT TO AVOID (hard rules):
+- DON'T output hyper-specific implementation demands (e.g., "Mapbox GL custom pins", "rate crunch/moisture", "design a Supabase schema with 12 tables")
+- DON'T require obscure domain data or paid APIs by default
+- DON'T jump to complex schemas - keep to 2-5 core entities MAX if mentioning data
+- DON'T write actual code - write prompts that instruct another AI coding agent
+
+PROMPT CHAIN STRUCTURE (must follow exactly):
+
+**Prompt 1: Scaffold + Navigation + Core Screens**
+Build the foundation UI and routing. Include:
+- The app's purpose and name (mention the user's idea explicitly)
+- Tech stack (mention once at the start)
+- Core screens/tabs (typically 3-4: Home, Profile, Settings, etc.)
+- Basic layout with modern, clean design direction
+- Use dummy/mock data for now
+- End with 2-4 acceptance criteria bullets
+
+**Prompt 2: First "Wow" Feature / Core Interaction**
+Implement the key feature that proves the concept:
+- Reference that this builds on the previous scaffold
+- Focus on ONE core interaction (e.g., onboarding + swipe, search + filter, create + share)
+- Keep it specific to the user's idea
+- Include UI/UX details (animations, feedback, etc.)
+- End with 2-4 acceptance criteria bullets
+
+**Prompt 3: Persistence + User Data**
+Add auth and data storage:
+- Add user authentication (if appropriate)
+- Store user-generated content/preferences
+- Make the core feature persist across sessions
+- Keep data model simple (2-5 entities max)
+- Mention ONE backend solution (Firebase, Supabase, or local storage)
+- End with 2-4 acceptance criteria bullets
+
+STYLE REQUIREMENTS FOR EACH PROMPT:
+- 5-10 sentences in plain language, imperative tone
+- Mention the user's idea explicitly at least once (e.g., "sandwich finder app")
+- Mention chosen tech stack once near the top
+- Include 2-4 acceptance criteria bullets at the end focusing on user-visible behavior
+- Each prompt should be independently pasteable and make sense on its own
+
+QUALITY CHECK BEFORE RESPONDING:
+- Each prompt can be pasted into Replit/Lovable/Cursor and understood
+- Prompt 1 can be completed without needing Prompt 2/3
+- Prompt 2 builds directly on Prompt 1's scaffold
+- Prompt 3 adds persistence without forcing unnecessary complexity
+- NO jargon-heavy vendor-specific requirements unless the user mentioned them
+
 IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS (waitlistHtml and pitchDeckHtml):
 
 CRITICAL - MAKE EACH DESIGN UNIQUE:
@@ -491,7 +554,7 @@ CRITICAL RULES:
 
 Output ONLY valid HTML, no markdown code blocks.
 
-Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 prompt chain steps, 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
+Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 AI-coding-tool-ready prompt chain steps (following the Prompt Chain instructions above), 5 distribution channels, waitlist HTML, and pitch deck HTML.`;
 
     // Combine system instruction and user message into a single prompt
     // This proved to be more reliable for token usage than separating them
