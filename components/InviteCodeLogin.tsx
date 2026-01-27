@@ -160,8 +160,8 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                                 )}
 
                                 {/* Footer */}
-                                <p className="font-sans text-gray-500 text-[10px] text-center mt-6 uppercase tracking-wider">
-                                    Don't have a key? Contact the Velocity team
+                                <p className="font-sans text-gray-500 text-xs text-center mt-6 leading-relaxed">
+                                    This tool is exclusive to Velocity members. To obtain access, please purchase a membership via the SU website and email <a href="mailto:velocity@lsesu.org" className="underline hover:text-gray-400 transition-colors">velocity@lsesu.org</a>. You will receive a unique key to log in and save your analyses.
                                 </p>
                             </div>
                         </div>
