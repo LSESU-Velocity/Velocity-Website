@@ -166,7 +166,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                 <Widget title="Industry Insights" icon={Zap} visible={showResults} className="flex-1">
                                     <div className="flex flex-col h-full max-h-[250px]">
                                         <div
-                                            className="font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto"
+                                            className="font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto pr-4 pb-4"
                                             style={{
                                                 scrollbarWidth: 'none',
                                                 msOverflowStyle: 'none',
