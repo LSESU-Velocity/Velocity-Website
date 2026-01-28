@@ -57,6 +57,11 @@ export const Launchpad: React.FC = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null); // Track which analysis is showing delete confirmation
   const inputFormRef = useRef<HTMLFormElement>(null);
 
+  // Scroll to top when component mounts (fixes navigation from ChipScroll/navbar)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   // Fetch history when authenticated
   useEffect(() => {
     if (isAuthenticated) {
