@@ -8,7 +8,9 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{NAME}} - Launching Soon</title>
+    <title>{{NAME}} — Join the Waitlist</title>
+    <meta name="description" content="{{TAGLINE}} Join the waitlist for early access.">
+    <meta name="theme-color" content="#FF1F1F">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -24,43 +26,429 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
             }
         }
     </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
+        :root { color-scheme: dark; }
+        body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+        h1, h2, .display { font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif; }
+    </style>
 </head>
-<body class="bg-black text-white font-sans antialiased">
-    <div class="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-96 h-96 bg-brand/20 rounded-full blur-[128px] pointer-events-none"></div>
-        <div class="relative z-10 max-w-md w-full text-center space-y-8">
-            <div class="inline-flex items-center gap-2 mb-4">
-                <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <span class="font-bold text-xl tracking-tight">{{NAME}}</span>
-            </div>
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight leading-tight">
-                {{TAGLINE}} <br/>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand to-orange-500">Launch sooner.</span>
-            </h1>
-            <p class="text-gray-400 text-lg">
-                The best way to validate your idea. Join the waitlist today.
-            </p>
-            <div class="grid gap-3 text-left">
-                <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
-                    <div class="w-2 h-2 rounded-full bg-brand"></div>
-                    <span class="text-sm font-medium">Early Access</span>
-                </div>
-                <div class="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10">
-                    <div class="w-2 h-2 rounded-full bg-brand"></div>
-                    <span class="text-sm font-medium">Exclusive Features</span>
-                </div>
-            </div>
-            <form class="flex gap-2" onsubmit="event.preventDefault(); alert('Joined!');">
-                <input type="email" placeholder="enter@email.com" class="flex-1 bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-brand transition-colors" required>
-                <button type="submit" class="bg-brand hover:bg-brand-dark text-white font-bold py-3 px-6 rounded-lg transition-colors shadow-[0_0_20px_rgba(255,31,31,0.3)]">
-                    Join
-                </button>
-            </form>
-            <p class="text-xs text-gray-600">Join 2,000+ founders waiting for access.</p>
-        </div>
+<body class="bg-[#070709] text-white antialiased">
+    <!-- Background -->
+    <div class="pointer-events-none fixed inset-0 overflow-hidden">
+        <div class="absolute -top-40 left-1/2 h-[520px] w-[860px] -translate-x-1/2 rounded-full bg-brand/25 blur-[130px]"></div>
+        <div class="absolute -bottom-56 left-1/3 h-[520px] w-[860px] -translate-x-1/2 rounded-full bg-fuchsia-500/10 blur-[150px]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.08),transparent_45%)]"></div>
+        <div class="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(to_right,rgba(255,255,255,0.16)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.16)_1px,transparent_1px)] [background-size:72px_72px]"></div>
     </div>
+
+    <header class="sticky top-0 z-50 backdrop-blur-lg bg-[#070709]/80 border-b border-white/5">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6">
+            <nav class="flex items-center justify-between py-6">
+                <a href="#" class="flex items-center gap-3">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10">
+                        <svg class="h-5 w-5 text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M13 2L3 14h7l-1 8 12-14h-7l-1-6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <span class="font-semibold tracking-tight">{{NAME}}</span>
+                </a>
+
+                <div class="hidden md:flex items-center gap-8 text-sm text-white/70">
+                    <a href="#benefits" class="hover:text-white transition-colors">Benefits</a>
+                    <a href="#how" class="hover:text-white transition-colors">How it works</a>
+                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                </div>
+
+                <a href="#join" class="inline-flex items-center gap-2 rounded-full bg-white text-black px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
+                    Get early access
+                    <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                        <path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="relative">
+        <!-- Hero -->
+        <section class="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-16">
+            <div class="grid items-center gap-10 lg:grid-cols-2">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] text-white/70">
+                        <span class="inline-flex h-2 w-2 rounded-full bg-brand shadow-[0_0_0_4px_rgba(255,31,31,0.15)]"></span>
+                        Now accepting early users
+                    </div>
+
+                    <h1 class="display text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.05]">
+                        {{TAGLINE}}
+                        <span class="block text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-brand">
+                            Be among the first to experience it.
+                        </span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-white/70 max-w-xl">
+                        We're building something new. Sign up now to get early access, exclusive updates, and a chance to shape the product before anyone else.
+                    </p>
+
+                    <div id="join" class="rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+                        <form id="waitlist-form" class="flex flex-col sm:flex-row gap-3" autocomplete="on">
+                            <label class="sr-only" for="waitlist-email">Email</label>
+                            <input id="waitlist-email" name="email" type="email" required placeholder="Enter your email"
+                                   class="flex-1 rounded-xl bg-black/40 border border-white/10 px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-brand/50 focus:border-brand/40 transition" />
+                            <button id="waitlist-submit" type="submit"
+                                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-brand px-5 py-3 font-semibold text-white hover:bg-brand-dark transition shadow-[0_12px_34px_rgba(255,31,31,0.25)]">
+                                Join the waitlist
+                                <svg class="h-4 w-4" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                                    <path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </form>
+                        <p id="waitlist-success" class="hidden mt-3 text-sm text-emerald-300" aria-live="polite">
+                            You're in. We'll email you when early access opens.
+                        </p>
+                        <p class="mt-3 text-xs text-white/50">No spam. One email when it matters. Unsubscribe anytime.</p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3 text-xs text-white/60">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1">
+                            <span class="text-emerald-300">✓</span> Early access
+                        </span>
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1">
+                            <span class="text-emerald-300">✓</span> Founder pricing
+                        </span>
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-3 py-1">
+                            <span class="text-emerald-300">✓</span> Priority feedback lane
+                        </span>
+                    </div>
+
+                    <div class="pt-2">
+                        <div class="flex flex-wrap items-center gap-3 text-xs text-white/50">
+                            <span class="uppercase tracking-widest">Trusted by builders</span>
+                            <span class="h-px w-10 bg-white/10"></span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">Prototype teams</span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">Solo founders</span>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1">Student makers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right-side mock -->
+                <div class="relative">
+                    <div class="relative rounded-3xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-6 shadow-2xl overflow-hidden">
+                        <div class="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-brand/20 blur-[90px]"></div>
+                        <div class="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-orange-500/10 blur-[100px]"></div>
+
+                        <div class="relative">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400"></span>
+                                    <span class="text-xs text-white/60">Preview</span>
+                                </div>
+                                <span class="text-xs text-white/40">v0.1</span>
+                            </div>
+
+                            <div class="mt-6 grid gap-4">
+                                <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                                    <p class="text-xs text-white/50">What you get</p>
+                                    <p class="mt-1 text-lg font-semibold tracking-tight">Early access to the future</p>
+                                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                                        <div class="rounded-xl bg-white/5 border border-white/10 p-3">
+                                            <p class="text-white/85">Priority</p>
+                                            <p class="text-xs text-white/50 mt-1">First in line</p>
+                                        </div>
+                                        <div class="rounded-xl bg-white/5 border border-white/10 p-3">
+                                            <p class="text-white/85">Savings</p>
+                                            <p class="text-xs text-white/50 mt-1">Founder pricing</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                                    <p class="text-xs text-white/50">Why join now</p>
+                                    <ul class="mt-2 space-y-2 text-sm text-white/70">
+                                        <li class="flex items-start gap-2">
+                                            <span class="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
+                                            Be the first to try new features
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
+                                            Shape the product roadmap
+                                        </li>
+                                        <li class="flex items-start gap-2">
+                                            <span class="mt-1 inline-flex h-1.5 w-1.5 rounded-full bg-brand"></span>
+                                            Lock in the best price forever
+                                        </li>
+                                    </ul>
+                                </div>
+
+                                <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
+                                    <p class="text-xs text-white/50">Status</p>
+                                    <p class="mt-2 text-sm text-white/70">
+                                        We're putting the finishing touches on something special. Get in early.
+                                    </p>
+                                    <div class="mt-4 flex items-center gap-2">
+                                        <div class="h-2 w-2 rounded-full bg-brand"></div>
+                                        <div class="h-2 w-2 rounded-full bg-white/20"></div>
+                                        <div class="h-2 w-2 rounded-full bg-white/20"></div>
+                                        <span class="ml-auto text-xs text-white/40">Coming soon</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pointer-events-none absolute -inset-10 -z-10 bg-brand/10 blur-3xl"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits -->
+        <section id="benefits" class="mx-auto max-w-6xl px-4 sm:px-6 py-14">
+            <div class="flex items-end justify-between gap-6 flex-wrap">
+                <div class="space-y-2">
+                    <p class="text-xs uppercase tracking-widest text-white/50">Why join early</p>
+                    <h2 class="display text-2xl sm:text-3xl font-bold tracking-tight">Get in before everyone else</h2>
+                </div>
+                <p class="max-w-xl text-sm text-white/60">
+                    Early supporters get exclusive perks, direct input on features, and the best pricing we'll ever offer.
+                </p>
+            </div>
+
+            <div class="mt-8 grid gap-4 md:grid-cols-3">
+                <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 border border-brand/20">
+                            <svg class="h-5 w-5 text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M20 7l-10 10-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <h3 class="font-semibold">Early access</h3>
+                    </div>
+                    <p class="mt-3 text-sm text-white/60">Be the first to try new features before they go public.</p>
+                </div>
+                <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 border border-brand/20">
+                            <svg class="h-5 w-5 text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 2v6m0 14v-6m10-4h-6M8 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <h3 class="font-semibold">Shape the product</h3>
+                    </div>
+                    <p class="mt-3 text-sm text-white/60">Your feedback directly influences what we build next.</p>
+                </div>
+                <div class="group rounded-2xl border border-white/10 bg-white/5 p-6 hover:bg-white/10 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand/15 border border-brand/20">
+                            <svg class="h-5 w-5 text-brand" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 17l-5 3 1.6-5.7L4 10h6L12 4l2 6h6l-4.6 4.3L17 20l-5-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <h3 class="font-semibold">Founder pricing</h3>
+                    </div>
+                    <p class="mt-3 text-sm text-white/60">Lock in the lowest price we'll ever offer—forever.</p>
+                </div>
+            </div>
+
+            <div class="mt-10 rounded-3xl border border-white/10 bg-gradient-to-r from-white/5 to-transparent p-6">
+                <div class="grid gap-6 sm:grid-cols-3">
+                    <div>
+                        <p class="text-3xl font-extrabold tracking-tight">500+</p>
+                        <p class="text-sm text-white/60">People on the waitlist</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold tracking-tight">50%</p>
+                        <p class="text-sm text-white/60">Founder discount</p>
+                    </div>
+                    <div>
+                        <p class="text-3xl font-extrabold tracking-tight">1st</p>
+                        <p class="text-sm text-white/60">In line for access</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How it works -->
+        <section id="how" class="mx-auto max-w-6xl px-4 sm:px-6 py-14">
+            <div class="space-y-2">
+                <p class="text-xs uppercase tracking-widest text-white/50">How it works</p>
+                <h2 class="display text-2xl sm:text-3xl font-bold tracking-tight">Simple to get started</h2>
+            </div>
+            <div class="mt-8 grid gap-4 md:grid-cols-3">
+                <div class="rounded-2xl border border-white/10 bg-black/30 p-6">
+                    <p class="text-xs text-white/50">Step 1</p>
+                    <h3 class="mt-2 font-semibold">Join the waitlist</h3>
+                    <p class="mt-2 text-sm text-white/60">Enter your email and secure your spot. Takes 5 seconds.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-black/30 p-6">
+                    <p class="text-xs text-white/50">Step 2</p>
+                    <h3 class="mt-2 font-semibold">Get early access</h3>
+                    <p class="mt-2 text-sm text-white/60">We'll email you when it's your turn to try the product.</p>
+                </div>
+                <div class="rounded-2xl border border-white/10 bg-black/30 p-6">
+                    <p class="text-xs text-white/50">Step 3</p>
+                    <h3 class="mt-2 font-semibold">Experience the future</h3>
+                    <p class="mt-2 text-sm text-white/60">Start using the product and tell us what you think.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="mx-auto max-w-6xl px-4 sm:px-6 py-14">
+            <div class="space-y-2">
+                <p class="text-xs uppercase tracking-widest text-white/50">What people are saying</p>
+                <h2 class="display text-2xl sm:text-3xl font-bold tracking-tight">Early feedback from our community</h2>
+            </div>
+            <div class="mt-8 grid gap-4 md:grid-cols-3">
+                <figure class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <blockquote class="text-sm text-white/70">“I've been waiting for something like this. Finally, a product that actually gets what I need.”</blockquote>
+                    <figcaption class="mt-4 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-brand/60 to-orange-500/30 border border-white/10"></div>
+                        <div>
+                            <p class="text-sm font-semibold">Aisha</p>
+                            <p class="text-xs text-white/50">Early supporter</p>
+                        </div>
+                    </figcaption>
+                </figure>
+                <figure class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <blockquote class="text-sm text-white/70">“The team is incredibly responsive. They actually listen to feedback and ship fast.”</blockquote>
+                    <figcaption class="mt-4 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-sky-500/40 to-brand/40 border border-white/10"></div>
+                        <div>
+                            <p class="text-sm font-semibold">Ben</p>
+                            <p class="text-xs text-white/50">Beta tester</p>
+                        </div>
+                    </figcaption>
+                </figure>
+                <figure class="rounded-2xl border border-white/10 bg-white/5 p-6">
+                    <blockquote class="text-sm text-white/70">“Can't wait for the full launch. The early preview already exceeded my expectations.”</blockquote>
+                    <figcaption class="mt-4 flex items-center gap-3">
+                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500/35 to-brand/35 border border-white/10"></div>
+                        <div>
+                            <p class="text-sm font-semibold">Maya</p>
+                            <p class="text-xs text-white/50">Waitlist member</p>
+                        </div>
+                    </figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section id="faq" class="mx-auto max-w-6xl px-4 sm:px-6 py-14">
+            <div class="space-y-2">
+                <p class="text-xs uppercase tracking-widest text-white/50">FAQ</p>
+                <h2 class="display text-2xl sm:text-3xl font-bold tracking-tight">Quick answers</h2>
+            </div>
+            <div class="mt-8 grid gap-3">
+                <details class="group rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4">
+                        <span class="font-semibold">What happens after I join?</span>
+                        <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="mt-3 text-sm text-white/60">You’ll see an inline confirmation, and we’ll email you when early access opens.</p>
+                </details>
+                <details class="group rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4">
+                        <span class="font-semibold">Do I need a website or backend?</span>
+                        <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="mt-3 text-sm text-white/60">No. This page is a single HTML file you can download and host anywhere.</p>
+                </details>
+                <details class="group rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4">
+                        <span class="font-semibold">Will this work on mobile?</span>
+                        <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="mt-3 text-sm text-white/60">Yes—mobile-first spacing, readable typography, and touch-friendly CTAs.</p>
+                </details>
+                <details class="group rounded-2xl border border-white/10 bg-white/5 p-5">
+                    <summary class="cursor-pointer list-none flex items-center justify-between gap-4">
+                        <span class="font-semibold">Is my email safe?</span>
+                        <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
+                    </summary>
+                    <p class="mt-3 text-sm text-white/60">This demo uses no backend. If you add one later, keep it simple and privacy-first.</p>
+                </details>
+            </div>
+        </section>
+
+        <!-- Final CTA -->
+        <section class="mx-auto max-w-6xl px-4 sm:px-6 pb-20">
+            <div class="rounded-3xl border border-white/10 bg-gradient-to-b from-brand/20 to-white/5 p-8 sm:p-10">
+                <div class="grid gap-6 lg:grid-cols-2 lg:items-center">
+                    <div>
+                        <h2 class="display text-2xl sm:text-3xl font-extrabold tracking-tight">Be first in line.</h2>
+                        <p class="mt-2 text-sm text-white/70">Join the waitlist and get early access when it opens.</p>
+                    </div>
+                    <div class="rounded-2xl bg-black/20 border border-white/10 p-4">
+                        <form id="waitlist-form-2" class="flex flex-col sm:flex-row gap-3" autocomplete="on">
+                            <label class="sr-only" for="waitlist-email-2">Email</label>
+                            <input id="waitlist-email-2" name="email" type="email" required placeholder="you@company.com"
+                                   class="flex-1 rounded-xl bg-black/30 border border-white/10 px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-white/20 transition" />
+                            <button id="waitlist-submit-2" type="submit" class="rounded-xl bg-white text-black px-5 py-3 font-semibold hover:bg-gray-200 transition">
+                                Get Early Access
+                            </button>
+                        </form>
+                        <p id="waitlist-success-2" class="hidden mt-3 text-sm text-emerald-300" aria-live="polite">
+                            You're in. We'll email you when early access opens.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="relative border-t border-white/10">
+        <div class="mx-auto max-w-6xl px-4 sm:px-6 py-10">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                <p class="text-sm text-white/60">{{NAME}}. All rights reserved.</p>
+                <div class="flex items-center gap-6 text-sm text-white/60">
+                    <a href="#benefits" class="hover:text-white transition-colors">Benefits</a>
+                    <a href="#how" class="hover:text-white transition-colors">How it works</a>
+                    <a href="#faq" class="hover:text-white transition-colors">FAQ</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        (function () {
+            function markSuccess() {
+                var successA = document.getElementById('waitlist-success');
+                var successB = document.getElementById('waitlist-success-2');
+                if (successA) successA.classList.remove('hidden');
+                if (successB) successB.classList.remove('hidden');
+
+                var btnA = document.getElementById('waitlist-submit');
+                var btnB = document.getElementById('waitlist-submit-2');
+                if (btnA) { btnA.textContent = "You're in"; btnA.disabled = true; btnA.classList.add('opacity-90'); }
+                if (btnB) { btnB.textContent = "You're in"; btnB.disabled = true; btnB.classList.add('opacity-90'); }
+
+                var emailA = document.getElementById('waitlist-email');
+                var emailB = document.getElementById('waitlist-email-2');
+                if (emailA) emailA.disabled = true;
+                if (emailB) emailB.disabled = true;
+            }
+
+            function setup(formId, emailId) {
+                var form = document.getElementById(formId);
+                var email = document.getElementById(emailId);
+                if (!form || !email) return;
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var value = String(email.value || '').trim();
+                    if (!value || value.indexOf('@') === -1) {
+                        email.focus();
+                        return;
+                    }
+                    markSuccess();
+                });
+            }
+
+            setup('waitlist-form', 'waitlist-email');
+            setup('waitlist-form-2', 'waitlist-email-2');
+        })();
+    </script>
 </body>
 </html>`;
 
@@ -433,3 +821,4 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
         }, 1500); // Shorter delay for dev mode
     });
 }
+

@@ -147,7 +147,7 @@ const responseSchema = {
       }
     },
 
-    waitlistHtml: { type: "string", description: "Complete landing page HTML with Tailwind CDN" },
+    waitlistHtml: { type: "string", description: "Complete, production-ready waitlist landing page HTML using Tailwind CDN. Must be premium multi-section design (nav, hero, social proof, features, FAQs, footer). Mobile-first + accessible." },
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
@@ -436,7 +436,31 @@ Before generating HTML, choose a UNIQUE visual identity for this specific startu
    - Technical/Precise: Monospace accents, structured hierarchy
 
 WAITLIST LANDING PAGE (waitlistHtml):
-Generate a STUNNING, production-ready landing page with the UNIQUE visual identity chosen above.
+Generate a STUNNING, production-ready waitlist landing page with the UNIQUE visual identity chosen above.
+
+QUALITY BAR (do not ship anything \"basic\"):
+- Must look like a premium modern product site: strong hierarchy, intentional whitespace, cohesive palette, tasteful gradients, subtle borders/shadows, and polished typography.
+- Must be mobile-first and fully responsive (great on ~375px width and desktop).
+- Must be accessible: semantic headings (one H1), labeled email input, visible focus styles, sufficient contrast.
+
+CONTENT + SECTION CHECKLIST (include ALL of these, in this order):
+1) Sticky top nav (logo + 2-4 anchor links + a contrasting CTA button)
+2) Hero section (badge/pill, H1, 1-2 sentence value prop, primary email capture, secondary CTA)
+3) Social proof row (metrics and/or \"trusted by\" style logos as text)
+4) Feature grid (3-6 cards with inline SVG icons and idea-specific copy)
+5) \"How it works\" steps (3 concise steps)
+6) Testimonials or quotes (2-3)
+7) FAQ using <details> accordions (4-6)
+8) Final CTA section (repeat the email capture) + footer (links + small print)
+
+INTERACTION (keep simple, no backend required):
+- The waitlist form must have a pleasant success state (inline message + disabled button). NO alert() popups.
+- Use lightweight JS only for the form success state; do not call external APIs.
+
+AVOID:
+- Lorem ipsum, \"Feature 1\", generic placeholders, and stock-photo dependencies.
+- External images/icon libraries. If you need visuals, use CSS gradients + inline SVG.
+- Explicit dates (years/months/seasons). Use timeless copy only.
 
 <!DOCTYPE html>
 <html lang="en">
@@ -444,6 +468,10 @@ Generate a STUNNING, production-ready landing page with the UNIQUE visual identi
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{Startup Name}</title>
+  <meta name="description" content="{Tagline + 1 short sentence value prop}">
+  <meta property="og:title" content="{Startup Name}">
+  <meta property="og:description" content="{Tagline}">
+  <meta name="theme-color" content="{CHOSEN_PRIMARY_COLOR}">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -465,7 +493,7 @@ Generate a STUNNING, production-ready landing page with the UNIQUE visual identi
   </style>
 </head>
 <body class="bg-[#0a0a0a] text-white min-h-screen antialiased">
-  <!-- Use CHOSEN layout style, brand colors, and specific content -->
+  <!-- Implement the checklist above using the CHOSEN layout style, brand colors, and idea-specific content. -->
 </body>
 </html>
 
