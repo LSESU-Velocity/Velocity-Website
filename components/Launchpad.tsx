@@ -92,64 +92,52 @@ export const Launchpad: React.FC = () => {
 
   useEffect(() => {
     if (data && !isGenerating) {
-      setShowResults(false); // Reset before scroll
+      // First, show the results so the content renders and page expands
+      setShowResults(true);
 
       // Capture current scroll position immediately
       const initialScrollY = window.scrollY;
 
-      // Freeze viewport to prevent any micro-scrolls during layout
-      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-      document.documentElement.style.overflow = 'hidden';
-      document.documentElement.style.paddingRight = `${scrollbarWidth}px`;
-
-      // Wait for layout to fully settle
-      setTimeout(() => {
-        const element = inputFormRef.current;
-        if (!element) {
-          document.documentElement.style.overflow = '';
-          document.documentElement.style.paddingRight = '';
-          setShowResults(true);
-          return;
-        }
-
-        // Calculate target while viewport is frozen - scroll to bottom edge of form
-        // but account for navbar height so the heading below is visible
-        const elementRect = element.getBoundingClientRect();
-        const elementBottom = elementRect.bottom;
-        const navbarHeight = 80; // Account for fixed navbar
-        const target = initialScrollY + elementBottom - navbarHeight;
-        const distance = target - initialScrollY;
-
-        // Unfreeze viewport
-        document.documentElement.style.overflow = '';
-        document.documentElement.style.paddingRight = '';
-
-        // Ensure we're at the starting position
-        window.scrollTo({ top: initialScrollY, behavior: 'instant' as ScrollBehavior });
-
-        const duration = 1400;
-        let startTime: number | null = null;
-
-        function animation(currentTime: number) {
-          if (startTime === null) startTime = currentTime;
-          const timeElapsed = currentTime - startTime;
-
-          // Ease in-out cubic for smooth acceleration/deceleration
-          const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-
-          const progress = ease(Math.min(timeElapsed / duration, 1));
-          window.scrollTo({ top: initialScrollY + (distance * progress), behavior: 'instant' as ScrollBehavior });
-
-          if (timeElapsed < duration) {
-            requestAnimationFrame(animation);
-          } else {
-            // Scroll complete - now show the widgets
-            setShowResults(true);
+      // Wait for the content to render and layout to settle
+      // Use requestAnimationFrame + setTimeout to ensure DOM is fully updated
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const element = inputFormRef.current;
+          if (!element) {
+            return;
           }
-        }
 
-        requestAnimationFrame(animation);
-      }, 50);
+          // Now calculate target with the full page content rendered
+          const elementRect = element.getBoundingClientRect();
+          const elementBottom = elementRect.bottom;
+          const navbarHeight = 80; // Account for fixed navbar
+          const target = window.scrollY + elementBottom - navbarHeight;
+          const distance = target - initialScrollY;
+
+          // Ensure we're at the starting position
+          window.scrollTo({ top: initialScrollY, behavior: 'instant' as ScrollBehavior });
+
+          const duration = 1400;
+          let startTime: number | null = null;
+
+          function animation(currentTime: number) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+
+            // Ease in-out cubic for smooth acceleration/deceleration
+            const ease = (t: number) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+            const progress = ease(Math.min(timeElapsed / duration, 1));
+            window.scrollTo({ top: initialScrollY + (distance * progress), behavior: 'instant' as ScrollBehavior });
+
+            if (timeElapsed < duration) {
+              requestAnimationFrame(animation);
+            }
+          }
+
+          requestAnimationFrame(animation);
+        }, 100); // Give content time to render
+      });
     }
   }, [data, isGenerating]);
 
