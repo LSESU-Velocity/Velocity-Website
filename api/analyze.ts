@@ -580,7 +580,7 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 AI-c
           generationConfig: {
             temperature: 0.7,
             topP: 0.9,
-            maxOutputTokens: 8192,
+            maxOutputTokens: 16384,
             responseMimeType: "application/json",
             responseSchema: responseSchema
           }
