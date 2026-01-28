@@ -164,10 +164,24 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                             {/* Industry Insights & Pitch Deck */}
                             <div className="lg:col-span-5 flex flex-col gap-6 h-full">
                                 <Widget title="Industry Insights" icon={Zap} visible={showResults} className="flex-1">
-                                    <div className="flex flex-col h-full">
-                                        <p className="font-sans text-base md:text-lg text-gray-200 leading-relaxed overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0 mt-2">
-                                            {data.validation.aiInsight}
-                                        </p>
+                                    <div className="flex flex-col h-full max-h-[250px]">
+                                        <div
+                                            className="font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto"
+                                            style={{
+                                                scrollbarWidth: 'none',
+                                                msOverflowStyle: 'none',
+                                            }}
+                                        >
+                                            <style dangerouslySetInnerHTML={{
+                                                __html: `
+                                                .industry-insights-scroll::-webkit-scrollbar {
+                                                    display: none;
+                                                }
+                                            `}} />
+                                            <p className="industry-insights-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                                {data.validation.aiInsight}
+                                            </p>
+                                        </div>
                                     </div>
                                 </Widget>
 

@@ -51,7 +51,7 @@ const responseSchema = {
     market: {
       type: "object",
       properties: {
-        aiInsight: { type: "string", description: "2-3 sentence market analysis (max 280 chars, complete sentences)" }
+        aiInsight: { type: "string", description: "4-6 sentence industry insights: include a brief overview of the market landscape, key trends, and a summary of the idea's potential and viability (max 400 chars, complete sentences)" }
       },
       required: ["aiInsight"]
     },
@@ -284,7 +284,7 @@ CHARACTER LIMITS - ABSOLUTELY CRITICAL (MUST FOLLOW):
 
 ENFORCED LIMITS - COUNT CHARACTERS CAREFULLY:
 19. "yourGap" field: MAXIMUM 100 characters - describe the unique market position concisely
-20. "aiInsight" field (market analysis): MAXIMUM 280 characters - 2-3 short, complete sentences
+20. "aiInsight" field (industry insights): MAXIMUM 400 characters - 4-6 sentences covering market overview, industry trends, and the idea's potential
 21. These two fields commonly exceed limits - double-check their length before responding
 
 PERCEPTUAL MAP - CRITICAL POSITIONING INSTRUCTIONS:
