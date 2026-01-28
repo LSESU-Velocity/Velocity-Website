@@ -303,7 +303,7 @@ export const Launchpad: React.FC = () => {
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                      className="absolute top-full right-0 mt-4 w-80 bg-black/90 border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl z-[70]"
+                      className="fixed md:absolute top-20 md:top-full left-4 right-4 md:left-auto md:right-0 mt-0 md:mt-4 w-auto md:w-80 bg-black/90 border border-white/10 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl z-[70]"
                     >
 
                       <div className="relative z-10">
