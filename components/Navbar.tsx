@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { SCROLL_DISTANCE } from './ChipScroll';
+import { ExternalLink } from 'lucide-react';
 
 // Points to the file in the /public folder
 const LOGO_URL = "/Velocity-logo-black.png";
@@ -192,33 +193,10 @@ export const Navbar: React.FC = () => {
             className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
             aria-label="Join Society"
           >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-5 h-5 fill-none stroke-current"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="12" y1="8" x2="12" y2="16" />
-              <line x1="8" y1="12" x2="16" y2="12" />
-            </svg>
+            <ExternalLink className="w-5 h-5" />
           </a>
 
-          {/* Menu Dots */}
-          <button
-            className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
-            aria-label="Menu"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="w-5 h-5 fill-current"
-            >
-              <circle cx="12" cy="6" r="1.5" />
-              <circle cx="12" cy="12" r="1.5" />
-              <circle cx="12" cy="18" r="1.5" />
-            </svg>
-          </button>
+
         </div>
       </div>
     </motion.nav>

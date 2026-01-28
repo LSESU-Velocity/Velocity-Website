@@ -71,7 +71,7 @@ export const Launchpad: React.FC = () => {
   // Load more history items
   const loadMoreHistory = async () => {
     if (loadingMoreHistory || !historyNextCursor) return;
-    
+
     setLoadingMoreHistory(true);
     try {
       const response = await getAnalyses({ cursor: historyNextCursor });
@@ -508,7 +508,7 @@ export const Launchpad: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-[1.02] md:hover:scale-105 active:scale-95 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn shadow-lg md:shadow-none"
+                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-[1.02] md:hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn shadow-lg md:shadow-none"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
