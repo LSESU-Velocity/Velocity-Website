@@ -144,13 +144,14 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             <div className="flex items-center gap-3">
                                                 <button
                                                     onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'index.html')}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-velocity-red text-white text-xs font-bold uppercase tracking-wider rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-900/20"
+                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
+                                                    title="Download"
                                                 >
-                                                    <Download className="w-3.5 h-3.5" /> Download
+                                                    <Download className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)}
-                                                    className="p-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition-colors"
+                                                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                                 >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </button>
@@ -182,7 +183,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                 onClick={() => {
                                                     pitchDeckIframeRef.current?.contentWindow?.postMessage({ type: 'prevSlide' }, '*');
                                                 }}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                             >
                                                 <ChevronLeft className="w-4 h-4" />
                                             </button>
@@ -190,20 +191,20 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                                 onClick={() => {
                                                     pitchDeckIframeRef.current?.contentWindow?.postMessage({ type: 'nextSlide' }, '*');
                                                 }}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                             >
                                                 <ChevronRight className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => openPitchDeckFullscreen(data.artifacts!.pitchDeckHtml!)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                                 title="Open in fullscreen"
                                             >
                                                 <ExternalLink className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                                 title="Download"
                                             >
                                                 <Download className="w-4 h-4" />
@@ -248,7 +249,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         <div className="flex items-center gap-1.5">
                                             <button
                                                 onClick={() => setCompetitorIndex((prev) => (prev - 1 + data.validation.competitorList.length) % data.validation.competitorList.length)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                             >
                                                 <ChevronLeft className="w-4 h-4" />
                                             </button>
@@ -257,7 +258,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             </span>
                                             <button
                                                 onClick={() => setCompetitorIndex((prev) => (prev + 1) % data.validation.competitorList.length)}
-                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                             >
                                                 <ChevronRight className="w-4 h-4" />
                                             </button>
@@ -434,7 +435,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     <div className="flex items-center gap-1.5">
                                         <button
                                             onClick={() => setMonetizationIndex((prev) => (prev - 1 + data.monetization.length) % data.monetization.length)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
                                         </button>
@@ -443,7 +444,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         </span>
                                         <button
                                             onClick={() => setMonetizationIndex((prev) => (prev + 1) % data.monetization.length)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                         >
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
@@ -544,7 +545,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                     <div className="flex items-center gap-1.5">
                                         <button
                                             onClick={() => setPromptChainIndex((prev) => (prev - 1 + data.promptChain.length) % data.promptChain.length)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                         >
                                             <ChevronLeft className="w-4 h-4" />
                                         </button>
@@ -553,7 +554,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                         </span>
                                         <button
                                             onClick={() => setPromptChainIndex((prev) => (prev + 1) % data.promptChain.length)}
-                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 border border-white/5 hover:bg-velocity-red hover:border-velocity-red text-gray-500 hover:text-white transition-all duration-300 group/btn"
+                                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
                                         >
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
