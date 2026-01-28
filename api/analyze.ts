@@ -147,7 +147,7 @@ const responseSchema = {
       }
     },
 
-    waitlistHtml: { type: "string", description: "Complete, production-ready waitlist landing page HTML using Tailwind CDN. Must be premium multi-section design (nav, hero, social proof, features, FAQs, footer). Mobile-first + accessible." },
+    waitlistHtml: { type: "string", description: "Complete, production-ready waitlist landing page HTML using Tailwind CDN. Must be premium multi-section design (nav, hero, social proof, features, FAQs, footer). Mobile-first + accessible with strong, WCAG-AA-friendly contrast (no barely-visible text)." },
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
@@ -441,7 +441,14 @@ Generate a STUNNING, production-ready waitlist landing page with the UNIQUE visu
 QUALITY BAR (do not ship anything \"basic\"):
 - Must look like a premium modern product site: strong hierarchy, intentional whitespace, cohesive palette, tasteful gradients, subtle borders/shadows, and polished typography.
 - Must be mobile-first and fully responsive (great on ~375px width and desktop).
-- Must be accessible: semantic headings (one H1), labeled email input, visible focus styles, sufficient contrast.
+- Must be accessible: semantic headings (one H1), labeled email input, visible focus styles, and PROPER accessible contrast.
+
+CONTRAST REQUIREMENTS (do not ignore):
+- Meet WCAG 2.2 AA contrast: normal text >= 4.5:1, large text >= 3:1.
+- UI components must be clearly distinguishable: buttons/inputs/cards need visible boundaries (>= 3:1 against adjacent colors) and hover/active states must keep contrast.
+- Placeholders, helper text, disabled states, and "secondary" text must still be legible (avoid ultra-low opacity like text-white/40 on dark backgrounds).
+- Ensure nav links, feature card text, form labels, input text, success message, and footer links are all easily readable on mobile.
+- Pick button text color (white/black) based on the button background to maintain contrast (don’t assume white always works on brand colors).
 
 CONTENT + SECTION CHECKLIST (include ALL of these, in this order):
 1) Sticky top nav (logo + 2-4 anchor links + a contrasting CTA button)
