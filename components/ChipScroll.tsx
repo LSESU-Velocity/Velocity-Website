@@ -416,7 +416,7 @@ export const ChipScroll: React.FC = () => {
                                 Velocity is Here.
                             </h2>
                             <p className="text-white/60 font-sans text-base md:text-lg lg:text-xl mb-8 md:mb-10 max-w-md mx-auto">
-                                Ship first. Polish later.
+                                Momentum {'>'} Perfection.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
