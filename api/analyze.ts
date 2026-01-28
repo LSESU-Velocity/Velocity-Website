@@ -404,6 +404,8 @@ QUALITY CHECK BEFORE RESPONDING:
 
 IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS (waitlistHtml and pitchDeckHtml):
 
+CRITICAL DATE RULE: NEVER mention explicit dates (years, months, seasons like "Summer 2024", "launching 2025", etc.) in any generated HTML content. Use timeless phrases like "Coming Soon", "Join the Waitlist", "Be the First to Know" instead. Dates become outdated quickly.
+
 CRITICAL - MAKE EACH DESIGN UNIQUE:
 Before generating HTML, choose a UNIQUE visual identity for this specific startup based on its industry, target audience, and brand personality.
 
