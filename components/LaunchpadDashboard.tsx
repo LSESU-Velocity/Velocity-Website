@@ -293,24 +293,26 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                 >
                                     <div className="flex flex-col h-full py-1 gap-6">
                                         {/* Map */}
-                                        <div className="relative w-full h-56 bg-white/[0.02] border border-white/5 rounded-2xl shrink-0 overflow-hidden group/map">
+                                        <div className="relative w-full h-56 bg-gradient-to-br from-white/[0.08] via-white/[0.02] to-transparent border border-white/10 rounded-2xl shrink-0 overflow-hidden group/map backdrop-blur-md shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]">
                                             {/* Axis Lines */}
                                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                                <div className="w-full h-px bg-white/10" />
+                                                <div className="w-full h-px bg-white/20" />
                                             </div>
                                             <div className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-white/10 pointer-events-none" />
+                                            {/* Center Glow */}
+                                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-white/5 blur-xl rounded-full pointer-events-none" />
 
                                             {/* Labels */}
-                                            <div className="absolute top-2 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                            <div className="absolute top-3 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-400 font-medium z-10 bg-black/20 border border-white/5 px-2 py-0.5 rounded-full backdrop-blur-md">
                                                 {data.validation.marketGap?.yAxis.high}
                                             </div>
-                                            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 font-sans text-[9px] text-gray-400 font-medium z-10 bg-black/20 border border-white/5 px-2 py-0.5 rounded-full backdrop-blur-md">
                                                 {data.validation.marketGap?.yAxis.low}
                                             </div>
-                                            <div className="absolute left-2 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-400 font-medium z-10 bg-black/20 border border-white/5 px-2 py-0.5 rounded-full backdrop-blur-md">
                                                 {data.validation.marketGap?.xAxis.low}
                                             </div>
-                                            <div className="absolute right-2 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-500 font-medium z-10 bg-black/50 px-1 rounded backdrop-blur-sm">
+                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 font-sans text-[9px] text-gray-400 font-medium z-10 bg-black/20 border border-white/5 px-2 py-0.5 rounded-full backdrop-blur-md">
                                                 {data.validation.marketGap?.xAxis.high}
                                             </div>
 
