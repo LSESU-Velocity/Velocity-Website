@@ -79,8 +79,8 @@ const responseSchema = {
           name: { type: "string", description: "Competitor Name (max 25 chars)" },
           strength: { type: "string", description: "Their key strength/advantage (max 100 chars, complete sentence)" },
           weakness: { type: "string", description: "Their weakness you can exploit (max 100 chars, complete sentence)" },
-          x: { type: "number", description: "0-100 position on X-axis (based on xAxis definition)" },
-          y: { type: "number", description: "0-100 position on Y-axis (general-purpose tools=10-30, specialized=70-90)" },
+          x: { type: "number", description: "0-100 position on X-axis. Use the xAxis.low (0) to xAxis.high (100) scale you defined in marketGap." },
+          y: { type: "number", description: "0-100 position on Y-axis. Use the yAxis.low (0) to yAxis.high (100) scale you defined in marketGap." },
           website: { type: "string", description: "Company website domain (e.g. notion.so)" }
         },
         required: ["name", "strength", "weakness", "x", "y", "website"]
