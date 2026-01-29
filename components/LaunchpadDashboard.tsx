@@ -164,21 +164,33 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                             {/* Industry Insights & Pitch Deck */}
                             <div className="lg:col-span-5 flex flex-col gap-6 h-full">
                                 <Widget title="Industry Insights" icon={Zap} visible={showResults} className="flex-1">
-                                    <div className="flex flex-col h-full max-h-[250px]">
+                                    <div className="flex flex-col h-full max-h-[250px] pb-4">
+                                        <style dangerouslySetInnerHTML={{
+                                            __html: `
+                                            .industry-insights-scroll::-webkit-scrollbar {
+                                                width: 6px;
+                                            }
+                                            .industry-insights-scroll::-webkit-scrollbar-track {
+                                                background: rgba(255, 255, 255, 0.05);
+                                                border-radius: 3px;
+                                            }
+                                            .industry-insights-scroll::-webkit-scrollbar-thumb {
+                                                background: rgba(255, 255, 255, 0.15);
+                                                border-radius: 3px;
+                                                transition: background 0.2s;
+                                            }
+                                            .industry-insights-scroll::-webkit-scrollbar-thumb:hover {
+                                                background: rgba(255, 31, 31, 0.6);
+                                            }
+                                        `}} />
                                         <div
-                                            className="font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto pr-4 pb-4"
+                                            className="industry-insights-scroll font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto pr-2 pb-4"
                                             style={{
-                                                scrollbarWidth: 'none',
-                                                msOverflowStyle: 'none',
+                                                scrollbarWidth: 'thin',
+                                                scrollbarColor: 'rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.05)',
                                             }}
                                         >
-                                            <style dangerouslySetInnerHTML={{
-                                                __html: `
-                                                .industry-insights-scroll::-webkit-scrollbar {
-                                                    display: none;
-                                                }
-                                            `}} />
-                                            <p className="industry-insights-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                                            <p>
                                                 {data.validation.aiInsight}
                                             </p>
                                         </div>
