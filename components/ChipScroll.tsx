@@ -421,7 +421,7 @@ export const ChipScroll: React.FC = () => {
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Button
-                                    href="https://www.lsesu.com/communities/societies/group/Velocity/"
+                                    href="https://docs.google.com/forms/d/e/1FAIpQLScH0kmYkrgIXmTtPfT49iTAILEFfO2R_dfolsinRq_-8VqEzA/viewform?usp=header"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     variant="primary"
