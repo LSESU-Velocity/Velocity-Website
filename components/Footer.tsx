@@ -1,5 +1,6 @@
 import React from 'react';
 import { Instagram, Linkedin } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
   return (
@@ -44,6 +45,15 @@ export const Footer: React.FC = () => {
             DESIGNED FOR BUILDERS.<br />
             &copy; {new Date().getFullYear()} VELOCITY SOCIETY.
           </p>
+          <div className="flex items-center justify-center md:justify-end gap-3 mt-2">
+            <Link to="/privacy" className="font-sans text-xs text-gray-500 hover:text-gray-300 transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-gray-700">|</span>
+            <Link to="/terms" className="font-sans text-xs text-gray-500 hover:text-gray-300 transition-colors">
+              Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
