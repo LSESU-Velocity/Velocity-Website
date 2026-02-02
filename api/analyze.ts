@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuthKey, setCorsHeaders } from '../lib/serverAuth.js';
+import { encryptIdea } from '../lib/encryption.js';
 
 // Initialize Firebase locally to avoid import issues
 function initFirebase() {
@@ -723,7 +724,7 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 AI-c
         const newAnalysisRef = analysesRef.doc();
         transaction.set(newAnalysisRef, {
           keyId: keyDoc.id,
-          idea: idea.trim(),
+          idea: encryptIdea(idea.trim()),
           data: formattedData,
           createdAt: new Date(),
         });

@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuthKey, setCorsHeaders } from '../lib/serverAuth.js';
+import { decryptIdea } from '../lib/encryption.js';
 
 // Rate limiting constants - more lenient than login since these are authenticated requests
 const HISTORY_RATE_LIMIT = 30; // Max requests per window
@@ -160,7 +161,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 const data = doc.data();
                 return {
                     id: doc.id,
-                    idea: data.idea,
+                    idea: decryptIdea(data.idea),
                     data: data.data,
                     createdAt: data.createdAt?.toDate?.()?.toISOString() || data.createdAt,
                     // DO NOT return keyId, userIP, or other internal fields
