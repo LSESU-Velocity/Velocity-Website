@@ -102,7 +102,7 @@ export const Features: React.FC = () => {
                     */}
                     <div className="lg:col-span-3 mb-16 md:text-center max-w-3xl mx-auto">
                         <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2">
-                            Why join <span className="text-velocity-red">Velocity?</span>
+                            WHY JOIN VELOCITY?
                         </h2>
                         <p className="font-sans text-gray-500 text-sm uppercase tracking-widest">
                             We provide the tools, network, and skills you need to ship.

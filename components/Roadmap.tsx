@@ -75,7 +75,7 @@ export const Roadmap: React.FC = () => {
         whileInView="visible"
         viewport={{ once: true, margin: "-100px" }}
       >
-        <motion.div variants={itemVariants} className="mb-16 text-center md:text-left">
+        <motion.div variants={itemVariants} className="mb-16 text-center">
           <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight mb-2">THE PIPELINE</h2>
           <p className="font-sans text-gray-500 text-sm uppercase tracking-widest">From conception to production</p>
         </motion.div>
