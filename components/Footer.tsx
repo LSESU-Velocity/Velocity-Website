@@ -11,6 +11,9 @@ export const Footer: React.FC = () => {
           <a href="mailto:velocity@lsesu.org" className="font-sans text-sm text-gray-400 hover:text-white transition-colors tracking-wide">
             velocity@lsesu.org
           </a>
+          <a href="https://www.lsesu.com/communities/societies/group/velocity/" target="_blank" rel="noopener noreferrer" className="font-sans text-sm text-gray-400 hover:text-white transition-colors tracking-wide">
+            LSESU Society Page
+          </a>
         </div>
 
         <div className="flex items-center gap-5">
