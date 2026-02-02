@@ -58,7 +58,7 @@ const itemVariants: Variants = {
 
 export const Roadmap: React.FC = () => {
   return (
-    <section id="roadmap" className="py-24 px-6 relative overflow-hidden">
+    <section id="roadmap" className="py-48 px-6 relative overflow-hidden">
       {/* Top Gradient Blend */}
       <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#000000] to-transparent z-10 pointer-events-none" />
 

@@ -15,7 +15,7 @@ export const InterestForm: React.FC = () => {
     };
 
     return (
-        <section className="py-32 px-6 bg-velocity-black relative z-10">
+        <section className="py-48 px-6 bg-velocity-black relative z-10">
             {/* Top gradient separator */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-gray-800 via-velocity-red to-gray-800" />
 

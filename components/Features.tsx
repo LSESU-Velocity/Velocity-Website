@@ -93,7 +93,7 @@ export const Features: React.FC = () => {
     };
 
     return (
-        <section id="how-it-works" className="py-32 px-6 bg-velocity-black relative z-10">
+        <section id="how-it-works" className="py-48 px-6 bg-velocity-black relative z-10">
             <div className="max-w-7xl mx-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
