@@ -11,6 +11,9 @@ const LOGO_URL = "/Velocity-logo-black.png";
 const navItems = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
+  { label: 'Concept Lab', path: '/concepts', isSection: false },
+  { label: 'Blog', path: '/blog', isSection: false },
+  { label: 'Network', path: '/connect', isSection: false },
 ];
 
 export const Navbar: React.FC = () => {
@@ -89,6 +92,12 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     if (location.pathname === '/launchpad') {
       setActiveSection('Launchpad');
+    } else if (location.pathname.startsWith('/connect')) {
+      setActiveSection('Network');
+    } else if (location.pathname === '/concepts') {
+      setActiveSection('Concept Lab');
+    } else if (location.pathname === '/blog') {
+      setActiveSection('Blog');
     } else if (location.pathname === '/') {
       setActiveSection('Overview');
     }
@@ -180,10 +189,8 @@ export const Navbar: React.FC = () => {
 
         {/* Right: Icons */}
         <div className="flex items-center gap-3 min-w-[160px] justify-end">
-
           {/* Dynamic Actions Portal Target */}
           <div id="navbar-actions" className="flex items-center gap-3" />
-
 
           {/* Join LSESU Link */}
           <a
@@ -195,8 +202,6 @@ export const Navbar: React.FC = () => {
           >
             <ExternalLink className="w-5 h-5" />
           </a>
-
-
         </div>
       </div>
     </motion.nav>
