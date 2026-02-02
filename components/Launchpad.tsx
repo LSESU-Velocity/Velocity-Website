@@ -471,9 +471,18 @@ export const Launchpad: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-sans text-sm md:text-base text-white max-w-3xl mb-12 leading-relaxed text-balance"
+            className="font-sans text-sm md:text-base text-white max-w-3xl mb-1 leading-relaxed text-balance"
           >
             You've got the spark. We'll find your market, your customers, and your starting point.
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+            className="font-sans text-sm md:text-base text-white/50 max-w-3xl mb-12 leading-relaxed"
+          >
+            Launchpad is available exclusively to Velocity members.
           </motion.p>
 
           {/* Input Section */}
