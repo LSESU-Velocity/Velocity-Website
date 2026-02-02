@@ -29,11 +29,11 @@ const prompts: ConceptPrompt[] = [
   {
     id: 1,
     category: 'FinTech',
-    title: 'Student Micro-Pension Simulator',
-    description: 'Build an app that helps students understand compound growth by simulating small weekly contributions.',
-    prompt: 'Act as a No-Code architect. Design a mobile-friendly calculator app that lets users input weekly savings (£5-50), expected return rate, and retirement age. Show projected growth with interactive charts. Recommend: Glide + Google Sheets.',
+    title: 'Student Subscription Tracker',
+    description: 'Track all your subscriptions, get renewal alerts, and see spending trends in one place.',
+    prompt: 'Act as a No-Code architect. Design an app where students add their subscriptions (Netflix, Spotify, gym, etc.), set renewal dates, and get alerts before charges. Show monthly/yearly totals with charts and suggest which subscriptions to cancel. Recommend: Glide + Google Sheets + Make.com for email alerts.',
     difficulty: 'Beginner',
-    buildTime: '2-4 hours',
+    buildTime: '3-4 hours',
   },
   {
     id: 2,
@@ -56,11 +56,11 @@ const prompts: ConceptPrompt[] = [
   {
     id: 4,
     category: 'Policy & GovTech',
-    title: 'Local Council Meeting Summariser',
-    description: 'AI-powered summaries of public council meetings for citizen engagement.',
-    prompt: 'Act as a No-Code architect. Design an app that takes council meeting transcripts or YouTube links, uses AI to summarise key decisions, and displays them in a searchable directory by borough. Recommend: Bubble + OpenAI API.',
+    title: 'Grant Finder for Students',
+    description: 'Discover and track government grants, scholarships, and funding opportunities tailored to your profile.',
+    prompt: 'Act as a No-Code architect. Design an app where students input their course, year, background, and interests. Pull grant data from public APIs (UKRI, government databases) and match opportunities. Allow saving favourites, setting deadlines, and tracking application status. Recommend: Airtable + Softr + Make.com for API integration.',
     difficulty: 'Intermediate',
-    buildTime: '6-8 hours',
+    buildTime: '5-7 hours',
   },
   {
     id: 5,
@@ -101,11 +101,11 @@ const prompts: ConceptPrompt[] = [
   {
     id: 9,
     category: 'Healthcare',
-    title: 'Medication Reminder App',
-    description: 'Simple reminders for daily medications with refill tracking.',
-    prompt: 'Act as a No-Code architect. Design an app where users add medications, set reminder times, log when taken, and get alerts when running low. Include a history view for doctor visits. Recommend: Adalo + OneSignal.',
+    title: 'Mental Health Check-in Tracker',
+    description: 'Daily mood tracking with insights, patterns, and resources for student wellbeing.',
+    prompt: 'Act as a No-Code architect. Design an app where students log daily mood, energy levels, sleep, and stress. Show weekly/monthly trends, identify patterns, and provide curated resources (counselling services, breathing exercises, crisis hotlines). Include privacy controls and optional reminders. Recommend: Glide + Google Sheets + Airtable for resources database.',
     difficulty: 'Beginner',
-    buildTime: '3-5 hours',
+    buildTime: '4-6 hours',
   },
   {
     id: 10,

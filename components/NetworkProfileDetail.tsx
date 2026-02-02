@@ -65,7 +65,7 @@ export const NetworkProfileDetail: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="border border-white/10 bg-velocity-black/40 p-8 md:p-10"
+          className="relative border border-white/10 bg-velocity-black/40 p-8 md:p-10"
         >
           {/* Role badge */}
           <div className="flex items-center gap-2 mb-6">
@@ -136,10 +136,15 @@ export const NetworkProfileDetail: React.FC = () => {
             </div>
           )}
 
-          {/* Network button */}
-          <Button onClick={handleConnect} variant="primary" className="gap-2">
-            Network
-          </Button>
+          {/* Connect button - positioned in bottom-left corner */}
+          <div className="absolute bottom-6 left-6 md:bottom-8 md:left-8">
+            <button
+              onClick={handleConnect}
+              className="font-sans text-xs uppercase tracking-widest px-4 py-2 bg-velocity-red text-white border-2 border-velocity-red hover:bg-velocity-red/90 hover:border-velocity-red/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-velocity-red/50"
+            >
+              Connect
+            </button>
+          </div>
         </motion.div>
       </div>
     </section>
