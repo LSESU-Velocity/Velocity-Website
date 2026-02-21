@@ -148,7 +148,7 @@ const responseSchema = {
       }
     },
 
-    waitlistHtml: { type: "string", description: "Complete, production-ready waitlist landing page HTML using Tailwind CDN. Must be premium multi-section design (nav, hero, social proof, features, FAQs, footer). Mobile-first + accessible with strong, WCAG-AA-friendly contrast (no barely-visible text)." },
+    waitlistHtml: { type: "string", description: "Complete Tailwind waitlist landing page HTML that is concept-specific and visually distinctive for the startup idea. Must avoid repetitive generic templates, include a mobile-first hero+form+supporting sections, and maintain WCAG-AA-friendly contrast." },
     pitchDeckHtml: { type: "string", description: "Complete Reveal.js pitch deck HTML" }
   },
   required: [
@@ -408,123 +408,50 @@ IMPORTANT - GENERATE TWO UNIQUE HTML ARTIFACTS (waitlistHtml and pitchDeckHtml):
 CRITICAL DATE RULE: NEVER mention explicit dates (years, months, seasons like "Summer 2024", "launching 2025", etc.) in any generated HTML content. Use timeless phrases like "Coming Soon", "Join the Waitlist", "Be the First to Know" instead.
 
 WAITLIST LANDING PAGE (waitlistHtml):
-Generate a SIMPLE, MOBILE-FIRST waitlist page. This will be displayed in a phone mockup preview, so simplicity is critical.
+Generate a BOLD, IDEA-DRIVEN waitlist page that feels custom-made for the startup concept.
 
-ACCENT COLOR SELECTION (pick ONE based on startup vibe):
-Choose a bright, vibrant accent color for the headline gradient. Examples:
-- Mint/Teal (#5EEAD4) for lifestyle, health, social apps
-- Electric Blue (#3B82F6) for tech, productivity, SaaS
-- Violet (#A78BFA) for creative, entertainment, gaming
-- Coral/Orange (#FB923C) for food, delivery, marketplaces
-- Lime (#84CC16) for eco, sustainability, outdoors
+CREATIVE INTENT (must follow):
+1. Infer a brand world from the idea (2-3 adjectives + target user vibe).
+2. Pick a fitting visual archetype (for example: Editorial, Futuristic, Playful, Premium Utility, Lifestyle).
+3. Reflect that archetype across typography, palette, layout, motifs, and CTA tone.
 
-MANDATORY STYLING RULES (DO NOT DEVIATE - these ensure visibility):
-1. Background: ALWAYS bg-[#0a0a0a] (near-black)
-2. Headline: Use gradient from accent color to white (gradient-text class)
-3. Body text: ONLY use text-white or text-gray-300 (NEVER use opacity like text-white/40)
-4. Input field: bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-500
-5. Button: bg-[#1a2a1a] or bg-[#1a1a2a] (dark muted color matching accent) with border border-[accent]/50 and text-gray-300
-6. Social proof: Three small circles in shades of gray + "Joined by X+ [relevant users]" in text-gray-400
+ANTI-REPETITION RULES (hard constraints):
+- NEVER default to a generic centered dark card pattern.
+- NEVER force near-black backgrounds for every idea.
+- Use an idea-appropriate palette (light, dark, or mixed theme).
+- Use a distinctive Google Font pairing (display + body). Avoid Inter-only output.
+- Include at least one strong visual treatment (mesh gradient, patterned grid, abstract blobs, split panels, angled sections, ticker row, or layered cards).
+- Include at least one purposeful animation (reveal, float, marquee, pulse indicator, or stagger) using CSS/JS only.
+- Make copy domain-specific to the startup idea. Avoid generic "build faster" style wording.
 
-EXACT LAYOUT (follow this structure precisely):
-1. Full-screen centered hero (min-h-screen, flex items-center justify-center)
-2. Single column, max-w-sm, centered content with generous padding (p-6)
-3. Large gradient headline (text-4xl font-bold, 2-4 impactful words)
-4. Short value proposition (2-3 sentences, text-gray-300, text-center)
-5. Email input (full width, rounded-xl, dark background, visible border)
-6. CTA button below input (full width, rounded-xl, dark with accent border)
-7. Social proof row (flex items-center gap-2, three dots + join count)
-8. Small centered logo mark at bottom (simple SVG icon)
+MOBILE-FIRST LAYOUT REQUIREMENTS:
+- Optimize for a narrow phone viewport first, while still responsive on desktop.
+- No horizontal scroll, clipped sections, or tiny unreadable text.
+- Include these sections:
+  1) Hero with punchy headline and short idea-specific subcopy
+  2) Email capture form with a clear primary CTA
+  3) Benefits cluster (2-4 concise points)
+  4) Social proof or urgency block with believable signals
+  5) Closing CTA or founder note
+- Use deliberate spacing and hierarchy; avoid flat one-block compositions unless the idea explicitly calls for brutal simplicity.
 
-FORM BEHAVIOR (simple JS, no backend):
-- On submit: show inline success message, disable button, change button text to "You're in!"
-- NO alert() popups
+CONTENT RULES:
+- Headline should use language tied to the startup domain, not generic startup cliches.
+- Subcopy must state who it is for and what pain it removes.
+- CTA text should match the context (for example: "Reserve My Quiet Slot", "Get Beta Access", "Join Founding Creators").
+- Social proof must reference a relevant audience type, not just generic "users".
+- NEVER mention explicit dates (years/months/seasons). Use timeless wording.
 
-STRICT CONTENT RULES:
-- Headline: 2-4 words that capture the core value (e.g., "Find Your Pack.", "Build Faster.", "Save Smarter.")
-- Value prop: Specific to the idea, mention the key benefit and target user
-- Social proof: Realistic number + relevant user type (e.g., "5,000+ local runners", "2,000+ founders")
-- NO navigation bar, NO feature grids, NO testimonials, NO FAQ - keep it minimal
+ACCESSIBILITY + TECHNICAL RULES:
+- Use Tailwind CDN with plain HTML/CSS/JS (no React, no build step).
+- Keep key text and controls WCAG-AA-friendly in contrast.
+- Use semantic HTML and clear visible focus states for form controls.
+- On submit, show inline success state, disable the button, and change button text to "You're in!".
+- Do NOT use alert() popups.
+- Output a complete valid HTML document with all placeholders already replaced.
 
-COPY THIS EXACT HTML TEMPLATE AND FILL IN THE BRACKETED CONTENT:
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[STARTUP_NAME]</title>
-  <meta name="description" content="[TAGLINE]">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    body { font-family: 'Inter', sans-serif; }
-    .gradient-text { 
-      background: linear-gradient(180deg, [ACCENT_COLOR] 0%, [ACCENT_COLOR_LIGHT] 100%); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-  </style>
-</head>
-<body class="bg-[#0a0a0a] text-white min-h-screen flex items-center justify-center p-6">
-  <div class="w-full max-w-sm flex flex-col items-center text-center">
-    <!-- Headline -->
-    <h1 class="gradient-text text-4xl font-extrabold leading-tight mb-6">[2-4 WORD HEADLINE]</h1>
-    
-    <!-- Value Proposition -->
-    <p class="text-gray-300 text-base leading-relaxed mb-8">[2-3 SENTENCE VALUE PROP SPECIFIC TO THE IDEA]</p>
-    
-    <!-- Email Form -->
-    <form id="waitlist-form" class="w-full flex flex-col gap-3 mb-6">
-      <input 
-        id="email" 
-        type="email" 
-        required 
-        placeholder="Enter your email" 
-        class="w-full px-4 py-3 rounded-xl bg-[#1a1a1a] border border-gray-700 text-white placeholder-gray-500 focus:outline-none focus:border-[ACCENT_COLOR]/50"
-      />
-      <button 
-        id="submit-btn"
-        type="submit" 
-        class="w-full px-4 py-3 rounded-xl bg-[#1a2a1a] border border-[ACCENT_COLOR]/30 text-gray-300 font-medium hover:bg-[#1a2a1a]/80 transition-colors"
-      >
-        Get Early Access
-      </button>
-    </form>
-    <p id="success-msg" class="hidden text-emerald-400 text-sm mb-6">You're on the list! We'll be in touch soon.</p>
-    
-    <!-- Social Proof -->
-    <div class="flex items-center gap-2">
-      <div class="flex -space-x-1">
-        <div class="w-3 h-3 rounded-full bg-gray-600"></div>
-        <div class="w-3 h-3 rounded-full bg-gray-500"></div>
-        <div class="w-3 h-3 rounded-full bg-[ACCENT_COLOR]"></div>
-      </div>
-      <span class="text-gray-400 text-sm">Joined by [NUMBER]+ [USER_TYPE]</span>
-    </div>
-    
-    <!-- Spacer -->
-    <div class="flex-1 min-h-[80px]"></div>
-    
-    <!-- Logo Mark -->
-    <div class="w-8 h-8 rounded-lg bg-[#1a1a1a] border border-gray-800 flex items-center justify-center">
-      <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-      </svg>
-    </div>
-  </div>
-  
-  <script>
-    document.getElementById('waitlist-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      document.getElementById('waitlist-form').classList.add('hidden');
-      document.getElementById('success-msg').classList.remove('hidden');
-    });
-  </script>
-</body>
-</html>
-
-Replace ALL bracketed placeholders [LIKE_THIS] with actual content specific to the startup idea. Choose an accent color that fits the startup's personality.
+OUTPUT RULE:
+- Return only valid HTML for waitlistHtml (no markdown, no explanations).
 
 PITCH DECK (pitchDeckHtml):
 Generate a Reveal.js presentation. CRITICAL: Reveal.js only works when ALL content is inside <section> tags.
