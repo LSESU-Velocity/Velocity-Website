@@ -549,7 +549,19 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
             }
         ],
         market: {
-            aiInsight: "VelocityApp targets a high-growth segment of UK founders ($150B TAM) with a clear value prop: speed. While the market is competitive with players like LaunchPad, your 'beginner-friendly yet flexible' positioning addresses a key pain point. Financials look promising with a clear path to revenue via Freemium models, though CAC remains a risk to monitor."
+            keyInsights: [
+                "High-growth founder tooling segment with strong demand for speed-to-launch workflows.",
+                "Competitive landscape is crowded, but usability gaps remain for non-technical founders.",
+                "Freemium-to-subscription path supports monetization if activation is strong."
+            ],
+            risks: [
+                "Paid acquisition costs could outpace early monetization.",
+                "Positioning may blur against established all-in-one builders."
+            ],
+            whatToTestFirst: [
+                "Measure signup-to-first-output conversion on the core workflow.",
+                "Run pricing tests on premium analytics and team-seat upgrades."
+            ]
         },
         marketReports: [
             { title: "Developer Tools Market Report 2024", publisher: "Statista", keyStat: "Market size: $150B | CAGR: 12.1%", url: "https://statista.com/outlooks/developer-tools" },
@@ -675,7 +687,19 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 }
             ],
             market: {
-                aiInsight: "GymSync addresses the 'loneliness epidemic' in fitness by merging tracking with social connection. With $5.3B UK fitness app TAM, the opportunity is substantial. The unique 'Tinder for Gym' interface differentiates it from purely utility-based competitors like GymMate. Monetization via subscriptions is viable, provided user retention is managed through community features."
+                keyInsights: [
+                    "Fitness users actively seek accountability and social motivation beyond solo tracking.",
+                    "Swipe-based matching creates a distinct engagement loop vs utility-first competitors.",
+                    "Subscription potential is viable when community interactions stay consistently active."
+                ],
+                risks: [
+                    "Retention may drop quickly if local match density is low.",
+                    "Trust and safety issues can reduce willingness to meet new gym partners."
+                ],
+                whatToTestFirst: [
+                    "Validate weekly match-to-chat conversion in one city cohort.",
+                    "Test whether users complete a second workout session with a matched partner."
+                ]
             },
             marketReports: [
                 { title: "UK Fitness Market Report 2024", publisher: "UK Active", keyStat: "Market size: $5.3B | CAGR: 8.5%", url: "https://ukactive.com/reports" },
@@ -799,7 +823,11 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 },
                 distributionChannels: data.distributionChannels,
                 validation: {
-                    aiInsight: data.market.aiInsight,
+                    industryInsights: {
+                        keyInsights: data.market.keyInsights,
+                        risks: data.market.risks,
+                        whatToTestFirst: data.market.whatToTestFirst,
+                    },
                     competitors: 3,
                     competitorList: data.competitors,
                     marketReports: data.marketReports,

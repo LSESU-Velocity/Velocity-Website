@@ -18,6 +18,48 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
     const [promptChainIndex, setPromptChainIndex] = useState(0);
     const pitchDeckIframeRef = useRef<HTMLIFrameElement>(null);
 
+    const normalizeInsightList = (value: unknown): string[] => {
+        if (!Array.isArray(value)) return [];
+        return value
+            .filter((item): item is string => typeof item === 'string')
+            .map((item) => item.replace(/^[\s\-*.0-9)]+/, '').trim())
+            .filter(Boolean);
+    };
+
+    const legacyInsightText = typeof data?.validation?.aiInsight === 'string'
+        ? data.validation.aiInsight
+        : '';
+
+    const legacyInsightSentences = legacyInsightText
+        .split(/(?<=[.!?])\s+/)
+        .map((sentence) => sentence.trim())
+        .filter(Boolean);
+
+    const legacyRiskBullets = legacyInsightSentences
+        .filter((sentence) => /risk|challenge|uncertain|retention|cac|competition|regulator/i.test(sentence))
+        .slice(0, 3);
+
+    const keyInsights = normalizeInsightList(data?.validation?.industryInsights?.keyInsights);
+    const risks = normalizeInsightList(data?.validation?.industryInsights?.risks);
+    const whatToTestFirst = normalizeInsightList(data?.validation?.industryInsights?.whatToTestFirst);
+
+    const industryInsightSections = [
+        {
+            title: 'Key Insights',
+            items: keyInsights.length ? keyInsights : legacyInsightSentences.slice(0, 3),
+        },
+        {
+            title: 'Risks',
+            items: risks.length
+                ? risks
+                : (legacyRiskBullets.length ? legacyRiskBullets : legacyInsightSentences.slice(-1)),
+        },
+        {
+            title: 'What to test first',
+            items: whatToTestFirst.length ? whatToTestFirst : legacyInsightSentences.slice(-2),
+        },
+    ];
+
     // Prepare pitch deck HTML for secure iframe rendering
     // Uses external /deck-runtime.js instead of inline scripts to maintain strict CSP
     const getPitchDeckHtml = () => {
@@ -184,15 +226,28 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({ data, sh
                                             }
                                         `}} />
                                         <div
-                                            className="industry-insights-scroll font-sans text-base md:text-lg text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto pr-2 pb-4"
+                                            className="industry-insights-scroll font-sans text-sm md:text-base text-gray-200 leading-relaxed flex-1 min-h-0 mt-2 overflow-y-auto pr-2 pb-4"
                                             style={{
                                                 scrollbarWidth: 'thin',
                                                 scrollbarColor: 'rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.05)',
                                             }}
                                         >
-                                            <p>
-                                                {data.validation.aiInsight}
-                                            </p>
+                                            <div className="space-y-4">
+                                                {industryInsightSections.map((section) => (
+                                                    <div key={section.title}>
+                                                        <h4 className="font-sans text-xs uppercase tracking-[0.12em] text-white/80">
+                                                            {section.title}
+                                                        </h4>
+                                                        <ul className="mt-2 space-y-1.5 list-disc pl-5 marker:text-velocity-red">
+                                                            {(section.items.length ? section.items : ['No data available.']).map((item, index) => (
+                                                                <li key={`${section.title}-${index}`} className="text-gray-200">
+                                                                    {item}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </Widget>

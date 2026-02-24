@@ -37,7 +37,12 @@ export interface AnalysisData {
         timeline: string;
     };
     validation: {
-        aiInsight: string;
+        industryInsights: {
+            keyInsights: string[];
+            risks: string[];
+            whatToTestFirst: string[];
+        };
+        aiInsight?: string; // Legacy field for older saved analyses
         competitors: number;
         competitorList: Array<{
             name: string;

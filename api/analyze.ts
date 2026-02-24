@@ -52,9 +52,26 @@ const responseSchema = {
     market: {
       type: "object",
       properties: {
-        aiInsight: { type: "string", description: "4-6 sentence industry insights: include a brief overview of the market landscape, key trends, and a summary of the idea's potential and viability (max 400 chars, complete sentences)" }
+        keyInsights: {
+          type: "array",
+          minItems: 3,
+          maxItems: 5,
+          items: { type: "string", description: "Key market insight bullet (max 120 chars)" }
+        },
+        risks: {
+          type: "array",
+          minItems: 2,
+          maxItems: 4,
+          items: { type: "string", description: "Risk bullet focused on uncertainty or execution risk (max 120 chars)" }
+        },
+        whatToTestFirst: {
+          type: "array",
+          minItems: 2,
+          maxItems: 4,
+          items: { type: "string", description: "Early validation experiment bullet (max 120 chars)" }
+        }
       },
-      required: ["aiInsight"]
+      required: ["keyInsights", "risks", "whatToTestFirst"]
     },
     customerSegments: {
       type: "array",
@@ -285,8 +302,11 @@ CHARACTER LIMITS - ABSOLUTELY CRITICAL (MUST FOLLOW):
 
 ENFORCED LIMITS - COUNT CHARACTERS CAREFULLY:
 19. "yourGap" field: MAXIMUM 100 characters - describe the unique market position concisely
-20. "aiInsight" field (industry insights): MAXIMUM 400 characters - 4-6 sentences covering market overview, industry trends, and the idea's potential
-21. These two fields commonly exceed limits - double-check their length before responding
+20. "market.keyInsights": 3-5 bullets, each <= 120 characters
+21. "market.risks": 2-4 bullets, each <= 120 characters
+22. "market.whatToTestFirst": 2-4 bullets, each <= 120 characters
+23. The market bullets must be short bullet-ready statements (no numbering, no long paragraphs)
+24. "yourGap" and market bullets commonly exceed limits - double-check length before responding
 
 PERCEPTUAL MAP - CRITICAL POSITIONING INSTRUCTIONS:
 The perceptual map visually shows where competitors sit in the market. This MUST be accurate.
@@ -614,7 +634,11 @@ Generate 3 monetization strategies, 3 customer segments, 3-5 competitors, 3 AI-c
       },
       distributionChannels: analysisData.distributionChannels,
       validation: {
-        aiInsight: analysisData.market.aiInsight,
+        industryInsights: {
+          keyInsights: analysisData.market.keyInsights,
+          risks: analysisData.market.risks,
+          whatToTestFirst: analysisData.market.whatToTestFirst,
+        },
         competitors: analysisData.competitors.length,
         competitorList: analysisData.competitors,
         marketGap: analysisData.marketGap,
