@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Code, Zap, Users, ArrowRight } from 'lucide-react';
+import { Code, Zap, Users } from 'lucide-react';
 
 interface FeatureCardProps {
     step: string;
@@ -65,7 +65,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ step, title, description, ico
                             </div>
                         </div>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-zinc-700 -rotate-45 group-hover:rotate-0 group-hover:text-white transition-all duration-500" />
+
                 </div>
 
                 <h3 className="font-sans font-bold text-xl md:text-2xl text-white mb-4 group-hover:text-velocity-red transition-colors duration-500">
