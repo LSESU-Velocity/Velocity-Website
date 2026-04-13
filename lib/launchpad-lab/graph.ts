@@ -170,7 +170,7 @@ Return the original idea in the "idea" field too.`),
   }
 }
 
-const GENERIC_TERMS = [
+const EXACT_GENERIC_TERMS = new Set([
   'general',
   'generic',
   'various',
@@ -190,15 +190,261 @@ const GENERIC_TERMS = [
   'businesses',
   'teams',
   'consumers',
+]);
+
+const GENERIC_FILLER_TOKENS = new Set([
+  'a',
+  'an',
+  'and',
+  'any',
+  'for',
+  'from',
+  'in',
+  'of',
+  'on',
+  'or',
+  'the',
+  'their',
+  'these',
+  'this',
+  'those',
+  'to',
+  'with',
+]);
+
+const GENERIC_USER_TOKENS = new Set([
+  'anyone',
+  'audience',
+  'business',
+  'businesses',
+  'buyer',
+  'buyers',
+  'client',
+  'clients',
+  'company',
+  'companies',
+  'consumer',
+  'consumers',
+  'customer',
+  'customers',
+  'everyone',
+  'group',
+  'market',
+  'people',
+  'person',
+  'team',
+  'teams',
+  'user',
+  'users',
+]);
+
+const GENERIC_DOMAIN_TOKENS = new Set([
+  'b2b',
+  'b2c',
+  'business',
+  'consumer',
+  'consumers',
+  'industry',
+  'market',
+  'markets',
+  'sector',
+  'space',
+  'startup',
+  'startups',
+  'vertical',
+]);
+
+const GENERIC_PROBLEM_PATTERNS = [
+  /^help(?:ing)? people$/,
+  /^make(?:s)? life easier$/,
+  /^save(?:s)? time$/,
+  /^improve(?:s)? efficiency$/,
+  /^increase(?:s)? productivity$/,
+  /^solve(?:s)? problems?$/,
+  /^streamline(?:s)? workflows?$/,
+  /^reduce(?:s)? friction$/,
 ];
 
-function looksGeneric(value: string): boolean {
-  const lower = value.toLowerCase().trim();
-  return lower.length < 8 || GENERIC_TERMS.some((term) => lower === term || lower.startsWith(term + ' '));
+const DOMAIN_KEYWORD_PATTERN = /\b(fintech|finance|financial|banking|payments|health|healthcare|medtech|wellness|fitness|edtech|education|school|student|e-?commerce|commerce|retail|marketplace|legal|law|hr|recruit(?:ing|ment)?|real estate|proptech|travel|hospitality|gaming|food|restaurant|creator|marketing|sales|logistics|supply chain|manufacturing|cybersecurity|security|devtools|productivity|enterprise|consumer|b2b|b2c|saas)\b/i;
+const TARGET_USER_PATTERN = /\b(for|used by|built for|helps)\s+(?:[a-z0-9-]+\s+){0,5}(students?|parents?|founders?|developers?|designers?|marketers?|recruiters?|teachers?|doctors?|nurses?|therapists?|freelancers?|agencies?|creators?|sellers?|shoppers?|restaurants?|clinics?|lawyers?|accountants?|owners?|managers?|operators?|teams?|businesses?|consumers?|customers?|patients?)\b/i;
+const PROBLEM_SIGNAL_PATTERN = /\b(problem|pain|pain point|struggle|struggling|manual|slow|friction|waste|wasting|time-consuming|tedious|difficult|hard|mess|broken|inefficient|delay|delays|error|errors|save time|reduce|avoid|faster|quicker|without spreadsheets|without back-and-forth|without manual work|workflow)\b/i;
+const IDEA_TYPE_PATTERN = /\b(app|tool|platform|assistant|copilot|agent|marketplace|service|dashboard|extension|plugin|community|network|software)\b/i;
+
+interface IdeaEvidence {
+  mentionsDomain: boolean;
+  mentionsTargetUser: boolean;
+  mentionsCoreProblem: boolean;
+  mentionsIdeaType: boolean;
 }
 
-function detectVagueness(idea: string, intake: IdeaIntake): { vague: boolean; questions: ClarificationQuestion[] } {
-  const questions: ClarificationQuestion[] = [];
+function tokenize(value: string): string[] {
+  return value.toLowerCase().match(/[a-z0-9][a-z0-9+-]*/g) || [];
+}
+
+function getSpecificTokens(value: string, genericTokens: Set<string>): string[] {
+  return tokenize(value).filter((token) => !GENERIC_FILLER_TOKENS.has(token) && !genericTokens.has(token));
+}
+
+function detectIdeaEvidence(idea: string): IdeaEvidence {
+  const normalized = idea.trim().toLowerCase();
+
+  return {
+    mentionsDomain: DOMAIN_KEYWORD_PATTERN.test(normalized),
+    mentionsTargetUser: TARGET_USER_PATTERN.test(normalized),
+    mentionsCoreProblem: PROBLEM_SIGNAL_PATTERN.test(normalized),
+    mentionsIdeaType: IDEA_TYPE_PATTERN.test(normalized),
+  };
+}
+
+function looksGenericDomain(value: string): boolean {
+  const lower = value.toLowerCase().trim();
+  if (!lower || lower.length < 4 || EXACT_GENERIC_TERMS.has(lower)) {
+    return true;
+  }
+
+  return getSpecificTokens(lower, GENERIC_DOMAIN_TOKENS).length === 0;
+}
+
+function looksGenericIdeaType(value: string): boolean {
+  const lower = value.toLowerCase().trim();
+  if (!lower || EXACT_GENERIC_TERMS.has(lower)) {
+    return true;
+  }
+
+  return /^(?:ai|saas)?\s*(?:app|tool|platform|product|startup|business|company|service)$/.test(lower);
+}
+
+function looksGenericTargetUser(value: string): boolean {
+  const lower = value.toLowerCase().trim();
+  if (!lower || lower.length < 4 || EXACT_GENERIC_TERMS.has(lower)) {
+    return true;
+  }
+
+  return getSpecificTokens(lower, GENERIC_USER_TOKENS).length === 0;
+}
+
+function looksGenericProblem(value: string): boolean {
+  const lower = value.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (!lower || lower.length < 12 || EXACT_GENERIC_TERMS.has(lower)) {
+    return true;
+  }
+
+  if (GENERIC_PROBLEM_PATTERNS.some((pattern) => pattern.test(lower))) {
+    return true;
+  }
+
+  const specificTokens = getSpecificTokens(lower, new Set([
+    'challenge',
+    'challenges',
+    'efficiency',
+    'friction',
+    'issue',
+    'issues',
+    'pain',
+    'painpoint',
+    'painpoints',
+    'problem',
+    'problems',
+    'process',
+    'processes',
+    'task',
+    'tasks',
+    'workflow',
+    'workflows',
+  ]));
+
+  return specificTokens.length < 2;
+}
+
+function buildDomainQuestion(intake: IdeaIntake): ClarificationQuestion {
+  if (!looksGenericTargetUser(intake.targetUser)) {
+    return {
+      field: 'domain',
+      question: `What area is ${intake.targetUser} in?`,
+      hint: 'A short label is enough, like fitness, hiring, education, or ecommerce.',
+    };
+  }
+
+  if (!looksGenericProblem(intake.coreProblem)) {
+    return {
+      field: 'domain',
+      question: `What area is this idea mostly for if it solves "${shortenText(intake.coreProblem, 58)}"?`,
+      hint: 'Keep it simple: dental clinics, Shopify brands, students, local restaurants.',
+    };
+  }
+
+  return {
+    field: 'domain',
+    question: 'What area is this idea mainly for?',
+    hint: 'A simple market label is enough.',
+  };
+}
+
+function buildIdeaTypeQuestion(intake: IdeaIntake): ClarificationQuestion {
+  if (!looksGenericTargetUser(intake.targetUser)) {
+    return {
+      field: 'ideaType',
+      question: `What are you building first for ${intake.targetUser}?`,
+      hint: 'Just name the format: app, dashboard, marketplace, service, extension, or website.',
+    };
+  }
+
+  return {
+    field: 'ideaType',
+    question: 'What are you building first?',
+    hint: 'Keep it short: app, website, dashboard, service, marketplace, or extension.',
+  };
+}
+
+function buildTargetUserQuestion(intake: IdeaIntake): ClarificationQuestion {
+  if (!looksGenericDomain(intake.domain)) {
+    return {
+      field: 'targetUser',
+      question: `Who is this mainly for in ${intake.domain}?`,
+      hint: 'A short answer is enough, like gym-goers, recruiters, or small restaurant owners.',
+    };
+  }
+
+  if (!looksGenericProblem(intake.coreProblem)) {
+    return {
+      field: 'targetUser',
+      question: `Who mainly has the problem "${shortenText(intake.coreProblem, 58)}"?`,
+      hint: 'Just name the first user group you have in mind.',
+    };
+  }
+
+  return {
+    field: 'targetUser',
+    question: 'Who is this mainly for?',
+    hint: 'Examples: university students, recruiters, first-time parents, gym-goers.',
+  };
+}
+
+function buildCoreProblemQuestion(intake: IdeaIntake): ClarificationQuestion {
+  if (!looksGenericTargetUser(intake.targetUser)) {
+    return {
+      field: 'coreProblem',
+      question: `What is the main thing that feels frustrating or slow for ${intake.targetUser}?`,
+      hint: 'One short sentence is enough.',
+    };
+  }
+
+  if (!looksGenericDomain(intake.domain)) {
+    return {
+      field: 'coreProblem',
+      question: `What is the main problem you want to solve in ${intake.domain}?`,
+      hint: 'Describe the problem, not the solution.',
+    };
+  }
+
+  return {
+    field: 'coreProblem',
+    question: 'What is the main problem this idea is solving?',
+    hint: 'One simple sentence is enough.',
+  };
+}
+
+function buildClarificationQuestions(idea: string, intake: IdeaIntake): ClarificationQuestion[] {
   const trimmedIdea = idea.trim().toLowerCase();
   const wordCount = trimmedIdea.split(/\s+/).filter(Boolean).length;
   const genericIdea =
@@ -207,32 +453,50 @@ function detectVagueness(idea: string, intake: IdeaIntake): { vague: boolean; qu
     /\bfor everyone\b/.test(trimmedIdea) ||
     /\bfor users\b/.test(trimmedIdea) ||
     /\bfor businesses\b/.test(trimmedIdea);
+  const evidence = detectIdeaEvidence(idea);
 
-  if (looksGeneric(intake.domain)) {
-    questions.push({
-      field: 'domain',
-      question: 'What industry or market does this serve?',
-      hint: 'e.g., healthcare, fintech, education, e-commerce',
-    });
+  const candidates: ClarificationQuestion[] = [];
+
+  if ((looksGenericIdeaType(intake.ideaType) || !evidence.mentionsIdeaType) && genericIdea) {
+    candidates.push(buildIdeaTypeQuestion(intake));
   }
 
-  if (looksGeneric(intake.coreProblem) || intake.coreProblem.length < 15) {
-    questions.push({
-      field: 'coreProblem',
-      question: 'What specific problem does this solve for users?',
-      hint: 'Describe the pain point in one sentence',
-    });
+  if (looksGenericProblem(intake.coreProblem) || !evidence.mentionsCoreProblem) {
+    candidates.push(buildCoreProblemQuestion(intake));
   }
 
-  if (looksGeneric(intake.targetUser)) {
-    questions.push({
-      field: 'targetUser',
-      question: 'Who is the primary user? Be specific about their role or situation.',
-      hint: 'e.g., freelance designers, small restaurant owners, first-time parents',
-    });
+  if (looksGenericTargetUser(intake.targetUser) || !evidence.mentionsTargetUser) {
+    candidates.push(buildTargetUserQuestion(intake));
   }
 
-  const vague = questions.length >= 2 || (genericIdea && questions.length >= 1);
+  if (looksGenericDomain(intake.domain) || !evidence.mentionsDomain) {
+    candidates.push(buildDomainQuestion(intake));
+  }
+
+  const seen = new Set<string>();
+  return candidates.filter((question) => {
+    if (seen.has(question.field)) {
+      return false;
+    }
+
+    seen.add(question.field);
+    return true;
+  }).slice(0, 3);
+}
+
+function detectVagueness(idea: string, intake: IdeaIntake): { vague: boolean; questions: ClarificationQuestion[] } {
+  const questions = buildClarificationQuestions(idea, intake);
+  const trimmedIdea = idea.trim().toLowerCase();
+  const wordCount = trimmedIdea.split(/\s+/).filter(Boolean).length;
+  const genericIdea =
+    wordCount < 10 ||
+    /^(an?\s+)?(ai|saas)\s+(app|tool|platform|marketplace|product)\b/.test(trimmedIdea) ||
+    /\bfor everyone\b/.test(trimmedIdea) ||
+    /\bfor users\b/.test(trimmedIdea) ||
+    /\bfor businesses\b/.test(trimmedIdea);
+  const essentialQuestionCount = questions.filter((question) => question.field !== 'ideaType').length;
+
+  const vague = essentialQuestionCount >= 2 || (genericIdea && essentialQuestionCount >= 1);
   return { vague, questions };
 }
 
@@ -240,6 +504,7 @@ function enrichIntakeWithClarifications(intake: IdeaIntake, clarifications: Reco
   return {
     ...intake,
     domain: clarifications['domain'] || intake.domain,
+    ideaType: clarifications['ideaType'] || intake.ideaType,
     coreProblem: clarifications['coreProblem'] || intake.coreProblem,
     targetUser: clarifications['targetUser'] || intake.targetUser,
   };

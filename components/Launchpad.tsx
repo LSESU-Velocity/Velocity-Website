@@ -303,6 +303,14 @@ export const Launchpad: React.FC = () => {
     await runAnalysis(answers);
   };
 
+  const handleSkipClarification = async () => {
+    if (!apiKey || !idea.trim()) return;
+    const answers = { ...clarificationAnswers };
+    setInterruptQuestions(null);
+    setClarificationAnswers({});
+    await runAnalysis(answers);
+  };
+
   const handleBranch = (record: SavedLaunchpadAnalysis) => {
     const branch = branchFromAnalysis(record.id, record.idea, 'Branch');
     if (!branch) return;
@@ -600,12 +608,12 @@ export const Launchpad: React.FC = () => {
                 className="mt-8 w-full max-w-xl mx-auto"
               >
                 <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <MessageCircle className="w-4 h-4 text-amber-400" />
-                    <span className="font-sans text-sm font-semibold text-amber-300">
-                      A few quick questions to sharpen the analysis
-                    </span>
-                  </div>
+                    <div className="flex items-center gap-2 mb-4">
+                      <MessageCircle className="w-4 h-4 text-amber-400" />
+                      <span className="font-sans text-sm font-semibold text-amber-300">
+                        A few quick questions to clarify the idea
+                      </span>
+                    </div>
 
                   <div className="space-y-4">
                     {interruptQuestions.map((q) => (
@@ -640,10 +648,10 @@ export const Launchpad: React.FC = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => { setInterruptQuestions(null); setClarificationAnswers({}); }}
+                      onClick={handleSkipClarification}
                       className="px-4 py-2.5 rounded-full border border-white/10 text-white/50 text-xs font-sans uppercase tracking-wide hover:text-white/80 transition-colors"
                     >
-                      Skip
+                      Skip And Continue
                     </button>
                   </div>
                 </div>

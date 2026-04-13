@@ -396,25 +396,33 @@ function getMockClarificationQuestions(idea: string): ClarificationQuestion[] {
 
     if (wordCount < 10 || /\b(ai|saas)\s+(app|tool|platform)\b/.test(normalizedIdea)) {
         questions.push({
+            field: 'ideaType',
+            question: 'What are you building first?',
+            hint: 'Keep it short: app, website, dashboard, service, or marketplace.',
+        });
+    }
+
+    if (!/\b(student|founder|designer|manager|parent|developer|marketer|clinic|lawyer|accountant|team|creator|seller)\b/.test(normalizedIdea)) {
+        questions.push({
             field: 'targetUser',
-            question: 'Who is the primary user for this idea?',
-            hint: 'Be specific about the role, team, or situation.',
+            question: 'Who is this mainly for?',
+            hint: 'A short answer is enough, like students, recruiters, or parents.',
         });
     }
 
     if (!/\b(for|helps|because|problem|pain|workflow)\b/.test(normalizedIdea)) {
         questions.push({
             field: 'coreProblem',
-            question: 'What specific problem does this solve?',
-            hint: 'Describe the pain point in one sentence.',
+            question: 'What is the main problem it solves?',
+            hint: 'One short sentence is enough.',
         });
     }
 
     if (!/\b(fintech|health|legal|education|commerce|e-?commerce|creator|b2b|consumer|enterprise)\b/.test(normalizedIdea)) {
         questions.push({
             field: 'domain',
-            question: 'What market or industry is this for?',
-            hint: 'e.g. fintech ops, dental clinics, UK agency teams',
+            question: 'What area is this idea mainly for?',
+            hint: 'Examples: fitness, education, hiring, ecommerce.',
         });
     }
 
