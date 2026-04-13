@@ -1,0 +1,31 @@
+Implement Phase 1 only from docs/IMPLEMENTATION_PLAN.md.
+
+Primary objective:
+- Convert Launchpad from invite-code/member-gated access to BYOK for Gemini, with transparent trust copy and no platform-owned Launchpad API key.
+
+You must change code now. Do not stop at inspection or summary.
+
+Required scope:
+- Update `components/Launchpad.tsx` for a BYOK flow.
+- Replace or repurpose `components/InviteCodeLogin.tsx` into a BYOK key-entry experience.
+- Update `lib/api.ts` so Launchpad analysis sends a user-supplied API key to the backend and no longer depends on login cookies for Phase 1.
+- Update `api/analyze.ts` so it accepts the user Gemini key from the request and no longer reads `process.env.GEMINI_API_KEY` for Launchpad analysis.
+- Remove or de-scope Launchpad's dependence on `hooks/useAuth.ts`, `api/login.ts`, `api/me.ts`, and cookie auth for Launchpad access.
+- If analysis history becomes insecure or awkward under BYOK, temporarily hide or de-scope history instead of preserving a bad identity model.
+
+Constraints:
+- Preserve the existing `/api/analyze` response shape so `components/LaunchpadDashboard.tsx` continues to work.
+- Do not start LangChain or LangGraph work in this phase.
+- Do not store, log, or return the raw user API key.
+- Keep the repo runnable after the phase.
+
+Acceptance target:
+- A user can use Launchpad with their own Gemini key and no platform `GEMINI_API_KEY` for Launchpad requests.
+- The UI clearly explains key handling and that ideas are sent to Google Gemini.
+- The current Launchpad dashboard still works with the analysis response.
+
+At the end, report only:
+1. Changed Files
+2. What I Implemented
+3. Checks Run
+4. Open Issues

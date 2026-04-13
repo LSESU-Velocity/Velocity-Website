@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { setCorsHeaders } from '../lib/serverAuth.js';
-import { runAnalysis } from '../lib/launchpad-lab/index.js';
+import { mutateWidget } from '../lib/launchpad-lab/index.js';
+import { DashboardDTOSchema, LabPhaseSchema, WidgetTargetSchema } from '../lib/launchpad-lab/schemas.js';
 
-// Sanitize user input to prevent prompt injection attacks
 function sanitizeUserInput(input: string): string {
   let sanitized = input;
 
@@ -31,26 +31,22 @@ function sanitizeUserInput(input: string): string {
 
   sanitized = sanitized.replace(/\s+/g, ' ').trim();
 
-  const MAX_IDEA_LENGTH = 500;
-  if (sanitized.length > MAX_IDEA_LENGTH) {
-    sanitized = sanitized.substring(0, MAX_IDEA_LENGTH);
+  if (sanitized.length > 1000) {
+    sanitized = sanitized.substring(0, 1000);
   }
 
   return sanitized;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle CORS
   if (setCorsHeaders(req, res)) {
     return res.status(200).end();
   }
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Get user-supplied Gemini API key from header
   const userApiKey = req.headers['x-gemini-key'] as string | undefined;
 
   if (!userApiKey || typeof userApiKey !== 'string' || !userApiKey.trim()) {
@@ -58,57 +54,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    let parsedBody: Record<string, unknown>;
-    if (typeof req.body === 'string') {
-      try {
-        parsedBody = JSON.parse(req.body || '{}');
-      } catch {
-        return res.status(400).json({ error: 'Request body must be valid JSON' });
-      }
-    } else {
-      parsedBody = (req.body ?? {}) as Record<string, unknown>;
-    }
+    const parsedBody =
+      typeof req.body === 'string'
+        ? JSON.parse(req.body || '{}')
+        : (req.body ?? {});
 
     const idea = parsedBody?.idea;
-    const includeArtifacts = parsedBody?.includeArtifacts === true;
+    const instruction = parsedBody?.instruction;
 
     if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
       return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
     }
 
-    // Sanitize user input to prevent prompt injection
-    const sanitizedIdea = sanitizeUserInput(idea.trim());
-
-    // Run the LangChain-based analysis pipeline
-    const outcome = await runAnalysis({
-      apiKey: userApiKey.trim(),
-      idea: sanitizedIdea,
-      includeArtifacts,
-    });
-
-    if ('interrupted' in outcome && outcome.interrupted) {
-      return res.status(422).json({
-        error: 'The idea needs more detail before analysis can proceed.',
-        interrupt: outcome.interrupt,
-      });
+    if (!instruction || typeof instruction !== 'string' || instruction.trim().length < 3) {
+      return res.status(400).json({ error: 'A widget update request is required (min 3 characters)' });
     }
 
-    if (!outcome.success && 'error' in outcome) {
-      console.error('Launchpad analysis failed:', outcome.error, outcome.details ? `| details: ${outcome.details}` : '');
+    const phaseId = LabPhaseSchema.parse(parsedBody?.phaseId);
+    const targetId = WidgetTargetSchema.parse(parsedBody?.targetId);
+    const analysis = DashboardDTOSchema.parse(parsedBody?.analysis);
+
+    const outcome = await mutateWidget({
+      apiKey: userApiKey.trim(),
+      idea: sanitizeUserInput(idea.trim()),
+      analysis,
+      phaseId,
+      targetId,
+      instruction: sanitizeUserInput(instruction.trim()),
+    });
+
+    if (!outcome.success) {
       return res.status(outcome.statusCode).json(
         outcome.details
           ? { error: outcome.error, details: outcome.details }
-          : { error: outcome.error }
+          : { error: outcome.error },
       );
     }
 
-    if (outcome.success) {
-      return res.status(200).json(outcome.data);
-    }
-
-    return res.status(500).json({ error: 'Failed to generate analysis' });
+    return res.status(200).json({
+      data: outcome.data,
+      summary: outcome.summary,
+      phaseId: outcome.phaseId,
+      targetId: outcome.targetId,
+    });
   } catch (error) {
-    console.error('Analysis error:', error instanceof Error ? error.message : 'Unknown error');
-    return res.status(500).json({ error: 'Failed to generate analysis' });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Widget mutation error:', message);
+    return res.status(500).json({ error: 'Failed to update widget' });
   }
 }

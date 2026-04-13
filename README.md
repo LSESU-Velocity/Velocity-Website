@@ -1,47 +1,59 @@
-# Velocity Launchpad | LSE
+# Velocity | LSE
 
 <div align="center">
 <img width="200" alt="Velocity Logo" src="public/Velocity-logo-black.png" />
 </div>
 
-**Velocity Launchpad** is an AI-powered startup idea validation tool built for LSE students. Enter your business idea and get instant analysis including market positioning, competitor research, monetisation strategies, and actionable next steps — all powered by Google Gemini.
+**Velocity** is a platform built by LSESU Velocity to help student founders validate and sharpen startup ideas. **Launchpad Lab** is its flagship tool — a BYOK (Bring Your Own Key) AI analysis lab powered by LangChain, LangGraph, and Google Gemini.
 
-## Features
+## Launchpad Lab
 
-### Phase 1: Validation
-- **Industry Insights** — Instant market analysis of your startup idea
-- **Waitlist Landing Page** — Download a production-ready HTML landing page to gauge interest
-- **Pitch Deck Generator** — Interactive Reveal.js presentation with problem, solution, and business model slides
-- **Market Position Map** — Visual perceptual map showing competitors and your unique gap
+Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis pipeline on your startup idea. No platform API key is required — you bring your own.
 
-### Phase 2: Strategy
-- **Customer Segments** — Identify 3+ target demographics with income levels and pain points
-- **Monetisation Strategy** — Multiple revenue models (Freemium, Subscription, etc.) with pricing suggestions
-- **Distribution Channels** — Top 5 real communities (Reddit, Discord, forums) where your users hang out
+### How it works
 
-### Phase 3: Execution
+1. Enter your free Google AI Studio API key (get one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)).
+2. Describe your startup idea.
+3. The analysis runs through an orchestrated LangGraph workflow:
+   - **Idea classification and intake normalization**
+   - **Bull analyst** — identifies upside, market opportunity, and momentum
+   - **Bear analyst** — stress-tests assumptions, surfaces risks and objections
+   - **Synthesis** — merges perspectives into a unified opportunity assessment
+   - **QA and repair** — validates the report against the output schema
+
+### What you get
+
+- **Analyst Council** — Bull and bear perspectives with key points and recommendations
+- **Confidence Score** — Overall assessment with open risks and next moves
+- **Market Sizing** — Directional TAM/SAM/SOM based on reachable communities
+- **Competitor Map** — Visual perceptual map showing your gap
+- **Customer Segments** — Target demographics with income levels and pain points
+- **Monetization Strategy** — Revenue models with pricing suggestions
+- **Distribution Channels** — Real communities where your users hang out
 - **Prompt Chain** — Step-by-step prompts to build your MVP with AI coding assistants
+- **Founder Assets** (optional) — Waitlist landing page and pitch deck, generated on demand
 
-## Privacy Note
+### Key handling and privacy
 
-> ⚠️ **Data Processing Disclosure**: This tool sends your startup ideas and descriptions to the Google Gemini API for AI-powered analysis. Please avoid submitting sensitive personal information, confidential business data, or proprietary ideas during testing or use. All submitted content is processed by Google's servers according to their [privacy policy](https://policies.google.com/privacy).
+- Your API key is stored in browser `sessionStorage` by default (cleared when the tab closes).
+- Opt into "remember on this device" to persist in `localStorage`.
+- Keys are sent to the Velocity backend only to authorize the Gemini request — they are never logged, persisted, or returned in responses.
+- Your idea is sent to Google Gemini for analysis. Analyses are not stored on our servers — results live in your browser only.
 
 ## Tech Stack
 
 - **Frontend**: React 18, TypeScript, Tailwind CSS, Framer Motion
 - **Backend**: Vercel Serverless Functions
-- **AI**: Google Gemini API (gemini-3-flash-preview)
-- **Database**: Firebase Firestore (access key management & rate limiting)
+- **AI**: LangChain + LangGraph with Google Gemini (`@langchain/google`)
 - **Hosting**: Vercel
+- **Optional**: Firebase Firestore (for non-Launchpad features)
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js (v18 or higher)
-- npm or yarn
-- Google Gemini API key
-- Firebase project (for access key management)
+- npm
 
 ### Installation
 
@@ -61,42 +73,52 @@
    cp .env.example .env.local
    ```
 
-4. Configure your `.env.local` with:
-   - `GEMINI_API_KEY` — Your Google Gemini API key
-   - `FIREBASE_PROJECT_ID` — Your Firebase project ID
-   - `FIREBASE_CLIENT_EMAIL` — Firebase service account email
-   - `FIREBASE_PRIVATE_KEY` — Firebase private key
+4. Configure `.env.local` — see `.env.example` for available variables. Launchpad Lab does not require a platform `GEMINI_API_KEY`; users supply their own key in the browser.
 
-5. Run the development server:
+5. Start the API server (needed for Launchpad Lab analysis):
+   ```bash
+   npm run dev:api
+   ```
+
+6. In a separate terminal, start the frontend:
    ```bash
    npm run dev
    ```
 
-6. Open [http://localhost:5173](http://localhost:5173) in your browser
-
-## Deployment
-
-This project is configured for deployment on Vercel. Simply connect your GitHub repository to Vercel and configure the environment variables in the Vercel dashboard.
+7. Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ## Project Structure
 
 ```
-├── api/                 # Vercel serverless API routes
-│   ├── analyze.ts       # Main AI analysis endpoint
-│   ├── login.ts         # Access key authentication
-│   └── me.ts            # Session validation
-├── components/          # React components
-│   ├── Launchpad.tsx    # Main launchpad UI
-│   ├── LaunchpadDashboard.tsx  # Results dashboard
+├── api/                     # Vercel serverless API routes
+│   ├── analyze.ts           # Main analysis endpoint (accepts BYOK key via header)
+│   └── analyze-stream.ts    # SSE streaming endpoint with real-time progress
+├── components/              # React components
+│   ├── Launchpad.tsx        # Main Launchpad Lab UI and input flow
+│   ├── LaunchpadDashboard.tsx  # Results dashboard with council, market, and artifacts
+│   ├── InviteCodeLogin.tsx  # BYOK API key entry modal
 │   └── ...
-├── lib/                 # Utility functions
-│   ├── api.ts           # Frontend API client
-│   ├── firebase.ts      # Firebase configuration
-│   └── serverAuth.ts    # Server-side authentication
-├── hooks/               # Custom React hooks
-├── public/              # Static assets
-└── index.html           # Main HTML entry point
+├── lib/                     # Utility and pipeline modules
+│   ├── api.ts               # Frontend API client with SSE support
+│   ├── launchpad-lab/       # LangChain/LangGraph analysis pipeline
+│   │   ├── graph.ts         # LangGraph state graph definition and nodes
+│   │   ├── schemas.ts       # Zod schemas for analysis contract
+│   │   ├── prompts.ts       # Prompt builders for each analysis stage
+│   │   ├── analyze.ts       # Analysis runner and outcome types
+│   │   └── index.ts         # Barrel exports
+│   ├── launchpad-storage.ts # Client-side thread persistence (localStorage)
+│   └── ...
+├── public/                  # Static assets
+└── index.html               # Main HTML entry point
 ```
+
+## Privacy Note
+
+> Your startup ideas are sent to the Google Gemini API for AI-powered analysis using your own API key. Analyses are stored in your browser only and are not persisted on our servers. Please avoid submitting sensitive personal information or confidential business data. Google's processing is subject to their [privacy policy](https://policies.google.com/privacy).
+
+## Deployment
+
+This project is configured for deployment on Vercel. Connect your GitHub repository to Vercel and configure environment variables in the Vercel dashboard.
 
 ## Contributing
 
@@ -104,12 +126,11 @@ This project is maintained by [LSESU Velocity](https://github.com/LSESU-Velocity
 
 ## License
 
-This project is open-source under the [MIT License](LICENSE). We believe in open knowledge and sharing resources to help student entrepreneurs everywhere.
+This project is open-source under the [MIT License](LICENSE).
 
 ---
 
 <div align="center">
-
 
 [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://www.instagram.com/lsesu.velocity)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/company/lsesu-velocity/)

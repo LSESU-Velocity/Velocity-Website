@@ -1,0 +1,14 @@
+Implement Phase 1 now from docs/IMPLEMENTATION_PLAN.md.
+
+Requirements:
+- Make the actual code changes for Phase 1 only.
+- Do not stop at repo inspection or summary.
+- Do not start later phases.
+- Preserve the existing /api/analyze response shape so the current dashboard still works.
+- If cloud history becomes messy, temporarily hide or de-scope it rather than carrying insecure identity assumptions forward.
+
+At the end, report only:
+1. Changed Files
+2. What I Implemented
+3. Checks Run
+4. Open Issues

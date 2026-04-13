@@ -3,7 +3,7 @@ import { LegalPageLayout } from './LegalPageLayout';
 
 export const PrivacyPolicy: React.FC = () => {
   return (
-    <LegalPageLayout title="Privacy Policy" lastUpdated="February 2026">
+    <LegalPageLayout title="Privacy Policy" lastUpdated="April 2026">
       <section>
         <h2>1. Who We Are</h2>
         <p>
@@ -21,10 +21,19 @@ export const PrivacyPolicy: React.FC = () => {
         <h2>2. What Data We Collect</h2>
         <p>We collect the following data when you use our website and tools:</p>
         <ul>
-          <li><strong>User-submitted content</strong> — text you submit to our tools (such as the Launchpad) for AI-powered feedback.</li>
-          <li><strong>Authentication cookie</strong> — a single cookie (<code>velocity_auth</code>) used to maintain your session.</li>
+          <li><strong>User-submitted content</strong> — text you submit to our tools (such as Launchpad Lab) for AI-powered feedback.</li>
           <li><strong>IP addresses and basic request metadata</strong> — collected automatically by our hosting provider (Vercel) as part of standard web server logs.</li>
         </ul>
+        <p>
+          Launchpad Lab uses a Bring Your Own Key (BYOK) model. Your Google AI Studio API key is stored
+          in your browser only (<code>sessionStorage</code> by default, or <code>localStorage</code> if
+          you opt into device persistence). Your key is sent to our backend solely to authorize the Gemini
+          API request and is never logged, stored on our servers, or returned in responses.
+        </p>
+        <p>
+          Analysis results from Launchpad Lab are stored in your browser&rsquo;s <code>localStorage</code> only.
+          They are not sent to or stored on our servers.
+        </p>
         <p>We do not collect names, email addresses, or other personal identifiers beyond what is listed above.</p>
       </section>
 
@@ -68,8 +77,8 @@ export const PrivacyPolicy: React.FC = () => {
             </a>.
           </li>
           <li>
-            <strong>Firebase / Google Cloud</strong> — used for backend infrastructure and data storage.
-            User-submitted content is encrypted at rest before being stored. Subject to the{' '}
+            <strong>Firebase / Google Cloud</strong> — used for backend infrastructure for non-Launchpad
+            features. Launchpad Lab does not store user-submitted content in Firebase. Subject to the{' '}
             <a href="https://cloud.google.com/terms/cloud-privacy-notice" target="_blank" rel="noopener noreferrer">
               Google Cloud Privacy Notice
             </a>.
@@ -85,30 +94,36 @@ export const PrivacyPolicy: React.FC = () => {
       </section>
 
       <section>
-        <h2>6. Cookies</h2>
+        <h2>6. Cookies and Browser Storage</h2>
         <p>
-          We use a single cookie: <code>velocity_auth</code>. This is a strictly necessary, HttpOnly session
-          cookie used to authenticate your access to our tools. It does not track you across websites
-          and cannot be read by client-side JavaScript.
+          Some areas of the website may use an HttpOnly session cookie (<code>velocity_auth</code>) for
+          authentication. It does not track you across websites and cannot be read by client-side JavaScript.
         </p>
         <p>
-          We do not use any analytics cookies, advertising cookies, or third-party tracking cookies. Because
-          <code> velocity_auth</code> is strictly necessary for the service to function, consent is not
-          required under the UK Privacy and Electronic Communications Regulations (PECR).
+          Launchpad Lab does not use cookies. Instead, it uses browser storage:
+        </p>
+        <ul>
+          <li><code>sessionStorage</code> — your API key (cleared when the tab closes), unless you opt into device persistence.</li>
+          <li><code>localStorage</code> — your API key (if you chose "remember on this device") and saved analysis results.</li>
+        </ul>
+        <p>
+          We do not use any analytics cookies, advertising cookies, or third-party tracking cookies.
         </p>
       </section>
 
       <section>
         <h2>7. Data Retention</h2>
         <p>
-          Content submitted to our tools is stored in encrypted form for the duration necessary
-          to provide the service. We periodically review and delete stored data that is no longer needed.
+          Launchpad Lab analysis results are stored in your browser&rsquo;s <code>localStorage</code> only.
+          You can delete them at any time from the Saved Lab Runs panel or by clearing your browser data.
+          We do not retain copies on our servers.
         </p>
         <p>
-          Session cookies expire when you close your browser or after a set period of inactivity.
+          API keys stored in <code>sessionStorage</code> are cleared when you close the tab.
+          Keys stored in <code>localStorage</code> (opt-in only) persist until you clear them.
         </p>
         <p>
-          Server logs retained by Vercel are subject to Vercel's own data retention policies.
+          Server logs retained by Vercel are subject to Vercel&rsquo;s own data retention policies.
         </p>
       </section>
 
@@ -151,24 +166,28 @@ export const PrivacyPolicy: React.FC = () => {
         <h2>10. Data Security</h2>
         <p>We take the security of your data seriously and implement the following measures:</p>
         <ul>
-          <li><strong>Encryption at rest</strong> — user-submitted content is encrypted using AES-256-GCM before storage.</li>
           <li><strong>Encryption in transit</strong> — all data is transmitted over HTTPS.</li>
           <li><strong>Content Security Policy (CSP)</strong> — HTTP headers restrict the sources of executable content.</li>
-          <li><strong>HttpOnly cookies</strong> — session cookies cannot be accessed by client-side scripts.</li>
-          <li><strong>Rate limiting</strong> — protects against brute-force and denial-of-service attacks.</li>
+          <li><strong>Client-side storage only</strong> — Launchpad Lab analysis results and API keys are stored
+            in your browser (<code>sessionStorage</code> or <code>localStorage</code>). We do not store
+            your submissions or API keys on our servers.</li>
+          <li><strong>No server-side logging of keys</strong> — your Google AI Studio API key is used only to
+            authorise the Gemini request and is never written to logs, databases, or response bodies.</li>
         </ul>
         <p>
           While we implement appropriate technical and organisational measures to protect your data, no
-          method of transmission over the Internet or electronic storage is 100% secure.
+          method of transmission over the Internet or electronic storage is 100% secure. Browser-stored
+          data is only as secure as your device and browser environment.
         </p>
       </section>
 
       <section>
         <h2>11. Children</h2>
         <p>
-          The Velocity website and tools are intended for LSE students who are aged 18 or over. We do not knowingly
-          collect personal data from anyone under the age of 18. If you believe we have inadvertently
-          collected data from a minor, please contact us at{' '}
+          The Velocity website and tools are intended for users aged 18 or over. The project is built by a
+          student society at LSE, but Launchpad Lab is publicly available to anyone with a Google AI Studio
+          API key. We do not knowingly collect personal data from anyone under the age of 18. If you believe
+          we have inadvertently collected data from a minor, please contact us at{' '}
           <a href="mailto:velocity@lsesu.org">velocity@lsesu.org</a> and we will promptly delete it.
         </p>
       </section>

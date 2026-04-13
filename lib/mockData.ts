@@ -518,7 +518,14 @@ const MOCK_PITCH_DECK_HTML = `<!doctype html>
 </body>
 </html>`;
 
-export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
+export function generateMockFounderAssets(analysis: Pick<AnalysisData, 'identity'>) {
+    return {
+        waitlistHtml: MOCK_WAITLIST_HTML.replace(/{{NAME}}/g, analysis.identity.name).replace(/{{TAGLINE}}/g, analysis.identity.tagline),
+        pitchDeckHtml: MOCK_PITCH_DECK_HTML.replace(/{{NAME}}/g, analysis.identity.name).replace(/{{TAGLINE}}/g, analysis.identity.tagline)
+    };
+}
+
+export function generateMockAnalysis(idea: string, includeArtifacts = false): Promise<AnalysisData> {
     const lowercaseIdea = idea.toLowerCase();
 
     let data = {
@@ -841,10 +848,14 @@ export function generateMockAnalysis(idea: string): Promise<AnalysisData> {
                 sources: data.sources,
                 customerSegments: data.customerSegments,
                 promptChain: data.promptChain,
-                artifacts: {
-                    waitlistHtml: MOCK_WAITLIST_HTML.replace(/{{NAME}}/g, data.name).replace(/{{TAGLINE}}/g, data.tagline),
-                    pitchDeckHtml: MOCK_PITCH_DECK_HTML.replace(/{{NAME}}/g, data.name).replace(/{{TAGLINE}}/g, data.tagline)
-                }
+                ...(includeArtifacts ? {
+                    artifacts: generateMockFounderAssets({
+                        identity: {
+                            name: data.name,
+                            tagline: data.tagline,
+                        }
+                    })
+                } : {})
             });
         }, 1500); // Shorter delay for dev mode
     });

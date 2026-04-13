@@ -1,0 +1,124 @@
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { setCorsHeaders } from '../lib/serverAuth.js';
+import { runAnalysis } from '../lib/launchpad-lab/index.js';
+import type { NodeProgress } from '../lib/launchpad-lab/index.js';
+
+export const config = {
+  maxDuration: 60,
+};
+
+function sanitizeUserInput(input: string): string {
+  let sanitized = input;
+
+  const dangerousPatterns = [
+    /```/g,
+    /"""/g,
+    /\n\s*---+\s*\n/g,
+    /\n\s*===+\s*\n/g,
+    /\[INST\]/gi,
+    /\[\/INST\]/gi,
+    /<\|.*?\|>/g,
+    /<<SYS>>|<<\/SYS>>/gi,
+    /IGNORE\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
+    /DISREGARD\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
+    /FORGET\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
+    /NEW\s+INSTRUCTIONS?\s*:/gi,
+    /SYSTEM\s*:/gi,
+    /ASSISTANT\s*:/gi,
+    /USER\s*:/gi,
+    /HUMAN\s*:/gi,
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    sanitized = sanitized.replace(pattern, ' ');
+  }
+
+  sanitized = sanitized.replace(/\s+/g, ' ').trim();
+
+  const MAX_IDEA_LENGTH = 500;
+  if (sanitized.length > MAX_IDEA_LENGTH) {
+    sanitized = sanitized.substring(0, MAX_IDEA_LENGTH);
+  }
+
+  return sanitized;
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (setCorsHeaders(req, res)) {
+    return res.status(200).end();
+  }
+
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const userApiKey = req.headers['x-gemini-key'] as string | undefined;
+
+  if (!userApiKey || typeof userApiKey !== 'string' || !userApiKey.trim()) {
+    return res.status(401).json({ error: 'A Gemini API key is required. Pass it via the x-gemini-key header.' });
+  }
+
+  let parsedBody: Record<string, unknown>;
+  if (typeof req.body === 'string') {
+    try {
+      parsedBody = JSON.parse(req.body || '{}');
+    } catch {
+      return res.status(400).json({ error: 'Request body must be valid JSON' });
+    }
+  } else {
+    parsedBody = (req.body ?? {}) as Record<string, unknown>;
+  }
+
+  const idea = parsedBody?.idea;
+
+  if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
+    return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
+  }
+
+  const sanitizedIdea = sanitizeUserInput(idea.trim());
+
+  const rawClarifications = parsedBody?.clarifications;
+  const clarifications =
+    rawClarifications && typeof rawClarifications === 'object' && !Array.isArray(rawClarifications)
+      ? (rawClarifications as Record<string, string>)
+      : null;
+
+  // Set up SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
+  function sendEvent(event: string, data: unknown) {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  }
+
+  const onProgress = (progress: NodeProgress) => {
+    sendEvent('progress', progress);
+  };
+
+  try {
+    const outcome = await runAnalysis({
+      apiKey: userApiKey.trim(),
+      idea: sanitizedIdea,
+      includeArtifacts: false,
+      onProgress,
+      clarifications,
+    });
+
+    if ('interrupted' in outcome && outcome.interrupted) {
+      sendEvent('interrupt', { reason: outcome.interrupt.reason, questions: outcome.interrupt.questions });
+    } else if (!outcome.success) {
+      const err = outcome as import('../lib/launchpad-lab/index.js').AnalyzeError;
+      sendEvent('error', { error: err.error, details: err.details });
+    } else {
+      sendEvent('result', outcome.data);
+    }
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    console.error('Stream analysis error:', msg);
+    sendEvent('error', { error: 'Failed to generate analysis' });
+  }
+
+  res.end();
+}

@@ -64,7 +64,7 @@ export const AnimatedText = ({
 
 
 // Widget with spotlight effect - Updated for Premium Apple-like Design
-export const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action, visible = true }: any) => {
+export const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action, visible = true, compact = false }: any) => {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
@@ -81,7 +81,7 @@ export const Widget = ({ title, icon: Icon, children, delay = 0, className = "",
             exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
             transition={{ duration: 0.5, delay: visible ? delay : 0 }}
             onMouseMove={handleMouseMove}
-            className={`relative group bg-black border border-white/5 overflow-hidden h-full flex flex-col shadow-2xl rounded-3xl ${className}`}
+            className={`relative group bg-black border border-white/5 overflow-hidden h-full flex flex-col shadow-2xl ${compact ? 'rounded-[2rem]' : 'rounded-3xl'} ${className}`}
         >
             {/* Spotlight Effect - Subtle */}
             <motion.div
@@ -97,13 +97,13 @@ export const Widget = ({ title, icon: Icon, children, delay = 0, className = "",
                 }}
             />
 
-            <div className="relative z-10 p-8 h-full flex flex-col">
-                <div className="flex items-center justify-between mb-6">
+            <div className={`relative z-10 h-full flex flex-col ${compact ? 'p-6' : 'p-8'}`}>
+                <div className={`flex items-center justify-between ${compact ? 'mb-5' : 'mb-6'}`}>
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white/5 border border-white/5 rounded-full group-hover:border-velocity-red/30 group-hover:bg-velocity-red/10 transition-colors duration-300">
-                            <Icon className="w-4 h-4 text-gray-400 group-hover:text-velocity-red transition-colors duration-300" />
+                        <div className={`${compact ? 'p-1.5' : 'p-2'} bg-white/5 border border-white/5 rounded-full group-hover:border-velocity-red/30 group-hover:bg-velocity-red/10 transition-colors duration-300`}>
+                            <Icon className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-gray-400 group-hover:text-velocity-red transition-colors duration-300`} />
                         </div>
-                        <span className="font-sans text-[11px] text-gray-400 uppercase tracking-widest font-medium">{title}</span>
+                        <span className={`font-sans text-gray-400 uppercase tracking-widest font-medium ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{title}</span>
                     </div>
                     {action}
                 </div>
@@ -114,5 +114,4 @@ export const Widget = ({ title, icon: Icon, children, delay = 0, className = "",
         </motion.div>
     );
 };
-
 

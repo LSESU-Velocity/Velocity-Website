@@ -1,0 +1,1 @@
+Implement Phase 1 only from docs/IMPLEMENTATION_PLAN.md. Do not start later phases.

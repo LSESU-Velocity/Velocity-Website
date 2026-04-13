@@ -1,53 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Key, Loader2, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Key, X, AlertCircle, Shield, ExternalLink } from 'lucide-react';
 
-interface InviteCodeLoginProps {
+interface ApiKeyEntryProps {
     isOpen: boolean;
     onClose: () => void;
-    onLogin: (key: string) => Promise<{ valid: boolean; error?: string }>;
+    onSubmit: (apiKey: string, remember: boolean) => void;
 }
 
-export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
+export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
     isOpen,
     onClose,
-    onLogin,
+    onSubmit,
 }) => {
-    const [key, setKey] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [apiKey, setApiKey] = useState('');
+    const [remember, setRemember] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
+    const dialogRef = useRef<HTMLDivElement>(null);
+    const previousFocusRef = useRef<HTMLElement | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    useEffect(() => {
+        if (isOpen) {
+            previousFocusRef.current = document.activeElement as HTMLElement | null;
+            requestAnimationFrame(() => dialogRef.current?.focus());
+        } else if (previousFocusRef.current) {
+            previousFocusRef.current.focus();
+            previousFocusRef.current = null;
+        }
+    }, [isOpen]);
+
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+        if (e.key === 'Escape') {
+            onClose();
+            return;
+        }
+        if (e.key === 'Tab' && dialogRef.current) {
+            const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+            );
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+    }, [onClose]);
+
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!key.trim()) {
-            setError('Please enter your access key');
+        const trimmed = apiKey.trim();
+        if (!trimmed) {
+            setError('Please enter your Google AI Studio API key');
             return;
         }
 
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const result = await onLogin(key.trim());
-
-            if (result.valid) {
-                setSuccess(true);
-                // Close after brief success animation
-                setTimeout(() => {
-                    onClose();
-                    setSuccess(false);
-                    setKey('');
-                }, 1000);
-            } else {
-                setError(result.error || 'Invalid access key');
-            }
-        } catch (err) {
-            setError('Connection error. Please try again.');
-        } finally {
-            setIsLoading(false);
+        if (!trimmed.startsWith('AIza')) {
+            setError('That doesn\u2019t look like a Google AI Studio key (should start with AIza)');
+            return;
         }
+
+        setError(null);
+        onSubmit(trimmed, remember);
+        setApiKey('');
     };
 
     return (
@@ -71,13 +91,21 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                         transition={{ type: 'spring', duration: 0.5 }}
                         className="fixed inset-0 z-50 flex items-center justify-center p-6"
                     >
-                        <div className="relative w-full max-w-md bg-white/[0.02] border border-white/10 p-8 shadow-2xl overflow-hidden backdrop-blur-md">
-
+                        <div
+                            ref={dialogRef}
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="api-key-dialog-title"
+                            onKeyDown={handleKeyDown}
+                            tabIndex={-1}
+                            className="relative w-full max-w-md bg-white/[0.02] border border-white/10 p-8 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl outline-none"
+                        >
 
                             {/* Close button */}
                             <button
                                 onClick={onClose}
-                                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all z-20"
+                                aria-label="Close dialog"
+                                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 transition-all z-20 rounded-md"
                             >
                                 <X className="w-5 h-5" />
                             </button>
@@ -85,83 +113,103 @@ export const InviteCodeLogin: React.FC<InviteCodeLoginProps> = ({
                             <div className="relative z-10">
                                 {/* Icon */}
                                 <div className="flex justify-center mb-6">
-                                    <motion.div
-                                        animate={success ? { scale: [1, 1.2, 1] } : {}}
-                                        className={`p-4 border ${success
-                                            ? 'bg-green-500/10 border-green-500/30 text-green-400'
-                                            : 'bg-velocity-red/10 border-velocity-red/30 text-velocity-red'
-                                            }`}
-                                    >
-                                        {success ? (
-                                            <CheckCircle2 className="w-8 h-8" />
-                                        ) : (
-                                            <Key className="w-8 h-8" />
-                                        )}
-                                    </motion.div>
+                                    <div className="p-4 border bg-velocity-red/10 border-velocity-red/30 text-velocity-red rounded-lg">
+                                        <Key className="w-8 h-8" />
+                                    </div>
                                 </div>
 
                                 {/* Title */}
-                                <h2 className="font-sans font-bold text-2xl text-center text-white mb-2 tracking-tight">
-                                    {success ? 'Access Granted!' : 'Enter Access Key'}
+                                <h2 id="api-key-dialog-title" className="font-sans font-bold text-2xl text-center text-white mb-2 tracking-tight">
+                                    Enter Your Gemini API Key
                                 </h2>
                                 <p className="font-sans text-sm text-gray-400 text-center mb-6">
-                                    {success
-                                        ? 'Welcome to Launchpad'
-                                        : 'Enter your invite key to access Launchpad'}
+                                    Bring your own key to run Launchpad analyses.
                                 </p>
 
-                                {!success && (
-                                    <form onSubmit={handleSubmit} className="space-y-4">
-                                        {/* Key Input */}
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={key}
-                                                onChange={(e) => {
-                                                    setKey(e.target.value);
-                                                    setError(null);
-                                                }}
-                                                placeholder="VEL-XXXX-XXXX"
-                                                disabled={isLoading}
-                                                className={`w-full px-4 py-3 bg-black/30 border ${error ? 'border-red-500' : 'border-white/10'
-                                                    } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-sans text-center text-lg tracking-wider`}
-                                                autoFocus
-                                            />
-                                        </div>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    {/* Key Input */}
+                                    <div className="relative">
+                                        <label htmlFor="launchpad-api-key" className="sr-only">
+                                            Google AI Studio API key
+                                        </label>
+                                        <input
+                                            id="launchpad-api-key"
+                                            type="password"
+                                            value={apiKey}
+                                            onChange={(e) => {
+                                                setApiKey(e.target.value);
+                                                setError(null);
+                                            }}
+                                            placeholder="AIza..."
+                                            className={`w-full px-4 py-3 bg-black/30 border ${error ? 'border-red-500' : 'border-white/10'
+                                                } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-mono text-sm rounded-md`}
+                                            autoFocus
+                                            autoComplete="off"
+                                        />
+                                    </div>
 
-                                        {/* Error Message */}
-                                        {error && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: -10 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                className="flex items-center gap-2 text-red-400 font-sans text-xs justify-center"
-                                            >
-                                                <AlertCircle className="w-4 h-4" />
-                                                {error}
-                                            </motion.div>
-                                        )}
+                                    {/* Remember checkbox */}
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            checked={remember}
+                                            onChange={(e) => setRemember(e.target.checked)}
+                                            className="w-4 h-4 rounded border-white/20 bg-black/30 text-velocity-red focus:ring-velocity-red/50"
+                                        />
+                                        <span className="font-sans text-xs text-gray-400 group-hover:text-gray-300 transition-colors">
+                                            Remember on this device (stored in browser only)
+                                        </span>
+                                    </label>
 
-                                        {/* Submit Button */}
-                                        <button
-                                            type="submit"
-                                            disabled={isLoading || !key.trim()}
-                                            className="w-full py-3 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red disabled:bg-gray-800 disabled:border-gray-700 disabled:cursor-not-allowed text-white font-sans text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)]"
+                                    {/* Error Message */}
+                                    {error && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex items-center gap-2 text-red-400 font-sans text-xs"
                                         >
-                                            {isLoading ? (
-                                                <>
-                                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                                    Validating...
-                                                </>
-                                            ) : (
-                                                'Access Launchpad'
-                                            )}
-                                        </button>
-                                    </form>
-                                )}
+                                            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                                            {error}
+                                        </motion.div>
+                                    )}
 
-                                {/* Footer */}
+                                    {/* Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={!apiKey.trim()}
+                                        className="w-full py-3 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red disabled:bg-gray-800 disabled:border-gray-700 disabled:cursor-not-allowed text-white font-sans text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)] rounded-md"
+                                    >
+                                        Continue
+                                    </button>
+                                </form>
+
+                                {/* Trust & Transparency */}
+                                <div className="mt-6 space-y-3">
+                                    <div className="flex items-start gap-2 text-gray-500">
+                                        <Shield className="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500/70" />
+                                        <p className="font-sans text-[11px] leading-relaxed">
+                                            Your key is sent to Launchpad only to authorize your Gemini request. We do not persist or log the raw key, and it stays in your browser session unless you opt into device storage above.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-start gap-2 text-gray-500">
+                                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500/70" />
+                                        <p className="font-sans text-[11px] leading-relaxed">
+                                            Your startup idea is sent to Google Gemini for processing. Analyses are not stored on our servers.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Get a key link */}
                                 <p className="font-sans text-gray-500 text-xs text-center mt-6 leading-relaxed">
-                                    This tool is exclusive to Velocity members. To obtain access, please purchase a membership via the SU website and email <a href="mailto:velocity@lsesu.org" className="underline hover:text-gray-400 transition-colors">velocity@lsesu.org</a>. You will receive a unique key to log in and save your analyses.
+                                    Don&apos;t have a key?{' '}
+                                    <a
+                                        href="https://aistudio.google.com/apikey"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="underline hover:text-gray-300 transition-colors inline-flex items-center gap-1"
+                                    >
+                                        Get one free from Google AI Studio <ExternalLink className="w-3 h-3 inline" />
+                                    </a>
                                 </p>
                             </div>
                         </div>

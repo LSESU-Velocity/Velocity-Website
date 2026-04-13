@@ -1,0 +1,54 @@
+Implement Phase 3 only from docs/IMPLEMENTATION_PLAN.md. Do not start later phases.
+
+Phase goal:
+- Introduce a real LangGraph execution pipeline so Launchpad Lab runs as staged orchestration instead of a single structured-output call, while preserving the current analysis-only default path for free-tier BYOK users.
+
+Required scope:
+- Create a LangGraph-backed server module for the core analysis workflow under lib/launchpad-lab/.
+- Define an explicit state shape for the core analysis run and implement bounded nodes such as:
+  - classifyIdea
+  - normalizeIntake
+  - runBullAnalyst
+  - runBearAnalyst
+  - runBuilderAnalyst
+  - synthesizeOpportunity
+  - qaAndRepair
+- Run at least one parallel branch in production code. The analyst council is the preferred branch point.
+- Replace the current single-call core analysis path inside the server pipeline with the graph execution path.
+- Add server-side progress/status events that identify real node execution rather than simulated generic loading steps.
+- Connect the frontend loading state to those real execution statuses with the smallest reasonable UI change.
+
+Important constraints:
+- Keep founder assets opt-in and separate. Do not put waitlist or pitch deck generation back into the default /api/analyze path.
+- Respect the newer free-tier-first architecture:
+  - default analysis remains cheap and reliable for Google AI Studio free keys
+  - optional founder assets continue to use the separate endpoint /api/generate-artifacts
+- Keep /api/analyze backward-compatible with the current dashboard response DTO.
+- If real-time progress would destabilize /api/analyze too much, add a dedicated progress-capable endpoint and adapt the frontend carefully.
+- Do not implement durable resume, interrupts, or persistence in this phase.
+- Do not start the Phase 4 product redesign beyond the minimal UI changes needed to show real execution status.
+
+Implementation guidance:
+- Prefer a dedicated graph entrypoint, then adapt its result back into the existing DashboardDTO.
+- Failures should mention which node failed, not only "analysis failed".
+- Keep the progress contract explicit and reviewable. A simple SSE or chunked JSON event stream is acceptable if it stays small and works with the current local dev harness.
+- Preserve the free-tier model defaults already accepted in the repo.
+- Keep the local dev workflow working:
+  - npm run dev
+  - npm run dev:api
+
+Acceptance target:
+- Core analysis executes through a LangGraph graph with multiple nodes.
+- At least one parallel branch is used in the graph.
+- The frontend loading state reflects actual server-side node execution.
+- Errors identify the failing node.
+- The default analysis path still excludes founder asset generation.
+
+Verification:
+- Run the narrowest relevant checks, at minimum typecheck.
+
+Output format:
+1. Changed Files
+2. What I Implemented
+3. Checks Run
+4. Open Issues

@@ -3,7 +3,7 @@ import { LegalPageLayout } from './LegalPageLayout';
 
 export const TermsOfService: React.FC = () => {
   return (
-    <LegalPageLayout title="Terms of Service" lastUpdated="February 2026">
+    <LegalPageLayout title="Terms of Service" lastUpdated="April 2026">
       <section>
         <h2>1. Acceptance of Terms</h2>
         <p>
@@ -18,18 +18,19 @@ export const TermsOfService: React.FC = () => {
         <p>
           The Velocity website is operated by LSESU Velocity ("Velocity", "we", "us",
           "our"), a student society at the London School of Economics and Political Science Students' Union
-          (LSESU). The Service includes the Velocity website and its associated tools, such as the
-          Launchpad, which allow users to submit startup ideas and receive AI-generated feedback
-          powered by the Google Gemini API.
+          (LSESU). The Service includes the Velocity website and its associated tools, such as
+          Launchpad Lab, which allow users to submit startup ideas and receive AI-generated feedback
+          powered by Google Gemini via the user&rsquo;s own API key (Bring Your Own Key).
         </p>
       </section>
 
       <section>
         <h2>3. Eligibility</h2>
         <p>
-          The Service is intended for current students of the London School of Economics and Political
-          Science (LSE) who are aged 18 or over. By using the Service, you represent that you meet these
-          eligibility requirements.
+          The Service is built and maintained by LSESU Velocity, a student society at LSE, but is publicly
+          available to anyone aged 18 or over. Launchpad Lab requires you to supply your own Google AI
+          Studio API key; no LSE affiliation is needed to use it. By using the Service, you represent that
+          you are at least 18 years old.
         </p>
       </section>
 
@@ -40,7 +41,7 @@ export const TermsOfService: React.FC = () => {
           <li>Submit content that is unlawful, abusive, threatening, defamatory, or otherwise objectionable.</li>
           <li>Attempt to manipulate the AI system through prompt injection, jailbreaking, or similar techniques.</li>
           <li>Use the Service to generate content that infringes on the intellectual property rights of others.</li>
-          <li>Share access credentials or allow unauthorised third parties to access the Service through your session.</li>
+          <li>Share your API key or allow unauthorised third parties to access the Service through your session.</li>
           <li>Attempt to reverse-engineer, decompile, or extract the source code or underlying algorithms of the Service.</li>
           <li>Use automated scripts, bots, or other tools to access the Service in a manner that exceeds reasonable usage.</li>
           <li>Interfere with or disrupt the integrity or performance of the Service.</li>
@@ -74,17 +75,17 @@ export const TermsOfService: React.FC = () => {
           not transfer any intellectual property rights to Velocity, LSESU, or any third party.
         </p>
         <p>
-          We take the confidentiality of your submissions seriously. All submitted content is encrypted at rest
-          using AES-256-GCM encryption before being stored. However, please be aware that:
+          We take the confidentiality of your submissions seriously. Launchpad Lab stores analysis results
+          in your browser only and does not persist them on our servers. However, please be aware that:
         </p>
         <ul>
           <li>
-            Content you submit is sent to the Google Gemini API for processing. This means your submissions are
-            processed by Google's servers in accordance with their terms of service and privacy policy.
+            Content you submit is sent to the Google Gemini API for processing using your own API key.
+            Your submissions are processed by Google&rsquo;s servers in accordance with their terms of
+            service and privacy policy.
           </li>
           <li>
-            While we encrypt content at rest on our own infrastructure, we cannot guarantee absolute
-            confidentiality once data is transmitted to third-party services.
+            We cannot guarantee absolute confidentiality once data is transmitted to third-party services.
           </li>
           <li>
             If your submission is highly sensitive or commercially valuable, you should consider whether

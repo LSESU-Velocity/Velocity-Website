@@ -49,8 +49,8 @@ export function clearAuthCookie(res: VercelResponse): void {
 }
 
 /**
- * Set CORS headers that allow credentials (cookies).
- * Must be called before sending a response when cookies are involved.
+ * Set CORS headers used by API routes that rely on cookies and/or custom headers.
+ * Must be called before sending a response when cross-origin requests are involved.
  * 
  * ALLOWED_ORIGINS env var format: comma-separated URLs
  * Example: "https://site.com,https://staging.app"
@@ -81,7 +81,7 @@ export function setCorsHeaders(req: VercelRequest, res: VercelResponse): boolean
     }
 
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-gemini-key');
 
     // Return true if this is a preflight request
     return req.method === 'OPTIONS';

@@ -1,0 +1,51 @@
+Implement Phase 2 only from docs/IMPLEMENTATION_PLAN.md. Do not start later phases.
+
+Phase goal:
+- Replace the monolithic prompt + manual JSON parsing path with typed LangChain building blocks that still return the current Launchpad dashboard response shape.
+
+Required scope:
+- Add the Phase 2 dependencies from the plan:
+  - langchain
+  - @langchain/google
+  - @langchain/langgraph
+  - zod
+- Create a dedicated server-side module tree under lib/launchpad-lab/ for:
+  - provider/model setup
+  - Zod schemas
+  - prompt builders
+  - output normalizers / DTO adapters
+- Move the current analysis contract out of api/analyze.ts into typed schemas and smaller prompt/model units.
+- Replace the raw Gemini fetch + manual JSON.parse cleanup path in api/analyze.ts with LangChain-based structured output using @langchain/google.
+- Keep /api/analyze backward-compatible with the current LaunchpadDashboard contract.
+
+Important constraints:
+- Do not add LangGraph orchestration yet beyond any import/setup needed by the package addition. Phase 2 is LangChain extraction only.
+- Do not change the frontend contract for components/Launchpad.tsx or components/LaunchpadDashboard.tsx.
+- Respect the accepted BYOK flow from Phase 1.
+- Do not persist raw API keys.
+- Keep the current local dev harness working:
+  - npm run dev
+  - npm run dev:api
+- Prefer compatibility adapters over broad frontend changes.
+
+Implementation guidance:
+- Use @langchain/google rather than deprecated Google adapters.
+- Prefer schema-validated structured output with Zod over manual string cleanup.
+- Break the current giant contract into smaller units such as intake brief, market findings, council memos, artifact specs, and final report DTO, then adapt them back to the existing API response.
+- If one-pass generation is still necessary in this phase, make the typed schemas/prompts the source of truth rather than api/analyze.ts constants.
+- Keep the implementation reviewable. Avoid speculative abstractions that are only needed in later phases.
+
+Acceptance target:
+- The Launchpad analysis pipeline uses LangChain model wrappers instead of raw fetch calls.
+- Structured outputs are schema-validated with explicit failure handling.
+- /api/analyze still returns data compatible with the current dashboard.
+- The old giant prompt in api/analyze.ts is no longer the only source of truth for the analysis contract.
+
+Verification:
+- Run the narrowest relevant checks, at minimum typecheck.
+
+Output format:
+1. Changed Files
+2. What I Implemented
+3. Checks Run
+4. Open Issues
