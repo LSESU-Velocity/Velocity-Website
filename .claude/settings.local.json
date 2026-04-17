@@ -4,7 +4,10 @@
       "Bash(powershell -Command:*)",
       "Bash(node:*)",
       "Bash(npx tsc *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(echo \"--exit $?--\")",
+      "Bash(npx vite *)"
     ]
   }
 }

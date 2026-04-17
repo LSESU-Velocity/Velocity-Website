@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Rocket, Target, BarChart3, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, AlertTriangle, Key, X, History, FolderOpen, PencilLine, Plus, Trash2, GitBranch, MessageCircle, Scale } from 'lucide-react';
+import { Rocket, Target, BarChart3, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, AlertTriangle, Key, X, PencilLine, Plus, GitBranch, MessageCircle, Scale } from 'lucide-react';
 import { ApiKeyEntry } from './InviteCodeLogin';
 import {
   generateAnalysisStream,
@@ -16,7 +16,15 @@ import {
 } from '../lib/api';
 import { LaunchpadDashboard } from './LaunchpadDashboard';
 import { AnimatedText } from './LaunchpadWidgets';
-import { deleteSavedAnalysis, getSavedAnalyses, branchFromAnalysis, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
+import { getSavedAnalyses, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
+import { Player } from '@remotion/player';
+import {
+  LaunchpadPreview,
+  DURATION_IN_FRAMES as PREVIEW_DURATION,
+  FPS as PREVIEW_FPS,
+  PREVIEW_WIDTH,
+  PREVIEW_HEIGHT,
+} from './LaunchpadPreview';
 
 const SESSION_KEY = 'launchpad_gemini_key';
 const PERSIST_KEY = 'launchpad_gemini_key_persist';
@@ -70,7 +78,6 @@ export const Launchpad: React.FC = () => {
   const [branchingFromId, setBranchingFromId] = useState<string | null>(null);
   const [activeMutationTarget, setActiveMutationTarget] = useState<string | null>(null);
 
-  const inputFormRef = useRef<HTMLFormElement>(null);
   const resultsAnchorRef = useRef<HTMLDivElement>(null);
   const lastRenderedResultRef = useRef<AnalysisData | null>(null);
   const activeSavedRecord = activeSavedId ? savedAnalyses.find((record) => record.id === activeSavedId) || null : null;
@@ -168,35 +175,6 @@ export const Launchpad: React.FC = () => {
     } catch (storageError) {
       console.warn('Failed to persist Launchpad analysis locally:', storageError);
       return null;
-    }
-  };
-
-  const handleLoadSavedAnalysis = (record: SavedLaunchpadAnalysis) => {
-    setIdea(record.idea);
-    setActiveSavedId(record.id);
-    setError(null);
-    setActiveNode(null);
-    setCompletedNodes([]);
-    setBranchingFromId(record.parentId || null);
-
-    if (record.interruptState) {
-      setData(null);
-      setShowResults(false);
-      setInterruptQuestions(record.interruptState.questions as ClarificationQuestion[]);
-      setClarificationAnswers({});
-    } else {
-      setData(record.data);
-      setShowResults(true);
-      setInterruptQuestions(null);
-      setClarificationAnswers({});
-    }
-  };
-
-  const handleDeleteSavedAnalysis = (recordId: string) => {
-    setSavedAnalyses(deleteSavedAnalysis(recordId));
-
-    if (activeSavedId === recordId) {
-      setActiveSavedId(null);
     }
   };
 
@@ -309,23 +287,6 @@ export const Launchpad: React.FC = () => {
     setInterruptQuestions(null);
     setClarificationAnswers({});
     await runAnalysis(answers);
-  };
-
-  const handleBranch = (record: SavedLaunchpadAnalysis) => {
-    const branch = branchFromAnalysis(record.id, record.idea, 'Branch');
-    if (!branch) return;
-
-    setSavedAnalyses(getSavedAnalyses());
-    setActiveSavedId(branch.id);
-    setBranchingFromId(record.id);
-    setIdea(branch.idea);
-    setData(branch.data);
-    setShowResults(false);
-    setError(null);
-
-    requestAnimationFrame(() => {
-      inputFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
   };
 
   const handleGenerateFounderAssets = async () => {
@@ -474,18 +435,9 @@ export const Launchpad: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-sans text-sm md:text-base text-white max-w-3xl mb-1 leading-relaxed text-balance"
+            className="font-sans text-sm md:text-base text-white max-w-3xl mb-12 leading-relaxed text-balance"
           >
             You've got the spark. We'll find your market, your customers, and your starting point.
-          </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-sans text-xs text-white/40 max-w-3xl mb-12 leading-relaxed"
-          >
-            Powered by your own Google Gemini API key. Your idea is sent to Google for analysis.
           </motion.p>
 
           {/* Key status indicator */}
@@ -520,7 +472,6 @@ export const Launchpad: React.FC = () => {
 
           {/* Input Section */}
           <motion.form
-            ref={inputFormRef}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.6, duration: 0.6 }}
@@ -560,32 +511,25 @@ export const Launchpad: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
-              <label className="flex items-start gap-3 text-left cursor-pointer">
+            <div className="mt-4 flex justify-center">
+              <label className="inline-flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={includeFounderAssets}
                   onChange={(e) => setIncludeFounderAssets(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-white/20 bg-black/30 text-velocity-red focus:ring-velocity-red/40"
+                  className="h-3.5 w-3.5 rounded border-white/20 bg-black/30 text-velocity-red focus:ring-velocity-red/40"
                   disabled={isGenerating || isGeneratingAssets}
                 />
-                <span className="font-sans text-xs text-white/60 leading-relaxed">
-                  Generate optional founder assets too
-                  <span className="block text-white/35">
-                    Waitlist + pitch deck run in a separate step and use more free-tier quota.
-                  </span>
+                <span className="font-sans text-[11px] text-white/55">
+                  Include founder assets (waitlist + pitch deck)
                 </span>
               </label>
-
-              <div className="text-[11px] font-sans text-white/35">
-                Default mode is optimized for free Google AI Studio keys.
-              </div>
             </div>
 
             {activeSavedId && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-sans text-white/60">
                 <PencilLine className="w-3.5 h-3.5 text-velocity-red" />
-                Editing a saved lab run on this device
+                Editing a saved lab run
                 <button
                   type="button"
                   onClick={handleStartNewAnalysis}
@@ -757,107 +701,35 @@ export const Launchpad: React.FC = () => {
           </AnimatePresence>
         </div>
 
-        {savedAnalyses.length > 0 && !isGenerating && (
+        {!showResults && !isGenerating && !interruptQuestions && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-6xl mx-auto mb-10"
+            transition={{ delay: 1.8, duration: 0.6 }}
+            className="max-w-4xl mx-auto mb-10"
           >
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
-              <div>
-                <div className="inline-flex items-center gap-2 text-white mb-1">
-                  <History className="w-4 h-4 text-velocity-red" />
-                  <span className="font-sans text-sm uppercase tracking-[0.18em] text-white/80">Saved Lab Runs</span>
-                </div>
-                <p className="font-sans text-xs text-white/40">
-                  Stored on this device only. Load one, edit the idea, and rerun to update it.
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleStartNewAnalysis}
-                className="inline-flex items-center gap-2 self-start rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-sans uppercase tracking-[0.18em] text-white/70 hover:bg-white/10 hover:text-white"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Start New
-              </button>
+            <div className="relative rounded-3xl border border-white/10 bg-white/[0.02] p-2 overflow-hidden">
+              <Player
+                component={LaunchpadPreview}
+                durationInFrames={PREVIEW_DURATION}
+                compositionWidth={PREVIEW_WIDTH}
+                compositionHeight={PREVIEW_HEIGHT}
+                fps={PREVIEW_FPS}
+                loop
+                autoPlay
+                controls={false}
+                clickToPlay={false}
+                style={{
+                  width: '100%',
+                  aspectRatio: `${PREVIEW_WIDTH} / ${PREVIEW_HEIGHT}`,
+                  borderRadius: '1.25rem',
+                  overflow: 'hidden',
+                }}
+              />
             </div>
-
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-              {savedAnalyses.map((record) => {
-                const isActive = record.id === activeSavedId;
-
-                return (
-                  <div
-                    key={record.id}
-                    className={`rounded-3xl border p-5 transition-colors ${
-                      isActive
-                        ? 'border-velocity-red/30 bg-velocity-red/[0.06]'
-                        : 'border-white/10 bg-white/[0.03]'
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <p className="font-sans text-lg font-bold text-white truncate">
-                          {record.interruptState ? 'Paused — needs clarification' : record.data?.identity?.name || 'Untitled'}
-                        </p>
-                        <p className="font-sans text-sm text-white/55 mt-1 line-clamp-2">
-                          {record.interruptState ? record.interruptState.reason : record.data?.identity?.tagline || ''}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteSavedAnalysis(record.id)}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/30 text-white/45 hover:border-white/20 hover:text-white"
-                        aria-label={`Delete saved analysis ${record.data?.identity?.name || 'untitled'}`}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <p className="font-sans text-xs text-white/45 mt-4 line-clamp-3 min-h-[3.75rem]">
-                      {record.idea}
-                    </p>
-
-                    <div className="mt-4 flex items-center justify-between gap-3 text-[11px] font-sans text-white/35">
-                      <span>{new Date(record.updatedAt).toLocaleDateString()}</span>
-                      {record.interruptState ? (
-                        <span className="text-amber-400/60">paused</span>
-                      ) : record.parentId ? (
-                        <span className="inline-flex items-center gap-1 text-violet-400/60">
-                          <GitBranch className="w-3 h-3" />
-                          branch
-                        </span>
-                      ) : (
-                        <span>{record.data?.customerSegments?.length || 0} segments</span>
-                      )}
-                      <span>{record.data?.distributionChannels?.length || 0} channels</span>
-                    </div>
-
-                    <div className="mt-3 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => handleLoadSavedAnalysis(record)}
-                        className="inline-flex flex-1 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[11px] font-sans uppercase tracking-[0.18em] text-white/75 hover:bg-white/10 hover:text-white"
-                      >
-                        <FolderOpen className="w-3.5 h-3.5" />
-                        {isActive ? 'Loaded' : 'Open'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleBranch(record)}
-                        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-2.5 text-[11px] font-sans uppercase tracking-[0.18em] text-white/55 hover:bg-white/10 hover:text-white"
-                        aria-label={`Branch from ${record.data?.identity?.name || 'this analysis'}`}
-                      >
-                        <GitBranch className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <p className="mt-3 text-center font-sans text-[11px] uppercase tracking-[0.22em] text-white/35">
+              A preview of what Lab will do with your idea
+            </p>
           </motion.div>
         )}
 
