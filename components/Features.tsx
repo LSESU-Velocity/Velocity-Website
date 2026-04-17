@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
-import { Code, Zap, Users } from 'lucide-react';
+import { Calendar, Building2, Sparkles } from 'lucide-react';
 
 interface FeatureCardProps {
     step: string;
@@ -98,7 +98,7 @@ export const Features: React.FC = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* Header Section
-                    
+
                     */}
                     <div className="lg:col-span-3 mb-16 md:text-center max-w-3xl mx-auto">
                         <h2 className="font-sans font-bold text-3xl md:text-4xl tracking-tight text-white mb-2">
@@ -118,21 +118,21 @@ export const Features: React.FC = () => {
                     >
                         <FeatureCard
                             step="01"
-                            title="No Code Required"
-                            description="Focus on logic and architecture. Let AI handle the syntax. We prioritize product vision over memorizing documentation."
-                            icon={Code}
+                            title="Workshops on the Latest AI Tools"
+                            description="Hands-on sessions with Cursor, Claude, Lovable, v0, and Gemini. Learn the prompt-to-product workflows that top builders actually use."
+                            icon={Sparkles}
                         />
                         <FeatureCard
                             step="02"
-                            title="Ship in Weeks"
-                            description="The semester is short. Our sprints are shorter. Go from idea to live URL before midterms with our structured accelerator."
-                            icon={Zap}
+                            title="Projects with Real Companies"
+                            description="Ship production work on partner briefs from real startups and scaleups. Real products, real feedback."
+                            icon={Building2}
                         />
                         <FeatureCard
                             step="03"
-                            title="Builder Network"
-                            description="Stop searching for a technical co-founder. Become one. Join a high-bandwidth network of LSE students who are actually shipping."
-                            icon={Users}
+                            title="Events You'll Actually Show Up To"
+                            description="Buildathons, demo nights, guest teaching sessions and more. Something on the calendar for every builder."
+                            icon={Calendar}
                         />
                     </motion.div>
                 </div>

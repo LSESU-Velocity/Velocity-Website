@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(powershell -Command:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)"
     ]
   }
 }

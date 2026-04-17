@@ -87,6 +87,18 @@ export const ChipScroll: React.FC = () => {
         return interpolate(progress, [0, 0.02, toProgress(PHASE_PIXELS.introEnd)], [1, 1, 0]);
     });
 
+    const bannerOpacity = useTransform(scrollYProgress, (progress) => {
+        return interpolate(
+            progress,
+            [0, toProgress(60), toProgress(PHASE_PIXELS.futureStart)],
+            [0.26, 0.26, 0]
+        );
+    });
+
+    const bannerScale = useTransform(scrollYProgress, (progress) => {
+        return interpolate(progress, [0, toProgress(PHASE_PIXELS.futureStart)], [1, 1.035]);
+    });
+
     const futureOpacity = useTransform(scrollYProgress, (progress) => {
         return interpolate(progress,
             [
@@ -346,6 +358,18 @@ export const ChipScroll: React.FC = () => {
                     className="absolute inset-0 w-full h-full"
                 />
 
+                <motion.div
+                    className="pointer-events-none absolute inset-0 flex items-center justify-center px-6 sm:px-10"
+                    style={{ opacity: bannerOpacity, scale: bannerScale }}
+                >
+                    <img
+                        src="/banner1.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="h-full w-full object-contain object-center"
+                    />
+                </motion.div>
+
                 {/* Text Overlays */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
 
@@ -355,7 +379,7 @@ export const ChipScroll: React.FC = () => {
                         style={{ opacity: introOpacity }}
                     >
                         <p className="text-white/50 font-sans text-sm md:text-base tracking-widest uppercase mb-4">
-                            The journey begins
+
                         </p>
                         <motion.div
                             animate={{ y: [0, 8, 0] }}
@@ -379,7 +403,7 @@ export const ChipScroll: React.FC = () => {
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md mx-auto sm:mx-0">
-                                Where LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
+                                Where 50+ LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
                             </p>
                         </div>
                     </motion.div>
@@ -398,7 +422,7 @@ export const ChipScroll: React.FC = () => {
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg">
-                                In weeks, not years.
+                                In hours, not years.
                             </p>
                         </div>
                     </motion.div>
@@ -416,7 +440,7 @@ export const ChipScroll: React.FC = () => {
                                 Velocity is Here.
                             </h2>
                             <p className="text-white/60 font-sans text-base md:text-lg lg:text-xl mb-8 md:mb-10 max-w-md mx-auto">
-                                Momentum {'>'} Perfection.
+                                Empowering LSE students to build real products at unprecedented speed.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">

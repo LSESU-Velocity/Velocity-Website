@@ -5,6 +5,8 @@ import { Footer } from './components/Footer';
 import { BackgroundGrid } from './components/ui/BackgroundGrid';
 import { Home } from './components/Home';
 import { Launchpad } from './components/Launchpad';
+import { Blog } from './components/Blog';
+import { Events } from './components/Events';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
 
@@ -20,6 +22,8 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/launchpad" element={<Launchpad />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/blog" element={<Blog />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
             </Routes>

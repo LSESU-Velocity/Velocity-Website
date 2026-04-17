@@ -11,6 +11,8 @@ const LOGO_URL = "/Velocity-logo-black.png";
 const navItems = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
+  { label: 'Events', path: '/events', isSection: false },
+  { label: 'Blog', path: '/blog', isSection: false },
 ];
 
 export const Navbar: React.FC = () => {
@@ -89,6 +91,10 @@ export const Navbar: React.FC = () => {
   useEffect(() => {
     if (location.pathname === '/launchpad') {
       setActiveSection('Launchpad');
+    } else if (location.pathname === '/events') {
+      setActiveSection('Events');
+    } else if (location.pathname === '/blog') {
+      setActiveSection('Blog');
     } else if (location.pathname === '/') {
       setActiveSection('Overview');
     }
