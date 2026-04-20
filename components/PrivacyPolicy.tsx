@@ -34,6 +34,17 @@ export const PrivacyPolicy: React.FC = () => {
           Analysis results from Launchpad Lab are stored in your browser&rsquo;s <code>localStorage</code> only.
           They are not sent to or stored on our servers.
         </p>
+        <p>
+          The Automation Intake tool (<code>/automation-intake</code>) is different: it is intended for
+          partner businesses, and any final submission is stored on Velocity&rsquo;s servers so we can
+          follow up. In-progress drafts live only in your browser&rsquo;s <code>sessionStorage</code>
+          until you press submit. When you submit, we collect your name, role, work email, and the
+          business details you chose to share. Sensitive free-text fields (workflow descriptions,
+          transcript, generated brief) are encrypted at rest with a key held only on our server;
+          a small set of index fields (business name, website, sector, contact name and email,
+          submission timestamps, workflow titles) is stored unencrypted so our team can route
+          the submission internally.
+        </p>
         <p>We do not collect names, email addresses, or other personal identifiers beyond what is listed above.</p>
       </section>
 
@@ -121,6 +132,12 @@ export const PrivacyPolicy: React.FC = () => {
         <p>
           API keys stored in <code>sessionStorage</code> are cleared when you close the tab.
           Keys stored in <code>localStorage</code> (opt-in only) persist until you clear them.
+        </p>
+        <p>
+          Automation Intake drafts in <code>sessionStorage</code> are cleared automatically on
+          successful submission. Submitted Automation Intake records are retained on our servers
+          until they have been reviewed and actioned by the Velocity team; you can request deletion
+          at any time by emailing <a href="mailto:velocity@lsesu.org">velocity@lsesu.org</a>.
         </p>
         <p>
           Server logs retained by Vercel are subject to Vercel&rsquo;s own data retention policies.

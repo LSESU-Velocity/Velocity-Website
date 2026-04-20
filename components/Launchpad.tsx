@@ -116,6 +116,7 @@ export const Launchpad: React.FC = () => {
   const nodeDisplayMap: Record<string, { text: string; icon: typeof Zap }> = {
     classifyIdea: { text: "Classifying idea", icon: Zap },
     normalizeIntake: { text: "Preparing analysis", icon: Globe },
+    researchWeb: { text: "Grounding live sources", icon: Globe },
     runBullAnalyst: { text: "Bull analyst evaluating", icon: TrendingUp },
     runBearAnalyst: { text: "Bear analyst stress-testing", icon: Target },
     runCouncilJudge: { text: "Council judge deciding", icon: Scale },
@@ -124,7 +125,7 @@ export const Launchpad: React.FC = () => {
     retry: { text: "Retrying with fallback model", icon: Smartphone },
   };
 
-  const TOTAL_NODES = 7;
+  const TOTAL_NODES = 8;
 
   // Compute progress from completed nodes
   useEffect(() => {
@@ -737,6 +738,7 @@ export const Launchpad: React.FC = () => {
         <div ref={resultsAnchorRef} />
         <LaunchpadDashboard
           data={data}
+          analysisId={activeSavedId}
           showResults={showResults}
           onGenerateFounderAssets={handleGenerateFounderAssets}
           isGeneratingAssets={isGeneratingAssets}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Facebook, Linkedin, Share2, Twitter, X } from 'lucide-react';
+import { BookOpen, Facebook, Linkedin, Share2, Twitter, X } from 'lucide-react';
+import { Breadcrumb } from './ResourceDiscounts';
 
 interface BlogArticle {
   id: string;
@@ -190,7 +191,7 @@ export const Blog: React.FC = () => {
 
   const shareUrl = (article: BlogArticle) => {
     if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/blog#${article.id}`;
+    return `${window.location.origin}/resources/blog#${article.id}`;
   };
 
   const shareText = (article: BlogArticle) => `${article.title} - Velocity Blog`;
@@ -202,8 +203,14 @@ export const Blog: React.FC = () => {
   return (
     <section className="relative z-10 min-h-screen bg-velocity-black px-6 py-32">
       <div className="mx-auto max-w-7xl">
-        <div className="mx-auto mb-12 max-w-3xl md:text-center">
-          <h1 className="mb-2 font-sans text-3xl font-bold tracking-tight text-white md:text-4xl">
+        <Breadcrumb current="Blog" />
+
+        <div className="mx-auto mb-14 max-w-3xl md:text-center">
+          <div className="mb-4 inline-flex items-center gap-2 border border-white/10 bg-velocity-black/40 px-3 py-1 font-sans text-xs uppercase tracking-widest text-zinc-400">
+            <BookOpen className="h-3.5 w-3.5 text-velocity-red" />
+            Playbooks from the Velocity community
+          </div>
+          <h1 className="mb-3 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
             <span className="text-velocity-red">Blog</span>
           </h1>
           <p className="font-sans text-sm leading-relaxed text-gray-500 md:text-base">

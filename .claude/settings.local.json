@@ -7,7 +7,8 @@
       "Bash(npm run *)",
       "Bash(npm install *)",
       "Bash(echo \"--exit $?--\")",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(xargs grep *)"
     ]
   }
 }

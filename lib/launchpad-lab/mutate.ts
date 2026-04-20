@@ -202,6 +202,10 @@ function createArtifactContextFromDashboard(idea: string, analysis: DashboardDTO
   };
 }
 
+function nullCitationArray(length: number): Array<null> {
+  return Array.from({ length }, () => null);
+}
+
 async function runStructuredMutation<TSchema extends z.ZodTypeAny>({
   apiKey,
   schema,
@@ -277,6 +281,25 @@ Rules:
       ...opts.analysis.validation,
       marketGap: mutation.marketGap || opts.analysis.validation.marketGap,
     },
+    citations: {
+      ...opts.analysis.citations,
+      summary: mutation.summary ? {
+        recommendation: undefined,
+        openRisks: nullCitationArray((mutation.summary || currentLab.summary).openRisks.length),
+        nextMoves: nullCitationArray((mutation.summary || currentLab.summary).nextMoves.length),
+      } : opts.analysis.citations?.summary,
+      council: mutation.judge ? {
+        finalTake: undefined,
+        bullCase: nullCitationArray((mutation.judge || currentLab.council.judge!).bullCase.length),
+        bearCase: nullCitationArray((mutation.judge || currentLab.council.judge!).bearCase.length),
+        decidingFactors: nullCitationArray((mutation.judge || currentLab.council.judge!).decidingFactors.length),
+      } : opts.analysis.citations?.council,
+      validation: {
+        ...opts.analysis.citations?.validation,
+        marketGap: mutation.marketGap ? undefined : opts.analysis.citations?.validation?.marketGap,
+        marketSizing: mutation.marketSizing ? nullCitationArray(mutation.marketSizing.length) : opts.analysis.citations?.validation?.marketSizing,
+      },
+    },
     lab: {
       ...currentLab,
       council: {
@@ -346,6 +369,20 @@ Rules:
     monetization: mutation.monetization || opts.analysis.monetization,
     customerSegments: mutation.customerSegments || opts.analysis.customerSegments,
     distributionChannels: mutation.distributionChannels || opts.analysis.distributionChannels,
+    citations: {
+      ...opts.analysis.citations,
+      summary: mutation.summary ? {
+        recommendation: undefined,
+        openRisks: nullCitationArray((mutation.summary || currentLab.summary).openRisks.length),
+        nextMoves: nullCitationArray((mutation.summary || currentLab.summary).nextMoves.length),
+      } : opts.analysis.citations?.summary,
+      strategy: {
+        ...opts.analysis.citations?.strategy,
+        distributionChannels: mutation.distributionChannels
+          ? nullCitationArray((mutation.distributionChannels || opts.analysis.distributionChannels).length)
+          : opts.analysis.citations?.strategy?.distributionChannels,
+      },
+    },
     lab: {
       ...currentLab,
       summary: mutation.summary || currentLab.summary,

@@ -403,7 +403,7 @@ export const ChipScroll: React.FC = () => {
                                 </span>
                             </h2>
                             <p className="mt-4 md:mt-6 text-white/60 font-sans text-sm md:text-base lg:text-lg max-w-md mx-auto sm:mx-0">
-                                Where 50+ LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
+                                Where LSE students transform ideas <br className="hidden sm:block" /> into products at unprecedented speed.
                             </p>
                         </div>
                     </motion.div>

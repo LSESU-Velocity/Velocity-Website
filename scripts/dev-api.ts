@@ -5,6 +5,8 @@ import analyzeHandler from '../api/analyze.ts';
 import analyzeStreamHandler from '../api/analyze-stream.ts';
 import generateArtifactsHandler from '../api/generate-artifacts.ts';
 import mutateWidgetHandler from '../api/mutate-widget.ts';
+import automationIntakeChatHandler from '../api/automation-intake-chat.ts';
+import automationIntakeSubmitHandler from '../api/automation-intake-submit.ts';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
@@ -36,6 +38,14 @@ app.all('/api/generate-artifacts', async (req, res) => {
 
 app.all('/api/mutate-widget', async (req, res) => {
   await mutateWidgetHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-chat', async (req, res) => {
+  await automationIntakeChatHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-submit', async (req, res) => {
+  await automationIntakeSubmitHandler(req as any, res as any);
 });
 
 app.listen(port, () => {

@@ -1,14 +1,31 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { BackgroundGrid } from './components/ui/BackgroundGrid';
 import { Home } from './components/Home';
 import { Launchpad } from './components/Launchpad';
+import { LaunchpadSources } from './components/LaunchpadSources';
+import { AutomationIntake } from './components/AutomationIntake';
 import { Blog } from './components/Blog';
-import { Events } from './components/Events';
+import { LockedEventsPage } from './components/LockedEventsPage';
+import { LockedResourcePage } from './components/LockedResourcePage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { TermsOfService } from './components/TermsOfService';
+import { Resources } from './components/Resources';
+import { resourceCatalog } from './lib/resourceCatalog';
+import { ResourceDiscounts } from './components/ResourceDiscounts';
+import { ResourceTools } from './components/ResourceTools';
+import { ResourceTemplates } from './components/ResourceTemplates';
+import { ResourceCaseStudies } from './components/ResourceCaseStudies';
+
+const resourcePageComponents: Partial<Record<string, React.ComponentType>> = {
+  '/resources/blog': Blog,
+  '/resources/discounts': ResourceDiscounts,
+  '/resources/tools': ResourceTools,
+  '/resources/templates': ResourceTemplates,
+  '/resources/case-studies': ResourceCaseStudies,
+};
 
 const App: React.FC = () => {
   return (
@@ -22,8 +39,45 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/launchpad" element={<Launchpad />} />
-              <Route path="/events" element={<Events />} />
-              <Route path="/blog" element={<Blog />} />
+              <Route path="/launchpad/sources/:analysisId" element={<LaunchpadSources />} />
+              <Route path="/automation-intake" element={<AutomationIntake />} />
+              <Route path="/events" element={<LockedEventsPage />} />
+              <Route path="/resources" element={<Resources />} />
+              {resourceCatalog.map((resource) => {
+                const ResourcePage = resourcePageComponents[resource.path];
+                const isLocked = resource.status === 'locked';
+
+                return (
+                  <Route
+                    key={resource.path}
+                    path={resource.path}
+                    element={
+                      isLocked ? (
+                        <LockedResourcePage resourceLabel={resource.title} />
+                      ) : ResourcePage ? (
+                        <ResourcePage />
+                      ) : (
+                        <Navigate to="/resources" replace />
+                      )
+                    }
+                  />
+                );
+              })}
+              {resourceCatalog.flatMap((resource) =>
+                (resource.aliases ?? []).map((aliasPath) => (
+                  <Route
+                    key={aliasPath}
+                    path={aliasPath}
+                    element={
+                      resource.status === 'locked' ? (
+                        <LockedResourcePage resourceLabel={resource.title} />
+                      ) : (
+                        <Navigate to={resource.path} replace />
+                      )
+                    }
+                  />
+                ))
+              )}
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfService />} />
             </Routes>

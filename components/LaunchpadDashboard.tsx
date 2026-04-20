@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import {
     BarChart3,
+    BookOpenText,
     CheckCircle2,
     ChevronLeft,
     ChevronRight,
@@ -18,11 +20,12 @@ import {
     Target,
     Users,
 } from 'lucide-react';
-import type { AnalysisData, LabPhaseId, LabPromptHistoryEntry, WidgetTargetId } from '../lib/api';
+import type { AnalysisData, CitationRef, LabPhaseId, LabPromptHistoryEntry, SourceDocument, WidgetTargetId } from '../lib/api';
 import { Widget } from './LaunchpadWidgets';
 
 interface LaunchpadDashboardProps {
     data: AnalysisData | null;
+    analysisId?: string | null;
     showResults: boolean;
     onGenerateFounderAssets?: () => void;
     isGeneratingAssets?: boolean;
@@ -81,6 +84,25 @@ function formatCompactUsers(value: number) {
     if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
     if (value >= 1_000) return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}K`;
     return `${value}`;
+}
+
+function normalizeExternalHref(value?: string | null) {
+    const trimmed = (value || '')
+        .trim()
+        .replace(/^["'([{<]+/, '')
+        .replace(/[>"')\]}.,;:!?]+$/g, '');
+
+    if (!trimmed) {
+        return null;
+    }
+
+    try {
+        const withScheme = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+        const url = new URL(withScheme);
+        return url.protocol === 'http:' || url.protocol === 'https:' ? url.toString() : null;
+    } catch {
+        return null;
+    }
 }
 
 function getCouncilVerdictMeta(verdict: 'bull' | 'bear' | 'split') {
@@ -261,6 +283,7 @@ function getLatestPromptForPhase(promptHistory: LabPromptHistoryEntry[], phaseId
 
 export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
     data,
+    analysisId = null,
     showResults,
     onGenerateFounderAssets,
     isGeneratingAssets = false,
@@ -345,11 +368,86 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         ratio: item.ratio,
     }));
     const activeCompetitor = competitorList.length ? competitorList[competitorIndex % competitorList.length] : null;
-    const activeCompetitorWebsite = activeCompetitor?.website
-        ? (/^https?:\/\//i.test(activeCompetitor.website) ? activeCompetitor.website : `https://${activeCompetitor.website}`)
-        : null;
+    const activeCompetitorWebsite = normalizeExternalHref(activeCompetitor?.website);
     const activeMonetization = monetizationItems[monetizationIndex % monetizationItems.length];
     const activePromptStep = promptSteps[promptChainIndex % promptSteps.length];
+    const sourceDocuments = Array.isArray(data.sources.documents) ? data.sources.documents : [];
+    const sourceMap = new Map<string, SourceDocument>(sourceDocuments.map((source) => [source.id, source]));
+    const sourcesPageHref = analysisId ? `/launchpad/sources/${analysisId}` : null;
+    const hasGroundedSources = Boolean(
+        sourceDocuments.length ||
+        data.validation.marketReports.length ||
+        data.sources.market.length ||
+        data.sources.competitors.length ||
+        (data.sources.channels?.length || 0),
+    );
+    const activeCompetitorCitation = activeCompetitor && competitorList.length
+        ? data.citations?.validation?.competitors?.[competitorIndex % competitorList.length] || null
+        : null;
+
+    const renderCitationLinks = (citation?: CitationRef | null, keyPrefix = 'citation') => {
+        if (!citation?.sourceIds?.length) {
+            return null;
+        }
+
+        const badgeClass = 'rounded-full border border-sky-400/20 bg-sky-400/[0.08] px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-sky-200';
+
+        return (
+            <span className="ml-1.5 inline-flex flex-wrap items-center gap-1 align-super">
+                {citation.sourceIds.map((sourceId, index) => {
+                    const source = sourceMap.get(sourceId);
+
+                    const sourceHref = normalizeExternalHref(source?.url);
+
+                    if (sourceHref) {
+                        return (
+                            <a
+                                key={`${keyPrefix}-${sourceId}-${index}`}
+                                href={sourceHref}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title={`${sourceId}: ${source.title}`}
+                                aria-label={`Open source ${sourceId}: ${source.title}`}
+                                className={badgeClass}
+                            >
+                                {sourceId}
+                            </a>
+                        );
+                    }
+
+                    if (sourcesPageHref) {
+                        return (
+                            <Link
+                                key={`${keyPrefix}-${sourceId}-${index}`}
+                                to={sourcesPageHref}
+                                title={`View saved sources for ${sourceId}`}
+                                className={badgeClass}
+                            >
+                                {sourceId}
+                            </Link>
+                        );
+                    }
+
+                    return (
+                        <span
+                            key={`${keyPrefix}-${sourceId}-${index}`}
+                            className={badgeClass}
+                        >
+                            {sourceId}
+                        </span>
+                    );
+                })}
+            </span>
+        );
+    };
+
+    const getChannelHref = (channelName: string, index: number) => {
+        const citedUrl = data.citations?.strategy?.distributionChannels?.[index]?.sourceIds
+            ?.map((sourceId) => normalizeExternalHref(sourceMap.get(sourceId)?.url))
+            .find((value): value is string => Boolean(value));
+
+        return citedUrl || `https://google.com/search?q=${encodeURIComponent(channelName)}`;
+    };
 
     const downloadHtml = (html: string, filename: string) => {
         const blob = new Blob([html], { type: 'text/html' });
@@ -538,10 +636,45 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                 >
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
                         <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
-                            <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/35">Launchpad Lab</p>
-                            <h2 className="mt-3 font-sans text-3xl font-black tracking-tight text-white md:text-4xl">{data.identity.name}</h2>
-                            <p className="mt-3 font-sans text-base italic text-white/70">{data.identity.tagline}</p>
-                            <p className="mt-5 max-w-3xl font-sans text-sm leading-relaxed text-white/80">{lab.summary.recommendation}</p>
+                            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                                <div>
+                                    <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/35">Launchpad Lab</p>
+                                    <h2 className="mt-3 font-sans text-3xl font-black tracking-tight text-white md:text-4xl">{data.identity.name}</h2>
+                                    <p className="mt-3 font-sans text-base italic text-white/70">{data.identity.tagline}</p>
+                                    <p className="mt-5 max-w-3xl font-sans text-sm leading-relaxed text-white/80">
+                                        {lab.summary.recommendation}
+                                        {renderCitationLinks(data.citations?.summary?.recommendation, 'summary-recommendation')}
+                                    </p>
+                                </div>
+
+                                {sourcesPageHref && hasGroundedSources ? (
+                                    <div className="relative z-[60] flex flex-col items-start gap-2 pointer-events-auto md:items-end">
+                                        <div className="flex flex-wrap gap-2">
+                                            {sourceDocuments.length > 0 && (
+                                                <span className="rounded-full border border-sky-400/20 bg-sky-400/[0.08] px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-sky-200">
+                                                    {sourceDocuments.length} sources
+                                                </span>
+                                            )}
+                                            {(data.sources.queries?.length || 0) > 0 && (
+                                                <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-white/60">
+                                                    {data.sources.queries!.length} searches
+                                                </span>
+                                            )}
+                                        </div>
+                                        <a
+                                            href={sourcesPageHref}
+                                            onClick={(event) => {
+                                                event.stopPropagation();
+                                                window.location.assign(sourcesPageHref);
+                                            }}
+                                            className="relative z-[70] inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.18em] text-white hover:bg-white/10"
+                                        >
+                                            <BookOpenText className="w-3.5 h-3.5" />
+                                            Sources Page
+                                        </a>
+                                    </div>
+                                ) : null}
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-1">
@@ -552,11 +685,17 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                             </div>
                             <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5">
                                 <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/35">Open risk</p>
-                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">{lab.summary.openRisks[0]}</p>
+                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">
+                                    {lab.summary.openRisks[0]}
+                                    {renderCitationLinks(data.citations?.summary?.openRisks?.[0], 'summary-open-risk')}
+                                </p>
                             </div>
                             <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-5">
                                 <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/35">Next move</p>
-                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">{lab.summary.nextMoves[0]}</p>
+                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">
+                                    {lab.summary.nextMoves[0]}
+                                    {renderCitationLinks(data.citations?.summary?.nextMoves?.[0], 'summary-next-move')}
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -580,6 +719,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                     <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/40">Final judge</p>
                                     <p className={`mt-3 font-sans text-lg leading-relaxed ${councilVerdictMeta.tone}`}>
                                         {councilJudge.finalTake}
+                                        {renderCitationLinks(data.citations?.council?.finalTake, 'council-final-take')}
                                     </p>
                                 </div>
                                 <div className={`inline-flex items-center rounded-full border px-3 py-1 font-sans text-[10px] uppercase tracking-[0.18em] ${councilVerdictMeta.badge}`}>
@@ -595,7 +735,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                     {councilJudge.bullCase.map((item, index) => (
                                         <div key={`bull-${index}`} className="flex items-start gap-3">
                                             <div className="mt-2 h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                                            <p className="font-sans text-sm text-gray-100 leading-relaxed">{item}</p>
+                                            <p className="font-sans text-sm text-gray-100 leading-relaxed">
+                                                {item}
+                                                {renderCitationLinks(data.citations?.council?.bullCase?.[index], `council-bull-${index}`)}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>
@@ -607,7 +750,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                     {councilJudge.bearCase.map((item, index) => (
                                         <div key={`bear-${index}`} className="flex items-start gap-3">
                                             <div className="mt-2 h-1.5 w-1.5 rounded-full bg-amber-400" />
-                                            <p className="font-sans text-sm text-gray-100 leading-relaxed">{item}</p>
+                                            <p className="font-sans text-sm text-gray-100 leading-relaxed">
+                                                {item}
+                                                {renderCitationLinks(data.citations?.council?.bearCase?.[index], `council-bear-${index}`)}
+                                            </p>
                                         </div>
                                     ))}
                                 </div>
@@ -620,7 +766,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                 {councilJudge.decidingFactors.map((item, index) => (
                                     <div key={`judge-factor-${index}`} className="flex items-start gap-3">
                                         <div className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-300" />
-                                        <p className="font-sans text-sm text-gray-200 leading-relaxed">{item}</p>
+                                        <p className="font-sans text-sm text-gray-200 leading-relaxed">
+                                            {item}
+                                            {renderCitationLinks(data.citations?.council?.decidingFactors?.[index], `council-factor-${index}`)}
+                                        </p>
                                     </div>
                                 ))}
                             </div>
@@ -653,6 +802,47 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                         </div>
                                     ))}
                                 </div>
+
+                                {data.validation.marketReports.length > 0 && (
+                                    <div className="mt-5 space-y-3">
+                                        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/40">Grounded reports</p>
+                                        {data.validation.marketReports.slice(0, 2).map((report, index) => (
+                                            normalizeExternalHref(report.url) ? (
+                                            <a
+                                                key={`${report.title}-${index}`}
+                                                href={normalizeExternalHref(report.url)!}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 hover:bg-white/[0.05]"
+                                            >
+                                                <div className="min-w-0">
+                                                    <p className="font-sans text-[10px] uppercase tracking-[0.16em] text-white/35">{report.publisher}</p>
+                                                    <p className="mt-1 font-sans text-sm leading-relaxed text-white">
+                                                        {report.title}
+                                                        {renderCitationLinks(data.citations?.validation?.marketReports?.[index], `market-report-${index}`)}
+                                                    </p>
+                                                    <p className="mt-2 font-sans text-xs leading-relaxed text-white/50">{report.keyStat}</p>
+                                                </div>
+                                                <ExternalLink className="mt-0.5 h-4 w-4 shrink-0 text-sky-300" />
+                                            </a>
+                                            ) : (
+                                            <div
+                                                key={`${report.title}-${index}`}
+                                                className="flex items-start justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3"
+                                            >
+                                                <div className="min-w-0">
+                                                    <p className="font-sans text-[10px] uppercase tracking-[0.16em] text-white/35">{report.publisher}</p>
+                                                    <p className="mt-1 font-sans text-sm leading-relaxed text-white">
+                                                        {report.title}
+                                                        {renderCitationLinks(data.citations?.validation?.marketReports?.[index], `market-report-${index}`)}
+                                                    </p>
+                                                    <p className="mt-2 font-sans text-xs leading-relaxed text-white/50">{report.keyStat}</p>
+                                                </div>
+                                            </div>
+                                            )
+                                        ))}
+                                    </div>
+                                )}
 
                                 <p className="font-sans text-[11px] text-white/35 mt-5 leading-relaxed">
                                     Directional sizing that can now be revised with explicit scenario prompts instead of staying fixed.
@@ -772,7 +962,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                                     <div className="flex items-start justify-between gap-3">
                                                         <div>
                                                             <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/35">Top competitor</p>
-                                                            <p className="font-sans text-xl font-black tracking-tight text-white mt-2">{activeCompetitor.name}</p>
+                                                            <p className="font-sans text-xl font-black tracking-tight text-white mt-2">
+                                                                {activeCompetitor.name}
+                                                                {renderCitationLinks(activeCompetitorCitation, 'active-competitor')}
+                                                            </p>
                                                         </div>
                                                         {activeCompetitorWebsite && (
                                                             <a
@@ -790,11 +983,17 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                                     <div className="space-y-4 mt-5">
                                                         <div className="rounded-2xl border border-emerald-500/15 bg-emerald-500/[0.05] p-4">
                                                             <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-emerald-300 mb-2">Strength</p>
-                                                            <p className="font-sans text-sm text-white/90 leading-relaxed">{activeCompetitor.strength}</p>
+                                                            <p className="font-sans text-sm text-white/90 leading-relaxed">
+                                                                {activeCompetitor.strength}
+                                                                {renderCitationLinks(activeCompetitorCitation, 'active-competitor-strength')}
+                                                            </p>
                                                         </div>
                                                         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                                                             <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/35 mb-2">Weakness</p>
-                                                            <p className="font-sans text-sm text-white/80 leading-relaxed">{activeCompetitor.weakness}</p>
+                                                            <p className="font-sans text-sm text-white/80 leading-relaxed">
+                                                                {activeCompetitor.weakness}
+                                                                {renderCitationLinks(activeCompetitorCitation, 'active-competitor-weakness')}
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </motion.div>
@@ -810,7 +1009,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                                 <div className="w-2 h-2 rounded-full bg-emerald-400" />
                                                 <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-emerald-300">Your Gap</p>
                                             </div>
-                                            <p className="font-sans text-sm text-white leading-relaxed">{marketGap.yourGap}</p>
+                                            <p className="font-sans text-sm text-white leading-relaxed">
+                                                {marketGap.yourGap}
+                                                {renderCitationLinks(data.citations?.validation?.marketGap, 'market-gap')}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -940,7 +1142,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                     {data.distributionChannels.slice(0, 5).map((channel, index) => (
                                         <motion.a
                                             key={`${channel.name}-${index}`}
-                                            href={`https://google.com/search?q=${encodeURIComponent(channel.name)}`}
+                                            href={getChannelHref(channel.name, index)}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             initial={{ opacity: 0, x: -10 }}
@@ -950,7 +1152,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                         >
                                             <div className="flex items-center gap-3 min-w-0">
                                                 <div className="h-2.5 w-2.5 rounded-full bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.45)]" />
-                                                <p className="font-sans text-[0.95rem] font-bold text-white truncate">{channel.name}</p>
+                                                <p className="font-sans text-[0.95rem] font-bold text-white truncate">
+                                                    {channel.name}
+                                                    {renderCitationLinks(data.citations?.strategy?.distributionChannels?.[index], `distribution-channel-${index}`)}
+                                                </p>
                                             </div>
                                             <div className="flex items-center gap-3 shrink-0">
                                                 <span className="rounded-full border border-white/10 bg-black/40 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.14em] text-white/65">

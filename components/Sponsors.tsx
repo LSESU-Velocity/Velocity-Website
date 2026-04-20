@@ -8,8 +8,13 @@ const sponsors = [
   { name: 'Lovable', logo: '/sponsors/lovable-logo.jpg' },
 ];
 
+const MARQUEE_COPIES = 4;
+
 export const Sponsors: React.FC = () => {
-  const loopedSponsors = [...sponsors, ...sponsors];
+  const loopedSponsors = Array.from(
+    { length: sponsors.length * MARQUEE_COPIES },
+    (_, index) => sponsors[index % sponsors.length]
+  );
 
   return (
     <section className="py-20 md:py-28 relative bg-velocity-black overflow-hidden">
@@ -30,13 +35,13 @@ export const Sponsors: React.FC = () => {
       {/* Marquee */}
       <div className="relative">
         {/* Left fade */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-r from-velocity-black via-velocity-black/80 to-transparent z-10 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-56 bg-gradient-to-r from-velocity-black via-velocity-black to-transparent z-10 pointer-events-none" />
         {/* Right fade */}
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-40 bg-gradient-to-l from-velocity-black via-velocity-black/80 to-transparent z-10 pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-32 md:w-56 bg-gradient-to-l from-velocity-black via-velocity-black to-transparent z-10 pointer-events-none" />
 
         <motion.div
-          className="flex items-center"
-          animate={{ x: ['0%', '-50%'] }}
+          className="flex w-max items-center"
+          animate={{ x: ['0%', `-${100 / MARQUEE_COPIES}%`] }}
           transition={{
             duration: 28,
             repeat: Infinity,
@@ -46,7 +51,7 @@ export const Sponsors: React.FC = () => {
           {loopedSponsors.map((sponsor, i) => (
             <div
               key={i}
-              className="shrink-0 flex items-center justify-center h-20 md:h-24 px-8 md:px-14"
+              className="shrink-0 flex items-center justify-center h-20 md:h-24 px-10 md:px-16"
             >
               <img
                 src={sponsor.logo}

@@ -95,6 +95,10 @@ export function getSavedAnalyses(): SavedLaunchpadAnalysis[] {
   }
 }
 
+export function getSavedAnalysisById(id: string): SavedLaunchpadAnalysis | null {
+  return getSavedAnalyses().find((record) => record.id === id) || null;
+}
+
 function writeSavedAnalyses(records: SavedLaunchpadAnalysis[]) {
   if (!isBrowser()) {
     return;

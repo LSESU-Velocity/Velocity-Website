@@ -324,7 +324,7 @@ export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('
       ? await generateArtifacts(apiKey, DEFAULT_MODEL, createArtifactContextFromRawAnalysis(idea, rawAnalysis))
       : {};
 
-    const dto = DashboardDTOSchema.parse(toDashboardDTO(rawAnalysis, artifacts, lab));
+    const dto = DashboardDTOSchema.parse(toDashboardDTO(rawAnalysis, artifacts, lab, graphOutcome.research));
     return { success: true, data: dto };
   } catch (err: unknown) {
     const message = getErrorMessage(err);

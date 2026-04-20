@@ -60,11 +60,6 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
             return;
         }
 
-        if (!trimmed.startsWith('AIza')) {
-            setError('That doesn\u2019t look like a Google AI Studio key (should start with AIza)');
-            return;
-        }
-
         setError(null);
         onSubmit(trimmed, remember);
         setApiKey('');
@@ -140,7 +135,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                                 setApiKey(e.target.value);
                                                 setError(null);
                                             }}
-                                            placeholder="AIza..."
+                                            placeholder="Paste your Gemini API key"
                                             className={`w-full px-4 py-3 bg-black/30 border ${error ? 'border-red-500' : 'border-white/10'
                                                 } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-mono text-sm rounded-md`}
                                             autoFocus

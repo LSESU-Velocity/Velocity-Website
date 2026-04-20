@@ -6,11 +6,13 @@ import { Annotation, StateGraph } from '@langchain/langgraph';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { z } from 'zod';
 import { createModel } from './model.js';
+import { runGroundedResearch, type GroundedResearchPacket } from './research.js';
 import {
   RawAnalysisSchema,
   IdeaIntakeSchema,
   AnalystMemoSchema,
   CouncilJudgeSchema,
+  CitationRefSchema,
   type RawAnalysis,
   type IdeaIntake,
   type AnalystMemo,
@@ -36,6 +38,7 @@ const GraphState = Annotation.Root({
   bullMemo: Annotation<AnalystMemo | null>({ reducer: (_, v) => v, default: () => null }),
   bearMemo: Annotation<AnalystMemo | null>({ reducer: (_, v) => v, default: () => null }),
   judgeMemo: Annotation<CouncilJudge | null>({ reducer: (_, v) => v, default: () => null }),
+  research: Annotation<GroundedResearchPacket | null>({ reducer: (_, v) => v, default: () => null }),
   synthesis: Annotation<RawAnalysis | null>({ reducer: (_, v) => v, default: () => null }),
   result: Annotation<RawAnalysis | null>({ reducer: (_, v) => v, default: () => null }),
   error: Annotation<string | null>({ reducer: (_, v) => v, default: () => null }),
@@ -55,12 +58,23 @@ const AnalystMemoLooseSchema = z.object({
   recommendation: z.string(),
 });
 
+const LooseCitationRefSchema = z.union([
+  CitationRefSchema,
+  z.array(z.string()).min(1).max(4),
+]);
+
 const CouncilJudgeLooseSchema = z.object({
   verdict: z.enum(['bull', 'bear', 'split']),
   finalTake: z.string(),
   bullCase: z.array(z.string()).min(1).max(2),
   bearCase: z.array(z.string()).min(1).max(2),
   decidingFactors: z.array(z.string()).min(1).max(2),
+  citations: z.object({
+    finalTake: LooseCitationRefSchema.optional(),
+    bullCase: z.array(LooseCitationRefSchema).optional(),
+    bearCase: z.array(LooseCitationRefSchema).optional(),
+    decidingFactors: z.array(LooseCitationRefSchema).optional(),
+  }).optional(),
 });
 
 function shortenText(value: string, maxLength: number): string {
@@ -90,6 +104,70 @@ function normalizeMemoList(items: string[], maxItems: number, maxLength: number,
   }
 
   return fallbackItems.map((item) => shortenText(item, maxLength)).slice(0, maxItems);
+}
+
+function normalizeCitationRef(
+  citation: z.infer<typeof CitationRefSchema> | string[] | undefined,
+  allowedSourceIds: Set<string>,
+): z.infer<typeof CitationRefSchema> | undefined {
+  const sourceIds = Array.from(
+    new Set(
+      (Array.isArray(citation) ? citation : citation?.sourceIds || [])
+        .filter((sourceId): sourceId is string => typeof sourceId === 'string' && allowedSourceIds.has(sourceId)),
+    ),
+  ).slice(0, 4);
+
+  if (!sourceIds.length) {
+    return undefined;
+  }
+
+  return { sourceIds };
+}
+
+function coerceCitationRef(
+  citation: z.infer<typeof CitationRefSchema> | string[] | undefined,
+): z.infer<typeof CitationRefSchema> | undefined {
+  const sourceIds = Array.from(
+    new Set(
+      (Array.isArray(citation) ? citation : citation?.sourceIds || [])
+        .filter((sourceId): sourceId is string => typeof sourceId === 'string' && sourceId.trim().length > 0),
+    ),
+  ).slice(0, 4);
+
+  if (!sourceIds.length) {
+    return undefined;
+  }
+
+  return { sourceIds };
+}
+
+function normalizeCitationArray(
+  citations: Array<z.infer<typeof CitationRefSchema> | string[]> | undefined,
+  allowedSourceIds: Set<string>,
+): z.infer<typeof CitationRefSchema>[] | undefined {
+  if (!citations?.length) {
+    return undefined;
+  }
+
+  const normalized = citations
+    .map((citation) => normalizeCitationRef(citation, allowedSourceIds))
+    .filter((citation): citation is z.infer<typeof CitationRefSchema> => Boolean(citation));
+
+  return normalized.length ? normalized : undefined;
+}
+
+function coerceCitationArray(
+  citations: Array<z.infer<typeof CitationRefSchema> | string[]> | undefined,
+): z.infer<typeof CitationRefSchema>[] | undefined {
+  if (!citations?.length) {
+    return undefined;
+  }
+
+  const normalized = citations
+    .map((citation) => coerceCitationRef(citation))
+    .filter((citation): citation is z.infer<typeof CitationRefSchema> => Boolean(citation));
+
+  return normalized.length ? normalized : undefined;
 }
 
 function normalizeAnalystMemo(
@@ -137,7 +215,57 @@ function normalizeCouncilJudge(rawJudge: z.infer<typeof CouncilJudgeLooseSchema>
     bullCase: normalizeMemoList(rawJudge.bullCase, 2, 140, fallback.bullCase),
     bearCase: normalizeMemoList(rawJudge.bearCase, 2, 140, fallback.bearCase),
     decidingFactors: normalizeMemoList(rawJudge.decidingFactors, 2, 140, fallback.decidingFactors),
+    citations: rawJudge.citations ? {
+      finalTake: coerceCitationRef(rawJudge.citations.finalTake),
+      bullCase: coerceCitationArray(rawJudge.citations.bullCase),
+      bearCase: coerceCitationArray(rawJudge.citations.bearCase),
+      decidingFactors: coerceCitationArray(rawJudge.citations.decidingFactors),
+    } : undefined,
   });
+}
+
+function sanitizeCouncilJudge(judge: CouncilJudge, allowedSourceIds: Set<string>): CouncilJudge {
+  return CouncilJudgeSchema.parse({
+    ...judge,
+    ...(judge.citations ? {
+      citations: {
+        finalTake: normalizeCitationRef(judge.citations.finalTake, allowedSourceIds),
+        bullCase: normalizeCitationArray(judge.citations.bullCase, allowedSourceIds),
+        bearCase: normalizeCitationArray(judge.citations.bearCase, allowedSourceIds),
+        decidingFactors: normalizeCitationArray(judge.citations.decidingFactors, allowedSourceIds),
+      },
+    } : {}),
+  });
+}
+
+function sanitizeRawAnalysis(raw: RawAnalysis, allowedSourceIds: Set<string>): RawAnalysis {
+  return RawAnalysisSchema.parse({
+    ...raw,
+    ...(raw.citations ? {
+      citations: {
+        market: raw.citations.market ? {
+          keyInsights: normalizeCitationArray(raw.citations.market.keyInsights, allowedSourceIds),
+          risks: normalizeCitationArray(raw.citations.market.risks, allowedSourceIds),
+          whatToTestFirst: normalizeCitationArray(raw.citations.market.whatToTestFirst, allowedSourceIds),
+        } : undefined,
+        competitors: normalizeCitationArray(raw.citations.competitors, allowedSourceIds),
+        distributionChannels: normalizeCitationArray(raw.citations.distributionChannels, allowedSourceIds),
+        marketGap: normalizeCitationRef(raw.citations.marketGap, allowedSourceIds),
+      },
+    } : {}),
+  });
+}
+
+function buildGroundedResearchContext(research: GroundedResearchPacket | null): string {
+  if (!research) {
+    return 'No grounded web research was available.';
+  }
+
+  return `SOURCE CATALOG:
+${research.sourceCatalog}
+
+GROUNDED RESEARCH:
+${research.evidenceDigest}`;
 }
 
 async function classifyIdea(state: GraphStateType): Promise<Partial<GraphStateType>> {
@@ -547,6 +675,35 @@ async function normalizeIntake(state: GraphStateType): Promise<Partial<GraphStat
   return { intake };
 }
 
+async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  state.onProgress?.({ node: 'researchWeb', status: 'running' });
+
+  try {
+    const intake = state.intake;
+    if (!intake) {
+      throw new Error('No intake available for grounded research.');
+    }
+
+    const research = await runGroundedResearch({
+      apiKey: state.apiKey,
+      idea: intake.idea,
+      intake: {
+        domain: intake.domain,
+        ideaType: intake.ideaType,
+        targetUser: intake.targetUser,
+        coreProblem: intake.coreProblem,
+      },
+    });
+
+    state.onProgress?.({ node: 'researchWeb', status: 'done' });
+    return { research };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    state.onProgress?.({ node: 'researchWeb', status: 'error', error: msg });
+    return { error: msg, failedNode: 'researchWeb' };
+  }
+}
+
 async function runBullAnalyst(state: GraphStateType): Promise<Partial<GraphStateType>> {
   state.onProgress?.({ node: 'runBullAnalyst', status: 'running' });
 
@@ -575,6 +732,8 @@ Domain: ${intake.domain}
 Type: ${intake.ideaType}
 Target User: ${intake.targetUser}
 Core Problem: ${intake.coreProblem}
+
+${buildGroundedResearchContext(state.research)}
 
 Focus on timing, differentiation, and why this wedge could be attractive right now.`),
     ]);
@@ -619,6 +778,8 @@ Type: ${intake.ideaType}
 Target User: ${intake.targetUser}
 Core Problem: ${intake.coreProblem}
 
+${buildGroundedResearchContext(state.research)}
+
 Focus on saturation, retention, distribution difficulty, weak differentiation, or regulatory trouble.`),
     ]);
 
@@ -657,6 +818,8 @@ Your job is to decide who is more right overall right now, while explicitly noti
 - bullCase: 1-2 specific areas where the bull is right
 - bearCase: 1-2 specific areas where the bear is right
 - decidingFactors: 1-2 concrete tests, signals, or facts that should settle the disagreement
+- citations.finalTake: 1-4 source IDs from the source catalog when the final take depends on grounded research
+- citations.bullCase / citations.bearCase / citations.decidingFactors: aligned citation arrays using only source IDs from the source catalog
 
 Do not invent a third viewpoint. Adjudicate only from the evidence and assumptions in the two memos.
 Keep every line concrete, concise, and non-repetitive.`),
@@ -677,10 +840,17 @@ BEAR MEMO:
 - Key points: ${bearMemo?.keyPoints.join('; ') || 'Unavailable'}
 - Opportunities: ${bearMemo?.opportunities.join('; ') || 'Unavailable'}
 - Risks: ${bearMemo?.risks.join('; ') || 'Unavailable'}
-- Recommendation: ${bearMemo?.recommendation || 'Unavailable'}`),
+- Recommendation: ${bearMemo?.recommendation || 'Unavailable'}
+
+${buildGroundedResearchContext(state.research)}
+
+Only cite IDs that exist in the source catalog.`),
     ]);
 
-    const judge = normalizeCouncilJudge(rawJudge);
+    const judge = sanitizeCouncilJudge(
+      normalizeCouncilJudge(rawJudge),
+      new Set((state.research?.sources || []).map((source) => source.id)),
+    );
 
     state.onProgress?.({ node: 'runCouncilJudge', status: 'done' });
     return { judgeMemo: judge };
@@ -730,12 +900,25 @@ INTAKE CLASSIFICATION:
 - Target User: ${intake.targetUser}
 - Core Problem: ${intake.coreProblem}
 
+${buildGroundedResearchContext(state.research)}
+
+Citation rules:
+- Use only source IDs from the source catalog.
+- Fill citations.market.keyInsights / risks / whatToTestFirst with arrays aligned by index where grounded support exists.
+- Fill citations.competitors aligned by competitor index where grounded support exists.
+- Fill citations.distributionChannels aligned by channel index where grounded support exists.
+- Fill citations.marketGap when the positioning statement depends on grounded evidence.
+- If a field is creative or inferential and cannot be tied to a source, omit its citation entry rather than inventing one.
+
 Use the council to make the final analysis sharper.
 Treat the judge as the arbitration layer for the final recommendation, while keeping the upside and downside distinct instead of collapsing them into generic advice.`),
     ]);
 
+    const allowedSourceIds = new Set((state.research?.sources || []).map((source) => source.id));
+    const normalizedSynthesis = sanitizeRawAnalysis(synthesis, allowedSourceIds);
+
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'done' });
-    return { synthesis };
+    return { synthesis: normalizedSynthesis };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'error', error: msg });
@@ -772,13 +955,14 @@ function shouldContinueAfterIntake(state: GraphStateType): string | string[] {
   if (state.interrupt) {
     return '__end__';
   }
-  return ['runBullAnalyst', 'runBearAnalyst'];
+  return 'researchWeb';
 }
 
 function buildAnalysisGraph() {
   const graph = new StateGraph(GraphState)
     .addNode('classifyIdea', classifyIdea)
     .addNode('normalizeIntake', normalizeIntake)
+    .addNode('researchWeb', researchWeb)
     .addNode('runBullAnalyst', runBullAnalyst)
     .addNode('runBearAnalyst', runBearAnalyst)
     .addNode('runCouncilJudge', runCouncilJudge)
@@ -787,8 +971,10 @@ function buildAnalysisGraph() {
     .addEdge('__start__', 'classifyIdea')
     .addEdge('classifyIdea', 'normalizeIntake')
     .addConditionalEdges('normalizeIntake', shouldContinueAfterIntake, [
-      'runBullAnalyst', 'runBearAnalyst', 'qaAndRepair', '__end__',
+      'researchWeb', 'runBullAnalyst', 'runBearAnalyst', 'qaAndRepair', '__end__',
     ])
+    .addEdge('researchWeb', 'runBullAnalyst')
+    .addEdge('researchWeb', 'runBearAnalyst')
     .addEdge(['runBullAnalyst', 'runBearAnalyst'], 'runCouncilJudge')
     .addEdge('runCouncilJudge', 'synthesizeOpportunity')
     .addEdge('synthesizeOpportunity', 'qaAndRepair')
@@ -825,6 +1011,7 @@ export interface GraphRunResult {
   data: RawAnalysis;
   intake: IdeaIntake | null;
   council: CouncilMemos;
+  research: GroundedResearchPacket | null;
 }
 
 export interface GraphRunError {
@@ -898,6 +1085,7 @@ export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> 
         bear: finalState.bearMemo,
         judge: finalState.judgeMemo,
       },
+      research: finalState.research,
     };
   }
 
@@ -923,6 +1111,7 @@ export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> 
             bear: retryState.bearMemo,
             judge: retryState.judgeMemo,
           },
+          research: retryState.research,
         };
       }
 
@@ -944,6 +1133,7 @@ export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> 
 export const GRAPH_NODES = [
   'classifyIdea',
   'normalizeIntake',
+  'researchWeb',
   'runBullAnalyst',
   'runBearAnalyst',
   'runCouncilJudge',

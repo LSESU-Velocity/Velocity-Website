@@ -7,6 +7,65 @@ import { z } from 'zod';
 
 // --- Sub-schemas (building blocks) ---
 
+export const CitationRefSchema = z.object({
+  sourceIds: z.array(z.string().regex(/^S\d+$/)).min(1).max(4),
+});
+
+export type CitationRef = z.infer<typeof CitationRefSchema>;
+
+export const SourceCategorySchema = z.enum(['market', 'competitor', 'channel', 'report', 'general']);
+export type SourceCategory = z.infer<typeof SourceCategorySchema>;
+
+export const SourceDocumentSchema = z.object({
+  id: z.string().regex(/^S\d+$/),
+  title: z.string(),
+  url: z.string(),
+  domain: z.string(),
+  snippet: z.string().max(280).optional(),
+  categories: z.array(SourceCategorySchema).min(1),
+});
+
+export type SourceDocument = z.infer<typeof SourceDocumentSchema>;
+
+export const SourceLinkSchema = z.object({
+  id: z.string().regex(/^S\d+$/).optional(),
+  name: z.string(),
+  url: z.string(),
+});
+
+export type SourceLink = z.infer<typeof SourceLinkSchema>;
+
+export const MarketReportSchema = z.object({
+  title: z.string(),
+  publisher: z.string(),
+  keyStat: z.string(),
+  url: z.string(),
+  sourceIds: z.array(z.string().regex(/^S\d+$/)).min(1).max(4).optional(),
+});
+
+export type MarketReport = z.infer<typeof MarketReportSchema>;
+
+export const GroundedResearchSchema = z.object({
+  summary: z.string().max(320),
+  marketInsights: z.array(z.string().max(140)).min(3).max(5),
+  risks: z.array(z.string().max(140)).min(2).max(4),
+  whatToTestFirst: z.array(z.string().max(140)).min(2).max(4),
+  competitors: z.array(z.object({
+    name: z.string().max(40),
+    website: z.string().max(80),
+    strength: z.string().max(120),
+    weakness: z.string().max(120),
+  })).min(3).max(5),
+  distributionChannels: z.array(z.object({
+    name: z.string().max(40),
+    type: z.string().max(20),
+    members: z.string().max(25),
+  })).min(5).max(7),
+  marketReports: z.array(MarketReportSchema.omit({ sourceIds: true })).max(4),
+});
+
+export type GroundedResearch = z.infer<typeof GroundedResearchSchema>;
+
 export const MonetizationSchema = z.object({
   model: z.string().describe('e.g. Freemium, Subscription (max 30 chars)'),
   pricing: z.string().describe('e.g. $29/mo, Free tier available (max 50 chars)'),
@@ -90,6 +149,12 @@ export const CouncilJudgeSchema = z.object({
   bullCase: z.array(z.string().max(140)).min(1).max(2),
   bearCase: z.array(z.string().max(140)).min(1).max(2),
   decidingFactors: z.array(z.string().max(140)).min(1).max(2),
+  citations: z.object({
+    finalTake: CitationRefSchema.optional(),
+    bullCase: z.array(CitationRefSchema).optional(),
+    bearCase: z.array(CitationRefSchema).optional(),
+    decidingFactors: z.array(CitationRefSchema).optional(),
+  }).optional(),
 });
 
 export type CouncilJudge = z.infer<typeof CouncilJudgeSchema>;
@@ -176,6 +241,16 @@ export const RawAnalysisSchema = z.object({
   marketGap: MarketGapSchema,
   promptChain: z.array(PromptChainStepSchema).min(3).max(3),
   distributionChannels: z.array(DistributionChannelSchema).min(5),
+  citations: z.object({
+    market: z.object({
+      keyInsights: z.array(CitationRefSchema).optional(),
+      risks: z.array(CitationRefSchema).optional(),
+      whatToTestFirst: z.array(CitationRefSchema).optional(),
+    }).optional(),
+    competitors: z.array(CitationRefSchema).optional(),
+    distributionChannels: z.array(CitationRefSchema).optional(),
+    marketGap: CitationRefSchema.optional(),
+  }).optional(),
 });
 
 export type RawAnalysis = z.infer<typeof RawAnalysisSchema>;
@@ -204,8 +279,47 @@ export const DashboardDTOSchema = z.object({
     industryInsights: MarketInsightsSchema,
     competitors: z.number(),
     competitorList: z.array(CompetitorSchema),
+    marketReports: z.array(MarketReportSchema).default([]),
     marketGap: MarketGapSchema,
   }),
+  sources: z.object({
+    market: z.array(SourceLinkSchema).default([]),
+    competitors: z.array(SourceLinkSchema).default([]),
+    channels: z.array(SourceLinkSchema).default([]),
+    queries: z.array(z.string()).default([]),
+    documents: z.array(SourceDocumentSchema).default([]),
+  }).default({
+    market: [],
+    competitors: [],
+    channels: [],
+    queries: [],
+    documents: [],
+  }),
+  citations: z.object({
+    summary: z.object({
+      recommendation: CitationRefSchema.optional(),
+      openRisks: z.array(CitationRefSchema.nullable()).optional(),
+      nextMoves: z.array(CitationRefSchema.nullable()).optional(),
+    }).optional(),
+    council: z.object({
+      finalTake: CitationRefSchema.optional(),
+      bullCase: z.array(CitationRefSchema.nullable()).optional(),
+      bearCase: z.array(CitationRefSchema.nullable()).optional(),
+      decidingFactors: z.array(CitationRefSchema.nullable()).optional(),
+    }).optional(),
+    validation: z.object({
+      marketInsights: z.array(CitationRefSchema.nullable()).optional(),
+      risks: z.array(CitationRefSchema.nullable()).optional(),
+      whatToTestFirst: z.array(CitationRefSchema.nullable()).optional(),
+      competitors: z.array(CitationRefSchema.nullable()).optional(),
+      marketGap: CitationRefSchema.optional(),
+      marketSizing: z.array(CitationRefSchema.nullable()).optional(),
+      marketReports: z.array(CitationRefSchema.nullable()).optional(),
+    }).optional(),
+    strategy: z.object({
+      distributionChannels: z.array(CitationRefSchema.nullable()).optional(),
+    }).optional(),
+  }).optional(),
   customerSegments: z.array(CustomerSegmentSchema),
   promptChain: z.array(PromptChainStepSchema),
   artifacts: ArtifactBundleSchema,

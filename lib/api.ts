@@ -13,6 +13,19 @@ export interface LoginResponse {
     error?: string;
 }
 
+export interface SourceDocument {
+    id: string;
+    title: string;
+    url: string;
+    domain: string;
+    snippet?: string;
+    categories: Array<'market' | 'competitor' | 'channel' | 'report' | 'general'>;
+}
+
+export interface CitationRef {
+    sourceIds: string[];
+}
+
 export interface AnalysisData {
     identity: {
         name: string;
@@ -64,6 +77,7 @@ export interface AnalysisData {
             publisher: string;
             keyStat: string;
             url: string;
+            sourceIds?: string[];
         }>;
         marketGap: {
             xAxis: { label: string; low: string; high: string };
@@ -78,8 +92,36 @@ export interface AnalysisData {
         };
     };
     sources: {
-        market: Array<{ name: string; url: string }>;
-        competitors: Array<{ name: string; url: string }>;
+        market: Array<{ id?: string; name: string; url: string }>;
+        competitors: Array<{ id?: string; name: string; url: string }>;
+        channels?: Array<{ id?: string; name: string; url: string }>;
+        queries?: string[];
+        documents?: SourceDocument[];
+    };
+    citations?: {
+        summary?: {
+            recommendation?: CitationRef;
+            openRisks?: Array<CitationRef | null>;
+            nextMoves?: Array<CitationRef | null>;
+        };
+        council?: {
+            finalTake?: CitationRef;
+            bullCase?: Array<CitationRef | null>;
+            bearCase?: Array<CitationRef | null>;
+            decidingFactors?: Array<CitationRef | null>;
+        };
+        validation?: {
+            marketInsights?: Array<CitationRef | null>;
+            risks?: Array<CitationRef | null>;
+            whatToTestFirst?: Array<CitationRef | null>;
+            competitors?: Array<CitationRef | null>;
+            marketGap?: CitationRef;
+            marketSizing?: Array<CitationRef | null>;
+            marketReports?: Array<CitationRef | null>;
+        };
+        strategy?: {
+            distributionChannels?: Array<CitationRef | null>;
+        };
     };
     customerSegments: Array<{
         segment: string;
@@ -121,6 +163,12 @@ export interface AnalysisData {
                 bullCase: string[];
                 bearCase: string[];
                 decidingFactors: string[];
+                citations?: {
+                    finalTake?: CitationRef;
+                    bullCase?: CitationRef[];
+                    bearCase?: CitationRef[];
+                    decidingFactors?: CitationRef[];
+                };
             };
         };
         summary: {
@@ -496,7 +544,7 @@ export async function generateAnalysisStream(
                 questions: mockQuestions,
             });
         }
-        const fakeNodes = ['classifyIdea', 'normalizeIntake', 'runBullAnalyst', 'runBearAnalyst', 'runCouncilJudge', 'synthesizeOpportunity', 'qaAndRepair'];
+        const fakeNodes = ['classifyIdea', 'normalizeIntake', 'researchWeb', 'runBullAnalyst', 'runBearAnalyst', 'runCouncilJudge', 'synthesizeOpportunity', 'qaAndRepair'];
         for (const node of fakeNodes) {
             onProgress({ node, status: 'running' });
             await new Promise(r => setTimeout(r, 200));
