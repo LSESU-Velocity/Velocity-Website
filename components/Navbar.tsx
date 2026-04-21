@@ -52,6 +52,9 @@ export const Navbar: React.FC = () => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimer = useRef<number | null>(null);
 
+  const isPathWithin = (basePath: string) =>
+    location.pathname === basePath || location.pathname.startsWith(`${basePath}/`);
+
   // Track scroll position to show/hide navbar
   useEffect(() => {
     const handleScrollVisibility = () => {
@@ -105,34 +108,31 @@ export const Navbar: React.FC = () => {
     } else {
       navigate('/');
     }
-    setActiveSection('Overview');
   };
 
   const isActive = (item: NavItem) => {
     if (item.isSection) {
       return activeSection === item.label;
     }
+
     if (item.path === '/') {
-      return location.pathname === '/' && activeSection === 'Overview';
+      return location.pathname === '/';
     }
+
+    if (item.path === '/launchpad') {
+      return isPathWithin('/launchpad');
+    }
+
+    if (item.path === '/automation-intake') {
+      return isPathWithin('/automation-intake');
+    }
+
     if (item.children) {
-      return location.pathname.startsWith(item.path);
+      return isPathWithin(item.path);
     }
+
     return location.pathname === item.path;
   };
-
-  // Set initial active state
-  useEffect(() => {
-    if (location.pathname === '/launchpad') {
-      setActiveSection('Launchpad');
-    } else if (location.pathname === '/events') {
-      setActiveSection('Events');
-    } else if (location.pathname.startsWith('/resources')) {
-      setActiveSection('Resources');
-    } else if (location.pathname === '/') {
-      setActiveSection('Overview');
-    }
-  }, [location.pathname]);
 
   // Close dropdown when route changes
   useEffect(() => {
@@ -208,7 +208,6 @@ export const Navbar: React.FC = () => {
                 >
                   <Link
                     to={item.path}
-                    onClick={() => setActiveSection(item.label)}
                     className={`relative inline-flex items-center gap-1 px-4 py-2 font-sans text-sm transition-colors ${
                       isActive(item)
                         ? 'text-white'
@@ -265,7 +264,6 @@ export const Navbar: React.FC = () => {
               <Link
                 key={item.label}
                 to={item.path}
-                onClick={() => setActiveSection(item.label)}
                 className={`relative px-4 py-2 font-sans text-sm transition-colors ${
                   isActive(item)
                     ? 'text-white'

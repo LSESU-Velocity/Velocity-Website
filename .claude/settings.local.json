@@ -8,7 +8,14 @@
       "Bash(npm install *)",
       "Bash(echo \"--exit $?--\")",
       "Bash(npx vite *)",
-      "Bash(xargs grep *)"
+      "Bash(xargs grep *)",
+      "Bash(tasklist //FI \"IMAGENAME eq node.exe\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173 --max-time 3)",
+      "Bash(curl -s http://localhost:5173/automation-intake)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s \"http://localhost:5173/index.tsx\")",
+      "Bash(curl -s \"http://localhost:5173/components/Launchpad.tsx\")",
+      "Bash(curl -s \"http://localhost:5173/components/AutomationIntake.tsx\")"
     ]
   }
 }

@@ -68,7 +68,6 @@ export const Launchpad: React.FC = () => {
   const [savedAnalyses, setSavedAnalyses] = useState<SavedLaunchpadAnalysis[]>([]);
   const [activeSavedId, setActiveSavedId] = useState<string | null>(null);
 
-  const [loadingPercent, setLoadingPercent] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [activeNode, setActiveNode] = useState<string | null>(null);
   const [completedNodes, setCompletedNodes] = useState<string[]>([]);
@@ -127,17 +126,18 @@ export const Launchpad: React.FC = () => {
 
   const TOTAL_NODES = 8;
 
-  // Compute progress from completed nodes
+  const loadingPercent = isGenerating
+    ? Math.min(Math.floor((completedNodes.length / TOTAL_NODES) * 99), 99)
+    : 0;
+
+  // Clear transient progress state when a run ends. Depends only on
+  // isGenerating — including completedNodes here loops, because resetting it
+  // creates a new [] reference that re-fires the effect.
   useEffect(() => {
-    if (!isGenerating) {
-      setLoadingPercent(0);
-      setActiveNode(null);
-      setCompletedNodes([]);
-      return;
-    }
-    const pct = Math.min(Math.floor((completedNodes.length / TOTAL_NODES) * 99), 99);
-    setLoadingPercent(pct);
-  }, [isGenerating, completedNodes]);
+    if (isGenerating) return;
+    setActiveNode(null);
+    setCompletedNodes((prev) => (prev.length === 0 ? prev : []));
+  }, [isGenerating]);
 
   const handleKeySubmit = (key: string, remember: boolean) => {
     storeKey(key, remember);
