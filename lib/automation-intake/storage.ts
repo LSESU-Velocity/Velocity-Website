@@ -5,7 +5,7 @@
  */
 import { AutomationIntakeDraftSchema, type AutomationIntakeDraft } from './schemas.js';
 
-const STORAGE_KEY = 'automation_intake_draft_v1';
+const STORAGE_KEY = 'automation_intake_draft_v2';
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';

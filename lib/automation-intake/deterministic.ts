@@ -36,7 +36,7 @@ const CONTACT_CONSENT_PATTERN =
 
 export function rebuildDeterministicDraft(draft: AutomationIntakeDraft): AutomationIntakeDraft {
   const { answers, skips } = extractChatState(draft);
-  const rebuilt = buildDraftFromChatState(draft.sessionId, answers, skips);
+  const rebuilt = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
   return {
     ...rebuilt,
     finalBrief: draft.finalBrief,
@@ -90,7 +90,7 @@ export function replaceDeterministicAnswer(
     skips.delete(stepId);
   }
 
-  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips);
+  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
   const assistantMessage = getTrailingAssistantMessage(nextDraft.transcript, nextDraft.currentStep);
 
   return {
@@ -120,7 +120,7 @@ export function advanceDeterministicDraftFromAnswer(
   const catchUpMode = isRequiredCatchUpState(draft);
 
   if (answerIsSkip && catchUpMode) {
-    const unchanged = buildDraftFromChatState(draft.sessionId, answers, skips);
+    const unchanged = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
     const assistantMessage = getTrailingAssistantMessage(unchanged.transcript, unchanged.currentStep);
     return {
       draft: unchanged,
@@ -141,7 +141,7 @@ export function advanceDeterministicDraftFromAnswer(
     skips.delete(draft.currentStep);
   }
 
-  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips);
+  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
   const assistantMessage = getTrailingAssistantMessage(nextDraft.transcript, nextDraft.currentStep);
 
   return {
@@ -200,6 +200,7 @@ function buildDraftFromChatState(
   sessionId: string,
   answers: ChatAnswers,
   skips: Set<StepId>,
+  previousTranscript: ChatMessage[] = [],
 ): AutomationIntakeDraft {
   let next = createInitialDraft(sessionId);
 
@@ -228,7 +229,14 @@ function buildDraftFromChatState(
     next.currentStep = getFirstIncompleteStep(answers, skips);
   }
 
-  next.transcript = buildTranscript(answers, skips, next.currentStep, next.status, missing);
+  next.transcript = buildTranscript(
+    answers,
+    skips,
+    next.currentStep,
+    next.status,
+    missing,
+    previousTranscript,
+  );
   return next;
 }
 
@@ -238,20 +246,34 @@ function buildTranscript(
   currentStep: StepId,
   status: AutomationIntakeDraft['status'],
   missing: string[],
+  previousTranscript: ChatMessage[] = [],
 ): ChatMessage[] {
   const transcript: ChatMessage[] = [];
 
+  const reusePromptId = (stepId: StepId): string | undefined =>
+    previousTranscript.find(
+      (m) => m.role === 'assistant' && m.stepId === stepId && !m.isFollowUp,
+    )?.id;
+
+  const reuseUserId = (stepId: StepId): string | undefined =>
+    previousTranscript.find((m) => m.role === 'user' && m.stepId === stepId)?.id;
+
+  const reuseFollowUpId = (): string | undefined =>
+    previousTranscript.find((m) => m.role === 'assistant' && m.isFollowUp)?.id;
+
   for (const step of STEP_DEFINITIONS) {
-    transcript.push(makeAssistantMessage(step.assistantPrompt, step.id));
+    transcript.push(
+      makeAssistantMessage(step.assistantPrompt, step.id, false, reusePromptId(step.id)),
+    );
 
     const answer = answers[step.id];
     if (answer?.trim()) {
-      transcript.push(makeUserMessage(answer, step.id));
+      transcript.push(makeUserMessage(answer, step.id, reuseUserId(step.id)));
       continue;
     }
 
     if (skips.has(step.id)) {
-      transcript.push(makeUserMessage('skip', step.id));
+      transcript.push(makeUserMessage('skip', step.id, reuseUserId(step.id)));
       continue;
     }
 
@@ -266,6 +288,7 @@ function buildTranscript(
           : buildCatchUpPrompt(currentStep, missing),
         currentStep,
         true,
+        reuseFollowUpId(),
       ),
     );
   }
@@ -313,18 +336,19 @@ function extractChatState(draft: AutomationIntakeDraft): {
   for (const message of draft.transcript) {
     if (message.role !== 'user' || !message.stepId) continue;
     const stepId = message.stepId;
+    // chatAnswers is authoritative — the transcript is derived from it. Only fall
+    // back to transcript content for legacy drafts where chatAnswers is missing
+    // a step; otherwise this loop would re-append every saved answer on each call.
+    if (answers[stepId]?.trim() || skips.has(stepId)) continue;
     const value = sanitizeFreeText(message.content, { maxLength: 2000 });
     if (!value) continue;
 
-    if (OPT_OUT_PATTERN.test(value) && !answers[stepId]) {
+    if (OPT_OUT_PATTERN.test(value)) {
       skips.add(stepId);
       continue;
     }
 
-    answers[stepId] = answers[stepId]
-      ? `${answers[stepId]}\n${value}`
-      : value;
-    skips.delete(stepId);
+    answers[stepId] = value;
   }
 
   return { answers, skips };
@@ -334,9 +358,10 @@ function makeAssistantMessage(
   content: string,
   stepId: StepId,
   isFollowUp = false,
+  reuseId?: string,
 ): ChatMessage {
   return {
-    id: makeId(),
+    id: reuseId ?? makeId(),
     role: 'assistant',
     content,
     createdAt: nowIso(),
@@ -345,9 +370,9 @@ function makeAssistantMessage(
   };
 }
 
-function makeUserMessage(content: string, stepId: StepId): ChatMessage {
+function makeUserMessage(content: string, stepId: StepId, reuseId?: string): ChatMessage {
   return {
-    id: makeId(),
+    id: reuseId ?? makeId(),
     role: 'user',
     content,
     createdAt: nowIso(),

@@ -24,6 +24,8 @@ function formatTranscript(messages: ChatMessage[]): ChatMessage[] {
   return messages.filter((message) => message.content && message.content.trim().length > 0);
 }
 
+const TYPING_INDICATOR_MS = 650;
+
 export const AutomationIntakeChat: React.FC<Props> = ({
   draft,
   onDraftChange,
@@ -32,8 +34,10 @@ export const AutomationIntakeChat: React.FC<Props> = ({
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [editingStepId, setEditingStepId] = useState<StepId | null>(null);
+  const [isAssistantTyping, setIsAssistantTyping] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const typingTimerRef = useRef<number | null>(null);
 
   const messages = formatTranscript(draft.transcript);
   const readyForReview = draft.status === 'review';
@@ -42,7 +46,7 @@ export const AutomationIntakeChat: React.FC<Props> = ({
   useEffect(() => {
     if (!listRef.current) return;
     listRef.current.scrollTop = listRef.current.scrollHeight;
-  }, [messages.length]);
+  }, [messages.length, isAssistantTyping]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -50,6 +54,15 @@ export const AutomationIntakeChat: React.FC<Props> = ({
     el.style.height = 'auto';
     el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
   }, [input, editingStepId]);
+
+  useEffect(
+    () => () => {
+      if (typingTimerRef.current !== null) {
+        window.clearTimeout(typingTimerRef.current);
+      }
+    },
+    [],
+  );
 
   const startEditing = (stepId: StepId) => {
     setEditingStepId(stepId);
@@ -87,10 +100,23 @@ export const AutomationIntakeChat: React.FC<Props> = ({
       ? replaceDeterministicAnswer(draft, editingStepId, answer)
       : advanceDeterministicDraftFromAnswer({ draft, answer });
 
+    const transcriptGrew = result.draft.transcript.length > draft.transcript.length;
+
     onDraftChange(result.draft);
     setInput('');
     setEditingStepId(null);
     setError(null);
+
+    if (transcriptGrew) {
+      if (typingTimerRef.current !== null) {
+        window.clearTimeout(typingTimerRef.current);
+      }
+      setIsAssistantTyping(true);
+      typingTimerRef.current = window.setTimeout(() => {
+        setIsAssistantTyping(false);
+        typingTimerRef.current = null;
+      }, TYPING_INDICATOR_MS);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -109,8 +135,11 @@ export const AutomationIntakeChat: React.FC<Props> = ({
       >
         <div className="p-5 md:p-8 space-y-5">
           <AnimatePresence initial={false}>
-            {messages.map((msg) => {
+            {messages.map((msg, idx) => {
               const editable = msg.role === 'user' && Boolean(msg.stepId);
+              const isLastAssistant =
+                msg.role === 'assistant' && idx === messages.length - 1;
+              const showAsTyping = isAssistantTyping && isLastAssistant;
               return (
                 <motion.div
                   key={msg.id}
@@ -155,8 +184,28 @@ export const AutomationIntakeChat: React.FC<Props> = ({
                             ? 'linear-gradient(135deg, #FF5A7A 0%, #FF1F1F 60%, #C70F0F 100%)'
                             : undefined,
                       }}
+                      aria-label={showAsTyping ? 'Velocity Intake is typing' : undefined}
+                      role={showAsTyping ? 'status' : undefined}
                     >
-                      {msg.content}
+                      {showAsTyping ? (
+                        <span className="inline-flex items-center gap-1.5 align-middle">
+                          {[0, 1, 2].map((i) => (
+                            <motion.span
+                              key={i}
+                              className="block w-1.5 h-1.5 rounded-full bg-white/60"
+                              animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                ease: 'easeInOut',
+                                delay: i * 0.15,
+                              }}
+                            />
+                          ))}
+                        </span>
+                      ) : (
+                        msg.content
+                      )}
                     </div>
                   </div>
                 </motion.div>
