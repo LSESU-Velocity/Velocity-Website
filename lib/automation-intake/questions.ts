@@ -28,7 +28,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       "Let's start with the basics. What does your business do, and who do you serve? A few sentences is plenty — include the company name and your website if you can.",
     formHelper: 'Company name, website, sector, team size, what you do, who you serve.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'systems',
@@ -48,7 +48,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       "What's one recurring workflow you'd most like help with? A short name is fine — we'll dig into the details next.",
     formHelper: 'Name the primary workflow you want to scope.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'workflow-ownership',
@@ -58,7 +58,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       'Who owns that workflow day-to-day, and how often does it run?',
     formHelper: 'Role or person + rough frequency.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'workflow-tools',
@@ -68,7 +68,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       'Which tools does it touch? Could be anything from Gmail and Sheets to a CRM or an internal system.',
     formHelper: 'Every app involved, even if only once.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'workflow-steps',
@@ -98,7 +98,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       "Are you using any AI tools today — ChatGPT, Copilot, Gemini, a writing assistant? Where have they genuinely helped?",
     formHelper: 'Tools you use, where they help, rough maturity level.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'ai-non-use',
@@ -108,7 +108,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       "Where would AI obviously help but you haven't adopted it yet? What's blocking it — data sensitivity, approvals, integration pain, cost, or just time?",
     formHelper: "Areas you'd want AI to help with, and the blockers in the way.",
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'constraints',
@@ -118,7 +118,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       'Any constraints we should know about? Sensitive data categories, compliance rules, required approvals, or integrations that are off-limits.',
     formHelper: 'Sensitive data, approval needs, compliance notes, integration limits.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'goals',
@@ -128,7 +128,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     assistantPrompt:
       'If this goes well, what changes for your team in the next quarter? Concrete metrics are great, but anything directional is fine too.',
     formHelper: 'Outcomes, success metrics, timeline, preferred project shape.',
-    allowsFollowUp: false,
+    allowsFollowUp: true,
   },
   {
     id: 'contact',

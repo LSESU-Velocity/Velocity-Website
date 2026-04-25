@@ -396,6 +396,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
             <span className="ml-1.5 inline-flex flex-wrap items-center gap-1 align-super">
                 {citation.sourceIds.map((sourceId, index) => {
                     const source = sourceMap.get(sourceId);
+                    const sourceTitle = source?.title ?? 'source';
 
                     const sourceHref = normalizeExternalHref(source?.url);
 
@@ -406,8 +407,8 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                 href={sourceHref}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                title={`${sourceId}: ${source.title}`}
-                                aria-label={`Open source ${sourceId}: ${source.title}`}
+                                title={`${sourceId}: ${sourceTitle}`}
+                                aria-label={`Open source ${sourceId}: ${sourceTitle}`}
                                 className={badgeClass}
                             >
                                 {sourceId}

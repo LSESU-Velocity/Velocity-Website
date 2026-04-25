@@ -7,7 +7,9 @@ import {
   getPreviousCompletedStep,
   isRequiredCatchUpState,
   replaceDeterministicAnswer,
+  withDeterministicScopeHint,
 } from '../../lib/automation-intake/deterministic';
+import { postIntakeChat, IntakeApiError } from '../../lib/automation-intake/client';
 import type {
   AutomationIntakeDraft,
   ChatMessage,
@@ -24,7 +26,12 @@ function formatTranscript(messages: ChatMessage[]): ChatMessage[] {
   return messages.filter((message) => message.content && message.content.trim().length > 0);
 }
 
-const TYPING_INDICATOR_MS = 650;
+function shouldUseLocalFallback(error: unknown): boolean {
+  return !(error instanceof IntakeApiError && error.status === 429);
+}
+
+const MIN_CHAT_REQUEST_GAP_MS = 1_650;
+const delay = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 export const AutomationIntakeChat: React.FC<Props> = ({
   draft,
@@ -34,10 +41,13 @@ export const AutomationIntakeChat: React.FC<Props> = ({
   const [input, setInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [editingStepId, setEditingStepId] = useState<StepId | null>(null);
-  const [isAssistantTyping, setIsAssistantTyping] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Optimistic copy of the user's message while the server call is in flight.
+  // Clears the moment the server response updates `draft.transcript`.
+  const [pendingUserText, setPendingUserText] = useState<string | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
-  const typingTimerRef = useRef<number | null>(null);
+  const lastChatRequestAtRef = useRef(0);
 
   const messages = formatTranscript(draft.transcript);
   const readyForReview = draft.status === 'review';
@@ -46,7 +56,7 @@ export const AutomationIntakeChat: React.FC<Props> = ({
   useEffect(() => {
     if (!listRef.current) return;
     listRef.current.scrollTop = listRef.current.scrollHeight;
-  }, [messages.length, isAssistantTyping]);
+  }, [messages.length, isSubmitting, pendingUserText]);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -54,15 +64,6 @@ export const AutomationIntakeChat: React.FC<Props> = ({
     el.style.height = 'auto';
     el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
   }, [input, editingStepId]);
-
-  useEffect(
-    () => () => {
-      if (typingTimerRef.current !== null) {
-        window.clearTimeout(typingTimerRef.current);
-      }
-    },
-    [],
-  );
 
   const startEditing = (stepId: StepId) => {
     setEditingStepId(stepId);
@@ -82,8 +83,10 @@ export const AutomationIntakeChat: React.FC<Props> = ({
     setError(null);
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+    if (isSubmitting) return;
+
     const answer = input.trim();
     if (!answer) return;
 
@@ -92,37 +95,71 @@ export const AutomationIntakeChat: React.FC<Props> = ({
       isRequiredCatchUpState(draft) &&
       /^(skip|pass|move on|no more)$/i.test(answer)
     ) {
-      setError("That detail is still required before review. Edit the earlier answer or reply with the missing information.");
+      setError(
+        "That detail is still required before review. Edit the earlier answer or reply with the missing information.",
+      );
       return;
     }
 
-    const result = editingStepId
-      ? replaceDeterministicAnswer(draft, editingStepId, answer)
-      : advanceDeterministicDraftFromAnswer({ draft, answer });
-
-    const transcriptGrew = result.draft.transcript.length > draft.transcript.length;
-
-    onDraftChange(result.draft);
-    setInput('');
-    setEditingStepId(null);
+    setIsSubmitting(true);
     setError(null);
+    // Show the user's message immediately so they aren't staring at an empty
+    // input while the server thinks.
+    if (!editingStepId) setPendingUserText(answer);
 
-    if (transcriptGrew) {
-      if (typingTimerRef.current !== null) {
-        window.clearTimeout(typingTimerRef.current);
+    try {
+      const elapsedSinceLastRequest = Date.now() - lastChatRequestAtRef.current;
+      if (
+        lastChatRequestAtRef.current > 0 &&
+        elapsedSinceLastRequest < MIN_CHAT_REQUEST_GAP_MS
+      ) {
+        await delay(MIN_CHAT_REQUEST_GAP_MS - elapsedSinceLastRequest);
       }
-      setIsAssistantTyping(true);
-      typingTimerRef.current = window.setTimeout(() => {
-        setIsAssistantTyping(false);
-        typingTimerRef.current = null;
-      }, TYPING_INDICATOR_MS);
+      lastChatRequestAtRef.current = Date.now();
+      const { draft: nextDraft } = await postIntakeChat({
+        draft,
+        answer,
+        editingStepId,
+      });
+      onDraftChange(nextDraft);
+      setInput('');
+      setEditingStepId(null);
+    } catch (err) {
+      if (shouldUseLocalFallback(err)) {
+        try {
+          const fallback = editingStepId
+            ? replaceDeterministicAnswer(draft, editingStepId, answer)
+            : advanceDeterministicDraftFromAnswer({ draft, answer });
+          const hintedFallback = editingStepId
+            ? fallback
+            : withDeterministicScopeHint(fallback, draft.currentStep, answer);
+          onDraftChange(hintedFallback.draft);
+          setInput('');
+          setEditingStepId(null);
+          return;
+        } catch (fallbackErr) {
+          console.warn(
+            'Automation intake local fallback failed:',
+            fallbackErr instanceof Error ? fallbackErr.message : 'unknown',
+          );
+        }
+      }
+
+      const message =
+        err instanceof IntakeApiError
+          ? err.message
+          : 'Unable to continue the conversation right now. Please try again.';
+      setError(message);
+    } finally {
+      setIsSubmitting(false);
+      setPendingUserText(null);
     }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSubmit();
+      void handleSubmit();
     }
   };
 
@@ -135,11 +172,8 @@ export const AutomationIntakeChat: React.FC<Props> = ({
       >
         <div className="p-5 md:p-8 space-y-5">
           <AnimatePresence initial={false}>
-            {messages.map((msg, idx) => {
+            {messages.map((msg) => {
               const editable = msg.role === 'user' && Boolean(msg.stepId);
-              const isLastAssistant =
-                msg.role === 'assistant' && idx === messages.length - 1;
-              const showAsTyping = isAssistantTyping && isLastAssistant;
               return (
                 <motion.div
                   key={msg.id}
@@ -160,7 +194,8 @@ export const AutomationIntakeChat: React.FC<Props> = ({
                           <button
                             type="button"
                             onClick={() => startEditing(msg.stepId!)}
-                            className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.22em] text-white/40 hover:text-white transition-colors"
+                            disabled={isSubmitting}
+                            className="inline-flex items-center gap-1 text-[10px] uppercase tracking-[0.22em] text-white/40 hover:text-white transition-colors disabled:opacity-40"
                           >
                             <Pencil className="w-3 h-3" />
                             Edit
@@ -184,33 +219,75 @@ export const AutomationIntakeChat: React.FC<Props> = ({
                             ? 'linear-gradient(135deg, #FF5A7A 0%, #FF1F1F 60%, #C70F0F 100%)'
                             : undefined,
                       }}
-                      aria-label={showAsTyping ? 'Velocity Intake is typing' : undefined}
-                      role={showAsTyping ? 'status' : undefined}
                     >
-                      {showAsTyping ? (
-                        <span className="inline-flex items-center gap-1.5 align-middle">
-                          {[0, 1, 2].map((i) => (
-                            <motion.span
-                              key={i}
-                              className="block w-1.5 h-1.5 rounded-full bg-white/60"
-                              animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
-                              transition={{
-                                duration: 1,
-                                repeat: Infinity,
-                                ease: 'easeInOut',
-                                delay: i * 0.15,
-                              }}
-                            />
-                          ))}
-                        </span>
-                      ) : (
-                        msg.content
-                      )}
+                      {msg.content}
                     </div>
                   </div>
                 </motion.div>
               );
             })}
+            {pendingUserText && (
+              <motion.div
+                key="pending-user"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="flex justify-end"
+              >
+                <div className="max-w-[80%]">
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 text-right mb-1.5">
+                    You
+                  </div>
+                  <div
+                    className="text-white px-5 py-3 text-sm leading-relaxed whitespace-pre-wrap shadow-[0_4px_30px_rgba(255,31,31,0.25)]"
+                    style={{
+                      borderRadius: '1.25rem',
+                      background:
+                        'linear-gradient(135deg, #FF5A7A 0%, #FF1F1F 60%, #C70F0F 100%)',
+                    }}
+                  >
+                    {pendingUserText}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+            {isSubmitting && (
+              <motion.div
+                key="pending"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="flex justify-start"
+              >
+                <div className="max-w-[85%]">
+                  <div className="text-[10px] uppercase tracking-[0.25em] text-white/40 mb-1.5">
+                    Velocity Intake
+                  </div>
+                  <div
+                    className="bg-black/50 border border-white/10 text-white/90 px-5 py-3 text-sm leading-relaxed"
+                    style={{ borderRadius: '1.25rem' }}
+                    aria-label="Velocity Intake is thinking"
+                    role="status"
+                  >
+                    <span className="inline-flex items-center gap-1.5 align-middle">
+                      {[0, 1, 2].map((i) => (
+                        <motion.span
+                          key={i}
+                          className="block w-1.5 h-1.5 rounded-full bg-white/60"
+                          animate={{ opacity: [0.3, 1, 0.3], y: [0, -2, 0] }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                            delay: i * 0.15,
+                          }}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>
@@ -242,7 +319,8 @@ export const AutomationIntakeChat: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={cancelEditing}
-                className="text-xs uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors"
+                disabled={isSubmitting}
+                className="text-xs uppercase tracking-[0.2em] text-white/50 hover:text-white transition-colors disabled:opacity-40"
               >
                 Cancel
               </button>
@@ -257,7 +335,7 @@ export const AutomationIntakeChat: React.FC<Props> = ({
             <button
               type="button"
               onClick={handleBack}
-              disabled={!previousCompletedStep}
+              disabled={!previousCompletedStep || isSubmitting}
               aria-label="Edit previous answer"
               className="shrink-0 inline-flex items-center justify-center w-10 h-10 border border-white/10 text-white/70 disabled:text-white/20 disabled:border-white/5 hover:border-white/20 hover:text-white transition-colors"
               style={{ borderRadius: '999px' }}
@@ -276,12 +354,13 @@ export const AutomationIntakeChat: React.FC<Props> = ({
               }
               rows={1}
               maxLength={2000}
+              disabled={isSubmitting}
               aria-label="Your answer"
-              className="flex-1 bg-transparent text-white placeholder-white/30 text-sm leading-relaxed resize-none focus:outline-none px-3 py-2 max-h-[180px]"
+              className="flex-1 bg-transparent text-white placeholder-white/30 text-sm leading-relaxed resize-none focus:outline-none px-3 py-2 max-h-[180px] disabled:opacity-60"
             />
             <button
               type="submit"
-              disabled={!input.trim()}
+              disabled={!input.trim() || isSubmitting}
               aria-label={editingStepId ? 'Save edited answer' : 'Send answer'}
               className="shrink-0 inline-flex items-center justify-center w-10 h-10 bg-velocity-red disabled:bg-white/10 disabled:text-white/30 text-white transition-colors"
               style={{ borderRadius: '999px' }}

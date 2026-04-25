@@ -41,3 +41,8 @@ secrets.json
 .env.local.personal
 .env.local.society
 .vercel
+
+# Local planning docs
+*plan.md
+*-plan.md
+plans/

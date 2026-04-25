@@ -8,7 +8,8 @@
     "dev:api": "tsx scripts/dev-api.ts",
     "build": "vite build",
     "build:api": "tsc --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "decrypt:intake": "tsx scripts/decrypt-intake.ts"
   },
   "dependencies": {
     "@langchain/core": "^1.1.39",

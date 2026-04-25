@@ -5,6 +5,7 @@
 import type {
   AutomationIntakeDraft,
   ChatResponse,
+  StepId,
   SubmissionMode,
   SubmitResponse,
 } from './schemas.js';
@@ -41,11 +42,19 @@ async function parseErrorMessage(response: Response, fallback: string): Promise<
 export async function postIntakeChat(args: {
   draft: AutomationIntakeDraft;
   answer: string;
+  editingStepId?: StepId | null;
 }): Promise<ChatResponse> {
+  const payload: {
+    draft: AutomationIntakeDraft;
+    answer: string;
+    editingStepId?: StepId;
+  } = { draft: args.draft, answer: args.answer };
+  if (args.editingStepId) payload.editingStepId = args.editingStepId;
+
   const response = await fetch('/api/automation-intake-chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ draft: args.draft, answer: args.answer }),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {

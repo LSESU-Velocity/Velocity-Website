@@ -144,6 +144,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
 }) => {
   const missing = useMemo(() => checkMinimumCompleteness(draft), [draft]);
   const readyToReview = missing.length === 0;
+  const [consentPhrase, setConsentPhrase] = useState(draft.contact.consent ? 'I consent' : '');
 
   const update = useCallback(
     (updater: (d: AutomationIntakeDraft) => AutomationIntakeDraft) => {
@@ -161,17 +162,24 @@ export const AutomationIntakeForm: React.FC<Props> = ({
       business: { ...d.business, toolStack: { ...d.business.toolStack, [key]: values } as ToolStack },
     }));
 
+  const createBlankWorkflow = (): Workflow => ({
+    id: makeId(),
+    name: '',
+    tools: [],
+    currentSteps: [],
+    painPoints: [],
+  });
+
+  const workflowsForRender: Workflow[] =
+    draft.workflows.length > 0
+      ? draft.workflows
+      : [{ id: 'primary-workflow-placeholder', name: '', tools: [], currentSteps: [], painPoints: [] }];
+
   const setWorkflow = (index: number, patch: Partial<Workflow>) =>
     update((d) => {
       const workflows = [...d.workflows];
       if (!workflows[index]) {
-        workflows[index] = {
-          id: makeId(),
-          name: '',
-          tools: [],
-          currentSteps: [],
-          painPoints: [],
-        };
+        workflows[index] = createBlankWorkflow();
       }
       workflows[index] = { ...workflows[index], ...patch };
       return { ...d, workflows };
@@ -182,15 +190,29 @@ export const AutomationIntakeForm: React.FC<Props> = ({
       if (d.workflows.length >= 3) return d;
       return {
         ...d,
-        workflows: [
-          ...d.workflows,
-          { id: makeId(), name: '', tools: [], currentSteps: [], painPoints: [] },
-        ],
+        workflows: [...d.workflows, createBlankWorkflow()],
       };
     });
 
   const removeWorkflow = (index: number) =>
     update((d) => ({ ...d, workflows: d.workflows.filter((_, i) => i !== index) }));
+
+  const setConsent = (consent: boolean) => {
+    setConsentPhrase(consent ? 'I consent' : '');
+    update((d) => ({ ...d, contact: { ...d.contact, consent } }));
+  };
+
+  const handleConsentPhraseChange = (value: string) => {
+    setConsentPhrase(value);
+    const normalized = value.trim().toLowerCase();
+    update((d) => ({
+      ...d,
+      contact: {
+        ...d.contact,
+        consent: normalized === 'i consent' || normalized === 'i agree',
+      },
+    }));
+  };
 
   const getStepIntro = (id: string) =>
     STEP_DEFINITIONS.find((s) => s.id === id)?.intro ?? '';
@@ -307,12 +329,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
           intro="The primary workflow we'll turn into a student project brief. Add more only if they're worth mentioning."
         />
         <div className="space-y-4">
-          {draft.workflows.length === 0 && (
-            <div className="text-sm text-white/50 italic">
-              Add at least one workflow. The first workflow you add is treated as the primary one to scope.
-            </div>
-          )}
-          {draft.workflows.map((w, idx) => (
+          {workflowsForRender.map((w, idx) => (
             <div
               key={w.id}
               className="p-4 bg-white/[0.02] border border-white/10 space-y-3"
@@ -390,9 +407,8 @@ export const AutomationIntakeForm: React.FC<Props> = ({
               )}
             </div>
           ))}
-          {draft.workflows.length < 3 && (() => {
-            const lastEmpty =
-              draft.workflows.length > 0 && !draft.workflows[draft.workflows.length - 1].name.trim();
+          {workflowsForRender.length < 3 && (() => {
+            const lastEmpty = !workflowsForRender[workflowsForRender.length - 1].name.trim();
             return (
               <div className="flex items-center gap-3 flex-wrap">
                 <button
@@ -608,18 +624,28 @@ export const AutomationIntakeForm: React.FC<Props> = ({
             type="checkbox"
             className="mt-0.5"
             checked={draft.contact.consent}
-            onChange={(e) =>
-              update((d) => ({ ...d, contact: { ...d.contact, consent: e.target.checked } }))
-            }
+            onChange={(e) => setConsent(e.target.checked)}
           />
           <span>
             I agree that Velocity can store this submission and contact me about this intake.
           </span>
         </label>
+        <Field
+          label="Consent phrase"
+          helper="Type I consent or tick the checkbox above."
+        >
+          <input
+            className={inputClass}
+            value={consentPhrase}
+            onChange={(e) => handleConsentPhraseChange(e.target.value)}
+            placeholder="I consent"
+            maxLength={40}
+          />
+        </Field>
       </section>
 
       {/* Footer */}
-      <div className="flex items-center justify-between gap-3 flex-wrap p-5 bg-white/[0.02] border border-white/10 backdrop-blur-sm">
+      <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 flex-wrap p-5 bg-black/85 border border-white/10 backdrop-blur-sm shadow-2xl shadow-black/40">
         <div className="text-sm text-white/60">
           {readyToReview
             ? 'Looks good — ready to review.'

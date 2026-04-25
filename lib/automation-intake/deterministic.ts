@@ -8,6 +8,10 @@ import {
 } from './questions.js';
 import { sanitizeFreeText } from './sanitize.js';
 import {
+  assessStepScope,
+  buildDeterministicScopeHint,
+} from './scope-quality.js';
+import {
   checkMinimumCompleteness,
   formatMissingRequirements,
   type AutomationIntakeDraft,
@@ -29,8 +33,14 @@ export interface DeterministicAdvanceResult {
   readyForReview: boolean;
 }
 
+/**
+ * Strict opt-out matcher. The phrase must be *essentially the entire message*
+ * (optionally with trailing punctuation) — otherwise a substantive reply like
+ * "No, we don't use AI yet because of compliance concerns" would short-circuit
+ * into a skip and drop the content.
+ */
 const OPT_OUT_PATTERN =
-  /^\s*(no+\b|nope|nah|stop\b|skip\b|done\b|end\b|that'?s? all|that'?s? it|nothing (else|more|to add)|no more|i'?m (good|done)|pass\b|leave (it|this)|move on)/i;
+  /^\s*(no+|nope|nah|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
 const CONTACT_CONSENT_PATTERN =
   /\b(i (agree|consent)|yes,?\s*(i )?(agree|consent)|consent (is )?ok|ok(ay)? to contact|you can contact me|happy for (you|velocity) to (contact me|store (this )?intake))\b/i;
 
@@ -90,7 +100,9 @@ export function replaceDeterministicAnswer(
     skips.delete(stepId);
   }
 
-  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
+  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript, {
+    editedStepId: stepId,
+  });
   const assistantMessage = getTrailingAssistantMessage(nextDraft.transcript, nextDraft.currentStep);
 
   return {
@@ -130,8 +142,16 @@ export function advanceDeterministicDraftFromAnswer(
   }
 
   if (answerIsSkip) {
-    delete answers[draft.currentStep];
-    skips.add(draft.currentStep);
+    // If the user already gave a substantive answer and is now saying "that's
+    // all" / "move on", preserve what they said. A skip only marks the step as
+    // genuinely skipped when there is no existing answer to keep.
+    const existing = answers[draft.currentStep];
+    if (existing?.trim()) {
+      skips.delete(draft.currentStep);
+    } else {
+      delete answers[draft.currentStep];
+      skips.add(draft.currentStep);
+    }
   } else {
     const existing = answers[draft.currentStep];
     const shouldAppend = catchUpMode && Boolean(existing?.trim());
@@ -148,6 +168,52 @@ export function advanceDeterministicDraftFromAnswer(
     draft: nextDraft,
     assistantMessage,
     readyForReview: nextDraft.status === 'review',
+  };
+}
+
+export function withDeterministicScopeHint(
+  result: DeterministicAdvanceResult,
+  answeredStepId: StepId,
+  rawAnswer: string,
+): DeterministicAdvanceResult {
+  const safeAnswer = sanitizeFreeText(rawAnswer, { maxLength: 2000 });
+  if (
+    !safeAnswer.trim() ||
+    OPT_OUT_PATTERN.test(safeAnswer) ||
+    result.readyForReview ||
+    !getStep(answeredStepId).allowsFollowUp ||
+    result.assistantMessage.isFollowUp
+  ) {
+    return result;
+  }
+
+  const answer = result.draft.chatAnswers[answeredStepId] ?? safeAnswer;
+  const quality = assessStepScope(answeredStepId, result.draft, answer);
+  const hint = buildDeterministicScopeHint(quality);
+  if (!hint) return result;
+
+  const assistantMessage: ChatMessage = {
+    ...result.assistantMessage,
+    content: `${hint}\n\n${result.assistantMessage.content}`,
+  };
+  const transcript = [...result.draft.transcript];
+  const lastAssistantIndex = (() => {
+    for (let i = transcript.length - 1; i >= 0; i -= 1) {
+      if (transcript[i]?.role === 'assistant') return i;
+    }
+    return -1;
+  })();
+
+  if (lastAssistantIndex >= 0) {
+    transcript[lastAssistantIndex] = assistantMessage;
+  } else {
+    transcript.push(assistantMessage);
+  }
+
+  return {
+    ...result,
+    draft: { ...result.draft, transcript },
+    assistantMessage,
   };
 }
 
@@ -201,6 +267,7 @@ function buildDraftFromChatState(
   answers: ChatAnswers,
   skips: Set<StepId>,
   previousTranscript: ChatMessage[] = [],
+  options: { editedStepId?: StepId | null } = {},
 ): AutomationIntakeDraft {
   let next = createInitialDraft(sessionId);
 
@@ -236,8 +303,65 @@ function buildDraftFromChatState(
     next.status,
     missing,
     previousTranscript,
+    options.editedStepId ?? null,
   );
   return next;
+}
+
+/**
+ * Helpers used by the assisted edit rebuild in engine.ts. Intentionally
+ * exported so engine.ts can share the same transcript/status/currentStep
+ * derivation the deterministic rebuild uses — the only divergence is the
+ * patch source (AI vs heuristic).
+ */
+export function extractChatStateForRebuild(draft: AutomationIntakeDraft): {
+  answers: ChatAnswers;
+  skips: Set<StepId>;
+} {
+  return extractChatState(draft);
+}
+
+export function resolveStatusAndStep(
+  draft: AutomationIntakeDraft,
+  answers: ChatAnswers,
+  skips: Set<StepId>,
+): { status: AutomationIntakeDraft['status']; currentStep: StepId; missing: string[] } {
+  const missing = checkMinimumCompleteness(draft);
+  const finishedCanonically = allCanonicalStepsCompleted(answers, skips);
+  if (finishedCanonically && missing.length === 0) {
+    return { status: 'review', currentStep: LAST_STEP, missing };
+  }
+  if (finishedCanonically) {
+    return { status: 'collecting', currentStep: mapMissingToStep(missing), missing };
+  }
+  return { status: 'collecting', currentStep: getFirstIncompleteStep(answers, skips), missing };
+}
+
+export function rebuildTranscriptFromState(
+  answers: ChatAnswers,
+  skips: Set<StepId>,
+  currentStep: StepId,
+  status: AutomationIntakeDraft['status'],
+  missing: string[],
+  previousTranscript: ChatMessage[],
+  editedStepId: StepId | null = null,
+): ChatMessage[] {
+  return buildTranscript(
+    answers,
+    skips,
+    currentStep,
+    status,
+    missing,
+    previousTranscript,
+    editedStepId,
+  );
+}
+
+export function trailingAssistantMessage(
+  transcript: ChatMessage[],
+  stepId: StepId,
+): ChatMessage {
+  return getTrailingAssistantMessage(transcript, stepId);
 }
 
 function buildTranscript(
@@ -247,36 +371,95 @@ function buildTranscript(
   status: AutomationIntakeDraft['status'],
   missing: string[],
   previousTranscript: ChatMessage[] = [],
+  editedStepId: StepId | null = null,
 ): ChatMessage[] {
   const transcript: ChatMessage[] = [];
+  const stepSections = indexReusableStepSections(previousTranscript);
+  const reusableTerminal = getReusableTerminalAssistant(previousTranscript);
 
-  const reusePromptId = (stepId: StepId): string | undefined =>
-    previousTranscript.find(
-      (m) => m.role === 'assistant' && m.stepId === stepId && !m.isFollowUp,
-    )?.id;
+  const synthPrompt = (stepId: StepId): ChatMessage => {
+    const existing = stepSections.get(stepId)?.find(
+      (message) => message.role === 'assistant' && !message.isFollowUp,
+    );
+    return makeAssistantMessage(
+      existing?.content ?? getStep(stepId).assistantPrompt,
+      stepId,
+      false,
+      existing?.id,
+    );
+  };
 
-  const reuseUserId = (stepId: StepId): string | undefined =>
-    previousTranscript.find((m) => m.role === 'user' && m.stepId === stepId)?.id;
+  const synthUser = (stepId: StepId, content: string): ChatMessage => {
+    const existing = stepSections.get(stepId)?.find((message) => message.role === 'user');
+    return makeUserMessage(content, stepId, existing?.id);
+  };
 
-  const reuseFollowUpId = (): string | undefined =>
-    previousTranscript.find((m) => m.role === 'assistant' && m.isFollowUp)?.id;
+  const materializeAnsweredSection = (
+    stepId: StepId,
+    answer: string,
+    section: ChatMessage[],
+  ): ChatMessage[] => {
+    const normalizedAnswer = answer.trim();
+    if (stepId === editedStepId) {
+      return [synthPrompt(stepId), synthUser(stepId, normalizedAnswer)];
+    }
+    if (section.length === 0) {
+      return [synthPrompt(stepId), synthUser(stepId, normalizedAnswer)];
+    }
+
+    const existingUserText = section
+      .filter((message) => message.role === 'user')
+      .map((message) => message.content.trim())
+      .filter(Boolean)
+      .join('\n');
+
+    if (existingUserText === normalizedAnswer) return section;
+    if (!existingUserText) return [...section, synthUser(stepId, normalizedAnswer)];
+
+    const appendedPrefix = `${existingUserText}\n`;
+    if (normalizedAnswer.startsWith(appendedPrefix)) {
+      const appended = normalizedAnswer.slice(appendedPrefix.length).trim();
+      if (appended) return [...section, makeUserMessage(appended, stepId)];
+      return section;
+    }
+
+    return [synthPrompt(stepId), synthUser(stepId, normalizedAnswer)];
+  };
+
+  const materializeSkippedSection = (
+    stepId: StepId,
+    section: ChatMessage[],
+  ): ChatMessage[] => {
+    if (stepId === editedStepId) {
+      return [synthPrompt(stepId), synthUser(stepId, 'skip')];
+    }
+    if (section.length === 0) {
+      return [synthPrompt(stepId), synthUser(stepId, 'skip')];
+    }
+
+    const hasSkipUser = section.some(
+      (message) =>
+        message.role === 'user' &&
+        OPT_OUT_PATTERN.test(sanitizeFreeText(message.content, { maxLength: 2000 })),
+    );
+    if (hasSkipUser) return section;
+    return [...section, synthUser(stepId, 'skip')];
+  };
 
   for (const step of STEP_DEFINITIONS) {
-    transcript.push(
-      makeAssistantMessage(step.assistantPrompt, step.id, false, reusePromptId(step.id)),
-    );
-
+    const section = stepSections.get(step.id) ?? [];
     const answer = answers[step.id];
     if (answer?.trim()) {
-      transcript.push(makeUserMessage(answer, step.id, reuseUserId(step.id)));
+      transcript.push(...materializeAnsweredSection(step.id, answer, section));
       continue;
     }
 
     if (skips.has(step.id)) {
-      transcript.push(makeUserMessage('skip', step.id, reuseUserId(step.id)));
+      transcript.push(...materializeSkippedSection(step.id, section));
       continue;
     }
 
+    transcript.push(synthPrompt(step.id));
     break;
   }
 
@@ -288,12 +471,65 @@ function buildTranscript(
           : buildCatchUpPrompt(currentStep, missing),
         currentStep,
         true,
-        reuseFollowUpId(),
+        reusableTerminal?.id,
       ),
     );
   }
 
   return transcript;
+}
+
+function indexReusableStepSections(previousTranscript: ChatMessage[]): Map<StepId, ChatMessage[]> {
+  const transcriptWithoutTerminal = stripReusableTerminalAssistant(previousTranscript);
+  const sections = new Map<StepId, ChatMessage[]>();
+
+  for (const message of transcriptWithoutTerminal) {
+    if (!message.stepId) continue;
+    const existing = sections.get(message.stepId) ?? [];
+    existing.push(message);
+    sections.set(message.stepId, existing);
+  }
+
+  return sections;
+}
+
+function stripReusableTerminalAssistant(previousTranscript: ChatMessage[]): ChatMessage[] {
+  if (previousTranscript.length === 0) return previousTranscript;
+  const last = previousTranscript[previousTranscript.length - 1];
+  if (isReusableTerminalAssistant(previousTranscript, last)) {
+    return previousTranscript.slice(0, -1);
+  }
+  return previousTranscript;
+}
+
+function getReusableTerminalAssistant(previousTranscript: ChatMessage[]): ChatMessage | undefined {
+  const last = previousTranscript[previousTranscript.length - 1];
+  return isReusableTerminalAssistant(previousTranscript, last) ? last : undefined;
+}
+
+function isReusableTerminalAssistant(
+  previousTranscript: ChatMessage[],
+  message: ChatMessage | undefined,
+): boolean {
+  if (!message || message.role !== 'assistant' || !message.isFollowUp) return false;
+  const promptedSteps = new Set(
+    previousTranscript
+      .filter(
+        (candidate) =>
+          candidate.role === 'assistant' && !candidate.isFollowUp && Boolean(candidate.stepId),
+      )
+      .map((candidate) => candidate.stepId!),
+  );
+  if (promptedSteps.size === STEP_DEFINITIONS.length) return true;
+  if (message.content === "That's everything I needed — hit 'Review submission' whenever you're ready.") {
+    return true;
+  }
+  return (
+    message.content.startsWith('Before review, I still need ') ||
+    message.content.startsWith('Almost there — could you add ') ||
+    message.content.startsWith('Still missing ') ||
+    message.content.startsWith('One last pass on ')
+  );
 }
 
 function buildCatchUpPrompt(currentStep: StepId, missing: string[]): string {
@@ -323,6 +559,8 @@ function hasCompletedStep(
 
 function mapMissingToStep(missing: string[]): StepId {
   if (missing.includes('business description')) return 'business';
+  if (missing.includes('primary workflow')) return 'workflow-name';
+  if (missing.includes('workflow detail')) return 'workflow-ownership';
   return 'contact';
 }
 
@@ -408,8 +646,8 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
       return { stepId, data: { toolStack: { other: tokens } } };
     }
     case 'workflow-name': {
-      const name = cleanWorkflowName(answer) ?? answer.slice(0, 120);
-      return { stepId, data: { name } };
+      const name = cleanWorkflowName(answer);
+      return name ? { stepId, data: { name } } : emptyPatch(stepId);
     }
     case 'workflow-ownership': {
       const frequency = answer.match(/\b(daily|weekly|monthly|quarterly|yearly|every [a-z]+|each [a-z]+)\b/i)?.[0];
@@ -489,7 +727,8 @@ function splitList(text: string): string[] {
 
 const JUNK_WORKFLOW_PATTERNS = [
   /^(yes|no|maybe|not sure|idk|i dont know|i don't know|um|uh|hmm|ok|okay|some|any|various|lots|many|a few|dunno|unknown)$/i,
-  /^(workflow|workflows|process|processes|things|stuff|tasks)$/i,
+  /^(it|this|that|same|something|anything|whatever)$/i,
+  /^(workflow|workflows|process|processes|things|stuff|same stuff|tasks)$/i,
 ];
 
 function cleanWorkflowName(raw: string): string | null {
@@ -504,9 +743,49 @@ function cleanWorkflowName(raw: string): string | null {
 }
 
 function pickTokens(text: string, max: number): string[] {
-  const matches = Array.from(
+  const knownTools: Array<[RegExp, string]> = [
+    [/\bgmail\b/i, 'Gmail'],
+    [/\boutlook\b/i, 'Outlook'],
+    [/\bslack\b/i, 'Slack'],
+    [/\bteams\b/i, 'Microsoft Teams'],
+    [/\bnotion\b/i, 'Notion'],
+    [/\basana\b/i, 'Asana'],
+    [/\btrello\b/i, 'Trello'],
+    [/\bjira\b/i, 'Jira'],
+    [/\blinear\b/i, 'Linear'],
+    [/\bhubspot\b/i, 'HubSpot'],
+    [/\bsalesforce\b/i, 'Salesforce'],
+    [/\bpipedrive\b/i, 'Pipedrive'],
+    [/\bzendesk\b/i, 'Zendesk'],
+    [/\bintercom\b/i, 'Intercom'],
+    [/\bgoogle sheets?\b|\bsheets?\b/i, 'Google Sheets'],
+    [/\bexcel\b/i, 'Excel'],
+    [/\bairtable\b/i, 'Airtable'],
+    [/\bgoogle docs?\b|\bdocs?\b/i, 'Google Docs'],
+    [/\bgoogle drive\b|\bdrive\b/i, 'Google Drive'],
+    [/\bdropbox\b/i, 'Dropbox'],
+    [/\bsharepoint\b/i, 'SharePoint'],
+    [/\bzapier\b/i, 'Zapier'],
+    [/\bmake\.com\b/i, 'Make'],
+    [/\bn8n\b/i, 'n8n'],
+    [/\bxero\b/i, 'Xero'],
+    [/\bquickbooks\b/i, 'QuickBooks'],
+    [/\bstripe\b/i, 'Stripe'],
+    [/\bshopify\b/i, 'Shopify'],
+    [/\bcrm\b/i, 'CRM'],
+    [/\berp\b/i, 'ERP'],
+    [/\bpos\b/i, 'POS'],
+    [/\bemail\b/i, 'Email'],
+    [/\bcalendar\b/i, 'Calendar'],
+    [/\bhelp\s*desk\b|\bsupport\s*desk\b|\bticketing\b/i, 'Support Desk'],
+    [/\bspreadsheets?\b/i, 'Spreadsheets'],
+  ];
+  const matches = [
+    ...knownTools.filter(([pattern]) => pattern.test(text)).map(([, label]) => label),
+    ...Array.from(
     text.matchAll(/\b([A-Z][A-Za-z0-9+.-]{2,}(?:\s+[A-Z][A-Za-z0-9+.-]{2,})?)\b/g),
-  ).map((match) => match[1].trim());
+    ).map((match) => match[1].trim()),
+  ];
   const seen = new Set<string>();
   const out: string[] = [];
   for (const item of matches) {

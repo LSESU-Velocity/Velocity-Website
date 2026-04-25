@@ -12,6 +12,89 @@ import {
 } from './schemas.js';
 
 const MAX_ARRAY_APPEND = 20;
+const GENERIC_TOOL_TOKENS = new Set([
+  'app',
+  'apps',
+  'application',
+  'applications',
+  'platform',
+  'platforms',
+  'program',
+  'programs',
+  'same',
+  'software',
+  'stuff',
+  'system',
+  'systems',
+  'thing',
+  'things',
+  'tool',
+  'tools',
+  'various',
+]);
+const GENERIC_WORKFLOW_NAMES = new Set([
+  'anything',
+  'it',
+  'process',
+  'processes',
+  'same',
+  'same stuff',
+  'something',
+  'stuff',
+  'task',
+  'tasks',
+  'that',
+  'the process',
+  'the workflow',
+  'thing',
+  'things',
+  'this',
+  'workflow',
+  'workflows',
+]);
+const KNOWN_TOOL_LABELS: Record<string, string> = {
+  airtable: 'Airtable',
+  asana: 'Asana',
+  calendar: 'Calendar',
+  crm: 'CRM',
+  docs: 'Google Docs',
+  dropbox: 'Dropbox',
+  email: 'Email',
+  erp: 'ERP',
+  excel: 'Excel',
+  gmail: 'Gmail',
+  'google docs': 'Google Docs',
+  'google drive': 'Google Drive',
+  'google sheets': 'Google Sheets',
+  'help desk': 'Support Desk',
+  hubspot: 'HubSpot',
+  intercom: 'Intercom',
+  jira: 'Jira',
+  linear: 'Linear',
+  'make.com': 'Make',
+  'microsoft teams': 'Microsoft Teams',
+  n8n: 'n8n',
+  notion: 'Notion',
+  outlook: 'Outlook',
+  pipedrive: 'Pipedrive',
+  pos: 'POS',
+  quickbooks: 'QuickBooks',
+  salesforce: 'Salesforce',
+  sharepoint: 'SharePoint',
+  sheets: 'Google Sheets',
+  shopify: 'Shopify',
+  slack: 'Slack',
+  spreadsheet: 'Spreadsheets',
+  spreadsheets: 'Spreadsheets',
+  stripe: 'Stripe',
+  'support desk': 'Support Desk',
+  teams: 'Microsoft Teams',
+  ticketing: 'Support Desk',
+  trello: 'Trello',
+  xero: 'Xero',
+  zapier: 'Zapier',
+  zendesk: 'Zendesk',
+};
 
 function clamp(str: unknown, max: number): string | undefined {
   if (typeof str !== 'string') return undefined;
@@ -29,6 +112,72 @@ function toStringArray(val: unknown, maxPerItem = 500): string[] {
     if (out.length >= MAX_ARRAY_APPEND) break;
   }
   return out;
+}
+
+function cleanToolName(raw: string): string | null {
+  const cleaned = raw
+    .trim()
+    .replace(/^["'`]+|["'`]+$/g, '')
+    .replace(/\s+/g, ' ');
+  if (cleaned.length < 2 || cleaned.length > 120) return null;
+  const normalized = cleaned.toLowerCase();
+  const known = KNOWN_TOOL_LABELS[normalized];
+  if (known) return known;
+  if (GENERIC_TOOL_TOKENS.has(normalized)) return null;
+  if (/^(same\s+)?(stuff|things|tools?|systems?|apps?)$/i.test(cleaned)) return null;
+
+  // Allow common category names a business user may reasonably provide instead
+  // of a brand, while still rejecting filler like "stuff".
+  if (
+    /^(email|calendar|crm|erp|pos|cms|ats|hris|lms|bi|support desk|help desk|ticketing|spreadsheet|spreadsheets|database|warehouse)$/i.test(
+      cleaned,
+    )
+  ) {
+    return cleaned
+      .split(/\s+/)
+      .map((word) => (/^[A-Z]{2,}$/.test(word) ? word : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
+      .join(' ');
+  }
+
+  // Brand/product names are normally title-cased, acronym-like, numeric, or
+  // contain product punctuation such as ".com" or "+". Lower-case prose is not
+  // reliable enough to treat as a tool name.
+  if (
+    /[A-Z]/.test(cleaned) ||
+    /^[A-Z0-9]{2,}$/.test(cleaned) ||
+    /[.+/]/.test(cleaned) ||
+    /\d/.test(cleaned)
+  ) {
+    return cleaned;
+  }
+
+  return null;
+}
+
+function cleanToolNames(values: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const value of values) {
+    const cleaned = cleanToolName(value);
+    if (!cleaned) continue;
+    const key = cleaned.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(cleaned);
+  }
+  return out;
+}
+
+function cleanWorkflowName(raw: unknown): string | undefined {
+  const name = clamp(raw, 120);
+  if (!name) return undefined;
+  const normalized = name.toLowerCase().replace(/\s+/g, ' ').trim();
+  if (normalized.length < 4) return undefined;
+  if (GENERIC_WORKFLOW_NAMES.has(normalized)) return undefined;
+  if (/^(the|a|an|our|my)\s+(thing|stuff|process|workflow|task)$/i.test(normalized)) {
+    return undefined;
+  }
+  return name;
 }
 
 function dedupeAppend(existing: string[] | undefined, next: string[], maxTotal = 40): string[] {
@@ -155,7 +304,7 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
     case 'systems': {
       const stack = patch.data.toolStack ?? {};
       for (const category of TOOL_STACK_CATEGORIES) {
-        const incoming = toStringArray(stack[category], 120);
+        const incoming = cleanToolNames(toStringArray(stack[category], 120));
         if (incoming.length) {
           next.business.toolStack[category] = dedupeAppend(
             next.business.toolStack[category],
@@ -167,7 +316,7 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
       break;
     }
     case 'workflow-name': {
-      const name = clamp(patch.data.name, 120);
+      const name = cleanWorkflowName(patch.data.name);
       if (name) {
         if (next.workflows.length === 0) {
           next.workflows.push(createWorkflow(name));
@@ -188,7 +337,8 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
       if (next.workflows.length === 0) next.workflows.push(createWorkflow(''));
       const w = next.workflows[0];
       if (patch.data.tools?.length) {
-        w.tools = dedupeAppend(w.tools, toStringArray(patch.data.tools, 120), 20);
+        const tools = cleanToolNames(toStringArray(patch.data.tools, 120));
+        if (tools.length) w.tools = dedupeAppend(w.tools, tools, 20);
       }
       break;
     }
@@ -213,9 +363,10 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
     case 'ai-usage': {
       const p = patch.data;
       if (p.currentTools?.length) {
+        const currentTools = cleanToolNames(toStringArray(p.currentTools, 120));
         next.aiUsage.currentTools = dedupeAppend(
           next.aiUsage.currentTools,
-          toStringArray(p.currentTools, 120),
+          currentTools,
           20,
         );
       }

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 import { AutomationIntakeShell } from './automation-intake/AutomationIntakeShell';
 import { AutomationIntakeChat } from './automation-intake/AutomationIntakeChat';
@@ -59,6 +59,17 @@ export const AutomationIntake: React.FC = () => {
 
   const handleDraftChange = useCallback((next: AutomationIntakeDraft) => {
     setDraft(next);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    const fresh = rebuildDeterministicDraft(createInitialDraft());
+    clearDraft();
+    setDraft(fresh);
+    setPageMode('collect');
+    setView('chat');
+    setSubmittedBrief(null);
+    setHoneypot('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
   const handleReviewRequested = useCallback(() => {
@@ -132,18 +143,17 @@ export const AutomationIntake: React.FC = () => {
       currentStep={draft.currentStep}
       status={pageMode === 'complete' ? 'submitted' : draft.status === 'review' ? 'review' : 'collecting'}
       hideToggle={hideToggle}
+      canReset={pageMode !== 'complete'}
+      onReset={handleReset}
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={pageMode === 'collect' ? view : pageMode}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-        >
-          {body}
-        </motion.div>
-      </AnimatePresence>
+      <motion.div
+        key={pageMode === 'collect' ? view : pageMode}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: 'easeOut' }}
+      >
+        {body}
+      </motion.div>
     </AutomationIntakeShell>
   );
 };

@@ -223,6 +223,7 @@ export const ChatRequestSchema = z
   .object({
     draft: AutomationIntakeDraftSchema,
     answer: bounded(LONG),
+    editingStepId: z.enum(STEP_IDS).optional(),
   })
   .strict();
 export type ChatRequest = z.infer<typeof ChatRequestSchema>;
@@ -257,18 +258,34 @@ export type SubmitResponse = z.infer<typeof SubmitResponseSchema>;
 // --- Minimum completeness ---
 
 /**
- * Server-side minimum completeness. Kept intentionally minimal: only the fields
- * Velocity truly needs to follow up. Workflows, outcomes, and metrics are
- * recommended (surfaced in the UI) but not required — a partner may not have
- * concrete numbers yet, and blocking submission on them creates a dead end.
+ * Server-side minimum completeness. Kept intentionally narrow, but a primary
+ * workflow is required because the intake exists to scope an automation project.
+ * Outcomes and metrics stay recommended rather than required — a partner may
+ * not have concrete numbers yet, and blocking submission on them creates a
+ * dead end.
  *
- * Required: what the business does + contact details + consent.
+ * Required: what the business does + a primary workflow + contact details +
+ * consent.
  */
 export function checkMinimumCompleteness(draft: AutomationIntakeDraft): string[] {
   const missing: string[] = [];
 
   if (!draft.business.whatTheyDo || draft.business.whatTheyDo.trim().length < 8) {
     missing.push('business description');
+  }
+
+  const firstWorkflow = draft.workflows[0];
+  if (!firstWorkflow || !firstWorkflow.name?.trim()) {
+    missing.push('primary workflow');
+  } else {
+    const hasWorkflowDetail =
+      (firstWorkflow.tools?.length ?? 0) > 0 ||
+      (firstWorkflow.currentSteps?.length ?? 0) > 0 ||
+      (firstWorkflow.painPoints?.length ?? 0) > 0 ||
+      Boolean(firstWorkflow.owner?.trim()) ||
+      Boolean(firstWorkflow.frequency?.trim());
+
+    if (!hasWorkflowDetail) missing.push('workflow detail');
   }
 
   if (!draft.contact.name?.trim()) missing.push('contact name');
@@ -294,6 +311,10 @@ export function describeMissingRequirement(item: string): string {
       return 'a valid contact email';
     case 'consent':
       return "type 'I consent' so Velocity can store this intake and contact you";
+    case 'primary workflow':
+      return 'at least one workflow to scope';
+    case 'workflow detail':
+      return 'a few workflow details such as owner, tools, steps, or pain points';
     default:
       return item;
   }
@@ -309,19 +330,6 @@ export function formatMissingRequirements(missing: string[]): string {
  */
 export function checkRecommendedCompleteness(draft: AutomationIntakeDraft): string[] {
   const recommended: string[] = [];
-
-  const firstWorkflow = draft.workflows[0];
-  if (!firstWorkflow || !firstWorkflow.name?.trim()) {
-    recommended.push('at least one workflow');
-  } else {
-    const hasScope =
-      (firstWorkflow.tools?.length ?? 0) > 0 ||
-      (firstWorkflow.currentSteps?.length ?? 0) > 0 ||
-      (firstWorkflow.painPoints?.length ?? 0) > 0 ||
-      Boolean(firstWorkflow.owner?.trim()) ||
-      Boolean(firstWorkflow.frequency?.trim());
-    if (!hasScope) recommended.push('workflow detail');
-  }
 
   if ((draft.goals.desiredOutcomes?.length ?? 0) === 0) {
     recommended.push('desired outcomes');
