@@ -8,13 +8,17 @@ import {
 } from '../lib/serverSecurity.js';
 import {
   MagicEmailStartRequestSchema,
+  type EmailVerificationStatusResponse,
   type MagicEmailStartResponse,
 } from '../lib/automation-intake/schemas.js';
 import {
+  buildClearIntakeEmailCookie,
   createMagicVerificationUrl,
   deleteMagicEmailLink,
+  getVerifiedIntakeEmail,
   initAutomationIntakeFirebase,
   normalizeMagicEmail,
+  redeemMagicEmailToken,
   sendMagicEmail,
   storeMagicEmailLink,
 } from '../lib/automation-intake/email-verification.js';
@@ -26,16 +30,39 @@ const EMAIL_RATE_LIMIT = 3;
 const EMAIL_RATE_WINDOW_MS = 15 * 60 * 1000;
 const MIN_REQUEST_GAP_MS = 5 * 1000;
 
+type EmailAction = 'start' | 'status' | 'verify';
+
 function bodyIsTooLarge(req: VercelRequest): boolean {
   const len = Number(req.headers['content-length'] ?? 0);
   return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (handleCors(req, res)) return;
+function firstQueryValue(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] || '';
+  return typeof value === 'string' ? value : '';
+}
 
-  res.setHeader('Cache-Control', 'no-store');
+function getAction(req: VercelRequest): EmailAction | null {
+  const action = firstQueryValue(req.query.action);
+  if (action === 'start' || action === 'status' || action === 'verify') return action;
+  return null;
+}
 
+function getToken(req: VercelRequest): string {
+  return firstQueryValue(req.query.token);
+}
+
+function redirect(res: VercelResponse, location: string): void {
+  res.statusCode = 302;
+  res.setHeader('Location', location);
+  res.end();
+}
+
+async function readJsonBody(req: VercelRequest): Promise<unknown> {
+  return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
+}
+
+async function handleStart(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -46,7 +73,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let body: unknown;
   try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
+    body = await readJsonBody(req);
   } catch {
     return res.status(400).json({ error: 'Invalid JSON body' });
   }
@@ -119,4 +146,66 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   return res.status(200).json(response);
+}
+
+async function handleStatus(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const db = initAutomationIntakeFirebase();
+  const verified = await getVerifiedIntakeEmail(db, req);
+
+  if (!verified.verified && verified.reason && verified.reason !== 'missing') {
+    res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
+  }
+
+  const response: EmailVerificationStatusResponse = {
+    verified: verified.verified,
+    email: verified.email,
+    expiresAt: verified.expiresAt,
+  };
+
+  return res.status(200).json(response);
+}
+
+async function handleVerify(req: VercelRequest, res: VercelResponse) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const db = initAutomationIntakeFirebase();
+  if (!db) {
+    res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
+    redirect(res, '/automation-intake?intakeEmailVerified=0');
+    return;
+  }
+
+  const redeemed = await redeemMagicEmailToken({
+    db,
+    req,
+    token: getToken(req),
+  });
+
+  if (!redeemed.ok) {
+    res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
+    redirect(res, '/automation-intake?intakeEmailVerified=0');
+    return;
+  }
+
+  res.setHeader('Set-Cookie', redeemed.cookie);
+  redirect(res, redeemed.redirectTo);
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCors(req, res)) return;
+
+  res.setHeader('Cache-Control', 'no-store');
+
+  const action = getAction(req);
+  if (action === 'start') return handleStart(req, res);
+  if (action === 'status') return handleStatus(req, res);
+  if (action === 'verify') return handleVerify(req, res);
+
+  return res.status(400).json({ error: 'Invalid email verification action.' });
 }

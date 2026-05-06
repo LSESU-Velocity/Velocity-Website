@@ -145,7 +145,8 @@ export function getAutomationIntakeBaseUrl(req: VercelRequest): string {
 
 export function createMagicVerificationUrl(req: VercelRequest, token: string): string {
   const baseUrl = getAutomationIntakeBaseUrl(req);
-  const url = new URL('/api/automation-intake-email-verify', baseUrl);
+  const url = new URL('/api/automation-intake-email', baseUrl);
+  url.searchParams.set('action', 'verify');
   url.searchParams.set('token', token);
   return url.toString();
 }

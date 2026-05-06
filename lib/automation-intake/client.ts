@@ -44,7 +44,7 @@ async function parseErrorMessage(response: Response, fallback: string): Promise<
 }
 
 export async function getIntakeEmailVerificationStatus(): Promise<EmailVerificationStatusResponse> {
-  const response = await fetch('/api/automation-intake-email-status', {
+  const response = await fetch('/api/automation-intake-email?action=status', {
     method: 'GET',
     headers: { Accept: 'application/json' },
   });
@@ -67,7 +67,7 @@ export async function requestIntakeMagicEmail(args: {
   email: string;
   sessionId?: string;
 }): Promise<MagicEmailStartResponse> {
-  const response = await fetch('/api/automation-intake-email-start', {
+  const response = await fetch('/api/automation-intake-email?action=start', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({
