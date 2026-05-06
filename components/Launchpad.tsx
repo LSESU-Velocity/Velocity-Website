@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, Target, BarChart3, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, AlertTriangle, Key, X, PencilLine, Plus, GitBranch, MessageCircle, Scale } from 'lucide-react';
-import { ApiKeyEntry } from './InviteCodeLogin';
+import { ApiKeyEntry } from './ApiKeyEntry';
 import {
   generateAnalysisStream,
   generateFounderAssets,

@@ -107,11 +107,7 @@ export const PrivacyPolicy: React.FC = () => {
       <section>
         <h2>6. Cookies and Browser Storage</h2>
         <p>
-          Some areas of the website may use an HttpOnly session cookie (<code>velocity_auth</code>) for
-          authentication. It does not track you across websites and cannot be read by client-side JavaScript.
-        </p>
-        <p>
-          Launchpad Lab does not use cookies. Instead, it uses browser storage:
+          Launchpad Lab does not use login cookies or invite-code sessions. Instead, it uses browser storage:
         </p>
         <ul>
           <li><code>sessionStorage</code> — your API key (cleared when the tab closes), unless you opt into device persistence.</li>

@@ -5,14 +5,6 @@ import { generateMockAnalysis, generateMockFounderAssets } from './mockData';
 const IS_DEV = import.meta.env.DEV;
 const USE_MOCK_ANALYSIS = import.meta.env.VITE_USE_MOCK_ANALYSIS === 'true';
 
-// Dev-mode test keys (set via VITE_DEV_KEYS env var, not hardcoded)
-const DEV_TEST_KEYS = IS_DEV ? (import.meta.env.VITE_DEV_KEYS?.split(',') || []) : [];
-
-export interface LoginResponse {
-    valid: boolean;
-    error?: string;
-}
-
 export interface SourceDocument {
     id: string;
     title: string;
@@ -232,19 +224,6 @@ export interface WidgetMutationResult {
     targetId: WidgetTargetId;
 }
 
-export interface AnalysisRecord {
-    id: string;
-    idea: string;
-    data: AnalysisData;
-    createdAt: string;
-}
-
-export interface AnalysesResponse {
-    analyses: AnalysisRecord[];
-    hasMore: boolean;
-    nextCursor: string | null;
-}
-
 // API Functions
 const API_BASE = '/api';
 
@@ -260,39 +239,6 @@ async function readResponsePayload(response: Response): Promise<unknown> {
     } catch {
         return text;
     }
-}
-
-export async function login(key: string): Promise<LoginResponse> {
-    // DEV MODE BYPASS: Accept test keys without hitting the backend
-    if (IS_DEV && DEV_TEST_KEYS.includes(key.trim())) {
-        console.log('[DEV MODE] Login bypassed with test key:', key);
-        return {
-            valid: true,
-        };
-    }
-
-    const response = await fetch(`${API_BASE}/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ key }),
-    });
-
-    if (!response.ok) {
-        let errorMessage = 'Login failed';
-        try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
-        } catch {
-            // If JSON parse fails (e.g. 500 HTML), get text
-            const text = await response.text();
-            console.error('API Error (Non-JSON):', text);
-            errorMessage = `Server Error (${response.status})`;
-        }
-        return { valid: false, error: errorMessage };
-    }
-
-    return response.json();
 }
 
 export async function generateAnalysis(idea: string, apiKey: string, includeArtifacts = false): Promise<AnalysisData> {
@@ -638,81 +584,4 @@ export async function generateAnalysisStream(
         processChunk();
     });
 }
-
-export async function getAnalyses(options?: { cursor?: string; limit?: number }): Promise<AnalysesResponse> {
-    // DEV MODE BYPASS: Return empty history in dev mode
-    if (IS_DEV) {
-        console.log('[DEV MODE] Returning empty analysis history');
-        return { analyses: [], hasMore: false, nextCursor: null };
-    }
-
-    const params = new URLSearchParams();
-    if (options?.cursor) params.set('cursor', options.cursor);
-    if (options?.limit) params.set('limit', options.limit.toString());
-
-    const url = `${API_BASE}/analyses${params.toString() ? `?${params}` : ''}`;
-
-    const response = await fetch(url, {
-        credentials: 'include',
-    });
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to fetch analyses');
-    }
-
-    return response.json();
-}
-
-export async function deleteAnalysis(analysisId: string): Promise<void> {
-    // DEV MODE BYPASS: Just log and return in dev mode
-    if (IS_DEV) {
-        console.log('[DEV MODE] Would delete analysis:', analysisId);
-        return;
-    }
-
-    const response = await fetch(
-        `${API_BASE}/analyses?id=${encodeURIComponent(analysisId)}`,
-        {
-            method: 'DELETE',
-            credentials: 'include',
-        }
-    );
-
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete analysis');
-    }
-}
-
-// Check current auth status via cookie
-export async function checkAuth(): Promise<boolean> {
-    if (IS_DEV) {
-        return false; // In dev mode, always start logged out
-    }
-
-    try {
-        const response = await fetch(`${API_BASE}/me`, {
-            credentials: 'include',
-        });
-        const data = await response.json();
-        return data.authenticated === true;
-    } catch {
-        return false;
-    }
-}
-
-// Logout - clear auth cookie
-export async function logout(): Promise<void> {
-    if (IS_DEV) {
-        console.log('[DEV MODE] Logout called');
-        return;
-    }
-
-    await fetch(`${API_BASE}/logout`, {
-        method: 'POST',
-        credentials: 'include',
-    });
-}
-
 

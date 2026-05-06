@@ -96,7 +96,7 @@ Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis 
 ├── components/              # React components
 │   ├── Launchpad.tsx        # Main Launchpad Lab UI and input flow
 │   ├── LaunchpadDashboard.tsx  # Results dashboard with council, market, and artifacts
-│   ├── InviteCodeLogin.tsx  # BYOK API key entry modal
+│   ├── ApiKeyEntry.tsx      # BYOK API key entry modal
 │   └── ...
 ├── lib/                     # Utility and pipeline modules
 │   ├── api.ts               # Frontend API client with SSE support

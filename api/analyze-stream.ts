@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { setCorsHeaders } from '../lib/serverAuth.js';
+import { z } from 'zod';
+import { handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
 import type { NodeProgress } from '../lib/launchpad-lab/index.js';
 
@@ -43,10 +44,28 @@ function sanitizeUserInput(input: string): string {
   return sanitized;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (setCorsHeaders(req, res)) {
-    return res.status(200).end();
+const ClarificationsSchema = z.record(z.string().max(500)).superRefine((value, ctx) => {
+  const entries = Object.entries(value);
+  if (entries.length > 10) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Too many clarification answers',
+    });
   }
+
+  for (const [key] of entries) {
+    if (!/^[a-zA-Z0-9_-]{1,64}$/.test(key)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Invalid clarification field',
+        path: [key],
+      });
+    }
+  }
+});
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -78,10 +97,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const sanitizedIdea = sanitizeUserInput(idea.trim());
 
   const rawClarifications = parsedBody?.clarifications;
-  const clarifications =
-    rawClarifications && typeof rawClarifications === 'object' && !Array.isArray(rawClarifications)
-      ? (rawClarifications as Record<string, string>)
-      : null;
+  let clarifications: Record<string, string> | null = null;
+  if (rawClarifications !== undefined && rawClarifications !== null) {
+    const parsedClarifications = ClarificationsSchema.safeParse(rawClarifications);
+    if (!parsedClarifications.success) {
+      return res.status(400).json({ error: 'Clarifications must be string answers keyed by field name.' });
+    }
+    clarifications = Object.fromEntries(
+      Object.entries(parsedClarifications.data).map(([key, value]) => [key, value.trim()]),
+    );
+  }
 
   // Set up SSE headers
   res.setHeader('Content-Type', 'text/event-stream');

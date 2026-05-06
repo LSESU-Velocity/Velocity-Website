@@ -460,10 +460,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         URL.revokeObjectURL(url);
     };
 
-    const openInNewTab = (html: string) => {
-        const blob = new Blob([html], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
+    const openSandboxedHtmlPreview = (html: string, kind: 'waitlist' | 'pitchDeck') => {
+        const key = `velocity:${kind}:${Date.now()}:${Math.random().toString(16).slice(2)}`;
+        localStorage.setItem(key, html);
+        window.open(`/artifact-viewer.html#${encodeURIComponent(key)}`, '_blank', 'noopener,noreferrer');
     };
 
     const normalizePitchDeckHtml = (pitchDeckHtml: string) => {
@@ -499,7 +499,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         const normalizedHtml = normalizePitchDeckHtml(pitchDeckHtml);
         const key = `velocity:deck:${Date.now()}:${Math.random().toString(16).slice(2)}`;
         localStorage.setItem(key, normalizedHtml);
-        window.open(`/deck-viewer.html#${encodeURIComponent(key)}`, '_blank');
+        window.open(`/deck-viewer.html#${encodeURIComponent(key)}`, '_blank', 'noopener,noreferrer');
     };
 
     const getPitchDeckHtml = () => {
@@ -1223,7 +1223,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                                 <button onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'waitlist.html')} aria-label="Download waitlist page" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
                                                     <Download className="w-4 h-4" />
                                                 </button>
-                                                <button onClick={() => openInNewTab(data.artifacts!.waitlistHtml!)} aria-label="Preview waitlist page in new tab" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
+                                                <button onClick={() => openSandboxedHtmlPreview(data.artifacts!.waitlistHtml!, 'waitlist')} aria-label="Preview waitlist page in new tab" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
                                                     <ExternalLink className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -1273,7 +1273,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                                                 srcDoc={getPitchDeckHtml()}
                                                 title="Pitch deck preview"
                                                 className="h-full w-full border-0"
-                                                sandbox="allow-scripts allow-same-origin allow-modals allow-popups allow-forms"
+                                                sandbox="allow-scripts"
                                             />
                                         </div>
                                     ) : (

@@ -28,7 +28,7 @@ Goal:
 - Replace the invite-code/member gate with a BYOK entry flow and make Launchpad's trust model explicit before deeper workflow changes.
 
 Scope:
-- Replace [components/InviteCodeLogin.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/InviteCodeLogin.tsx) with a BYOK modal or panel tailored to Google AI Studio keys.
+- Replace [components/ApiKeyEntry.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/ApiKeyEntry.tsx) with a BYOK modal or panel tailored to Google AI Studio keys.
 - Remove Launchpad's dependence on [hooks/useAuth.ts](/c:/Users/yamin/Desktop/Velocity-Website/hooks/useAuth.ts), [api/login.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/login.ts), [api/me.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/me.ts), and cookie auth for the Launchpad route.
 - Update [components/Launchpad.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/Launchpad.tsx) to support:
   - key entry

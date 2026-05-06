@@ -1,19 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { clearAuthCookie, setCorsHeaders } from '../lib/serverAuth.js';
+import { handleCors } from '../lib/serverSecurity.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // Handle CORS
-    if (setCorsHeaders(req, res)) {
-        return res.status(200).end();
-    }
+  if (handleCors(req, res)) return;
 
-    // Only allow POST
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    // Clear the auth cookie
-    clearAuthCookie(res);
-
-    return res.status(200).json({ success: true });
+  res.setHeader('Cache-Control', 'no-store');
+  return res.status(410).json({
+    error: 'Cookie logout is deprecated. Launchpad no longer creates server-side sessions.',
+  });
 }

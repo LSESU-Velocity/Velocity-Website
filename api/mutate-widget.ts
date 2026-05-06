@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { setCorsHeaders } from '../lib/serverAuth.js';
+import { handleCors } from '../lib/serverSecurity.js';
 import { mutateWidget } from '../lib/launchpad-lab/index.js';
 import { DashboardDTOSchema, LabPhaseSchema, WidgetTargetSchema } from '../lib/launchpad-lab/schemas.js';
 
@@ -39,9 +39,7 @@ function sanitizeUserInput(input: string): string {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (setCorsHeaders(req, res)) {
-    return res.status(200).end();
-  }
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });

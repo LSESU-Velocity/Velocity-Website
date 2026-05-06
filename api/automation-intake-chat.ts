@@ -2,7 +2,11 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
-import { setCorsHeaders } from '../lib/serverAuth.js';
+import {
+  checkFirestoreRateLimit,
+  getTrustedClientIp,
+  handleCors,
+} from '../lib/serverSecurity.js';
 import {
   ChatRequestSchema,
   type ChatResponse,
@@ -51,48 +55,13 @@ function initFirebaseSafe(): Firestore | null {
   }
 }
 
-function getClientIp(req: VercelRequest): string {
-  const fwd = req.headers['x-forwarded-for'];
-  if (typeof fwd === 'string' && fwd.length) return fwd.split(',')[0]!.trim();
-  return req.socket?.remoteAddress || 'unknown';
-}
-
-async function checkRouteRateLimit(
-  db: Firestore | null,
-  ip: string,
-): Promise<{ allowed: true } | { allowed: false; reason: 'burst' | 'window' }> {
-  if (!db) return { allowed: true };
-  const now = Date.now();
-  const ref = db.collection('rateLimits').doc(`intake_chat_${ip.replace(/[\/\.]/g, '_')}`);
-  try {
-    const doc = await ref.get();
-    if (!doc.exists || (doc.data()?.resetTime ?? 0) < now) {
-      await ref.set({ count: 1, resetTime: now + RATE_WINDOW_MS, lastRequestAt: now });
-      return { allowed: true };
-    }
-    const data = doc.data()!;
-    if ((data.lastRequestAt ?? 0) + MIN_REQUEST_GAP_MS > now) {
-      return { allowed: false, reason: 'burst' };
-    }
-    if (data.count >= RATE_LIMIT) return { allowed: false, reason: 'window' };
-    await ref.update({ count: data.count + 1, lastRequestAt: now });
-    return { allowed: true };
-  } catch (error) {
-    console.warn(
-      'Intake chat rate limit check failed:',
-      error instanceof Error ? error.message : 'unknown',
-    );
-    return { allowed: true };
-  }
-}
-
 function bodyIsTooLarge(req: VercelRequest): boolean {
   const len = Number(req.headers['content-length'] ?? 0);
   return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (setCorsHeaders(req, res)) return res.status(200).end();
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -115,11 +84,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const db = initFirebaseSafe();
-  const ip = getClientIp(req);
+  const ip = getTrustedClientIp(req);
   const ipHashValue = hashIp(ip);
 
-  const rateLimit = await checkRouteRateLimit(db, ip);
+  const rateLimit = await checkFirestoreRateLimit(db, {
+    prefix: 'intake_chat',
+    identifier: ip,
+    limit: RATE_LIMIT,
+    windowMs: RATE_WINDOW_MS,
+    minGapMs: MIN_REQUEST_GAP_MS,
+  });
   if (!rateLimit.allowed) {
+    if (rateLimit.reason === 'unavailable') {
+      return res.status(503).json({ error: 'Rate limiting is temporarily unavailable. Please try again.' });
+    }
+
     return res.status(429).json({
       error:
         rateLimit.reason === 'burst'
@@ -135,6 +114,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // ---------- Load runtime + decide mode ----------
   const { runtime, available: runtimeAvailable } = await loadRuntime(db, sessionId, ipHashValue);
+  if (runtimeAvailable && runtime.ipHash !== ipHashValue) {
+    return res.status(403).json({ error: 'Session does not belong to this requester.' });
+  }
+
   const { cents: spendCents, available: spendAvailable } = await getDailySpendCents(db);
   const ipSession = await checkAndRecordIpSession(db, sessionId, ipHashValue);
 

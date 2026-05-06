@@ -3,30 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pitch Deck</title>
+    <title>Artifact Preview</title>
     <link rel="stylesheet" href="/viewer.css" />
   </head>
   <body>
     <div id="error" class="viewer-error">
-      <h1 class="viewer-error-title">Pitch deck failed to load</h1>
+      <h1 class="viewer-error-title">Preview failed to load</h1>
       <p class="viewer-error-text">
-        This viewer expects a deck key in the URL hash, e.g. <code class="viewer-inline-code">#velocity:deck:...</code>.
+        The generated artifact was not available for preview.
       </p>
     </div>
 
     <iframe
-      id="deck-frame"
-      title="Pitch deck preview"
+      id="preview"
+      class="artifact-frame"
+      title="Generated artifact preview"
       referrerpolicy="no-referrer"
       sandbox="allow-scripts"
     ></iframe>
 
     <noscript>
       <div class="viewer-noscript">
-        <h1 class="viewer-error-title">Pitch deck viewer requires JavaScript</h1>
+        <h1 class="viewer-error-title">Preview requires JavaScript</h1>
         <p class="viewer-error-text">Please enable JavaScript and reload.</p>
       </div>
     </noscript>
-    <script src="/deck-viewer.js" defer></script>
+    <script src="/artifact-viewer.js" defer></script>
   </body>
 </html>

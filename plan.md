@@ -303,7 +303,7 @@ Sub-components under `components/automation-intake/`:
 ### Shared infrastructure touched
 
 - `lib/encryption.ts` — refactored to expose generic `encryptText(plain, envVarName)` / `decryptText(stored, envVarName)`; legacy `encryptIdea` / `decryptIdea` kept as thin wrappers over the legacy key for Launchpad's `api/analyses.ts`
-- `lib/serverAuth.ts` — `setCorsHeaders` reused
+- `lib/serverSecurity.ts` — `handleCors`, trusted client-IP parsing, and Firestore-backed rate limiting reused
 - `lib/firebase.ts` — Firestore admin init reused
 
 ### Routing / wiring

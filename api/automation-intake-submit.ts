@@ -1,9 +1,13 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { createHash } from 'crypto';
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-import { setCorsHeaders } from '../lib/serverAuth.js';
+import {
+  checkFirestoreRateLimit,
+  getTrustedClientIp,
+  handleCors,
+  hashClientIp,
+} from '../lib/serverSecurity.js';
 import {
   SubmitRequestSchema,
   checkMinimumCompleteness,
@@ -30,44 +34,13 @@ function initFirebaseSafe() {
   return getFirestore();
 }
 
-function getClientIp(req: VercelRequest): string {
-  const fwd = req.headers['x-forwarded-for'];
-  if (typeof fwd === 'string' && fwd.length) return fwd.split(',')[0]!.trim();
-  return req.socket?.remoteAddress || 'unknown';
-}
-
-function hashIp(ip: string): string {
-  return createHash('sha256').update(ip).digest('hex').slice(0, 24);
-}
-
-async function checkRateLimit(ip: string): Promise<boolean> {
-  const db = initFirebaseSafe();
-  if (!db) return true;
-  const now = Date.now();
-  const ref = db.collection('rateLimits').doc(`intake_submit_${ip.replace(/[\/\.]/g, '_')}`);
-  try {
-    const doc = await ref.get();
-    if (!doc.exists || (doc.data()?.resetTime ?? 0) < now) {
-      await ref.set({ count: 1, resetTime: now + RATE_WINDOW_MS });
-      return true;
-    }
-    const data = doc.data()!;
-    if (data.count >= RATE_LIMIT) return false;
-    await ref.update({ count: data.count + 1 });
-    return true;
-  } catch (error) {
-    console.warn('Intake submit rate limit check failed:', error instanceof Error ? error.message : 'unknown');
-    return true;
-  }
-}
-
 function bodyIsTooLarge(req: VercelRequest): boolean {
   const len = Number(req.headers['content-length'] ?? 0);
   return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (setCorsHeaders(req, res)) return res.status(200).end();
+  if (handleCors(req, res)) return;
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -96,9 +69,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ error: 'Thanks!' });
   }
 
-  const ip = getClientIp(req);
-  const allowed = await checkRateLimit(ip);
-  if (!allowed) {
+  const db = initFirebaseSafe();
+  const ip = getTrustedClientIp(req);
+  const rateLimit = await checkFirestoreRateLimit(db, {
+    prefix: 'intake_submit',
+    identifier: ip,
+    limit: RATE_LIMIT,
+    windowMs: RATE_WINDOW_MS,
+  });
+
+  if (!rateLimit.allowed) {
+    if (rateLimit.reason === 'unavailable') {
+      return res.status(503).json({ error: 'Rate limiting is temporarily unavailable. Please try again.' });
+    }
+
     return res.status(429).json({ error: 'Too many submissions. Please try again in a minute.' });
   }
 
@@ -136,7 +120,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       draft: sanitizedDraft,
       finalBrief,
       submissionMode,
-      ipHash: hashIp(ip),
+      ipHash: hashClientIp(ip),
     });
 
     const response: SubmitResponse = {

@@ -1,25 +1,12 @@
-/* global Reveal */
-
 function showError(message) {
   var el = document.getElementById("error");
   if (!el) return;
-  el.style.display = "block";
+  el.classList.add("is-visible");
   if (message) {
     var p = document.createElement("p");
-    p.style.margin = "12px 0 0 0";
-    p.style.opacity = "0.8";
+    p.className = "viewer-error-detail";
     p.textContent = message;
     el.appendChild(p);
-  }
-}
-
-function extractSlidesInnerHtml(deckHtml) {
-  try {
-    var doc = new DOMParser().parseFromString(deckHtml, "text/html");
-    var slides = doc.querySelector(".reveal .slides") || doc.querySelector(".slides");
-    return slides ? slides.innerHTML : null;
-  } catch (e) {
-    return null;
   }
 }
 
@@ -33,9 +20,13 @@ function readDeckKeyFromHash() {
   }
 }
 
+function isAllowedDeckKey(key) {
+  return /^velocity:deck:[0-9]{10,}:[a-f0-9]+$/.test(key);
+}
+
 function init() {
   var key = readDeckKeyFromHash();
-  if (!key) {
+  if (!key || !isAllowedDeckKey(key)) {
     showError("Missing deck key.");
     return;
   }
@@ -46,7 +37,7 @@ function init() {
   } catch (e) {}
 
   if (!deckHtml) {
-    showError("Deck content not found in localStorage for key: " + key);
+    showError("Deck content not found in localStorage.");
     return;
   }
 
@@ -55,36 +46,13 @@ function init() {
     localStorage.removeItem(key);
   } catch (e) {}
 
-  var slidesInner = extractSlidesInnerHtml(deckHtml);
-  if (!slidesInner) {
-    showError("Could not extract slides from deck HTML.");
+  var frame = document.getElementById("deck-frame");
+  if (!frame) {
+    showError("Viewer error: deck frame missing.");
     return;
   }
 
-  var slidesEl = document.getElementById("slides");
-  if (!slidesEl) {
-    showError("Viewer error: slides container missing.");
-    return;
-  }
-  slidesEl.innerHTML = slidesInner;
-
-  if (typeof Reveal === "undefined") {
-    showError("Reveal.js failed to load from /reveal/reveal.js.");
-    return;
-  }
-
-  Reveal.initialize({
-    hash: false,
-    controls: true,
-    progress: true,
-    center: true,
-    transition: "slide",
-  }).catch(function (err) {
-    showError(
-      "Reveal.initialize() failed: " +
-        (err && err.message ? err.message : String(err))
-    );
-  });
+  frame.srcdoc = deckHtml;
 }
 
 if (document.readyState === "loading") {

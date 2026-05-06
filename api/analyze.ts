@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { setCorsHeaders } from '../lib/serverAuth.js';
+import { handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
 
 // Sanitize user input to prevent prompt injection attacks
@@ -41,9 +41,7 @@ function sanitizeUserInput(input: string): string {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Handle CORS
-  if (setCorsHeaders(req, res)) {
-    return res.status(200).end();
-  }
+  if (handleCors(req, res)) return;
 
   // Only allow POST
   if (req.method !== 'POST') {

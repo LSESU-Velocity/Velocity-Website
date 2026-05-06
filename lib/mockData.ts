@@ -11,21 +11,6 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
     <title>{{NAME}} — Join the Waitlist</title>
     <meta name="description" content="{{TAGLINE}} Join the waitlist for early access.">
     <meta name="theme-color" content="#FF1F1F">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            DEFAULT: '#FF1F1F',
-                            dark: '#CC0000',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
         :root { color-scheme: dark; }
@@ -460,7 +445,6 @@ const MOCK_PITCH_DECK_HTML = `<!doctype html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/reveal.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.0.4/dist/theme/black.css">
-    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         :root { --r-main-color: #fff; --r-heading-color: #fff; --r-background-color: #000; --r-link-color: #FF1F1F; --r-selection-color: #FF1F1F; }
         .reveal .controls { color: #FF1F1F; }
