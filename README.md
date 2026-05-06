@@ -4,7 +4,7 @@
 <img width="200" alt="Velocity Logo" src="public/Velocity-logo-black.png" />
 </div>
 
-**Velocity** is a platform built by LSESU Velocity to help student founders validate and sharpen startup ideas. **Launchpad** is its flagship tool: an AI startup analysis workspace that turns a rough spark into a practical read on the market, customers, risks, and next steps.
+**Velocity** is the LSESU society behind Launchpad and our builder programmes. **Launchpad** is the platform: an AI startup analysis workspace that turns a rough spark into a practical read on the market, customers, risks, and next steps.
 
 ## Launchpad
 
@@ -13,7 +13,7 @@ Launchpad takes a founder's early idea and runs it through a structured analysis
 ### How it works
 
 1. Describe your startup idea in plain English.
-2. Connect a Google AI Studio API key when prompted.
+2. Connect an LLM API key when prompted.
 3. Launchpad runs the idea through an orchestrated LangGraph workflow:
    - **Idea classification and intake normalization**
    - **Bull analyst** — identifies upside, market opportunity, and momentum

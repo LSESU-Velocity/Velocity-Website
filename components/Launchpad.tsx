@@ -477,7 +477,7 @@ export const Launchpad: React.FC = () => {
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 text-xs font-sans transition-all"
               >
                 <Key className="w-3 h-3" />
-                <span>Add Gemini key to start</span>
+                <span>Add AI API key to start</span>
               </button>
             )}
           </motion.div>
