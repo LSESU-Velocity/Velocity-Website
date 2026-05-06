@@ -116,6 +116,10 @@ export const AutomationIntakeEmailGate: React.FC<Props> = ({
             Send link
           </button>
         </form>
+        <p className="mt-3 max-w-2xl text-[11px] leading-relaxed text-white/40">
+          Verifying sets an essential first-party cookie for 30 days so we can keep AI chat
+          unlocked on this browser.
+        </p>
 
         {sentTo && (
           <div className="mt-5 border border-white/10 bg-white/[0.03] p-4 text-sm text-white/70">

@@ -88,9 +88,13 @@ export const PrivacyPolicy: React.FC = () => {
           <li>
             <strong>AI model providers</strong> — Launchpad currently uses Google Gemini via Google AI Studio.
             Content you submit to Launchpad is sent to the selected provider to generate AI-powered feedback.
+            Automation Intake AI chat uses OpenAI to extract structured intake details and draft follow-up questions.
             Google&rsquo;s processing of Gemini API data is subject to the{' '}
             <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
               Google Privacy Policy
+            </a>. OpenAI&rsquo;s processing is subject to the{' '}
+            <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer">
+              OpenAI Privacy Policy
             </a>.
           </li>
           <li>
@@ -125,7 +129,7 @@ export const PrivacyPolicy: React.FC = () => {
         <ul>
           <li><code>sessionStorage</code> — your provider API key (cleared when the tab closes), unless you opt into device persistence.</li>
           <li><code>localStorage</code> — your provider API key (if you chose "remember on this device") and saved analysis results.</li>
-          <li><code>velocity_intake_email_verified</code> — a first-party HttpOnly cookie used only to remember that an email address has been verified for Automation Intake AI chat.</li>
+          <li><code>velocity_intake_email_verified</code> — an essential first-party HttpOnly cookie used only to remember that an email address has been verified for Automation Intake AI chat. It stores a random session token rather than your email address, is marked <code>Secure</code> on HTTPS, and expires after 30 days or sooner if you clear cookies on this browser.</li>
         </ul>
         <p>
           We do not use any analytics cookies, advertising cookies, or third-party tracking cookies.
@@ -150,8 +154,9 @@ export const PrivacyPolicy: React.FC = () => {
           at any time by emailing <a href="mailto:velocity@lsesu.org">velocity@lsesu.org</a>.
         </p>
         <p>
-          Automation Intake magic email links expire after 30 minutes. Verified-email sessions expire
-          after 30 days.
+          Automation Intake magic email links expire after 30 minutes. Verified-email sessions and
+          the related essential cookie expire after 30 days. If you clear cookies, use another
+          browser, or use another device, you will need to verify your email again before using AI chat.
         </p>
         <p>
           Server logs retained by Vercel are subject to Vercel&rsquo;s own data retention policies.
