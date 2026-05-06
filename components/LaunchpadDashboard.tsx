@@ -639,7 +639,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                         <div className="rounded-[2rem] border border-white/10 bg-white/[0.03] p-6">
                             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                                 <div>
-                                    <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/35">Launchpad Lab</p>
+                      <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/35">Launchpad</p>
                                     <h2 className="mt-3 font-sans text-3xl font-black tracking-tight text-white md:text-4xl">{data.identity.name}</h2>
                                     <p className="mt-3 font-sans text-base italic text-white/70">{data.identity.tagline}</p>
                                     <p className="mt-5 max-w-3xl font-sans text-sm leading-relaxed text-white/80">
@@ -1030,7 +1030,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
                     {renderPhasePromptComposer(
                         'strategy',
                         'Scenario prompt',
-                        'Use one prompt to test pricing, customer, or channel shifts without regenerating the entire lab.',
+                        'Use one prompt to test pricing, customer, or channel shifts without regenerating the entire analysis.',
                     )}
 
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:items-start">

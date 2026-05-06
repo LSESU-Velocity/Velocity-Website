@@ -12,6 +12,8 @@ interface Props {
   status: 'collecting' | 'review' | 'submitted';
   hideToggle?: boolean;
   toggleDisabled?: boolean;
+  chatLocked?: boolean;
+  onLockedChatClick?: () => void;
   canReset?: boolean;
   resetDisabled?: boolean;
   onReset?: () => void;
@@ -25,6 +27,8 @@ export const AutomationIntakeShell: React.FC<Props> = ({
   status,
   hideToggle,
   toggleDisabled,
+  chatLocked,
+  onLockedChatClick,
   canReset = false,
   resetDisabled = false,
   onReset,
@@ -142,7 +146,13 @@ export const AutomationIntakeShell: React.FC<Props> = ({
 
         {!hideToggle && (
           <div className="mb-8 flex justify-start">
-            <AutomationIntakeToggle value={mode} onChange={onModeChange} disabled={toggleDisabled} />
+            <AutomationIntakeToggle
+              value={mode}
+              onChange={onModeChange}
+              disabled={toggleDisabled}
+              chatLocked={chatLocked}
+              onLockedChatClick={onLockedChatClick}
+            />
           </div>
         )}
 

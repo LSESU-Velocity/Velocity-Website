@@ -50,6 +50,10 @@ export const Footer: React.FC = () => {
               Privacy Policy
             </Link>
             <span className="text-gray-700">|</span>
+            <Link to="/launchpad/privacy-security" className="font-sans text-xs text-gray-500 hover:text-gray-300 transition-colors">
+              Launchpad Security
+            </Link>
+            <span className="text-gray-700">|</span>
             <Link to="/terms" className="font-sans text-xs text-gray-500 hover:text-gray-300 transition-colors">
               Terms of Service
             </Link>

@@ -1,6 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 
 import {
   checkFirestoreRateLimit,
@@ -29,31 +27,16 @@ import {
   type ChatGuard,
 } from '../lib/automation-intake/chat-runtime.js';
 import { logChatTurn, logSpendThreshold } from '../lib/automation-intake/chat-log.js';
+import {
+  buildClearIntakeEmailCookie,
+  getVerifiedIntakeEmail,
+  initAutomationIntakeFirebase,
+} from '../lib/automation-intake/email-verification.js';
 
 const MAX_BODY_BYTES = 48 * 1024;
 const RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 60 * 1000;
 const MIN_REQUEST_GAP_MS = 1500;
-
-function initFirebaseSafe(): Firestore | null {
-  try {
-    if (getApps().length > 0) return getFirestore();
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    if (!projectId || !clientEmail || !privateKey) return null;
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) privateKey = privateKey.slice(1, -1);
-    privateKey = privateKey.replace(/\\n/g, '\n');
-    initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
-    return getFirestore();
-  } catch (error) {
-    console.warn(
-      'Intake chat Firebase init failed; using deterministic mode without runtime counters:',
-      error instanceof Error ? error.message : 'unknown',
-    );
-    return null;
-  }
-}
 
 function bodyIsTooLarge(req: VercelRequest): boolean {
   const len = Number(req.headers['content-length'] ?? 0);
@@ -83,7 +66,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
 
-  const db = initFirebaseSafe();
+  const db = initAutomationIntakeFirebase();
+  if (!db) {
+    return res.status(503).json({ error: 'Email verification is temporarily unavailable.' });
+  }
+
+  const verifiedEmail = await getVerifiedIntakeEmail(db, req);
+  if (!verifiedEmail.verified) {
+    if (verifiedEmail.reason && verifiedEmail.reason !== 'missing') {
+      res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
+    }
+
+    return res.status(401).json({
+      error: 'Verify your email before using AI chat.',
+    });
+  }
+
   const ip = getTrustedClientIp(req);
   const ipHashValue = hashIp(ip);
 

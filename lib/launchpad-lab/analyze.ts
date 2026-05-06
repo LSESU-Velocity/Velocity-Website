@@ -345,7 +345,7 @@ function classifyError(message: string, failedNode: string | null): AnalyzeError
   ) {
     return {
       success: false,
-      error: `${nodePrefix}Your Gemini API key was rejected. Please check it and try again.`,
+      error: `${nodePrefix}Your Google AI Studio key was rejected. Please check it and try again.`,
       statusCode: 401,
       ...(IS_DEV ? { details: message } : {}),
     };
@@ -354,7 +354,7 @@ function classifyError(message: string, failedNode: string | null): AnalyzeError
   if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
     return {
       success: false,
-      error: `${nodePrefix}Your Gemini account hit a rate or quota limit. Please wait and try again.`,
+      error: `${nodePrefix}Your provider account hit a rate or quota limit. Please wait and try again.`,
       statusCode: 429,
       ...(IS_DEV ? { details: message } : {}),
     };
@@ -435,7 +435,7 @@ export async function generateFounderArtifacts(opts: {
     ) {
       return {
         success: false,
-        error: 'Your Gemini API key was rejected. Please check it and try again.',
+      error: 'Your Google AI Studio key was rejected. Please check it and try again.',
         statusCode: 401,
         ...(IS_DEV ? { details: message } : {}),
       };
@@ -444,7 +444,7 @@ export async function generateFounderArtifacts(opts: {
     if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
       return {
         success: false,
-        error: 'Your Gemini account hit a rate or quota limit while generating founder assets.',
+      error: 'Your provider account hit a rate or quota limit while generating founder assets.',
         statusCode: 429,
         ...(IS_DEV ? { details: message } : {}),
       };

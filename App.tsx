@@ -11,6 +11,7 @@ import { Blog } from './components/Blog';
 import { LockedEventsPage } from './components/LockedEventsPage';
 import { LockedResourcePage } from './components/LockedResourcePage';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { LaunchpadPrivacySecurity } from './components/LaunchpadPrivacySecurity';
 import { TermsOfService } from './components/TermsOfService';
 import { Resources } from './components/Resources';
 import { resourceCatalog } from './lib/resourceCatalog';
@@ -39,6 +40,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/launchpad" element={<Launchpad />} />
+              <Route path="/launchpad/privacy-security" element={<LaunchpadPrivacySecurity />} />
               <Route path="/launchpad/sources/:analysisId" element={<LaunchpadSources />} />
               <Route path="/automation-intake" element={<AutomationIntake />} />
               <Route path="/events" element={<LockedEventsPage />} />

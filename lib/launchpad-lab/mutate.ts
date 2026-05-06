@@ -490,7 +490,7 @@ function classifyMutationError(message: string): WidgetMutationError {
   ) {
     return {
       success: false,
-      error: 'Your Gemini API key was rejected. Please check it and try again.',
+      error: 'Your Google AI Studio key was rejected. Please check it and try again.',
       statusCode: 401,
       ...(IS_DEV ? { details: message } : {}),
     };
@@ -499,7 +499,7 @@ function classifyMutationError(message: string): WidgetMutationError {
   if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
     return {
       success: false,
-      error: 'Your Gemini account hit a rate or quota limit while updating this widget.',
+      error: 'Your provider account hit a rate or quota limit while updating this widget.',
       statusCode: 429,
       ...(IS_DEV ? { details: message } : {}),
     };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MessageCircle, ListChecks } from 'lucide-react';
+import { Lock, MessageCircle, ListChecks } from 'lucide-react';
 
 export type IntakeViewMode = 'chat' | 'form';
 
@@ -8,9 +8,17 @@ interface Props {
   value: IntakeViewMode;
   onChange: (mode: IntakeViewMode) => void;
   disabled?: boolean;
+  chatLocked?: boolean;
+  onLockedChatClick?: () => void;
 }
 
-export const AutomationIntakeToggle: React.FC<Props> = ({ value, onChange, disabled }) => {
+export const AutomationIntakeToggle: React.FC<Props> = ({
+  value,
+  onChange,
+  disabled,
+  chatLocked = false,
+  onLockedChatClick,
+}) => {
   return (
     <div
       role="tablist"
@@ -20,23 +28,30 @@ export const AutomationIntakeToggle: React.FC<Props> = ({ value, onChange, disab
     >
       {(
         [
-          { id: 'chat', label: 'Chat', icon: MessageCircle },
+          { id: 'chat', label: 'Chat with AI', icon: MessageCircle },
           { id: 'form', label: 'Form', icon: ListChecks },
         ] as const
       ).map((option) => {
         const active = value === option.id;
-        const Icon = option.icon;
+        const locked = option.id === 'chat' && chatLocked;
+        const Icon = locked ? Lock : option.icon;
         return (
           <button
             key={option.id}
             type="button"
             role="tab"
             aria-selected={active}
+            aria-disabled={disabled ? true : undefined}
+            aria-label={locked ? 'Chat with AI, email verification required' : undefined}
             disabled={disabled}
-            onClick={() => onChange(option.id)}
+            onClick={() => {
+              onChange(option.id);
+              if (locked) onLockedChatClick?.();
+            }}
             className={[
-              'relative inline-flex items-center gap-2 px-5 py-2 text-xs uppercase tracking-[0.2em] font-medium transition-colors',
+              'relative inline-flex items-center gap-2 whitespace-nowrap px-4 py-2 text-xs uppercase tracking-[0.16em] font-medium transition-colors md:px-5 md:tracking-[0.2em]',
               active ? 'text-white' : 'text-white/50 hover:text-white/80',
+              locked && !active ? 'text-white/45 hover:text-white/75' : '',
               disabled ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             style={{ borderRadius: '999px' }}

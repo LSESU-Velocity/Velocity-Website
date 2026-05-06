@@ -252,7 +252,7 @@ export async function generateAnalysis(idea: string, apiKey: string, includeArti
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-gemini-key': apiKey,
+            'x-provider-key': apiKey,
         },
         body: JSON.stringify({ idea, includeArtifacts }),
     });
@@ -314,7 +314,7 @@ export async function generateFounderAssets(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-gemini-key': apiKey,
+            'x-provider-key': apiKey,
         },
         body: JSON.stringify({ idea, analysis }),
     });
@@ -437,7 +437,7 @@ export async function generateWidgetMutation(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-gemini-key': apiKey,
+            'x-provider-key': apiKey,
         },
         body: JSON.stringify({
             idea,
@@ -508,7 +508,7 @@ export async function generateAnalysisStream(
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'x-gemini-key': apiKey,
+            'x-provider-key': apiKey,
         },
         body: JSON.stringify(body),
     });

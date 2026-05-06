@@ -6,6 +6,9 @@ import analyzeStreamHandler from '../api/analyze-stream.ts';
 import generateArtifactsHandler from '../api/generate-artifacts.ts';
 import mutateWidgetHandler from '../api/mutate-widget.ts';
 import automationIntakeChatHandler from '../api/automation-intake-chat.ts';
+import automationIntakeEmailStartHandler from '../api/automation-intake-email-start.ts';
+import automationIntakeEmailStatusHandler from '../api/automation-intake-email-status.ts';
+import automationIntakeEmailVerifyHandler from '../api/automation-intake-email-verify.ts';
 import automationIntakeSubmitHandler from '../api/automation-intake-submit.ts';
 
 dotenv.config({ path: '.env.local' });
@@ -42,6 +45,18 @@ app.all('/api/mutate-widget', async (req, res) => {
 
 app.all('/api/automation-intake-chat', async (req, res) => {
   await automationIntakeChatHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-email-start', async (req, res) => {
+  await automationIntakeEmailStartHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-email-status', async (req, res) => {
+  await automationIntakeEmailStatusHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-email-verify', async (req, res) => {
+  await automationIntakeEmailVerifyHandler(req as any, res as any);
 });
 
 app.all('/api/automation-intake-submit', async (req, res) => {

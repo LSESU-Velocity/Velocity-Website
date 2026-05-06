@@ -3,7 +3,7 @@ import { LegalPageLayout } from './LegalPageLayout';
 
 export const PrivacyPolicy: React.FC = () => {
   return (
-    <LegalPageLayout title="Privacy Policy" lastUpdated="April 2026">
+    <LegalPageLayout title="Privacy Policy" lastUpdated="May 2026">
       <section>
         <h2>1. Who We Are</h2>
         <p>
@@ -21,17 +21,17 @@ export const PrivacyPolicy: React.FC = () => {
         <h2>2. What Data We Collect</h2>
         <p>We collect the following data when you use our website and tools:</p>
         <ul>
-          <li><strong>User-submitted content</strong> — text you submit to our tools (such as Launchpad Lab) for AI-powered feedback.</li>
+          <li><strong>User-submitted content</strong> — text you submit to our tools (such as Launchpad) for AI-powered feedback.</li>
           <li><strong>IP addresses and basic request metadata</strong> — collected automatically by our hosting provider (Vercel) as part of standard web server logs.</li>
         </ul>
         <p>
-          Launchpad Lab uses a Bring Your Own Key (BYOK) model. Your Google AI Studio API key is stored
+          Launchpad uses a browser-entered API key model. Your provider API key is stored
           in your browser only (<code>sessionStorage</code> by default, or <code>localStorage</code> if
-          you opt into device persistence). Your key is sent to our backend solely to authorize the Gemini
-          API request and is never logged, stored on our servers, or returned in responses.
+          you opt into device persistence). Your key is sent to our backend solely to authorise the selected
+          provider request and is never intentionally logged, stored on our servers, or returned in responses.
         </p>
         <p>
-          Analysis results from Launchpad Lab are stored in your browser&rsquo;s <code>localStorage</code> only.
+          Analysis results from Launchpad are stored in your browser&rsquo;s <code>localStorage</code> only.
           They are not sent to or stored on our servers.
         </p>
         <p>
@@ -45,6 +45,11 @@ export const PrivacyPolicy: React.FC = () => {
           submission timestamps, workflow titles) is stored unencrypted so our team can route
           the submission internally.
         </p>
+        <p>
+          If you choose Automation Intake&rsquo;s AI chat option, we ask you to verify an email address
+          first. We store short-lived magic link records and a verified-email session so we can limit
+          abuse of the AI API. The structured form does not require this verification.
+        </p>
         <p>We do not collect names, email addresses, or other personal identifiers beyond what is listed above.</p>
       </section>
 
@@ -52,7 +57,7 @@ export const PrivacyPolicy: React.FC = () => {
         <h2>3. How We Use Your Data</h2>
         <p>We use the data we collect for the following purposes:</p>
         <ul>
-          <li>To provide AI-generated feedback on your submissions via the Google Gemini API.</li>
+          <li>To provide AI-generated feedback on your submissions via the selected AI provider.</li>
           <li>To maintain your session and authenticate your access to our tools.</li>
           <li>To enforce rate limiting and prevent abuse of the service.</li>
           <li>To monitor and maintain the security and performance of the website.</li>
@@ -70,7 +75,7 @@ export const PrivacyPolicy: React.FC = () => {
           </li>
           <li>
             <strong>Consent</strong> (Art. 6(1)(a)) — by submitting content to our tools,
-            you consent to that content being processed by the Google Gemini API to generate feedback.
+            you consent to that content being processed by the selected AI provider to generate feedback.
             You may withdraw consent at any time by ceasing to use the service.
           </li>
         </ul>
@@ -81,15 +86,16 @@ export const PrivacyPolicy: React.FC = () => {
         <p>We use the following third-party services to operate the Velocity website and tools:</p>
         <ul>
           <li>
-            <strong>Google Gemini API</strong> — content you submit to our tools is sent to Google's Gemini API to
-            generate AI-powered feedback. Google's processing of this data is subject to the{' '}
+            <strong>AI model providers</strong> — Launchpad currently uses Google Gemini via Google AI Studio.
+            Content you submit to Launchpad is sent to the selected provider to generate AI-powered feedback.
+            Google&rsquo;s processing of Gemini API data is subject to the{' '}
             <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
               Google Privacy Policy
             </a>.
           </li>
           <li>
             <strong>Firebase / Google Cloud</strong> — used for backend infrastructure for non-Launchpad
-            features. Launchpad Lab does not store user-submitted content in Firebase. Subject to the{' '}
+            features. Launchpad does not store user-submitted content in Firebase. Subject to the{' '}
             <a href="https://cloud.google.com/terms/cloud-privacy-notice" target="_blank" rel="noopener noreferrer">
               Google Cloud Privacy Notice
             </a>.
@@ -101,17 +107,25 @@ export const PrivacyPolicy: React.FC = () => {
               Vercel Privacy Policy
             </a>.
           </li>
+          <li>
+            <strong>Resend</strong> — sends Automation Intake magic email links when you request AI chat
+            access. Subject to the{' '}
+            <a href="https://resend.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer">
+              Resend Privacy Policy
+            </a>.
+          </li>
         </ul>
       </section>
 
       <section>
         <h2>6. Cookies and Browser Storage</h2>
         <p>
-          Launchpad Lab does not use login cookies or invite-code sessions. Instead, it uses browser storage:
+          Launchpad does not use login cookies or invite-code sessions. Instead, it uses browser storage:
         </p>
         <ul>
-          <li><code>sessionStorage</code> — your API key (cleared when the tab closes), unless you opt into device persistence.</li>
-          <li><code>localStorage</code> — your API key (if you chose "remember on this device") and saved analysis results.</li>
+          <li><code>sessionStorage</code> — your provider API key (cleared when the tab closes), unless you opt into device persistence.</li>
+          <li><code>localStorage</code> — your provider API key (if you chose "remember on this device") and saved analysis results.</li>
+          <li><code>velocity_intake_email_verified</code> — a first-party HttpOnly cookie used only to remember that an email address has been verified for Automation Intake AI chat.</li>
         </ul>
         <p>
           We do not use any analytics cookies, advertising cookies, or third-party tracking cookies.
@@ -121,8 +135,8 @@ export const PrivacyPolicy: React.FC = () => {
       <section>
         <h2>7. Data Retention</h2>
         <p>
-          Launchpad Lab analysis results are stored in your browser&rsquo;s <code>localStorage</code> only.
-          You can delete them at any time from the Saved Lab Runs panel or by clearing your browser data.
+          Launchpad analysis results are stored in your browser&rsquo;s <code>localStorage</code> only.
+          You can delete them at any time from the saved Launchpad runs panel or by clearing your browser data.
           We do not retain copies on our servers.
         </p>
         <p>
@@ -134,6 +148,10 @@ export const PrivacyPolicy: React.FC = () => {
           successful submission. Submitted Automation Intake records are retained on our servers
           until they have been reviewed and actioned by the Velocity team; you can request deletion
           at any time by emailing <a href="mailto:velocity@lsesu.org">velocity@lsesu.org</a>.
+        </p>
+        <p>
+          Automation Intake magic email links expire after 30 minutes. Verified-email sessions expire
+          after 30 days.
         </p>
         <p>
           Server logs retained by Vercel are subject to Vercel&rsquo;s own data retention policies.
@@ -181,11 +199,11 @@ export const PrivacyPolicy: React.FC = () => {
         <ul>
           <li><strong>Encryption in transit</strong> — all data is transmitted over HTTPS.</li>
           <li><strong>Content Security Policy (CSP)</strong> — HTTP headers restrict the sources of executable content.</li>
-          <li><strong>Client-side storage only</strong> — Launchpad Lab analysis results and API keys are stored
+          <li><strong>Client-side storage only</strong> — Launchpad analysis results and API keys are stored
             in your browser (<code>sessionStorage</code> or <code>localStorage</code>). We do not store
             your submissions or API keys on our servers.</li>
-          <li><strong>No server-side logging of keys</strong> — your Google AI Studio API key is used only to
-            authorise the Gemini request and is never written to logs, databases, or response bodies.</li>
+          <li><strong>No server-side logging of keys</strong> — your provider API key is used only to
+            authorise the selected provider request and is never intentionally written to logs, databases, or response bodies.</li>
         </ul>
         <p>
           While we implement appropriate technical and organisational measures to protect your data, no
@@ -198,8 +216,8 @@ export const PrivacyPolicy: React.FC = () => {
         <h2>11. Children</h2>
         <p>
           The Velocity website and tools are intended for users aged 18 or over. The project is built by a
-          student society at LSE, but Launchpad Lab is publicly available to anyone with a Google AI Studio
-          API key. We do not knowingly collect personal data from anyone under the age of 18. If you believe
+          student society at LSE, but Launchpad is publicly available to anyone aged 18 or over with a
+          supported provider API key. We do not knowingly collect personal data from anyone under the age of 18. If you believe
           we have inadvertently collected data from a minor, please contact us at{' '}
           <a href="mailto:velocity@lsesu.org">velocity@lsesu.org</a> and we will promptly delete it.
         </p>

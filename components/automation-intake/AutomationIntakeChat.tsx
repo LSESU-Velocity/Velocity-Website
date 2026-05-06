@@ -27,7 +27,7 @@ function formatTranscript(messages: ChatMessage[]): ChatMessage[] {
 }
 
 function shouldUseLocalFallback(error: unknown): boolean {
-  return !(error instanceof IntakeApiError && error.status === 429);
+  return !(error instanceof IntakeApiError && [401, 403, 429].includes(error.status));
 }
 
 const MIN_CHAT_REQUEST_GAP_MS = 1_650;

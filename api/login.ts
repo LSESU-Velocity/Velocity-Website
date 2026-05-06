@@ -6,6 +6,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   res.setHeader('Cache-Control', 'no-store');
   return res.status(410).json({
-    error: 'Invite-code login is deprecated. Launchpad now uses bring-your-own Gemini API keys.',
+    error: 'Invite-code login is deprecated. Launchpad now uses bring-your-own provider API keys.',
   });
 }

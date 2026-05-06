@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 import { AutomationIntakeShell } from './automation-intake/AutomationIntakeShell';
 import { AutomationIntakeChat } from './automation-intake/AutomationIntakeChat';
+import { AutomationIntakeEmailGate } from './automation-intake/AutomationIntakeEmailGate';
 import { AutomationIntakeForm } from './automation-intake/AutomationIntakeForm';
 import { AutomationIntakeReview } from './automation-intake/AutomationIntakeReview';
 import { AutomationIntakeComplete } from './automation-intake/AutomationIntakeComplete';
@@ -16,6 +17,10 @@ import {
 import {
   createInitialDraft,
 } from '../lib/automation-intake/draft';
+import {
+  getIntakeEmailVerificationStatus,
+  requestIntakeMagicEmail,
+} from '../lib/automation-intake/client';
 import { rebuildDeterministicDraft } from '../lib/automation-intake/deterministic';
 import {
   STEP_DEFINITIONS,
@@ -27,22 +32,84 @@ import type {
 } from '../lib/automation-intake/schemas';
 
 type PageMode = 'collect' | 'review' | 'complete';
+type EmailVerificationState = {
+  isChecking: boolean;
+  verified: boolean;
+  email?: string;
+  expiresAt?: number;
+};
 
 export const AutomationIntake: React.FC = () => {
   const [view, setView] = useState<IntakeViewMode>('chat');
   const [pageMode, setPageMode] = useState<PageMode>('collect');
   const [submittedBrief, setSubmittedBrief] = useState<FinalBrief | null>(null);
   const [honeypot, setHoneypot] = useState('');
+  const [verificationFailed, setVerificationFailed] = useState(false);
+  const [emailVerification, setEmailVerification] = useState<EmailVerificationState>({
+    isChecking: true,
+    verified: false,
+  });
   const [draft, setDraft] = useState<AutomationIntakeDraft>(() => {
     const existing = loadDraft();
     if (existing) return rebuildDeterministicDraft(existing);
     return rebuildDeterministicDraft(createInitialDraft());
   });
 
+  const refreshEmailVerification = useCallback(async () => {
+    setEmailVerification((current) => ({ ...current, isChecking: true }));
+    const status = await getIntakeEmailVerificationStatus();
+    setEmailVerification({
+      isChecking: false,
+      verified: status.verified,
+      email: status.email,
+      expiresAt: status.expiresAt,
+    });
+    if (status.verified) {
+      setVerificationFailed(false);
+      setView('chat');
+    }
+  }, []);
+
+  const handleRequestMagicEmail = useCallback((email: string) => {
+    return requestIntakeMagicEmail({
+      email,
+      sessionId: draft.sessionId,
+    });
+  }, [draft.sessionId]);
+
   // Scroll to top on mount — React Router preserves scroll position between routes otherwise.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verificationResult = params.get('intakeEmailVerified');
+
+    if (verificationResult === '0') {
+      setVerificationFailed(true);
+      setView('chat');
+    }
+
+    void refreshEmailVerification().catch((error) => {
+      console.warn(
+        'Automation intake email verification status failed:',
+        error instanceof Error ? error.message : 'unknown',
+      );
+      setEmailVerification((current) => ({
+        ...current,
+        isChecking: false,
+        verified: false,
+      }));
+    });
+
+    if (verificationResult) {
+      params.delete('intakeEmailVerified');
+      const nextQuery = params.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}${window.location.hash}`;
+      window.history.replaceState(null, '', nextUrl);
+    }
+  }, [refreshEmailVerification]);
 
   // Persist draft on every change.
   useEffect(() => {
@@ -127,6 +194,17 @@ export const AutomationIntake: React.FC = () => {
       );
     }
 
+    if (!emailVerification.verified) {
+      return (
+        <AutomationIntakeEmailGate
+          isChecking={emailVerification.isChecking}
+          verificationFailed={verificationFailed}
+          onRequestEmail={handleRequestMagicEmail}
+          onRefresh={refreshEmailVerification}
+        />
+      );
+    }
+
     return (
       <AutomationIntakeChat
         draft={draft}
@@ -134,7 +212,7 @@ export const AutomationIntake: React.FC = () => {
         onReviewRequested={handleReviewRequested}
       />
     );
-  }, [pageMode, submittedBrief, view, draft, honeypot, handleDraftChange, handleReviewRequested, handleBackToCollect, handleSubmitted]);
+  }, [pageMode, submittedBrief, view, draft, honeypot, emailVerification.verified, emailVerification.isChecking, verificationFailed, handleDraftChange, handleReviewRequested, handleBackToCollect, handleSubmitted, handleRequestMagicEmail, refreshEmailVerification]);
 
   return (
     <AutomationIntakeShell
@@ -143,6 +221,8 @@ export const AutomationIntake: React.FC = () => {
       currentStep={draft.currentStep}
       status={pageMode === 'complete' ? 'submitted' : draft.status === 'review' ? 'review' : 'collecting'}
       hideToggle={hideToggle}
+      chatLocked={!emailVerification.verified}
+      onLockedChatClick={() => setView('chat')}
       canReset={pageMode !== 'complete'}
       onReset={handleReset}
     >

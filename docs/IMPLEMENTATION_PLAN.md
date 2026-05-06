@@ -6,12 +6,12 @@ Status values: `pending`, `in_progress`, `in_review`, `done`, `blocked`
 
 ## Task
 
-Refactor the current `Launchpad` experience into `Launchpad Lab`: a BYOK, LangChain-powered, LangGraph-orchestrated startup analysis lab that replaces the current single-shot Gemini prompt with a staged workflow, real execution progress, stronger trust/transparency UX, and a more interactive set of founder outputs.
+Refactor the current `Launchpad` experience into `Launchpad Lab`: a provider-neutral BYOK, LangChain-powered, LangGraph-orchestrated startup analysis lab that replaces the current single-provider prompt with a staged workflow, real execution progress, stronger trust/transparency UX, and a more interactive set of founder outputs.
 
 ## Constraints
 
 - Keep the existing `/launchpad` route working while the refactor is in progress.
-- Remove dependence on the platform-owned `GEMINI_API_KEY` for Launchpad analysis. Users should supply their own key.
+- Remove dependence on a platform-owned model API key for Launchpad analysis. Users should supply their own provider key.
 - Never persist or log raw user API keys. Client storage should default to session-only storage unless the user explicitly opts into device persistence.
 - Preserve the current high-value outputs during migration: waitlist HTML, pitch deck HTML, prompt chain, market map, customer segments, monetization, and distribution channels.
 - Avoid a flag day rewrite. Each phase must leave the repo in a reviewable, runnable state.
@@ -28,7 +28,7 @@ Goal:
 - Replace the invite-code/member gate with a BYOK entry flow and make Launchpad's trust model explicit before deeper workflow changes.
 
 Scope:
-- Replace [components/ApiKeyEntry.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/ApiKeyEntry.tsx) with a BYOK modal or panel tailored to Google AI Studio keys.
+- Replace [components/ApiKeyEntry.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/ApiKeyEntry.tsx) with a BYOK modal or panel that starts with provider selection and then shows provider-specific key handling copy.
 - Remove Launchpad's dependence on [hooks/useAuth.ts](/c:/Users/yamin/Desktop/Velocity-Website/hooks/useAuth.ts), [api/login.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/login.ts), [api/me.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/me.ts), and cookie auth for the Launchpad route.
 - Update [components/Launchpad.tsx](/c:/Users/yamin/Desktop/Velocity-Website/components/Launchpad.tsx) to support:
   - key entry
@@ -36,13 +36,13 @@ Scope:
   - optional "remember on this device"
   - private mode by default
   - concise transparency copy about key handling and idea processing
-- Update [lib/api.ts](/c:/Users/yamin/Desktop/Velocity-Website/lib/api.ts) and [api/analyze.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/analyze.ts) so the backend accepts a user-supplied Gemini key header and no longer reads `process.env.GEMINI_API_KEY` for Launchpad requests.
+- Update [lib/api.ts](/c:/Users/yamin/Desktop/Velocity-Website/lib/api.ts) and [api/analyze.ts](/c:/Users/yamin/Desktop/Velocity-Website/api/analyze.ts) so the backend accepts a user-supplied provider key header and no longer reads `process.env.GEMINI_API_KEY` for Launchpad requests.
 - De-scope cloud history temporarily if needed. If history remains, it must not require the raw key as identity.
 
 Acceptance checks:
-- A user can run Launchpad with their own Gemini key and no platform `GEMINI_API_KEY`.
+- A user can run Launchpad with their own provider key and no platform `GEMINI_API_KEY`.
 - Raw user keys are not written to Firestore, cookies, logs, or returned in responses.
-- The UI clearly states that ideas are sent to Google Gemini and whether analyses are stored locally or remotely.
+- The UI clearly states that ideas are sent to the selected provider and whether analyses are stored locally or remotely.
 - The current dashboard still renders a successful analysis response end to end.
 
 Notes for Claude:

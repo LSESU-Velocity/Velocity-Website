@@ -4,17 +4,17 @@
 <img width="200" alt="Velocity Logo" src="public/Velocity-logo-black.png" />
 </div>
 
-**Velocity** is a platform built by LSESU Velocity to help student founders validate and sharpen startup ideas. **Launchpad Lab** is its flagship tool — a BYOK (Bring Your Own Key) AI analysis lab powered by LangChain, LangGraph, and Google Gemini.
+**Velocity** is a platform built by LSESU Velocity to help student founders validate and sharpen startup ideas. **Launchpad** is its flagship tool: an AI startup analysis workspace that turns a rough spark into a practical read on the market, customers, risks, and next steps.
 
-## Launchpad Lab
+## Launchpad
 
-Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis pipeline on your startup idea. No platform API key is required — you bring your own.
+Launchpad takes a founder's early idea and runs it through a structured analysis workflow. It helps answer the questions student builders usually need before they spend weeks building: who the customer is, what problem is sharpest, where the opportunity sits, what could break, and what to build next.
 
 ### How it works
 
-1. Enter your free Google AI Studio API key (get one at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)).
-2. Describe your startup idea.
-3. The analysis runs through an orchestrated LangGraph workflow:
+1. Describe your startup idea in plain English.
+2. Connect a Google AI Studio API key when prompted.
+3. Launchpad runs the idea through an orchestrated LangGraph workflow:
    - **Idea classification and intake normalization**
    - **Bull analyst** — identifies upside, market opportunity, and momentum
    - **Bear analyst** — stress-tests assumptions, surfaces risks and objections
@@ -33,12 +33,9 @@ Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis 
 - **Prompt Chain** — Step-by-step prompts to build your MVP with AI coding assistants
 - **Founder Assets** (optional) — Waitlist landing page and pitch deck, generated on demand
 
-### Key handling and privacy
+### API key note
 
-- Your API key is stored in browser `sessionStorage` by default (cleared when the tab closes).
-- Opt into "remember on this device" to persist in `localStorage`.
-- Keys are sent to the Velocity backend only to authorize the Gemini request — they are never logged, persisted, or returned in responses.
-- Your idea is sent to Google Gemini for analysis. Analyses are not stored on our servers — results live in your browser only.
+Launchpad currently runs through Google Gemini via Google AI Studio. Users paste their own Google AI Studio API key in the browser; Velocity does not store the raw key server-side or sell API access. Keys are stored in browser `sessionStorage` by default, with an optional "remember on this device" setting. Provider terms, billing, data handling, and regional rules still apply.
 
 ## Tech Stack
 
@@ -73,9 +70,9 @@ Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis 
    cp .env.example .env.local
    ```
 
-4. Configure `.env.local` — see `.env.example` for available variables. Launchpad Lab does not require a platform `GEMINI_API_KEY`; users supply their own key in the browser.
+4. Configure `.env.local` — see `.env.example` for available variables. Launchpad does not require a platform model API key; users supply their own Google AI Studio key in the browser.
 
-5. Start the API server (needed for Launchpad Lab analysis):
+5. Start the API server (needed for Launchpad analysis):
    ```bash
    npm run dev:api
    ```
@@ -91,16 +88,16 @@ Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis 
 
 ```
 ├── api/                     # Vercel serverless API routes
-│   ├── analyze.ts           # Main analysis endpoint (accepts BYOK key via header)
+│   ├── analyze.ts           # Main analysis endpoint (accepts user API key via header)
 │   └── analyze-stream.ts    # SSE streaming endpoint with real-time progress
 ├── components/              # React components
-│   ├── Launchpad.tsx        # Main Launchpad Lab UI and input flow
+│   ├── Launchpad.tsx        # Main Launchpad UI and input flow
 │   ├── LaunchpadDashboard.tsx  # Results dashboard with council, market, and artifacts
-│   ├── ApiKeyEntry.tsx      # BYOK API key entry modal
+│   ├── ApiKeyEntry.tsx      # Google AI Studio key entry modal
 │   └── ...
 ├── lib/                     # Utility and pipeline modules
 │   ├── api.ts               # Frontend API client with SSE support
-│   ├── launchpad-lab/       # LangChain/LangGraph analysis pipeline
+│   ├── launchpad-lab/       # LangChain/LangGraph analysis pipeline modules
 │   │   ├── graph.ts         # LangGraph state graph definition and nodes
 │   │   ├── schemas.ts       # Zod schemas for analysis contract
 │   │   ├── prompts.ts       # Prompt builders for each analysis stage
@@ -114,7 +111,7 @@ Launchpad Lab uses your own Google Gemini API key to run a multi-stage analysis 
 
 ## Privacy Note
 
-> Your startup ideas are sent to the Google Gemini API for AI-powered analysis using your own API key. Analyses are stored in your browser only and are not persisted on our servers. Please avoid submitting sensitive personal information or confidential business data. Google's processing is subject to their [privacy policy](https://policies.google.com/privacy).
+> Launchpad startup ideas are sent to Google Gemini for analysis using your own Google AI Studio API key. Analyses are stored in your browser only and are not persisted on our servers. Please avoid submitting sensitive personal information or confidential business data. Google processing is subject to Google's own terms and privacy policy.
 
 ## Deployment
 

@@ -5,12 +5,16 @@
 import type {
   AutomationIntakeDraft,
   ChatResponse,
+  EmailVerificationStatusResponse,
+  MagicEmailStartResponse,
   StepId,
   SubmissionMode,
   SubmitResponse,
 } from './schemas.js';
 import {
   ChatResponseSchema,
+  EmailVerificationStatusResponseSchema,
+  MagicEmailStartResponseSchema,
   SubmitResponseSchema,
 } from './schemas.js';
 
@@ -37,6 +41,53 @@ async function parseErrorMessage(response: Response, fallback: string): Promise<
     // ignore
   }
   return fallback;
+}
+
+export async function getIntakeEmailVerificationStatus(): Promise<EmailVerificationStatusResponse> {
+  const response = await fetch('/api/automation-intake-email-status', {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+
+  if (!response.ok) {
+    const message = await parseErrorMessage(response, 'Unable to check email verification status.');
+    throw new IntakeApiError(message, response.status);
+  }
+
+  const json = await response.json().catch(() => null);
+  const parsed = EmailVerificationStatusResponseSchema.safeParse(json);
+  if (!parsed.success) {
+    throw new IntakeApiError('Unexpected response from the server.', 500);
+  }
+
+  return parsed.data;
+}
+
+export async function requestIntakeMagicEmail(args: {
+  email: string;
+  sessionId?: string;
+}): Promise<MagicEmailStartResponse> {
+  const response = await fetch('/api/automation-intake-email-start', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      email: args.email,
+      sessionId: args.sessionId,
+    }),
+  });
+
+  if (!response.ok) {
+    const message = await parseErrorMessage(response, 'Unable to send verification email right now.');
+    throw new IntakeApiError(message, response.status);
+  }
+
+  const json = await response.json().catch(() => null);
+  const parsed = MagicEmailStartResponseSchema.safeParse(json);
+  if (!parsed.success) {
+    throw new IntakeApiError('Unexpected response from the server.', 500);
+  }
+
+  return parsed.data;
 }
 
 export async function postIntakeChat(args: {

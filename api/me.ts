@@ -7,6 +7,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Cache-Control', 'no-store');
   return res.status(410).json({
     authenticated: false,
-    error: 'Cookie sessions are deprecated. Launchpad now uses BYOK without server-side login.',
+    error: 'Cookie sessions are deprecated. Launchpad now uses a browser-entered API key without server-side login.',
   });
 }

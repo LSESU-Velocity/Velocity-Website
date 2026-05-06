@@ -68,7 +68,7 @@ export function handleCors(req: VercelRequest, res: VercelResponse): boolean {
   }
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-gemini-key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-provider-key, x-gemini-key');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();
@@ -76,6 +76,13 @@ export function handleCors(req: VercelRequest, res: VercelResponse): boolean {
   }
 
   return false;
+}
+
+export function getLaunchpadProviderKey(req: VercelRequest): string {
+  const providerKey = firstHeaderValue(req.headers['x-provider-key']);
+  const legacyGeminiKey = firstHeaderValue(req.headers['x-gemini-key']);
+
+  return (providerKey || legacyGeminiKey).trim();
 }
 
 export async function checkFirestoreRateLimit(

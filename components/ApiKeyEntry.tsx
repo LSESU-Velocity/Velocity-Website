@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Key, X, AlertCircle, Shield, ExternalLink } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, Key, Shield, X } from 'lucide-react';
 
 interface ApiKeyEntryProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (apiKey: string, remember: boolean) => void;
 }
+
+const providers = [
+    { name: 'Gemini', status: 'Available now', active: true },
+    { name: 'OpenAI', status: 'Not enabled yet', active: false },
+    { name: 'Anthropic', status: 'Not enabled yet', active: false },
+];
 
 export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
     isOpen,
@@ -56,7 +63,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
 
         const trimmed = apiKey.trim();
         if (!trimmed) {
-            setError('Please enter your Google AI Studio API key');
+            setError('Please paste your Google AI Studio API key');
             return;
         }
 
@@ -69,7 +76,6 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
@@ -78,7 +84,6 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                         className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
                     />
 
-                    {/* Modal */}
                     <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -93,10 +98,8 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                             aria-labelledby="api-key-dialog-title"
                             onKeyDown={handleKeyDown}
                             tabIndex={-1}
-                            className="relative w-full max-w-md bg-white/[0.02] border border-white/10 p-8 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl outline-none"
+                            className="relative w-full max-w-lg bg-white/[0.02] border border-white/10 p-6 md:p-8 shadow-2xl overflow-hidden backdrop-blur-md rounded-xl outline-none max-h-[90vh] overflow-y-auto"
                         >
-
-                            {/* Close button */}
                             <button
                                 onClick={onClose}
                                 aria-label="Close dialog"
@@ -106,23 +109,67 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                             </button>
 
                             <div className="relative z-10">
-                                {/* Icon */}
                                 <div className="flex justify-center mb-6">
                                     <div className="p-4 border bg-velocity-red/10 border-velocity-red/30 text-velocity-red rounded-lg">
                                         <Key className="w-8 h-8" />
                                     </div>
                                 </div>
 
-                                {/* Title */}
                                 <h2 id="api-key-dialog-title" className="font-sans font-bold text-2xl text-center text-white mb-2 tracking-tight">
-                                    Enter Your Gemini API Key
+                                    Connect Gemini to Launchpad
                                 </h2>
                                 <p className="font-sans text-sm text-gray-400 text-center mb-6">
-                                    Bring your own key to run Launchpad analyses.
+                                    Launchpad uses your key to turn a rough idea into a market, customer, risk, and next-steps analysis.
                                 </p>
 
+                                <div className="mb-5 grid gap-2 sm:grid-cols-3">
+                                    {providers.map((provider) => (
+                                        <div
+                                            key={provider.name}
+                                            aria-disabled={!provider.active}
+                                            className={`rounded-lg border p-3 ${provider.active
+                                                ? 'border-velocity-red/60 bg-velocity-red/10 text-white'
+                                                : 'border-white/10 bg-black/20 text-gray-500 opacity-55'
+                                                }`}
+                                        >
+                                            <div className="flex items-center justify-between gap-2">
+                                                <span className="font-sans text-sm font-semibold">{provider.name}</span>
+                                                {provider.active && <CheckCircle2 className="h-4 w-4 text-velocity-red" />}
+                                            </div>
+                                            <p className="mt-1 font-sans text-[11px] text-gray-500">{provider.status}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="mb-5 rounded-lg border border-white/10 bg-black/20 p-4">
+                                    <p className="font-sans text-xs uppercase tracking-[0.18em] text-gray-500 mb-3">
+                                        How to get a key
+                                    </p>
+                                    <ol className="space-y-2 font-sans text-sm text-gray-300">
+                                        <li className="flex gap-3">
+                                            <span className="text-velocity-red">1</span>
+                                            <span>Open Google AI Studio and sign in with your Google account.</span>
+                                        </li>
+                                        <li className="flex gap-3">
+                                            <span className="text-velocity-red">2</span>
+                                            <span>Create an API key from the API keys page.</span>
+                                        </li>
+                                        <li className="flex gap-3">
+                                            <span className="text-velocity-red">3</span>
+                                            <span>Paste it below, then launch your analysis.</span>
+                                        </li>
+                                    </ol>
+                                    <a
+                                        href="https://aistudio.google.com/apikey"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="mt-4 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 font-sans text-xs text-white hover:border-velocity-red/50 hover:bg-velocity-red/10 transition-colors"
+                                    >
+                                        Open Google AI Studio <ExternalLink className="h-3.5 w-3.5" />
+                                    </a>
+                                </div>
+
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    {/* Key Input */}
                                     <div className="relative">
                                         <label htmlFor="launchpad-api-key" className="sr-only">
                                             Google AI Studio API key
@@ -135,7 +182,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                                 setApiKey(e.target.value);
                                                 setError(null);
                                             }}
-                                            placeholder="Paste your Gemini API key"
+                                            placeholder="Paste your API key"
                                             className={`w-full px-4 py-3 bg-black/30 border ${error ? 'border-red-500' : 'border-white/10'
                                                 } text-white placeholder-gray-500 focus:outline-none focus:border-velocity-red transition-colors font-mono text-sm rounded-md`}
                                             autoFocus
@@ -143,7 +190,6 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                         />
                                     </div>
 
-                                    {/* Remember checkbox */}
                                     <label className="flex items-center gap-2 cursor-pointer group">
                                         <input
                                             type="checkbox"
@@ -152,11 +198,10 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                             className="w-4 h-4 rounded border-white/20 bg-black/30 text-velocity-red focus:ring-velocity-red/50"
                                         />
                                         <span className="font-sans text-xs text-gray-400 group-hover:text-gray-300 transition-colors">
-                                            Remember on this device (stored in browser only)
+                                            Remember on this device
                                         </span>
                                     </label>
 
-                                    {/* Error Message */}
                                     {error && (
                                         <motion.div
                                             initial={{ opacity: 0, y: -10 }}
@@ -168,44 +213,33 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                         </motion.div>
                                     )}
 
-                                    {/* Submit Button */}
                                     <button
                                         type="submit"
                                         disabled={!apiKey.trim()}
                                         className="w-full py-3 bg-velocity-darkRed/20 border-2 border-velocity-red/50 hover:bg-velocity-red hover:border-velocity-red disabled:bg-gray-800 disabled:border-gray-700 disabled:cursor-not-allowed text-white font-sans text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(255,31,31,0.15)] hover:shadow-[0_0_40px_rgba(255,31,31,0.4)] rounded-md"
                                     >
-                                        Continue
+                                        Continue <ArrowRight className="h-4 w-4" />
                                     </button>
                                 </form>
 
-                                {/* Trust & Transparency */}
-                                <div className="mt-6 space-y-3">
+                                <div className="mt-6 space-y-2 border-t border-white/10 pt-4">
                                     <div className="flex items-start gap-2 text-gray-500">
                                         <Shield className="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500/70" />
                                         <p className="font-sans text-[11px] leading-relaxed">
-                                            Your key is sent to Launchpad only to authorize your Gemini request. We do not persist or log the raw key, and it stays in your browser session unless you opt into device storage above.
+                                            Your key stays in this browser unless you choose device storage. It is sent to Launchpad only to run the Gemini request and is not stored on Velocity servers.
                                         </p>
                                     </div>
-                                    <div className="flex items-start gap-2 text-gray-500">
-                                        <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-500/70" />
-                                        <p className="font-sans text-[11px] leading-relaxed">
-                                            Your startup idea is sent to Google Gemini for processing. Analyses are not stored on our servers.
-                                        </p>
-                                    </div>
+                                    <p className="font-sans text-[10px] leading-relaxed text-gray-600">
+                                        Provider terms, billing, data handling, and regional rules still apply. UK, EEA, and Swiss users may need a billing-enabled Google Cloud project.{' '}
+                                        <Link
+                                            to="/launchpad/privacy-security"
+                                            onClick={onClose}
+                                            className="underline hover:text-gray-400 transition-colors"
+                                        >
+                                            Privacy and security
+                                        </Link>
+                                    </p>
                                 </div>
-
-                                {/* Get a key link */}
-                                <p className="font-sans text-gray-500 text-xs text-center mt-6 leading-relaxed">
-                                    Don&apos;t have a key?{' '}
-                                    <a
-                                        href="https://aistudio.google.com/apikey"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="underline hover:text-gray-300 transition-colors inline-flex items-center gap-1"
-                                    >
-                                        Get one free from Google AI Studio <ExternalLink className="w-3 h-3 inline" />
-                                    </a>
-                                </p>
                             </div>
                         </div>
                     </motion.div>

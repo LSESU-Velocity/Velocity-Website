@@ -26,14 +26,21 @@ import {
   PREVIEW_HEIGHT,
 } from './LaunchpadPreview';
 
-const SESSION_KEY = 'launchpad_gemini_key';
-const PERSIST_KEY = 'launchpad_gemini_key_persist';
+const SESSION_KEY = 'launchpad_provider_key';
+const PERSIST_KEY = 'launchpad_provider_key_persist';
+const LEGACY_SESSION_KEY = 'launchpad_gemini_key';
+const LEGACY_PERSIST_KEY = 'launchpad_gemini_key_persist';
 
 function getStoredKey(): string | null {
   if (typeof window === 'undefined') {
     return null;
   }
-  return sessionStorage.getItem(SESSION_KEY) || localStorage.getItem(PERSIST_KEY);
+  return (
+    sessionStorage.getItem(SESSION_KEY) ||
+    localStorage.getItem(PERSIST_KEY) ||
+    sessionStorage.getItem(LEGACY_SESSION_KEY) ||
+    localStorage.getItem(LEGACY_PERSIST_KEY)
+  );
 }
 
 function storeKey(key: string, persist: boolean) {
@@ -41,11 +48,13 @@ function storeKey(key: string, persist: boolean) {
     return;
   }
   sessionStorage.setItem(SESSION_KEY, key);
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
   if (persist) {
     localStorage.setItem(PERSIST_KEY, key);
   } else {
     localStorage.removeItem(PERSIST_KEY);
   }
+  localStorage.removeItem(LEGACY_PERSIST_KEY);
 }
 
 function clearStoredKey() {
@@ -54,6 +63,8 @@ function clearStoredKey() {
   }
   sessionStorage.removeItem(SESSION_KEY);
   localStorage.removeItem(PERSIST_KEY);
+  sessionStorage.removeItem(LEGACY_SESSION_KEY);
+  localStorage.removeItem(LEGACY_PERSIST_KEY);
 }
 
 export const Launchpad: React.FC = () => {
@@ -252,7 +263,7 @@ export const Launchpad: React.FC = () => {
 
       const msg = err.message || 'Failed to generate analysis';
       if (msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('403')) {
-        setError('Your API key was rejected by Google. Please check it and try again.');
+        setError('Your Google AI Studio key was rejected. Please check it and try again.');
         handleClearKey();
       } else {
         setError(msg);
@@ -421,12 +432,12 @@ export const Launchpad: React.FC = () => {
 
           <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
             <AnimatedText
-              text="Ready to build?"
+              text="Got an idea?"
               className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
               delay={0.2}
             />
             <AnimatedText
-              text="Start in Lab."
+              text="Start here."
               className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
               delay={1.5}
             />
@@ -438,7 +449,7 @@ export const Launchpad: React.FC = () => {
             transition={{ delay: 1.4, duration: 0.6 }}
             className="font-sans text-sm md:text-base text-white max-w-3xl mb-12 leading-relaxed text-balance"
           >
-            You've got the spark. We'll find your market, your customers, and your starting point.
+            Turn a rough spark into a structured startup analysis: market, customers, risks, monetization, distribution, and next build prompts.
           </motion.p>
 
           {/* Key status indicator */}
@@ -451,7 +462,7 @@ export const Launchpad: React.FC = () => {
             {apiKey ? (
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-sans">
                 <Key className="w-3 h-3" />
-                <span>API key active</span>
+                <span>Gemini connected</span>
                 <button
                   onClick={handleClearKey}
                   className="ml-1 p-0.5 hover:bg-white/10 rounded transition-colors"
@@ -466,7 +477,7 @@ export const Launchpad: React.FC = () => {
                 className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 text-xs font-sans transition-all"
               >
                 <Key className="w-3 h-3" />
-                <span>Add your Gemini API key to start</span>
+                <span>Add Gemini key to start</span>
               </button>
             )}
           </motion.div>
@@ -530,7 +541,7 @@ export const Launchpad: React.FC = () => {
             {activeSavedId && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-sans text-white/60">
                 <PencilLine className="w-3.5 h-3.5 text-velocity-red" />
-                Editing a saved lab run
+                Editing a saved Launchpad run
                 <button
                   type="button"
                   onClick={handleStartNewAnalysis}
@@ -729,7 +740,7 @@ export const Launchpad: React.FC = () => {
               />
             </div>
             <p className="mt-3 text-center font-sans text-[11px] uppercase tracking-[0.22em] text-white/35">
-              A preview of what Lab will do with your idea
+              A preview of what Launchpad will do with your idea
             </p>
           </motion.div>
         )}

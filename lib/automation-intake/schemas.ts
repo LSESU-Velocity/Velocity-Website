@@ -219,6 +219,30 @@ export type AutomationIntakeDraft = z.infer<typeof AutomationIntakeDraftSchema>;
 
 // --- API contracts ---
 
+export const MagicEmailStartRequestSchema = z
+  .object({
+    email: bounded(SHORT).email(),
+    sessionId: z.string().max(64).optional(),
+  })
+  .strict();
+export type MagicEmailStartRequest = z.infer<typeof MagicEmailStartRequestSchema>;
+
+export const MagicEmailStartResponseSchema = z.object({
+  success: z.literal(true),
+  email: bounded(SHORT).email(),
+  devVerificationUrl: z.string().url().optional(),
+});
+export type MagicEmailStartResponse = z.infer<typeof MagicEmailStartResponseSchema>;
+
+export const EmailVerificationStatusResponseSchema = z.object({
+  verified: z.boolean(),
+  email: bounded(SHORT).email().optional(),
+  expiresAt: z.number().int().positive().optional(),
+});
+export type EmailVerificationStatusResponse = z.infer<
+  typeof EmailVerificationStatusResponseSchema
+>;
+
 export const ChatRequestSchema = z
   .object({
     draft: AutomationIntakeDraftSchema,

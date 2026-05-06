@@ -119,7 +119,7 @@ export const Features: React.FC = () => {
                         <FeatureCard
                             step="01"
                             title="Workshops on the Latest AI Tools"
-                            description="Hands-on sessions with Cursor, Claude, Lovable, v0, and Gemini. Learn the prompt-to-product workflows that top builders actually use."
+                            description="Hands-on sessions with Cursor, Claude, Lovable, v0, and model APIs. Learn the prompt-to-product workflows that top builders actually use."
                             icon={Sparkles}
                         />
                         <FeatureCard

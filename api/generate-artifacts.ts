@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { handleCors } from '../lib/serverSecurity.js';
+import { getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { DashboardDTOSchema, generateFounderArtifacts } from '../lib/launchpad-lab/index.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -9,10 +9,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const userApiKey = req.headers['x-gemini-key'] as string | undefined;
+  const userApiKey = getLaunchpadProviderKey(req);
 
-  if (!userApiKey || typeof userApiKey !== 'string' || !userApiKey.trim()) {
-    return res.status(401).json({ error: 'A Gemini API key is required. Pass it via the x-gemini-key header.' });
+  if (!userApiKey) {
+    return res.status(401).json({ error: 'A Google AI Studio API key is required.' });
   }
 
   try {

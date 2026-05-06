@@ -2,7 +2,7 @@
  * Gemini model factory for the Automation Intake feature.
  *
  * This deliberately does NOT share code with lib/launchpad-lab/model.ts:
- * - Launchpad uses BYOK (user-supplied key via x-gemini-key header)
+ * - Launchpad uses BYOK (user-supplied key via x-provider-key header)
  * - Automation Intake uses a server-owned key from AUTOMATION_INTAKE_GEMINI_API_KEY
  *
  * If the env var is absent, createIntakeModel throws MissingModelKeyError so
