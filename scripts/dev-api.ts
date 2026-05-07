@@ -8,6 +8,7 @@ import mutateWidgetHandler from '../api/mutate-widget.ts';
 import automationIntakeChatHandler from '../api/automation-intake-chat.ts';
 import automationIntakeEmailHandler from '../api/automation-intake-email.ts';
 import automationIntakeSubmitHandler from '../api/automation-intake-submit.ts';
+import automationIntakeAdminHandler from '../api/automation-intake-admin.ts';
 
 process.env.NODE_ENV ||= 'development';
 
@@ -65,6 +66,10 @@ app.all('/api/automation-intake-email', async (req, res) => {
 
 app.all('/api/automation-intake-submit', async (req, res) => {
   await automationIntakeSubmitHandler(req as any, res as any);
+});
+
+app.all('/api/automation-intake-admin', async (req, res) => {
+  await automationIntakeAdminHandler(req as any, res as any);
 });
 
 app.listen(port, () => {

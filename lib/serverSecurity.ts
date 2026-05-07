@@ -68,7 +68,7 @@ export function handleCors(req: VercelRequest, res: VercelResponse): boolean {
   }
 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-provider-key, x-gemini-key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-admin-token, x-provider-key, x-gemini-key');
 
   if (req.method === 'OPTIONS') {
     res.status(200).end();

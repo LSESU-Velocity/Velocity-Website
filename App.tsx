@@ -7,6 +7,7 @@ import { Home } from './components/Home';
 import { Launchpad } from './components/Launchpad';
 import { LaunchpadSources } from './components/LaunchpadSources';
 import { AutomationIntake } from './components/AutomationIntake';
+import { AutomationIntakeAdmin } from './components/AutomationIntakeAdmin';
 import { Blog } from './components/Blog';
 import { LockedEventsPage } from './components/LockedEventsPage';
 import { LockedResourcePage } from './components/LockedResourcePage';
@@ -29,6 +30,12 @@ const resourcePageComponents: Partial<Record<string, React.ComponentType>> = {
 };
 
 const App: React.FC = () => {
+  const adminRouteElement = import.meta.env.DEV ? (
+    <AutomationIntakeAdmin />
+  ) : (
+    <Navigate to="/" replace />
+  );
+
   return (
     <Router>
       <div className="relative min-h-screen selection:bg-velocity-red selection:text-white bg-velocity-black">
@@ -43,6 +50,7 @@ const App: React.FC = () => {
               <Route path="/launchpad/privacy-security" element={<LaunchpadPrivacySecurity />} />
               <Route path="/launchpad/sources/:analysisId" element={<LaunchpadSources />} />
               <Route path="/automation-intake" element={<AutomationIntake />} />
+              <Route path="/automation-intake/admin" element={adminRouteElement} />
               <Route path="/events" element={<LockedEventsPage />} />
               <Route path="/resources" element={<Resources />} />
               {resourceCatalog.map((resource) => {
