@@ -11,6 +11,7 @@ import { getFirestore, FieldValue, type Firestore } from 'firebase-admin/firesto
 import { encryptText } from '../encryption.js';
 import type {
   AutomationIntakeDraft,
+  ChatMessage,
   FinalBrief,
   SubmissionMode,
 } from './schemas.js';
@@ -40,6 +41,7 @@ function initFirebaseForIntake(): Firestore {
 
 export interface SaveIntakeArgs {
   draft: AutomationIntakeDraft;
+  rawTranscript?: ChatMessage[];
   finalBrief: FinalBrief;
   submissionMode: SubmissionMode;
   ipHash?: string;
@@ -57,7 +59,9 @@ export async function saveIntakeSubmission(args: SaveIntakeArgs): Promise<SaveIn
 
   const db = initFirebaseForIntake();
 
-  const { draft, finalBrief, submissionMode, ipHash } = args;
+  const { draft, rawTranscript, finalBrief, submissionMode, ipHash } = args;
+  const transcriptForRecord = rawTranscript ?? draft.transcript;
+  const rawUserMessages = transcriptForRecord.filter((message) => message.role === 'user');
 
   // Plaintext index fields only. Everything sensitive lives in the encrypted blobs.
   const plaintextIndex = {
@@ -82,6 +86,8 @@ export async function saveIntakeSubmission(args: SaveIntakeArgs): Promise<SaveIn
     ...plaintextIndex,
     draftEncrypted: encryptText(JSON.stringify(draftPayload), ENCRYPTION_ENV_VAR),
     transcriptEncrypted: encryptText(JSON.stringify(draft.transcript), ENCRYPTION_ENV_VAR),
+    rawTranscriptEncrypted: encryptText(JSON.stringify(transcriptForRecord), ENCRYPTION_ENV_VAR),
+    rawUserMessagesEncrypted: encryptText(JSON.stringify(rawUserMessages), ENCRYPTION_ENV_VAR),
     finalBriefEncrypted: encryptText(JSON.stringify(finalBrief), ENCRYPTION_ENV_VAR),
   };
 

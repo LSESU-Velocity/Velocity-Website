@@ -1,13 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Sparkles, ListTodo } from 'lucide-react';
-import type { FinalBrief } from '../../lib/automation-intake/schemas';
+import {
+  FINAL_BRIEF_OPEN_QUESTIONS_MAX,
+  type FinalBrief,
+} from '../../lib/automation-intake/schemas';
 
 interface Props {
   brief: FinalBrief;
 }
 
 export const AutomationIntakeComplete: React.FC<Props> = ({ brief }) => {
+  const openQuestions = brief.openQuestions.slice(0, FINAL_BRIEF_OPEN_QUESTIONS_MAX);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -26,7 +31,6 @@ export const AutomationIntakeComplete: React.FC<Props> = ({ brief }) => {
           <h2 className="text-2xl md:text-3xl text-white font-light leading-tight">
             Thanks — Velocity has your intake.
           </h2>
-          <p className="text-white/80 mt-3 leading-relaxed">{brief.clientSummary}</p>
         </div>
       </div>
 
@@ -80,14 +84,14 @@ export const AutomationIntakeComplete: React.FC<Props> = ({ brief }) => {
         </div>
       </section>
 
-      {brief.openQuestions.length > 0 && (
+      {openQuestions.length > 0 && (
         <section className="bg-white/[0.02] border border-white/10 backdrop-blur-sm p-6 md:p-8 space-y-3">
           <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-velocity-red/70">
             <ListTodo className="w-3.5 h-3.5" />
             Things we might follow up on
           </div>
           <ul className="space-y-2 text-sm text-white/80">
-            {brief.openQuestions.map((q, idx) => (
+            {openQuestions.map((q, idx) => (
               <li key={idx} className="flex gap-2">
                 <span className="text-velocity-red/70 shrink-0">—</span>
                 <span>{q}</span>

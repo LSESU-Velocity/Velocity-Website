@@ -22,6 +22,8 @@ import { z } from 'zod';
 
 import {
   checkMinimumCompleteness,
+  FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS,
+  FINAL_BRIEF_OPEN_QUESTIONS_MAX,
   FinalBriefSchema,
   formatMissingRequirements,
   TOOL_STACK_CATEGORIES,
@@ -231,7 +233,7 @@ const FOLLOW_UP_REJECT_PATTERNS: RegExp[] = [
 ];
 
 const FILLER_OPENER =
-  /^(great|awesome|perfect|amazing|love (it|that)|fantastic|wonderful)\b[!.,]*\s*/i;
+  /^(great|awesome|perfect|amazing|love (it|that)|fantastic|wonderful|got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b(?:\s+that\b)?[!.,:;—–-]*\s*/i;
 
 /**
  * Clean a model-generated follow-up into plain text. Returns null when the
@@ -331,9 +333,10 @@ export async function advanceChatTurn(
   }
 
   // 3. Assisted path.
-  const safeAnswer = sanitizeFreeText(args.answer, { maxLength: 1500 });
+  const rawAnswer = typeof args.answer === 'string' ? args.answer.trim().slice(0, 2000) : '';
+  const safeAnswer = sanitizeFreeText(rawAnswer, { maxLength: 1500 });
 
-  if (!safeAnswer.trim()) {
+  if (!rawAnswer.trim()) {
     const existing = findLastAssistant(args.draft.transcript) ?? synthAssistant(args.draft.currentStep);
     return {
       draft: args.draft,
@@ -358,7 +361,7 @@ export async function advanceChatTurn(
       args.draft.chatAnswers[args.draft.currentStep]?.trim(),
     );
     if (hasExistingAnswer) {
-      return advanceAfterOptOutWithData(args.draft, safeAnswer);
+      return advanceAfterOptOutWithData(args.draft, rawAnswer);
     }
     const result = advanceDeterministicDraftFromAnswer({
       draft: args.draft,
@@ -383,7 +386,7 @@ export async function advanceChatTurn(
       {
         id: makeId(),
         role: 'user',
-        content: safeAnswer,
+        content: rawAnswer,
         createdAt: nowIso(),
         stepId,
       },
@@ -392,11 +395,9 @@ export async function advanceChatTurn(
 
   // Extract rich patch via model (or heuristic fallback). The deterministic
   // pre-check gives the model a bounded set of legitimate follow-up targets.
-  const preliminaryScope = assessStepScope(
-    stepId,
-    applyPatch(working, buildHeuristicPatch(stepId, nextChat)),
-    nextChat,
-  );
+  const heuristicPatch = buildHeuristicPatch(stepId, nextChat);
+  working = applyPatch(working, heuristicPatch);
+  const preliminaryScope = assessStepScope(stepId, working, nextChat);
   const extraction = await extractPatchForStep(stepId, safeAnswer, preliminaryScope);
   working = applyPatch(working, extraction.patch);
   working = { ...working, questionCount: working.questionCount + 1 };
@@ -502,7 +503,7 @@ function wrapDeterministic(
  */
 function advanceAfterOptOutWithData(
   draft: AutomationIntakeDraft,
-  safeAnswer: string,
+  rawAnswer: string,
 ): AdvanceChatTurnResult {
   const stepId = draft.currentStep;
 
@@ -514,7 +515,7 @@ function advanceAfterOptOutWithData(
       {
         id: makeId(),
         role: 'user',
-        content: safeAnswer,
+        content: rawAnswer,
         createdAt: nowIso(),
         stepId,
       },
@@ -890,6 +891,9 @@ function sanitizeAcknowledgment(raw: unknown): string | undefined {
     if (!trimmed) return undefined;
     trimmed = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   }
+  if (/^(got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b/i.test(trimmed)) {
+    return undefined;
+  }
   return trimmed;
 }
 
@@ -920,7 +924,7 @@ export async function generateFinalBrief(draft: AutomationIntakeDraft): Promise<
 
     const parsed = FinalBriefSchema.safeParse(result);
     if (!parsed.success) return buildHeuristicFinalBrief(draft);
-    return parsed.data;
+    return normalizeFinalBrief(parsed.data);
   } catch (error) {
     console.warn(
       'Final brief generation failed, falling back:',
@@ -935,6 +939,33 @@ function summarizeDraftForBrief(draft: AutomationIntakeDraft): string {
   void _t;
   void _b;
   return JSON.stringify(rest);
+}
+
+function truncateSubmittedSummary(raw: string): string {
+  const text = raw.replace(/\s+/g, ' ').trim();
+  if (text.length <= FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS) return text;
+
+  const hardLimit = Math.max(0, FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS - 3);
+  const clipped = text.slice(0, hardLimit).trimEnd();
+  const sentenceCut = Math.max(
+    clipped.lastIndexOf('. '),
+    clipped.lastIndexOf('? '),
+    clipped.lastIndexOf('! '),
+  );
+
+  if (sentenceCut >= Math.floor(FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS * 0.55)) {
+    return clipped.slice(0, sentenceCut + 1);
+  }
+
+  return `${clipped.replace(/[,\s;:.]+$/g, '')}...`;
+}
+
+function normalizeFinalBrief(brief: FinalBrief): FinalBrief {
+  return {
+    ...brief,
+    clientSummary: truncateSubmittedSummary(brief.clientSummary),
+    openQuestions: brief.openQuestions.slice(0, FINAL_BRIEF_OPEN_QUESTIONS_MAX),
+  };
 }
 
 function buildHeuristicFinalBrief(draft: AutomationIntakeDraft): FinalBrief {
@@ -954,7 +985,7 @@ function buildHeuristicFinalBrief(draft: AutomationIntakeDraft): FinalBrief {
     `AI maturity: ${draft.aiUsage.maturity ?? 'unknown'}.`;
 
   return {
-    clientSummary: clientSummary.slice(0, 2000),
+    clientSummary: truncateSubmittedSummary(clientSummary),
     internalSummary: internalSummary.slice(0, 2000),
     recommendedProjects: [
       {
@@ -975,6 +1006,6 @@ function buildHeuristicFinalBrief(draft: AutomationIntakeDraft): FinalBrief {
     openQuestions: [
       'Which team member owns the target workflow day-to-day?',
       'Are there existing integrations or scripts we should plug into?',
-    ],
+    ].slice(0, FINAL_BRIEF_OPEN_QUESTIONS_MAX),
   };
 }

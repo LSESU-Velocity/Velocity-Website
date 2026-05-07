@@ -10,7 +10,7 @@ import {
   type FinalBrief,
   type ToolStackCategory,
 } from '../../lib/automation-intake/schemas';
-import { TOOL_CATEGORIES } from '../../lib/automation-intake/questions';
+import { STEP_DEFINITIONS, TOOL_CATEGORIES } from '../../lib/automation-intake/questions';
 import { postIntakeSubmit, IntakeApiError } from '../../lib/automation-intake/client';
 import type { IntakeViewMode } from './AutomationIntakeToggle';
 
@@ -26,19 +26,22 @@ interface CardProps {
   title: string;
   sectionId: string;
   onEdit: (section: string) => void;
+  editable?: boolean;
   children: React.ReactNode;
 }
-const Card: React.FC<CardProps> = ({ title, sectionId, onEdit, children }) => (
+const Card: React.FC<CardProps> = ({ title, sectionId, onEdit, editable = true, children }) => (
   <section className="bg-white/[0.02] border border-white/10 backdrop-blur-sm p-6 md:p-7 space-y-3">
     <div className="flex items-center justify-between">
       <h3 className="text-[11px] uppercase tracking-[0.25em] text-velocity-red/70">{title}</h3>
-      <button
-        type="button"
-        onClick={() => onEdit(sectionId)}
-        className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors"
-      >
-        <Pencil className="w-3 h-3" /> Edit
-      </button>
+      {editable && (
+        <button
+          type="button"
+          onClick={() => onEdit(sectionId)}
+          className="inline-flex items-center gap-1.5 text-xs text-white/50 hover:text-white transition-colors"
+        >
+          <Pencil className="w-3 h-3" /> Edit
+        </button>
+      )}
     </div>
     <div className="text-sm text-white/90 leading-relaxed">{children}</div>
   </section>
@@ -83,6 +86,14 @@ export const AutomationIntakeReview: React.FC<Props> = ({
 
   const namedWorkflows = draft.workflows.filter((w) => w.name?.trim());
   const primary = namedWorkflows[0];
+  const userChatMessages = useMemo(
+    () => draft.transcript.filter((message) => message.role === 'user' && message.content.trim()),
+    [draft.transcript],
+  );
+  const stepLabels = useMemo(
+    () => new Map(STEP_DEFINITIONS.map((step) => [step.id, step.title])),
+    [],
+  );
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
@@ -264,6 +275,24 @@ export const AutomationIntakeReview: React.FC<Props> = ({
           }
         />
       </Card>
+
+      {userChatMessages.length > 0 && (
+        <Card title="Chat record" sectionId="chat-record" onEdit={onEdit} editable={false}>
+          <div className="space-y-3">
+            {userChatMessages.map((message, index) => (
+              <div
+                key={message.id || `${message.stepId ?? 'step'}-${index}`}
+                className="border-l border-velocity-red/40 pl-4"
+              >
+                <div className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">
+                  {message.stepId ? stepLabels.get(message.stepId) ?? message.stepId : 'Chat'} · Reply {index + 1}
+                </div>
+                <div className="whitespace-pre-wrap text-white/85">{message.content}</div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {error && (
         <div className="flex items-start gap-2 text-sm text-velocity-red bg-velocity-red/10 border border-velocity-red/30 px-4 py-3">

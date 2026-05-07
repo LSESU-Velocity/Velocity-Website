@@ -14,7 +14,7 @@ import {
   formatMissingRequirements,
   type SubmitResponse,
 } from '../lib/automation-intake/schemas.js';
-import { generateDeterministicFinalBrief } from '../lib/automation-intake/deterministic.js';
+import { generateFinalBrief } from '../lib/automation-intake/engine.js';
 import { sanitizeDraftForServer } from '../lib/automation-intake/sanitize.js';
 import { saveIntakeSubmission } from '../lib/automation-intake/persistence.js';
 
@@ -101,6 +101,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ...draft,
     workflows: draft.workflows.filter((w) => w.name && w.name.trim().length > 0),
   };
+  const rawTranscript = cleanedDraft.transcript;
   const sanitizedDraftBase = sanitizeDraftForServer(cleanedDraft);
   const sanitizedDraft = {
     ...sanitizedDraftBase,
@@ -114,10 +115,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const finalBrief = await generateDeterministicFinalBrief(sanitizedDraft);
+    const finalBrief = await generateFinalBrief(sanitizedDraft);
 
     const { savedId } = await saveIntakeSubmission({
       draft: sanitizedDraft,
+      rawTranscript,
       finalBrief,
       submissionMode,
       ipHash: hashClientIp(ip),

@@ -13,6 +13,8 @@ import {
 } from './scope-quality.js';
 import {
   checkMinimumCompleteness,
+  FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS,
+  FINAL_BRIEF_OPEN_QUESTIONS_MAX,
   formatMissingRequirements,
   type AutomationIntakeDraft,
   type ChatAnswers,
@@ -116,6 +118,7 @@ export function advanceDeterministicDraftFromAnswer(
   args: DeterministicAdvanceArgs,
 ): DeterministicAdvanceResult {
   const { draft, answer } = args;
+  const rawAnswer = typeof answer === 'string' ? answer.trim().slice(0, 2000) : '';
   const safeAnswer = sanitizeFreeText(answer, { maxLength: 2000 });
   const { answers, skips } = extractChatState(draft);
 
@@ -161,7 +164,19 @@ export function advanceDeterministicDraftFromAnswer(
     skips.delete(draft.currentStep);
   }
 
-  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, draft.transcript);
+  const transcriptSeed = rawAnswer
+    ? [
+        ...draft.transcript,
+        {
+          id: makeId(),
+          role: 'user' as const,
+          content: rawAnswer,
+          createdAt: nowIso(),
+          stepId: draft.currentStep,
+        },
+      ]
+    : draft.transcript;
+  const nextDraft = buildDraftFromChatState(draft.sessionId, answers, skips, transcriptSeed);
   const assistantMessage = getTrailingAssistantMessage(nextDraft.transcript, nextDraft.currentStep);
 
   return {
@@ -237,7 +252,7 @@ export async function generateDeterministicFinalBrief(
     `AI maturity: ${draft.aiUsage.maturity ?? 'unknown'}.`;
 
   return {
-    clientSummary: clientSummary.slice(0, 2000),
+    clientSummary: truncateSubmittedSummary(clientSummary),
     internalSummary: internalSummary.slice(0, 2000),
     recommendedProjects: [
       {
@@ -258,8 +273,27 @@ export async function generateDeterministicFinalBrief(
     openQuestions: [
       'Which team member owns the target workflow day-to-day?',
       'Are there existing integrations or scripts we should plug into?',
-    ],
+    ].slice(0, FINAL_BRIEF_OPEN_QUESTIONS_MAX),
   };
+}
+
+function truncateSubmittedSummary(raw: string): string {
+  const text = raw.replace(/\s+/g, ' ').trim();
+  if (text.length <= FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS) return text;
+
+  const hardLimit = Math.max(0, FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS - 3);
+  const clipped = text.slice(0, hardLimit).trimEnd();
+  const sentenceCut = Math.max(
+    clipped.lastIndexOf('. '),
+    clipped.lastIndexOf('? '),
+    clipped.lastIndexOf('! '),
+  );
+
+  if (sentenceCut >= Math.floor(FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS * 0.55)) {
+    return clipped.slice(0, sentenceCut + 1);
+  }
+
+  return `${clipped.replace(/[,\s;:.]+$/g, '')}...`;
 }
 
 function buildDraftFromChatState(
@@ -413,7 +447,12 @@ function buildTranscript(
       .filter(Boolean)
       .join('\n');
 
-    if (existingUserText === normalizedAnswer) return section;
+    if (
+      existingUserText === normalizedAnswer ||
+      sanitizeFreeText(existingUserText, { maxLength: 2000 }) === normalizedAnswer
+    ) {
+      return section;
+    }
     if (!existingUserText) return [...section, synthUser(stepId, normalizedAnswer)];
 
     const appendedPrefix = `${existingUserText}\n`;
@@ -640,9 +679,9 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
 
   switch (stepId) {
     case 'business':
-      return { stepId, data: { whatTheyDo: answer.slice(0, 2000) } };
+      return { stepId, data: inferBusinessPatch(answer) };
     case 'systems': {
-      const tokens = pickTokens(answer, 12);
+      const tokens = pickTokens(answer, 30);
       return { stepId, data: { toolStack: { other: tokens } } };
     }
     case 'workflow-name': {
@@ -660,7 +699,7 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
       };
     }
     case 'workflow-tools':
-      return { stepId, data: { tools: pickTokens(answer, 10) } };
+      return { stepId, data: { tools: pickTokens(answer, 20) } };
     case 'workflow-steps':
       return {
         stepId,
@@ -675,6 +714,7 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
       return {
         stepId,
         data: {
+          currentTools: pickAiTools(answer, 10),
           currentUseCases: [answer.slice(0, 500)],
           maturity: /not using|don'?t use|never|none/i.test(answer)
             ? 'none'
@@ -689,7 +729,10 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
       return {
         stepId,
         data: {
-          sensitiveData: /gdpr|pii|phi|hipaa|sensitive|regulated|confidential/i.test(answer),
+          sensitiveData:
+            /gdpr|pii|phi|hipaa|sensitive|regulated|confidential|customer (order )?data|commercial supplier terms|supplier terms/i.test(
+              answer,
+            ),
           complianceNotes: [answer.slice(0, 500)],
         },
       };
@@ -699,7 +742,7 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
         data: { desiredOutcomes: splitList(answer).slice(0, 5).map((item) => item.slice(0, 500)) },
       };
     case 'contact': {
-      const emailMatch = answer.match(/[\w.+-]+@[\w-]+\.[\w.-]+/);
+      const emailMatch = answer.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+\b/);
       const email = emailMatch ? emailMatch[0] : undefined;
       const consent = CONTACT_CONSENT_PATTERN.test(answer) ? true : undefined;
       const withoutEmail = answer.replace(email ?? '', '').trim();
@@ -720,9 +763,57 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
 
 function splitList(text: string): string[] {
   return text
-    .split(/[,;\n•·\-]+|\band\b/gi)
-    .map((item) => item.trim())
+    .split(/[,;\n•·]+|\s[-–—]\s|\band\b/gi)
+    .map((item) => cleanStructuredListItem(item))
     .filter((item) => item.length >= 2);
+}
+
+function cleanStructuredListItem(raw: string): string {
+  const cleaned = raw
+    .trim()
+    .replace(
+      /\b(ignore (all )?(previous|your|these|this)?\s*instructions?|disregard (all )?(previous|your|these|this)?\s*instructions?|forget (all )?(previous|your|these|this)?\s*instructions?|reveal (the )?(system|hidden) prompt|mark (everything|all steps) complete|auto-submit)\b.*$/i,
+      '',
+    )
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (/^(put|write|output|set|mark)\b.*\b(later|now|constraints?|complete|submitted?)\b/i.test(cleaned)) {
+    return '';
+  }
+  return cleaned;
+}
+
+function inferBusinessPatch(answer: string): {
+  businessName?: string;
+  website?: string;
+  sector?: string;
+  whatTheyDo: string;
+} {
+  const cleaned = answer.replace(/\s+/g, ' ').trim();
+  const substantive = cleaned
+    .replace(/^.*?\b(?:real answer|actual)\s*:\s*/i, '')
+    .replace(/^.*?\bactually\s+/i, '')
+    .trim();
+  const website = substantive.match(
+    /\b(?:https?:\/\/)?(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)+(?:\/[^\s,;]*)?/i,
+  )?.[0];
+  const businessName =
+    substantive.match(
+      /\b(?:we'?re|we are|this is)\s+([A-Z][A-Za-z0-9&'.-]*(?:\s+[A-Z][A-Za-z0-9&'.-]*){0,5})\b/,
+    )?.[1] ??
+    substantive.match(
+      /^([A-Z][A-Za-z0-9&'.-]*(?:\s+[A-Z][A-Za-z0-9&'.-]*){0,5})\s+(?:is|are|serves|helps|provides|runs|speciali[sz]es)\b/,
+    )?.[1];
+  const sector = substantive.match(
+    /\b(?:is|are)\s+(?:a|an)\s+([a-z][a-z0-9& /+-]+?)(?:\s+(?:for|serving|with|using)\b|;|,|\.|$)/i,
+  )?.[1];
+
+  return {
+    businessName: businessName?.slice(0, 120),
+    website: website?.slice(0, 120),
+    sector: sector?.slice(0, 120),
+    whatTheyDo: answer.slice(0, 2000),
+  };
 }
 
 const JUNK_WORKFLOW_PATTERNS = [
@@ -745,11 +836,14 @@ function cleanWorkflowName(raw: string): string | null {
 function pickTokens(text: string, max: number): string[] {
   const knownTools: Array<[RegExp, string]> = [
     [/\bgmail\b/i, 'Gmail'],
+    [/\bgoogle calendar\b/i, 'Google Calendar'],
     [/\boutlook\b/i, 'Outlook'],
+    [/\bmicrosoft 365\b/i, 'Microsoft 365'],
     [/\bslack\b/i, 'Slack'],
     [/\bteams\b/i, 'Microsoft Teams'],
     [/\bnotion\b/i, 'Notion'],
     [/\basana\b/i, 'Asana'],
+    [/\bclickup\b/i, 'ClickUp'],
     [/\btrello\b/i, 'Trello'],
     [/\bjira\b/i, 'Jira'],
     [/\blinear\b/i, 'Linear'],
@@ -759,14 +853,32 @@ function pickTokens(text: string, max: number): string[] {
     [/\bzendesk\b/i, 'Zendesk'],
     [/\bintercom\b/i, 'Intercom'],
     [/\bgoogle sheets?\b|\bsheets?\b/i, 'Google Sheets'],
+    [/\blooker studio\b/i, 'Looker Studio'],
+    [/\bpower\s*bi\b/i, 'Power BI'],
+    [/\btableau\b/i, 'Tableau'],
     [/\bexcel\b/i, 'Excel'],
     [/\bairtable\b/i, 'Airtable'],
     [/\bgoogle docs?\b|\bdocs?\b/i, 'Google Docs'],
     [/\bgoogle drive\b|\bdrive\b/i, 'Google Drive'],
-    [/\bdropbox\b/i, 'Dropbox'],
+    [/\bgoogle workspace\b/i, 'Google Workspace'],
+    [/\bonedrive\b/i, 'OneDrive'],
     [/\bsharepoint\b/i, 'SharePoint'],
+    [/\bdocusign\b/i, 'DocuSign'],
+    [/\bcanva\b/i, 'Canva'],
+    [/\bfigma\b/i, 'Figma'],
+    [/\bcliniko\b/i, 'Cliniko'],
+    [/\bsemble\b/i, 'Semble'],
+    [/\bbamboohr\b/i, 'BambooHR'],
+    [/\bhibob\b/i, 'HiBob'],
+    [/\bmonday(?:\.com)?\b/i, 'Monday.com'],
+    [/\bnetsuite\b/i, 'NetSuite'],
+    [/\bodoo\b/i, 'Odoo'],
+    [/\bshipbob\b/i, 'ShipBob'],
+    [/\bdentally(?:\s+pms)?\b/i, 'Dentally PMS'],
+    [/\bwhatsapp(?:\s+business)?\b/i, 'WhatsApp Business'],
+    [/\bdropbox\b/i, 'Dropbox'],
     [/\bzapier\b/i, 'Zapier'],
-    [/\bmake\.com\b/i, 'Make'],
+    [/\bmake(?:\.com)?\b/i, 'Make'],
     [/\bn8n\b/i, 'n8n'],
     [/\bxero\b/i, 'Xero'],
     [/\bquickbooks\b/i, 'QuickBooks'],
@@ -790,9 +902,47 @@ function pickTokens(text: string, max: number): string[] {
   const out: string[] = [];
   for (const item of matches) {
     const key = item.toLowerCase();
+    if (key === 'calendar' && seen.has('google calendar')) continue;
+    if (
+      /^(try|put|other|critical|other critical|pretend|json|schema|overwrite|real|real answer|actual answer|system test)$/.test(
+        key,
+      )
+    ) {
+      continue;
+    }
+    if (/\b(ignore|disregard|forget|instructions?|prompt|schema|overwrite|pretend)\b/i.test(item)) {
+      continue;
+    }
     if (seen.has(key)) continue;
     seen.add(key);
     out.push(item);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+function pickAiTools(text: string, max: number): string[] {
+  const knownAiTools: Array<[RegExp, string]> = [
+    [/\bchatgpt\b|\bchat gpt\b/i, 'ChatGPT'],
+    [/\bgithub copilot\b/i, 'GitHub Copilot'],
+    [/\bmicrosoft copilot\b/i, 'Microsoft Copilot'],
+    [/\bcopilot\b/i, 'Copilot'],
+    [/\bgemini\b/i, 'Gemini'],
+    [/\bclaude\b/i, 'Claude'],
+    [/\bperplexity\b/i, 'Perplexity'],
+    [/\bmidjourney\b/i, 'Midjourney'],
+    [/\bdall[-\s]?e\b/i, 'DALL-E'],
+    [/\bnotion ai\b/i, 'Notion AI'],
+    [/\bjasper\b/i, 'Jasper'],
+  ];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const [pattern, label] of knownAiTools) {
+    if (!pattern.test(text)) continue;
+    const key = label.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(label);
     if (out.length >= max) break;
   }
   return out;

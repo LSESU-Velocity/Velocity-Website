@@ -43,7 +43,7 @@ type ParsedResponse<T> = {
   };
 };
 
-const DEFAULT_MODEL = 'gpt-5-nano';
+const DEFAULT_MODEL = 'gpt-5.4-nano';
 const DEFAULT_MAX_RETRIES = 0;
 const DEFAULT_REASONING_EFFORT = 'minimal';
 const DEFAULT_TEXT_VERBOSITY = 'low';

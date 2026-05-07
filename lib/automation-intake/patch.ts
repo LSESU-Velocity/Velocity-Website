@@ -4,14 +4,16 @@
  * dedupes arrays, and ignores unknown keys.
  */
 import {
+  CONTACT_EMAIL_PATTERN,
   TOOL_STACK_CATEGORIES,
   type AutomationIntakeDraft,
   type ToolStack,
+  type ToolStackCategory,
   type Workflow,
   type StepId,
 } from './schemas.js';
 
-const MAX_ARRAY_APPEND = 20;
+const MAX_ARRAY_APPEND = 40;
 const GENERIC_TOOL_TOKENS = new Set([
   'app',
   'apps',
@@ -21,11 +23,20 @@ const GENERIC_TOOL_TOKENS = new Set([
   'platforms',
   'program',
   'programs',
+  'also',
+  'google',
+  'microsoft',
+  'noise',
+  'power',
+  'random',
+  'try',
   'same',
   'software',
   'stuff',
+  'core',
   'system',
   'systems',
+  'the',
   'thing',
   'things',
   'tool',
@@ -58,28 +69,51 @@ const KNOWN_TOOL_LABELS: Record<string, string> = {
   calendar: 'Calendar',
   crm: 'CRM',
   docs: 'Google Docs',
+  dentally: 'Dentally',
+  'dentally pms': 'Dentally PMS',
   dropbox: 'Dropbox',
   email: 'Email',
   erp: 'ERP',
   excel: 'Excel',
   gmail: 'Gmail',
+  'google calendar': 'Google Calendar',
   'google docs': 'Google Docs',
   'google drive': 'Google Drive',
+  'google workspace': 'Google Workspace',
   'google sheets': 'Google Sheets',
   'help desk': 'Support Desk',
+  bamboohr: 'BambooHR',
+  canva: 'Canva',
+  cliniko: 'Cliniko',
+  clickup: 'ClickUp',
+  docusign: 'DocuSign',
+  figma: 'Figma',
+  hibob: 'HiBob',
   hubspot: 'HubSpot',
   intercom: 'Intercom',
   jira: 'Jira',
   linear: 'Linear',
+  'looker studio': 'Looker Studio',
   'make.com': 'Make',
   'microsoft teams': 'Microsoft Teams',
+  'microsoft 365': 'Microsoft 365',
+  monday: 'Monday.com',
+  'monday.com': 'Monday.com',
+  make: 'Make',
+  netsuite: 'NetSuite',
   n8n: 'n8n',
   notion: 'Notion',
+  odoo: 'Odoo',
+  onedrive: 'OneDrive',
   outlook: 'Outlook',
   pipedrive: 'Pipedrive',
   pos: 'POS',
+  'power bi': 'Power BI',
+  tableau: 'Tableau',
   quickbooks: 'QuickBooks',
   salesforce: 'Salesforce',
+  semble: 'Semble',
+  shipbob: 'ShipBob',
   sharepoint: 'SharePoint',
   sheets: 'Google Sheets',
   shopify: 'Shopify',
@@ -91,9 +125,63 @@ const KNOWN_TOOL_LABELS: Record<string, string> = {
   teams: 'Microsoft Teams',
   ticketing: 'Support Desk',
   trello: 'Trello',
+  whatsapp: 'WhatsApp',
+  'whatsapp business': 'WhatsApp Business',
   xero: 'Xero',
   zapier: 'Zapier',
   zendesk: 'Zendesk',
+};
+
+const TOOL_CATEGORY_BY_LABEL: Record<string, ToolStackCategory> = {
+  calendar: 'emailAndCalendar',
+  email: 'emailAndCalendar',
+  gmail: 'emailAndCalendar',
+  'google calendar': 'emailAndCalendar',
+  'google workspace': 'emailAndCalendar',
+  'microsoft 365': 'emailAndCalendar',
+  outlook: 'emailAndCalendar',
+  slack: 'communication',
+  'microsoft teams': 'communication',
+  teams: 'communication',
+  whatsapp: 'communication',
+  'whatsapp business': 'communication',
+  'google docs': 'docsAndPresentations',
+  docusign: 'docsAndPresentations',
+  docs: 'docsAndPresentations',
+  notion: 'docsAndPresentations',
+  canva: 'designAndCreative',
+  figma: 'designAndCreative',
+  asana: 'projectManagement',
+  clickup: 'projectManagement',
+  jira: 'projectManagement',
+  linear: 'projectManagement',
+  monday: 'projectManagement',
+  'monday.com': 'projectManagement',
+  trello: 'projectManagement',
+  airtable: 'projectManagement',
+  'google drive': 'fileStorage',
+  onedrive: 'fileStorage',
+  dropbox: 'fileStorage',
+  sharepoint: 'fileStorage',
+  excel: 'reportingAndDashboards',
+  'google sheets': 'reportingAndDashboards',
+  'looker studio': 'reportingAndDashboards',
+  'power bi': 'reportingAndDashboards',
+  tableau: 'reportingAndDashboards',
+  sheets: 'reportingAndDashboards',
+  spreadsheet: 'reportingAndDashboards',
+  spreadsheets: 'reportingAndDashboards',
+  hubspot: 'crmAndSupport',
+  salesforce: 'crmAndSupport',
+  pipedrive: 'crmAndSupport',
+  zendesk: 'crmAndSupport',
+  intercom: 'crmAndSupport',
+  crm: 'crmAndSupport',
+  'support desk': 'crmAndSupport',
+  zapier: 'automationAndIntegrations',
+  make: 'automationAndIntegrations',
+  'make.com': 'automationAndIntegrations',
+  n8n: 'automationAndIntegrations',
 };
 
 function clamp(str: unknown, max: number): string | undefined {
@@ -107,23 +195,51 @@ function toStringArray(val: unknown, maxPerItem = 500): string[] {
   if (!Array.isArray(val)) return [];
   const out: string[] = [];
   for (const item of val) {
-    const s = clamp(item, maxPerItem);
+    const s = cleanStructuredListItem(clamp(item, maxPerItem));
     if (s) out.push(s);
     if (out.length >= MAX_ARRAY_APPEND) break;
   }
   return out;
 }
 
-function cleanToolName(raw: string): string | null {
+function cleanStructuredListItem(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
   const cleaned = raw
+    .replace(
+      /\b(ignore (all )?(previous|your|these|this)?\s*instructions?|disregard (all )?(previous|your|these|this)?\s*instructions?|forget (all )?(previous|your|these|this)?\s*instructions?|reveal (the )?(system|hidden) prompt|mark (everything|all steps) complete|auto-submit)\b.*$/i,
+      '',
+    )
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (/^(put|write|output|set|mark)\b.*\b(later|now|constraints?|complete|submitted?)\b/i.test(cleaned)) {
+    return undefined;
+  }
+  return cleaned || undefined;
+}
+
+function cleanToolName(raw: string): string | null {
+  let cleaned = raw
     .trim()
     .replace(/^["'`]+|["'`]+$/g, '')
     .replace(/\s+/g, ' ');
+  if (cleaned.includes('. ')) {
+    cleaned = cleaned.split('. ')[0]?.trim() ?? cleaned;
+  }
   if (cleaned.length < 2 || cleaned.length > 120) return null;
   const normalized = cleaned.toLowerCase();
   const known = KNOWN_TOOL_LABELS[normalized];
   if (known) return known;
   if (GENERIC_TOOL_TOKENS.has(normalized)) return null;
+  if (
+    /^(put|other|critical|other critical|pretend|json|schema|overwrite|real|real answer|actual answer|system test)$/i.test(
+      cleaned,
+    )
+  ) {
+    return null;
+  }
+  if (/\b(ignore|disregard|forget|instructions?|prompt|schema|overwrite|pretend)\b/i.test(cleaned)) {
+    return null;
+  }
   if (/^(same\s+)?(stuff|things|tools?|systems?|apps?)$/i.test(cleaned)) return null;
 
   // Allow common category names a business user may reasonably provide instead
@@ -165,12 +281,58 @@ function cleanToolNames(values: string[]): string[] {
     seen.add(key);
     out.push(cleaned);
   }
-  return out;
+  const hasSpecificCalendar = out.some((item) => item.toLowerCase() === 'google calendar');
+  return hasSpecificCalendar ? out.filter((item) => item.toLowerCase() !== 'calendar') : out;
+}
+
+function categoryForTool(tool: string): ToolStackCategory | null {
+  return TOOL_CATEGORY_BY_LABEL[tool.toLowerCase()] ?? null;
+}
+
+function appendToolsToStack(
+  stack: ToolStack,
+  preferredCategory: ToolStackCategory,
+  tools: string[],
+): void {
+  for (const tool of tools) {
+    const category = categoryForTool(tool) ?? preferredCategory;
+    stack[category] = dedupeAppend(stack[category], [tool], 20);
+  }
+}
+
+function emptyToolStack(): ToolStack {
+  return {
+    emailAndCalendar: [],
+    communication: [],
+    docsAndPresentations: [],
+    designAndCreative: [],
+    projectManagement: [],
+    fileStorage: [],
+    reportingAndDashboards: [],
+    crmAndSupport: [],
+    automationAndIntegrations: [],
+    other: [],
+  };
+}
+
+function normalizeToolStack(stack: ToolStack): ToolStack {
+  const normalized = emptyToolStack();
+  for (const category of TOOL_STACK_CATEGORIES) {
+    appendToolsToStack(normalized, category, cleanToolNames(stack[category] ?? []));
+  }
+  return normalized;
 }
 
 function cleanWorkflowName(raw: unknown): string | undefined {
-  const name = clamp(raw, 120);
+  let name = clamp(raw, 120);
   if (!name) return undefined;
+  name = name
+    .replace(/^(primary\s+)?workflow\s*(to\s+scope)?\s*:\s*/i, '')
+    .replace(/^(workflow|process)\s*:\s*/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (name.includes('. ')) name = name.split('. ')[0]?.trim() ?? name;
+  name = name.replace(/[.。]+$/g, '').trim();
   const normalized = name.toLowerCase().replace(/\s+/g, ' ').trim();
   if (normalized.length < 4) return undefined;
   if (GENERIC_WORKFLOW_NAMES.has(normalized)) return undefined;
@@ -178,6 +340,12 @@ function cleanWorkflowName(raw: unknown): string | undefined {
     return undefined;
   }
   return name;
+}
+
+function normalizeContactEmail(raw: unknown): string | undefined {
+  const candidate = clamp(raw, 120)?.replace(/[),.;:]+$/g, '').trim();
+  if (!candidate) return undefined;
+  return CONTACT_EMAIL_PATTERN.test(candidate) ? candidate : undefined;
 }
 
 function dedupeAppend(existing: string[] | undefined, next: string[], maxTotal = 40): string[] {
@@ -306,11 +474,7 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
       for (const category of TOOL_STACK_CATEGORIES) {
         const incoming = cleanToolNames(toStringArray(stack[category], 120));
         if (incoming.length) {
-          next.business.toolStack[category] = dedupeAppend(
-            next.business.toolStack[category],
-            incoming,
-            20,
-          );
+          appendToolsToStack(next.business.toolStack, category, incoming);
         }
       }
       break;
@@ -400,7 +564,9 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
     }
     case 'constraints': {
       const p = patch.data;
-      if (typeof p.sensitiveData === 'boolean') next.constraints.sensitiveData = p.sensitiveData;
+      if (typeof p.sensitiveData === 'boolean') {
+        next.constraints.sensitiveData = Boolean(next.constraints.sensitiveData || p.sensitiveData);
+      }
       if (p.sensitiveDataNotes)
         next.constraints.sensitiveDataNotes =
           clamp(p.sensitiveDataNotes, 500) ?? next.constraints.sensitiveDataNotes;
@@ -454,16 +620,14 @@ export function applyPatch(draft: AutomationIntakeDraft, patch: StepPatch): Auto
       if (p.name) next.contact.name = clamp(p.name, 120) ?? next.contact.name;
       if (p.role) next.contact.role = clamp(p.role, 120) ?? next.contact.role;
       if (p.email) {
-        const candidate = clamp(p.email, 120);
-        if (candidate && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(candidate)) {
-          next.contact.email = candidate;
-        }
+        next.contact.email = normalizeContactEmail(p.email) ?? next.contact.email;
       }
       if (typeof p.consent === 'boolean') next.contact.consent = p.consent;
       break;
     }
   }
 
+  next.business.toolStack = normalizeToolStack(next.business.toolStack);
   return next;
 }
 

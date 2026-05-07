@@ -99,6 +99,14 @@ export function getDailySpendCapCents(): number {
   return parsed;
 }
 
+export function getDailySessionsPerIpCap(): number {
+  const raw = process.env.AUTOMATION_INTAKE_DAILY_SESSIONS_PER_IP;
+  if (!raw) return DEFAULT_DAILY_SESSIONS_PER_IP;
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return DEFAULT_DAILY_SESSIONS_PER_IP;
+  return Math.min(parsed, 100);
+}
+
 function dateBucket(now: number = Date.now()): string {
   return new Date(now).toISOString().slice(0, 10);
 }
@@ -106,13 +114,13 @@ function dateBucket(now: number = Date.now()): string {
 // ---------- Cost estimation ----------
 
 /**
- * Conservative cents estimate for GPT-5 nano calls.
+ * Conservative cents estimate for nano-class intake model calls.
  * Defaults to a mild safety margin above the published token rates so the
  * daily cap under-spends rather than overruns if pricing shifts.
  */
 export function estimateCallCostCents(tokensIn: number, tokensOut: number): number {
-  // GPT-5 nano is listed at ~$0.05 / 1M input tokens and ~$0.40 / 1M output
-  // tokens. Convert USD to cents, then double for a conservative budget guard.
+  // Convert the configured nano-class model's approximate USD token rates to
+  // cents, then double for a conservative budget guard.
   const inputCents = Math.max(0, tokensIn) * 0.000005;
   const outputCents = Math.max(0, tokensOut) * 0.00004;
   return (inputCents + outputCents) * 2;
@@ -234,7 +242,7 @@ export async function checkAndRecordIpSession(
   const ref = db
     .collection(RATE_LIMITS_COLLECTION)
     .doc(`intake_ai_sessions_${bucket}_${ipHash}`);
-  const limit = DEFAULT_DAILY_SESSIONS_PER_IP;
+  const limit = getDailySessionsPerIpCap();
   try {
     const doc = await ref.get();
     const now = Date.now();

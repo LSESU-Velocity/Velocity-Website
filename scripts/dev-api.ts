@@ -9,6 +9,8 @@ import automationIntakeChatHandler from '../api/automation-intake-chat.ts';
 import automationIntakeEmailHandler from '../api/automation-intake-email.ts';
 import automationIntakeSubmitHandler from '../api/automation-intake-submit.ts';
 
+process.env.NODE_ENV ||= 'development';
+
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
@@ -20,6 +22,18 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
+
+app.use((err: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!err) return next();
+  const maybeError = err as { status?: number; type?: string };
+  if (maybeError.type === 'entity.parse.failed' || maybeError.status === 400) {
+    return res.status(400).json({ error: 'Invalid JSON body' });
+  }
+  if (maybeError.type === 'entity.too.large' || maybeError.status === 413) {
+    return res.status(413).json({ error: 'Payload too large' });
+  }
+  return res.status(500).json({ error: 'Unexpected local API error' });
+});
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });

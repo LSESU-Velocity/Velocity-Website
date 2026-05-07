@@ -40,6 +40,10 @@ export const TOOL_STACK_CATEGORIES = [
 
 export type ToolStackCategory = (typeof TOOL_STACK_CATEGORIES)[number];
 
+export const CONTACT_EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/;
+export const FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS = 520;
+export const FINAL_BRIEF_OPEN_QUESTIONS_MAX = 4;
+
 // --- Length caps ---
 // Kept deliberately conservative. Public endpoint so size matters.
 
@@ -188,7 +192,7 @@ export const FinalBriefSchema = z.object({
   clientSummary: bounded(LONG),
   internalSummary: bounded(LONG),
   recommendedProjects: z.array(RecommendedProjectSchema).min(1).max(3),
-  openQuestions: z.array(bounded(MEDIUM)).max(10).default([]),
+  openQuestions: z.array(bounded(MEDIUM)).max(FINAL_BRIEF_OPEN_QUESTIONS_MAX).default([]),
 });
 export type FinalBrief = z.infer<typeof FinalBriefSchema>;
 
@@ -314,7 +318,7 @@ export function checkMinimumCompleteness(draft: AutomationIntakeDraft): string[]
 
   if (!draft.contact.name?.trim()) missing.push('contact name');
   if (!draft.contact.email?.trim()) missing.push('contact email');
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.contact.email.trim())) {
+  else if (!CONTACT_EMAIL_PATTERN.test(draft.contact.email.trim())) {
     missing.push('valid contact email');
   }
   if (!draft.contact.consent) missing.push('consent');

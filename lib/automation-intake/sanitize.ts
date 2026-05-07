@@ -5,7 +5,11 @@
  * Deliberately not imported from api/analyze.ts — keeps the intake module
  * decoupled from Launchpad. Shares the same defensive patterns.
  */
-import type { AutomationIntakeDraft } from './schemas.js';
+import {
+  FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS,
+  FINAL_BRIEF_OPEN_QUESTIONS_MAX,
+  type AutomationIntakeDraft,
+} from './schemas.js';
 
 const DANGEROUS_PATTERNS: RegExp[] = [
   /```/g,
@@ -184,7 +188,9 @@ export function sanitizeDraftForServer(draft: AutomationIntakeDraft): Automation
     })),
     finalBrief: draft.finalBrief
       ? {
-          clientSummary: sanitizeFreeText(draft.finalBrief.clientSummary, { maxLength: 2000 }),
+          clientSummary: sanitizeFreeText(draft.finalBrief.clientSummary, {
+            maxLength: FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS,
+          }),
           internalSummary: sanitizeFreeText(draft.finalBrief.internalSummary, { maxLength: 2000 }),
           recommendedProjects: draft.finalBrief.recommendedProjects.map((project) => ({
             ...project,
@@ -195,7 +201,11 @@ export function sanitizeDraftForServer(draft: AutomationIntakeDraft): Automation
             expectedImpact: sanitizeFreeText(project.expectedImpact, { maxLength: 500 }),
             studentDeliveryFit: sanitizeFreeText(project.studentDeliveryFit, { maxLength: 500 }),
           })),
-          openQuestions: sanitizeStringArray(draft.finalBrief.openQuestions, 500, 10),
+          openQuestions: sanitizeStringArray(
+            draft.finalBrief.openQuestions,
+            500,
+            FINAL_BRIEF_OPEN_QUESTIONS_MAX,
+          ),
         }
       : undefined,
   };
