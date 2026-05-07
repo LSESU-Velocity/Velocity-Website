@@ -45,7 +45,7 @@ type ParsedResponse<T> = {
 
 const DEFAULT_MODEL = 'gpt-5.4-nano';
 const DEFAULT_MAX_RETRIES = 0;
-const DEFAULT_REASONING_EFFORT = 'minimal';
+const DEFAULT_REASONING_EFFORT = 'medium';
 const DEFAULT_TEXT_VERBOSITY = 'low';
 
 function messageRole(message: IntakeMessage): 'system' | 'user' | 'assistant' {
@@ -74,9 +74,12 @@ function messageText(message: IntakeMessage): string {
   return '';
 }
 
-function getConfiguredReasoningEffort(): 'minimal' | 'low' | 'medium' | 'high' {
+function getConfiguredReasoningEffort(): 'none' | 'low' | 'medium' | 'high' | 'xhigh' {
   const raw = process.env.AUTOMATION_INTAKE_OPENAI_REASONING_EFFORT?.trim();
-  if (raw === 'low' || raw === 'medium' || raw === 'high') return raw;
+  if (raw === 'minimal') return DEFAULT_REASONING_EFFORT;
+  if (raw === 'none' || raw === 'low' || raw === 'medium' || raw === 'high' || raw === 'xhigh') {
+    return raw;
+  }
   return DEFAULT_REASONING_EFFORT;
 }
 
