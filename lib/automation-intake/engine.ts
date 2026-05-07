@@ -234,6 +234,8 @@ const FOLLOW_UP_REJECT_PATTERNS: RegExp[] = [
 
 const FILLER_OPENER =
   /^(great|awesome|perfect|amazing|love (it|that)|fantastic|wonderful|got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b(?:\s+that\b)?[!.,:;—–-]*\s*/i;
+const RECAP_ACK_OPENER =
+  /^(you (said|say|mentioned|shared|told me|noted|gave|provided|want|need|use|have|are using|are focusing)|you'(?:re|ve) (using|focusing|shared|mentioned)|you’re (using|focusing|shared|mentioned))\b/i;
 
 /**
  * Clean a model-generated follow-up into plain text. Returns null when the
@@ -892,6 +894,9 @@ function sanitizeAcknowledgment(raw: unknown): string | undefined {
     trimmed = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   }
   if (/^(got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b/i.test(trimmed)) {
+    return undefined;
+  }
+  if (RECAP_ACK_OPENER.test(trimmed)) {
     return undefined;
   }
   return trimmed;

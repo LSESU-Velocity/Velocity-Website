@@ -37,17 +37,21 @@ Follow-up rules (strict):
 - Do NOT ask for credentials, personal data, or confidential documents.
 - If the current step already has enough detail, leave followUpQuestion empty so the server advances to the next step.`;
 
-export const ACKNOWLEDGMENT_GUIDANCE = `Also emit an "acknowledgment": a single short sentence (under 200 characters, warm but not flattering) that references something specific the user actually said.
+export const ACKNOWLEDGMENT_GUIDANCE = `Also emit an "acknowledgment": a single short sentence (under 200 characters, warm but not flattering) that makes the conversation flow naturally into the next question.
+- The acknowledgment must be written by the AI as an original contextual bridge, not selected from a fixed template.
+- Make a small, useful observation about the user's answer: the kind of stack, workflow, cadence, integration shape, or automation angle it suggests.
+- Do NOT simply confirm or paraphrase what the user said.
+- Do NOT start with "You said", "You say", "You mentioned", "You're focusing", "You're using", "You use", or similar recap phrasing.
 - Do NOT repeat back the entire answer.
-- Do NOT invent details the user did not share.
+- Do NOT invent concrete business details, tools, metrics, or constraints the user did not share.
 - Do NOT start with "Great!", "Awesome!", "I love that!" or similar filler.
 - If the user only said "skip" / "no" / gave an empty or off-topic answer, leave this field empty.
-- Write in second person, present tense.
 - Do NOT start with "Got it", "Noted", "Understood", "Thanks", or "Acknowledged".
 Examples of good acknowledgments:
-- "A UK SME-focused invoicing tool gives us a clear starting point."
-- "Slack and Jira narrows the likely integration options."
-- "A weekly reporting cadence gives us something concrete to automate against."`;
+- "Gmail and Slack make a solid operating stack for lightweight automation."
+- "Meta tagging is a common automation candidate because the decisions tend to repeat."
+- "A weekly cadence gives the workflow a useful rhythm to automate around."
+- "That mix of manual ownership and repeat timing makes the handoff worth mapping."`;
 
 export const STEP_EXTRACTION_INSTRUCTIONS: Record<StepId, string> = {
   business: `The user is describing their business.
