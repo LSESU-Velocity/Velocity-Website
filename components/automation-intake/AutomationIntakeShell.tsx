@@ -90,12 +90,13 @@ export const AutomationIntakeShell: React.FC<Props> = ({
             For Businesses · Automation Intake
           </div>
           <h1 className="font-sans text-3xl md:text-5xl font-light text-white leading-tight tracking-tight">
-            Let's map where automation can help your team.
+            Partner with Velocity on a semester-long student project.
           </h1>
           <p className="mt-4 text-white/60 max-w-2xl text-sm md:text-base leading-relaxed">
-            A short, guided intake — chat or form, your choice. We'll turn your answers into a
-            structured brief and, if we can, a student project scoped for your workflow. Please
-            don't paste confidential documents, credentials, or personal data about your customers.
+            Share your automation brief, and we'll look to match it with Velocity student members
+            who can work on it as a semester-long project. Submitted chat and form data is
+            encrypted at rest. Please don't paste confidential documents, credentials, or personal
+            data about your customers.
           </p>
         </motion.div>
 
