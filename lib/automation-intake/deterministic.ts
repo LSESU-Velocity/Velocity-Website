@@ -42,7 +42,7 @@ export interface DeterministicAdvanceResult {
  * into a skip and drop the content.
  */
 const OPT_OUT_PATTERN =
-  /^\s*(no+|nope|nah|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
+  /^\s*(no+|nope|nah|no+,?\s+that'?s? (it|all)( for now)?|no+,?\s+nothing( else| more| to add)?|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
 const CONTACT_CONSENT_PATTERN =
   /\b(i (agree|consent)|yes,?\s*(i )?(agree|consent)|consent (is )?ok|ok(ay)? to contact|you can contact me|happy for (you|velocity) to (contact me|store (this )?intake))\b/i;
 
@@ -787,6 +787,7 @@ function inferBusinessPatch(answer: string): {
   businessName?: string;
   website?: string;
   sector?: string;
+  teamSizeBand?: string;
   whatTheyDo: string;
 } {
   const cleaned = answer.replace(/\s+/g, ' ').trim();
@@ -807,13 +808,30 @@ function inferBusinessPatch(answer: string): {
   const sector = substantive.match(
     /\b(?:is|are)\s+(?:a|an)\s+([a-z][a-z0-9& /+-]+?)(?:\s+(?:for|serving|with|using)\b|;|,|\.|$)/i,
   )?.[1];
+  const teamSizeBand = normalizeTeamSizeBand(
+    substantive.match(
+      /\b(1\s*[-–]\s*5|6\s*[-–]\s*20|21\s*[-–]\s*50|51\s*[-–]\s*200|20[01]\+|200\+)\b/i,
+    )?.[1],
+  );
 
   return {
     businessName: businessName?.slice(0, 120),
     website: website?.slice(0, 120),
     sector: sector?.slice(0, 120),
+    teamSizeBand,
     whatTheyDo: answer.slice(0, 2000),
   };
+}
+
+function normalizeTeamSizeBand(raw: string | undefined): string | undefined {
+  if (!raw) return undefined;
+  const normalized = raw.toLowerCase().replace(/\s+/g, '').replace(/–/g, '-');
+  if (normalized === '1-5') return '1-5';
+  if (normalized === '6-20') return '6-20';
+  if (normalized === '21-50') return '21-50';
+  if (normalized === '51-200') return '51-200';
+  if (normalized === '200+' || normalized === '201+') return '201+';
+  return undefined;
 }
 
 const JUNK_WORKFLOW_PATTERNS = [
@@ -823,8 +841,12 @@ const JUNK_WORKFLOW_PATTERNS = [
 ];
 
 function cleanWorkflowName(raw: string): string | null {
-  let name = raw.trim().replace(/^(the|a|an|our|my|some|several)\s+/i, '').trim();
+  let name = (raw.trim().split(/\r?\n/)[0] ?? '')
+    .replace(/^(the|a|an|our|my|some|several)\s+/i, '')
+    .trim();
   name = name.replace(/^(oh|so|well|like|basically|kind of|sort of)[\s,]+/i, '').trim();
+  const colonTitle = name.split(':')[0]?.trim();
+  if (colonTitle && colonTitle.length >= 4) name = colonTitle;
   if (name.length < 4) return null;
   if (name.length > 120) name = name.slice(0, 120).trim();
   for (const pattern of JUNK_WORKFLOW_PATTERNS) {

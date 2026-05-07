@@ -324,14 +324,17 @@ function normalizeToolStack(stack: ToolStack): ToolStack {
 }
 
 function cleanWorkflowName(raw: unknown): string | undefined {
-  let name = clamp(raw, 120);
+  let name = clamp(raw, 400);
   if (!name) return undefined;
-  name = name
+  name = (name.split(/\r?\n/)[0] ?? name)
     .replace(/^(primary\s+)?workflow\s*(to\s+scope)?\s*:\s*/i, '')
     .replace(/^(workflow|process)\s*:\s*/i, '')
     .replace(/\s+/g, ' ')
     .trim();
+  const colonTitle = name.split(':')[0]?.trim();
+  if (colonTitle && colonTitle.length >= 4) name = colonTitle;
   if (name.includes('. ')) name = name.split('. ')[0]?.trim() ?? name;
+  if (name.length > 120) name = name.slice(0, 120).trim();
   name = name.replace(/[.。]+$/g, '').trim();
   const normalized = name.toLowerCase().replace(/\s+/g, ' ').trim();
   if (normalized.length < 4) return undefined;

@@ -207,7 +207,7 @@ export const AutomationIntakeDraftSchema = z.object({
   status: DraftStatusSchema,
   currentStep: z.enum(STEP_IDS),
   questionCount: z.number().int().min(0).max(50),
-  followUpsUsed: z.number().int().min(0).max(10),
+  followUpsUsed: z.number().int().min(0).max(20),
   chatAnswers: ChatAnswersSchema,
   chatSkips: z.array(z.enum(STEP_IDS)).max(STEP_IDS.length).default([]),
   business: BusinessInfoSchema,

@@ -23,7 +23,7 @@ import { hasModelKey } from './model.js';
 
 // ---------- Defaults ----------
 
-export const DEFAULT_SESSION_MODEL_CALL_CAP = 12;
+export const DEFAULT_SESSION_MODEL_CALL_CAP = 20;
 export const DEFAULT_DAILY_SESSIONS_PER_IP = 8;
 export const DEFAULT_DAILY_SPEND_CENTS = 500;
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
@@ -36,14 +36,14 @@ const DAILY_TTL_MS = 36 * 60 * 60 * 1000;
 export const STEP_FOLLOWUP_LIMITS: Record<StepId, number> = {
   business: 2,
   systems: 2,
-  'workflow-name': 1,
-  'workflow-ownership': 1,
-  'workflow-tools': 1,
+  'workflow-name': 2,
+  'workflow-ownership': 2,
+  'workflow-tools': 2,
   'workflow-steps': 2,
   'pain-points': 2,
-  'ai-usage': 1,
-  'ai-non-use': 1,
-  constraints: 1,
+  'ai-usage': 2,
+  'ai-non-use': 2,
+  constraints: 2,
   goals: 2,
   contact: 0,
 };

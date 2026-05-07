@@ -33,6 +33,7 @@ Follow-up rules (strict):
 - One question only, under 200 characters, ending in a question mark.
 - Plain text only. No markdown, no HTML, no code fences, no URLs, no lists.
 - No filler openers like "Great!", "Awesome!", "I love that!".
+- If the answer is vague, generic, ambiguous, or would make the automation brief risky to scope, ask one clarifying question.
 - Do NOT ask about topics from other steps. Stay on the current step.
 - Do NOT ask for credentials, personal data, or confidential documents.
 - If the current step already has enough detail, leave followUpQuestion empty so the server advances to the next step.`;

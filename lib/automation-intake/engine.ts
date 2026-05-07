@@ -397,11 +397,18 @@ export async function advanceChatTurn(
 
   // Extract rich patch via model (or heuristic fallback). The deterministic
   // pre-check gives the model a bounded set of legitimate follow-up targets.
-  const heuristicPatch = buildHeuristicPatch(stepId, nextChat);
+  const preserveExistingWorkflowName =
+    wasFollowUp && stepId === 'workflow-name' && Boolean(working.workflows[0]?.name?.trim());
+  const heuristicPatch = preserveExistingWorkflowName
+    ? emptyPatch(stepId)
+    : buildHeuristicPatch(stepId, nextChat);
   working = applyPatch(working, heuristicPatch);
   const preliminaryScope = assessStepScope(stepId, working, nextChat);
   const extraction = await extractPatchForStep(stepId, safeAnswer, preliminaryScope);
-  working = applyPatch(working, extraction.patch);
+  working = applyPatch(
+    working,
+    preserveExistingWorkflowName ? stripWorkflowNamePatch(extraction.patch) : extraction.patch,
+  );
   working = { ...working, questionCount: working.questionCount + 1 };
 
   // Decide: follow-up or advance?
@@ -410,8 +417,12 @@ export async function advanceChatTurn(
   const canFollowUp = args.stepFollowUpBudget > 0 && getStep(stepId).allowsFollowUp;
   const deterministicFollowUp = buildDeterministicFollowUpQuestion(scopeQuality) ?? undefined;
   const hasCriticalScopeGap = scopeQuality.missing.some((gap) => gap.critical);
+  const modelWantsFollowUp = Boolean(extraction.followUpQuestion?.trim());
+  const shouldConsiderFollowUp =
+    canFollowUp &&
+    (!sufficient || scopeQuality.confidence !== 'high' || modelWantsFollowUp);
   const proposed =
-    canFollowUp && !sufficient
+    shouldConsiderFollowUp
       ? hasCriticalScopeGap
         ? deterministicFollowUp ?? extraction.followUpQuestion ?? undefined
         : extraction.followUpQuestion ?? deterministicFollowUp
@@ -692,7 +703,7 @@ function withAcknowledgment(ack: string | undefined, question: string): string {
  * anchoring to `$` prevents the prefix match that used to eat real answers.
  */
 const OPT_OUT_PATTERN =
-  /^\s*(no+|nope|nah|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
+  /^\s*(no+|nope|nah|no+,?\s+that'?s? (it|all)( for now)?|no+,?\s+nothing( else| more| to add)?|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
 
 function isOptOut(answer: string): boolean {
   if (!answer) return false;
@@ -904,6 +915,11 @@ function sanitizeAcknowledgment(raw: unknown): string | undefined {
 
 function emptyPatch(stepId: StepId): StepPatch {
   return { stepId, data: {} as any };
+}
+
+function stripWorkflowNamePatch(patch: StepPatch): StepPatch {
+  if (patch.stepId !== 'workflow-name') return patch;
+  return { stepId: 'workflow-name', data: {} };
 }
 
 // ---------- Final brief generation ----------
