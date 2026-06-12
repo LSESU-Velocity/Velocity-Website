@@ -1,6 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
+import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { DashboardDTOSchema, generateFounderArtifacts } from '../lib/launchpad-lab/index.js';
+
+export const config = {
+  maxDuration: 90,
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
@@ -12,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const userApiKey = getLaunchpadProviderKey(req);
 
   if (!userApiKey) {
-    return res.status(401).json({ error: 'A Google AI Studio API key is required.' });
+    return res.status(401).json({ error: 'An AI provider API key is required.' });
   }
 
   try {
@@ -34,7 +38,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
     }
 
-    const validatedAnalysis = DashboardDTOSchema.parse(analysis);
+    const analysisResult = DashboardDTOSchema.safeParse(analysis);
+    if (!analysisResult.success) {
+      return res.status(400).json({ error: 'The analysis payload does not match the expected shape.' });
+    }
+    const validatedAnalysis = analysisResult.data;
+
+    if (await enforceLaunchpadRateLimit(req, res, {
+      prefix: 'lp_artifacts',
+      limit: 20,
+      windowMs: 24 * 60 * 60 * 1000,
+      minGapMs: 10_000,
+    })) {
+      return;
+    }
+
     const outcome = await generateFounderArtifacts({
       apiKey: userApiKey.trim(),
       idea: idea.trim(),

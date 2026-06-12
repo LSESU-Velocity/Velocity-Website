@@ -8,7 +8,8 @@ export interface InterruptSnapshot {
 export interface SavedLaunchpadAnalysis {
   id: string;
   idea: string;
-  data: AnalysisData;
+  /** Null while a run is parked on a clarification interrupt. */
+  data: AnalysisData | null;
   createdAt: string;
   updatedAt: string;
   parentId?: string | null;
@@ -28,7 +29,7 @@ function sortByUpdatedAt(records: SavedLaunchpadAnalysis[]) {
   return [...records].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
-function hasValidAnalysisShape(data: unknown): data is AnalysisData {
+export function hasValidAnalysisShape(data: unknown): data is AnalysisData {
   if (!data || typeof data !== 'object') {
     return false;
   }
@@ -125,7 +126,7 @@ function writeSavedAnalyses(records: SavedLaunchpadAnalysis[]) {
 export function upsertSavedAnalysis(input: {
   id?: string | null;
   idea: string;
-  data: AnalysisData;
+  data: AnalysisData | null;
   interruptState?: InterruptSnapshot | null;
   parentId?: string | null;
   promptHistory?: LabPromptHistoryEntry[];
@@ -168,7 +169,7 @@ export function branchFromAnalysis(
 ): SavedLaunchpadAnalysis | null {
   const analyses = getSavedAnalyses();
   const parent = analyses.find((r) => r.id === parentId);
-  if (!parent) {
+  if (!parent || !parent.data) {
     return null;
   }
 

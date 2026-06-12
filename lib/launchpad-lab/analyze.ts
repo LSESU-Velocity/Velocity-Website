@@ -3,13 +3,12 @@
  * Uses LangChain structured output with Zod validation.
  */
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-import { createModel } from './model.js';
-import { DashboardDTOSchema, RawAnalysisSchema, type ArtifactBundle, type DashboardDTO, type RawAnalysis } from './schemas.js';
+import { createModel, detectProvider, getDefaultModel, getFallbackModel } from './model.js';
+import { classifyProviderError, getErrorMessage, isAuthError, isQuotaError } from './errors.js';
+import { DashboardDTOSchema, type ArtifactBundle, type DashboardDTO, type IdeaIntake, type RawAnalysis } from './schemas.js';
 import {
   type ArtifactPromptContext,
-  buildAnalysisSystemPrompt,
   buildPitchDeckHtmlPrompt,
-  buildUserMessage,
   buildWaitlistHtmlPrompt,
 } from './prompts.js';
 import { toDashboardDTO } from './normalizer.js';
@@ -21,6 +20,7 @@ export interface AnalyzeOptions {
   idea: string;
   includeArtifacts?: boolean;
   clarifications?: Record<string, string> | null;
+  presetIntake?: IdeaIntake | null;
 }
 
 export interface AnalyzeResult {
@@ -43,44 +43,6 @@ export interface AnalyzeInterrupt {
 
 export type AnalyzeOutcome = AnalyzeResult | AnalyzeError | AnalyzeInterrupt;
 export type ArtifactGenerationOutcome = { success: true; data: ArtifactBundle } | AnalyzeError;
-
-const DEFAULT_MODEL = process.env.LAUNCHPAD_GEMINI_MODEL || 'gemini-3.1-flash-lite-preview';
-const FALLBACK_MODEL = process.env.LAUNCHPAD_GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite';
-const IS_DEV = process.env.NODE_ENV !== 'production';
-
-function getErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
-
-function isModelUnavailableError(message: string): boolean {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes('not_found') ||
-    normalized.includes('model not found') ||
-    normalized.includes('unsupported model') ||
-    normalized.includes('unknown model') ||
-    (normalized.includes('model') && normalized.includes('404'))
-  );
-}
-
-function isHighDemandError(message: string): boolean {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes('high demand') ||
-    normalized.includes('currently experiencing high demand') ||
-    normalized.includes('overloaded') ||
-    normalized.includes('temporarily unavailable') ||
-    normalized.includes('try again later') ||
-    normalized.includes('service unavailable') ||
-    normalized.includes('503')
-  );
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 function extractTextContent(result: unknown): string {
   if (typeof result === 'string') {
@@ -136,19 +98,6 @@ function sanitizeHtmlDocument(rawText: string): string | undefined {
   return html.includes('<html') ? html : undefined;
 }
 
-async function invokeCoreAnalysis(apiKey: string, idea: string, modelName: string): Promise<RawAnalysis> {
-  const model = createModel({ apiKey, model: modelName });
-  const structuredModel = model.withStructuredOutput(RawAnalysisSchema, {
-    name: 'startup_analysis',
-    method: 'jsonSchema',
-  });
-
-  return structuredModel.invoke([
-    new SystemMessage(buildAnalysisSystemPrompt()),
-    new HumanMessage(buildUserMessage(idea)),
-  ]);
-}
-
 function createArtifactContextFromRawAnalysis(idea: string, rawAnalysis: RawAnalysis): ArtifactPromptContext {
   return {
     idea,
@@ -176,55 +125,6 @@ function createArtifactContextFromDashboard(idea: string, analysis: DashboardDTO
     distributionChannels: analysis.distributionChannels,
     marketGap: analysis.validation.marketGap.yourGap,
   };
-}
-
-async function invokeCoreAnalysisWithRecovery(apiKey: string, idea: string): Promise<{ rawAnalysis: RawAnalysis; modelName: string }> {
-  let activeModel = DEFAULT_MODEL;
-
-  try {
-    return {
-      rawAnalysis: await invokeCoreAnalysis(apiKey, idea, activeModel),
-      modelName: activeModel,
-    };
-  } catch (error) {
-    const firstMessage = getErrorMessage(error);
-
-    if (isHighDemandError(firstMessage)) {
-      console.warn(`[Launchpad Lab] Model ${activeModel} is overloaded, retrying once before fallback.`);
-      await sleep(800);
-
-      try {
-        return {
-          rawAnalysis: await invokeCoreAnalysis(apiKey, idea, activeModel),
-          modelName: activeModel,
-        };
-      } catch (retryError) {
-        const retryMessage = getErrorMessage(retryError);
-
-        if (activeModel !== FALLBACK_MODEL) {
-          console.warn(`[Launchpad Lab] Model ${activeModel} still overloaded, retrying with ${FALLBACK_MODEL}`);
-          activeModel = FALLBACK_MODEL;
-          return {
-            rawAnalysis: await invokeCoreAnalysis(apiKey, idea, activeModel),
-            modelName: activeModel,
-          };
-        }
-
-        throw new Error(retryMessage);
-      }
-    }
-
-    if (activeModel !== FALLBACK_MODEL && isModelUnavailableError(firstMessage)) {
-      console.warn(`[Launchpad Lab] Model ${activeModel} unavailable, retrying with ${FALLBACK_MODEL}`);
-      activeModel = FALLBACK_MODEL;
-      return {
-        rawAnalysis: await invokeCoreAnalysis(apiKey, idea, activeModel),
-        modelName: activeModel,
-      };
-    }
-
-    throw error;
-  }
 }
 
 async function generateArtifact(
@@ -292,11 +192,11 @@ function ensureArtifactsWithFallback(artifacts: ArtifactBundle, context: Artifac
  * Returns either a successful DashboardDTO or a typed error.
  */
 export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('./graph.js').ProgressCallback }): Promise<AnalyzeOutcome> {
-  const { apiKey, idea, includeArtifacts = false, onProgress, clarifications } = opts;
+  const { apiKey, idea, includeArtifacts = false, onProgress, clarifications, presetIntake } = opts;
   const { runGraph } = await import('./graph.js');
 
   try {
-    const graphOutcome = await runGraph({ apiKey, idea, onProgress, clarifications });
+    const graphOutcome = await runGraph({ apiKey, idea, onProgress, clarifications, presetIntake });
 
     if ('interrupted' in graphOutcome && graphOutcome.interrupted) {
       return {
@@ -311,7 +211,7 @@ export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('
       const failedNode = (graphOutcome as import('./graph.js').GraphRunError).failedNode;
       console.error(`[Launchpad Lab] Graph failed at node "${failedNode}":`, message);
 
-      return classifyError(message, failedNode);
+      return { success: false, ...classifyProviderError(message, { failedNode, context: 'the analysis' }) };
     }
 
     const rawAnalysis = graphOutcome.data;
@@ -321,7 +221,11 @@ export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('
       council: graphOutcome.council,
     });
     const artifacts = includeArtifacts
-      ? await generateArtifacts(apiKey, DEFAULT_MODEL, createArtifactContextFromRawAnalysis(idea, rawAnalysis))
+      ? await generateArtifacts(
+        apiKey,
+        getDefaultModel(detectProvider(apiKey)),
+        createArtifactContextFromRawAnalysis(idea, rawAnalysis),
+      )
       : {};
 
     const dto = DashboardDTOSchema.parse(toDashboardDTO(rawAnalysis, artifacts, lab, graphOutcome.research));
@@ -329,79 +233,8 @@ export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('
   } catch (err: unknown) {
     const message = getErrorMessage(err);
     console.error('[Launchpad Lab] Analysis failed:', message);
-    return classifyError(message, null);
+    return { success: false, ...classifyProviderError(message, { context: 'the analysis' }) };
   }
-}
-
-function classifyError(message: string, failedNode: string | null): AnalyzeError {
-  const nodePrefix = failedNode ? `[${failedNode}] ` : '';
-
-  if (
-    message.includes('API key') ||
-    message.includes('PERMISSION_DENIED') ||
-    message.includes('403') ||
-    message.includes('401') ||
-    message.includes('UNAUTHENTICATED')
-  ) {
-    return {
-      success: false,
-      error: `${nodePrefix}Your Google AI Studio key was rejected. Please check it and try again.`,
-      statusCode: 401,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
-    return {
-      success: false,
-      error: `${nodePrefix}Your provider account hit a rate or quota limit. Please wait and try again.`,
-      statusCode: 429,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (isHighDemandError(message)) {
-    return {
-      success: false,
-      error: `${nodePrefix}Gemini is temporarily overloaded. Please retry.`,
-      statusCode: 503,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (isModelUnavailableError(message)) {
-    return {
-      success: false,
-      error: `${nodePrefix}The configured Gemini model (${DEFAULT_MODEL}) is unavailable for this key.`,
-      statusCode: 502,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (message.includes('INVALID_ARGUMENT') || message.includes('400')) {
-    return {
-      success: false,
-      error: `${nodePrefix}Gemini rejected the analysis request.`,
-      statusCode: 502,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (message.includes('Could not parse') || message.includes('validation') || message.includes('Validation failed')) {
-    return {
-      success: false,
-      error: `${nodePrefix}The AI response did not match the expected format. Please try again.`,
-      statusCode: 502,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  return {
-    success: false,
-    error: `${nodePrefix}Failed to generate analysis. Please try again.`,
-    statusCode: 500,
-    ...(IS_DEV ? { details: message } : {}),
-  };
 }
 
 export async function generateFounderArtifacts(opts: {
@@ -411,13 +244,15 @@ export async function generateFounderArtifacts(opts: {
 }): Promise<ArtifactGenerationOutcome> {
   const { apiKey, idea, analysis } = opts;
   const context = createArtifactContextFromDashboard(idea, analysis);
+  const provider = detectProvider(apiKey);
 
   try {
-    let modelName = DEFAULT_MODEL;
+    let modelName = getDefaultModel(provider);
     let artifacts = await generateArtifacts(apiKey, modelName, context);
 
-    if (!artifacts.waitlistHtml && !artifacts.pitchDeckHtml && modelName !== FALLBACK_MODEL) {
-      modelName = FALLBACK_MODEL;
+    const fallbackModel = getFallbackModel(provider);
+    if (!artifacts.waitlistHtml && !artifacts.pitchDeckHtml && fallbackModel && fallbackModel !== modelName) {
+      modelName = fallbackModel;
       artifacts = await generateArtifacts(apiKey, modelName, context);
     }
 
@@ -426,32 +261,8 @@ export async function generateFounderArtifacts(opts: {
     const message = getErrorMessage(err);
     console.error('[Launchpad Lab] Founder asset generation failed:', message);
 
-    if (
-      message.includes('API key') ||
-      message.includes('PERMISSION_DENIED') ||
-      message.includes('403') ||
-      message.includes('401') ||
-      message.includes('UNAUTHENTICATED')
-    ) {
-      return {
-        success: false,
-      error: 'Your Google AI Studio key was rejected. Please check it and try again.',
-        statusCode: 401,
-        ...(IS_DEV ? { details: message } : {}),
-      };
-    }
-
-    if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
-      return {
-        success: false,
-      error: 'Your provider account hit a rate or quota limit while generating founder assets.',
-        statusCode: 429,
-        ...(IS_DEV ? { details: message } : {}),
-      };
-    }
-
-    if (isHighDemandError(message)) {
-      return { success: true, data: generateFallbackArtifacts(context) };
+    if (isAuthError(message) || isQuotaError(message)) {
+      return { success: false, ...classifyProviderError(message, { context: 'founder assets' }) };
     }
 
     return { success: true, data: generateFallbackArtifacts(context) };

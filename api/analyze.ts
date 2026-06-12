@@ -1,49 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
+import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
+import { sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
 
-// Sanitize user input to prevent prompt injection attacks
-function sanitizeUserInput(input: string): string {
-  let sanitized = input;
-
-  const dangerousPatterns = [
-    /```/g,
-    /"""/g,
-    /\n\s*---+\s*\n/g,
-    /\n\s*===+\s*\n/g,
-    /\[INST\]/gi,
-    /\[\/INST\]/gi,
-    /<\|.*?\|>/g,
-    /<<SYS>>|<<\/SYS>>/gi,
-    /IGNORE\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /DISREGARD\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /FORGET\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /NEW\s+INSTRUCTIONS?\s*:/gi,
-    /SYSTEM\s*:/gi,
-    /ASSISTANT\s*:/gi,
-    /USER\s*:/gi,
-    /HUMAN\s*:/gi,
-  ];
-
-  for (const pattern of dangerousPatterns) {
-    sanitized = sanitized.replace(pattern, ' ');
-  }
-
-  sanitized = sanitized.replace(/\s+/g, ' ').trim();
-
-  const MAX_IDEA_LENGTH = 500;
-  if (sanitized.length > MAX_IDEA_LENGTH) {
-    sanitized = sanitized.substring(0, MAX_IDEA_LENGTH);
-  }
-
-  return sanitized;
-}
+export const config = {
+  maxDuration: 120,
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Handle CORS
   if (handleCors(req, res)) return;
 
-  // Only allow POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -53,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const userApiKey = getLaunchpadProviderKey(req);
 
   if (!userApiKey) {
-    return res.status(401).json({ error: 'A Google AI Studio API key is required.' });
+    return res.status(401).json({ error: 'An AI provider API key is required.' });
   }
 
   try {
@@ -75,10 +41,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
     }
 
-    // Sanitize user input to prevent prompt injection
     const sanitizedIdea = sanitizeUserInput(idea.trim());
 
-    // Run the LangChain-based analysis pipeline
+    // Shares the same daily pool as the streaming endpoint.
+    if (await enforceLaunchpadRateLimit(req, res, {
+      prefix: 'lp_analyze',
+      limit: 30,
+      windowMs: 24 * 60 * 60 * 1000,
+      minGapMs: 10_000,
+    })) {
+      return;
+    }
+
     const outcome = await runAnalysis({
       apiKey: userApiKey.trim(),
       idea: sanitizedIdea,

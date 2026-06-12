@@ -3,11 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, Target, BarChart3, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, AlertTriangle, Key, X, PencilLine, Plus, GitBranch, MessageCircle, Scale } from 'lucide-react';
 import { ApiKeyEntry } from './ApiKeyEntry';
 import {
+  detectKeyProvider,
   generateAnalysisStream,
   generateFounderAssets,
   generateWidgetMutation,
   AnalysisInterruptError,
+  PROVIDER_LABELS,
   type AnalysisData,
+  type AnalysisIntake,
   type ClarificationQuestion,
   type LabPhaseId,
   type LabPromptHistoryEntry,
@@ -16,7 +19,9 @@ import {
 } from '../lib/api';
 import { LaunchpadDashboard } from './LaunchpadDashboard';
 import { AnimatedText } from './LaunchpadWidgets';
-import { getSavedAnalyses, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
+import { SavedRunsPanel } from './launchpad/SavedRunsPanel';
+import { useMagnetic } from './launchpad/gsapFx';
+import { deleteSavedAnalysis, getSavedAnalyses, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
 import { Player } from '@remotion/player';
 import {
   LaunchpadPreview,
@@ -67,6 +72,76 @@ function clearStoredKey() {
   localStorage.removeItem(LEGACY_PERSIST_KEY);
 }
 
+interface LiveFeedEntry {
+  id: string;
+  label: string;
+  detail: string;
+  tone: 'neutral' | 'bull' | 'bear' | 'judge';
+}
+
+/** Turn a progress payload into a short live-feed line, or null to skip it. */
+function buildLiveFeedEntry(event: ProgressEvent): LiveFeedEntry | null {
+  const data = (event.data ?? null) as Record<string, any> | null;
+  if (!data) {
+    return null;
+  }
+
+  if (event.node === 'classifyIdea' && data.intake) {
+    const intake = data.intake as AnalysisIntake;
+    return {
+      id: event.node,
+      label: 'Idea classified',
+      detail: `${intake.domain} • ${intake.targetUser}`,
+      tone: 'neutral',
+    };
+  }
+
+  if (event.node === 'researchWeb') {
+    if (data.skipped) {
+      return {
+        id: event.node,
+        label: 'Web research',
+        detail: 'Grounded search is Gemini-only — continuing without live sources.',
+        tone: 'neutral',
+      };
+    }
+    if (typeof data.summary === 'string') {
+      return {
+        id: event.node,
+        label: `Web research • ${data.sourceCount ?? 0} sources`,
+        detail: data.summary,
+        tone: 'neutral',
+      };
+    }
+  }
+
+  if (event.node === 'runBullAnalyst' && data.memo?.recommendation) {
+    return { id: event.node, label: 'Bull analyst', detail: data.memo.recommendation, tone: 'bull' };
+  }
+
+  if (event.node === 'runBearAnalyst' && data.memo?.recommendation) {
+    return { id: event.node, label: 'Bear analyst', detail: data.memo.recommendation, tone: 'bear' };
+  }
+
+  if (event.node === 'runCouncilJudge' && data.judge?.finalTake) {
+    return {
+      id: event.node,
+      label: `Council judge • ${data.judge.verdict || 'verdict'}`,
+      detail: data.judge.finalTake,
+      tone: 'judge',
+    };
+  }
+
+  return null;
+}
+
+const LIVE_FEED_TONES: Record<LiveFeedEntry['tone'], string> = {
+  neutral: 'border-white/10 bg-black text-white/70',
+  bull: 'border-blue-500/25 bg-blue-500/[0.07] text-blue-100',
+  bear: 'border-velocity-red/25 bg-velocity-red/[0.07] text-red-100',
+  judge: 'border-white/20 bg-white/[0.05] text-white',
+};
+
 export const Launchpad: React.FC = () => {
   const [apiKey, setApiKey] = useState<string | null>(getStoredKey);
   const [showKeyModal, setShowKeyModal] = useState(false);
@@ -84,12 +159,15 @@ export const Launchpad: React.FC = () => {
   const [completedNodes, setCompletedNodes] = useState<string[]>([]);
 
   const [interruptQuestions, setInterruptQuestions] = useState<ClarificationQuestion[] | null>(null);
+  const [interruptIntake, setInterruptIntake] = useState<AnalysisIntake | null>(null);
   const [clarificationAnswers, setClarificationAnswers] = useState<Record<string, string>>({});
   const [branchingFromId, setBranchingFromId] = useState<string | null>(null);
   const [activeMutationTarget, setActiveMutationTarget] = useState<string | null>(null);
+  const [liveFeed, setLiveFeed] = useState<LiveFeedEntry[]>([]);
 
   const resultsAnchorRef = useRef<HTMLDivElement>(null);
   const lastRenderedResultRef = useRef<AnalysisData | null>(null);
+  const launchButtonRef = useMagnetic<HTMLButtonElement>();
   const activeSavedRecord = activeSavedId ? savedAnalyses.find((record) => record.id === activeSavedId) || null : null;
 
   // Scroll to top when component mounts
@@ -148,6 +226,7 @@ export const Launchpad: React.FC = () => {
     if (isGenerating) return;
     setActiveNode(null);
     setCompletedNodes((prev) => (prev.length === 0 ? prev : []));
+    setLiveFeed((prev) => (prev.length === 0 ? prev : []));
   }, [isGenerating]);
 
   const handleKeySubmit = (key: string, remember: boolean) => {
@@ -163,7 +242,7 @@ export const Launchpad: React.FC = () => {
 
   const persistAnalysis = (
     nextIdea: string,
-    nextData: AnalysisData,
+    nextData: AnalysisData | null,
     targetId?: string | null,
     extra?: {
       interruptState?: import('../lib/launchpad-storage').InterruptSnapshot | null;
@@ -198,6 +277,7 @@ export const Launchpad: React.FC = () => {
     setShowResults(false);
     setError(null);
     setInterruptQuestions(null);
+    setInterruptIntake(null);
     setClarificationAnswers({});
   };
 
@@ -210,6 +290,7 @@ export const Launchpad: React.FC = () => {
     setShowResults(false);
     setActiveNode(null);
     setCompletedNodes([]);
+    setLiveFeed([]);
     setInterruptQuestions(null);
 
     const handleProgress = (event: ProgressEvent) => {
@@ -217,12 +298,18 @@ export const Launchpad: React.FC = () => {
         setActiveNode(event.node);
       } else if (event.status === 'done') {
         setCompletedNodes(prev => prev.includes(event.node) ? prev : [...prev, event.node]);
+
+        const feedEntry = buildLiveFeedEntry(event);
+        if (feedEntry) {
+          setLiveFeed(prev => prev.some(entry => entry.id === feedEntry.id) ? prev : [...prev, feedEntry]);
+        }
       }
     };
 
     try {
       const result = await generateAnalysisStream(idea, apiKey, handleProgress, {
         clarifications: streamClarifications || null,
+        intake: streamClarifications ? interruptIntake : null,
       });
       let nextData = result;
 
@@ -240,21 +327,24 @@ export const Launchpad: React.FC = () => {
       }
 
       setData(nextData);
+      setInterruptIntake(null);
 
-      const targetId = branchingFromId ? activeSavedId : activeSavedId;
       const parentId = branchingFromId || null;
-      persistAnalysis(idea, nextData, targetId, { interruptState: null, parentId });
+      persistAnalysis(idea, nextData, activeSavedId, { interruptState: null, parentId });
       setBranchingFromId(null);
     } catch (err: any) {
       if (err instanceof AnalysisInterruptError) {
         setInterruptQuestions(err.interrupt.questions);
+        setInterruptIntake(err.interrupt.partialIntake || null);
         setClarificationAnswers({});
 
         const interruptSnapshot = {
           reason: err.interrupt.reason,
           questions: err.interrupt.questions,
         };
-        persistAnalysis(idea, data || {} as AnalysisData, activeSavedId, {
+        // No analysis exists yet at interrupt time — persist the interrupt
+        // marker alone instead of a stale or empty data object.
+        persistAnalysis(idea, null, activeSavedId, {
           interruptState: interruptSnapshot,
           parentId: branchingFromId || null,
         });
@@ -262,8 +352,9 @@ export const Launchpad: React.FC = () => {
       }
 
       const msg = err.message || 'Failed to generate analysis';
-      if (msg.toLowerCase().includes('api key') || msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('403')) {
-        setError('Your Google AI Studio key was rejected. Please check it and try again.');
+      const lowerMsg = msg.toLowerCase();
+      if (lowerMsg.includes('api key') || lowerMsg.includes('key was rejected') || lowerMsg.includes('unauthorized') || lowerMsg.includes('403')) {
+        setError(msg.includes('rejected') ? msg : 'Your AI provider key was rejected. Please check it and try again.');
         handleClearKey();
       } else {
         setError(msg);
@@ -295,10 +386,11 @@ export const Launchpad: React.FC = () => {
 
   const handleSkipClarification = async () => {
     if (!apiKey || !idea.trim()) return;
-    const answers = { ...clarificationAnswers };
+    // Skip means proceed without answers — an empty object tells the server
+    // the clarification step already happened.
     setInterruptQuestions(null);
     setClarificationAnswers({});
-    await runAnalysis(answers);
+    await runAnalysis({});
   };
 
   const handleGenerateFounderAssets = async () => {
@@ -323,6 +415,39 @@ export const Launchpad: React.FC = () => {
       setError(msg);
     } finally {
       setIsGeneratingAssets(false);
+    }
+  };
+
+  const handleLoadSavedRecord = (record: SavedLaunchpadAnalysis) => {
+    if (!record.data) return;
+    setIdea(record.idea);
+    setData(record.data);
+    setActiveSavedId(record.id);
+    setBranchingFromId(null);
+    setError(null);
+    setInterruptQuestions(null);
+    setInterruptIntake(null);
+  };
+
+  const handleBranchSavedRecord = (record: SavedLaunchpadAnalysis) => {
+    if (!record.data) return;
+    setIdea(record.idea);
+    setData(record.data);
+    setActiveSavedId(null);
+    setBranchingFromId(record.id);
+    setError(null);
+    setInterruptQuestions(null);
+    setInterruptIntake(null);
+  };
+
+  const handleDeleteSavedRecord = (record: SavedLaunchpadAnalysis) => {
+    deleteSavedAnalysis(record.id);
+    setSavedAnalyses(getSavedAnalyses());
+    if (activeSavedId === record.id) {
+      setActiveSavedId(null);
+    }
+    if (branchingFromId === record.id) {
+      setBranchingFromId(null);
     }
   };
 
@@ -388,14 +513,12 @@ export const Launchpad: React.FC = () => {
   };
 
   return (
-    <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden bg-neutral-900">
-      {/* Black Background Overlay with Fade */}
+    <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden bg-black">
+      {/* Ambient brand glow behind the hero */}
       <div
-        className="absolute top-0 left-0 w-full bg-black pointer-events-none"
+        className="absolute left-1/2 top-0 h-[60vh] w-[120vw] -translate-x-1/2 pointer-events-none"
         style={{
-          height: '85vh',
-          maskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 85%, transparent 100%)',
+          background: 'radial-gradient(ellipse at center top, rgba(255,31,31,0.07) 0%, rgba(255,31,31,0.02) 40%, transparent 70%)',
         }}
       />
 
@@ -460,9 +583,9 @@ export const Launchpad: React.FC = () => {
             className="mb-4"
           >
             {apiKey ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-sans">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-300 text-xs font-sans">
                 <Key className="w-3 h-3" />
-                <span>Gemini connected</span>
+                <span>{PROVIDER_LABELS[detectKeyProvider(apiKey)]} connected</span>
                 <button
                   onClick={handleClearKey}
                   className="ml-1 p-0.5 hover:bg-white/10 rounded transition-colors"
@@ -494,7 +617,7 @@ export const Launchpad: React.FC = () => {
               Describe your startup idea
             </label>
             <div className="relative group rounded-2xl md:rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500">
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-neutral-900/80 rounded-2xl md:rounded-full p-3 md:p-2 md:pl-6 border border-white/5 transition-all duration-500 group-hover:bg-neutral-900/60 focus-within:bg-neutral-900/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
+              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-black/80 rounded-2xl md:rounded-full p-3 md:p-2 md:pl-6 border border-white/5 transition-all duration-500 group-hover:bg-black/60 focus-within:bg-black/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
 
                 <input
                   id="launchpad-idea"
@@ -508,9 +631,10 @@ export const Launchpad: React.FC = () => {
                 />
 
                 <button
+                  ref={launchButtonRef}
                   type="submit"
                   disabled={isGenerating || !idea}
-                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-all duration-300 bg-velocity-red text-white hover:bg-red-600 hover:scale-[1.02] md:hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 group/btn shadow-lg md:shadow-none"
+                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-colors duration-300 bg-velocity-red text-white hover:bg-red-600 hover:shadow-[0_0_30px_rgba(255,31,31,0.4)] disabled:cursor-not-allowed flex items-center justify-center gap-2 group/btn shadow-lg"
                 >
                   {isGenerating ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -563,10 +687,10 @@ export const Launchpad: React.FC = () => {
                 exit={{ opacity: 0 }}
                 className="mt-8 w-full max-w-xl mx-auto"
               >
-                <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6">
+                <div className="rounded-2xl border border-velocity-red/25 bg-black p-6 shadow-2xl">
                     <div className="flex items-center gap-2 mb-4">
-                      <MessageCircle className="w-4 h-4 text-amber-400" />
-                      <span className="font-sans text-sm font-semibold text-amber-300">
+                      <MessageCircle className="w-4 h-4 text-velocity-red" />
+                      <span className="font-sans text-sm font-semibold text-red-300">
                         A few quick questions to clarify the idea
                       </span>
                     </div>
@@ -586,7 +710,7 @@ export const Launchpad: React.FC = () => {
                           onChange={(e) =>
                             setClarificationAnswers((prev) => ({ ...prev, [q.field]: e.target.value }))
                           }
-                          className="w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-amber-500/40"
+                          className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-velocity-red/40"
                           placeholder="Type your answer..."
                         />
                       </div>
@@ -598,7 +722,7 @@ export const Launchpad: React.FC = () => {
                       type="button"
                       onClick={handleResumeClarification}
                       disabled={Object.values(clarificationAnswers).filter(Boolean).length === 0}
-                      className="px-5 py-2.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-sans font-bold uppercase tracking-wide hover:bg-amber-500/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className="px-5 py-2.5 rounded-full bg-velocity-red/15 border border-velocity-red/35 text-red-200 text-xs font-sans font-bold uppercase tracking-wide hover:bg-velocity-red/25 hover:shadow-[0_0_18px_rgba(255,31,31,0.2)] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
                     >
                       Continue Analysis
                     </button>
@@ -620,7 +744,7 @@ export const Launchpad: React.FC = () => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="mt-4 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/[0.06] px-4 py-2 text-[11px] font-sans text-violet-300"
+              className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/[0.08] px-4 py-2 text-[11px] font-sans text-blue-300"
             >
               <GitBranch className="w-3.5 h-3.5" />
               Branching — edit the idea and relaunch to create a variant
@@ -708,10 +832,40 @@ export const Launchpad: React.FC = () => {
                 <span className="font-sans text-[10px] text-gray-500 mt-2">
                   {completedNodes.length}/{TOTAL_NODES} steps
                 </span>
+
+                {/* Live council feed — node outputs stream in as they land */}
+                {liveFeed.length > 0 && (
+                  <div className="mt-6 w-full max-w-xl space-y-2 text-left">
+                    <AnimatePresence initial={false}>
+                      {liveFeed.map((entry) => (
+                        <motion.div
+                          key={entry.id}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`rounded-2xl border px-4 py-3 ${LIVE_FEED_TONES[entry.tone]}`}
+                        >
+                          <p className="font-sans text-[10px] uppercase tracking-[0.18em] opacity-70">{entry.label}</p>
+                          <p className="mt-1 font-sans text-sm leading-relaxed">{entry.detail}</p>
+                        </motion.div>
+                      ))}
+                    </AnimatePresence>
+                  </div>
+                )}
               </motion.div>
             )}
           </AnimatePresence>
         </div>
+
+        {!isGenerating && (
+          <SavedRunsPanel
+            records={savedAnalyses}
+            activeId={activeSavedId}
+            onLoad={handleLoadSavedRecord}
+            onBranch={handleBranchSavedRecord}
+            onDelete={handleDeleteSavedRecord}
+            onRecordsChanged={() => setSavedAnalyses(getSavedAnalyses())}
+          />
+        )}
 
         {!showResults && !isGenerating && !interruptQuestions && (
           <motion.div
@@ -749,6 +903,7 @@ export const Launchpad: React.FC = () => {
         <div ref={resultsAnchorRef} />
         <LaunchpadDashboard
           data={data}
+          idea={idea}
           analysisId={activeSavedId}
           showResults={showResults}
           onGenerateFounderAssets={handleGenerateFounderAssets}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, ArrowRight, CheckCircle2, ExternalLink, Key, Shield, X } from 'lucide-react';
+import { detectKeyProvider, PROVIDER_LABELS } from '../lib/api';
 
 interface ApiKeyEntryProps {
     isOpen: boolean;
@@ -10,9 +11,24 @@ interface ApiKeyEntryProps {
 }
 
 const providers = [
-    { name: 'Gemini', status: 'Available now', active: true },
-    { name: 'OpenAI', status: 'Not enabled yet', active: false },
-    { name: 'Anthropic', status: 'Not enabled yet', active: false },
+    {
+        name: 'Gemini',
+        status: 'Keys start with AIza — includes live web research',
+        keyUrl: 'https://aistudio.google.com/apikey',
+        keyUrlLabel: 'Google AI Studio',
+    },
+    {
+        name: 'OpenAI',
+        status: 'Keys start with sk-',
+        keyUrl: 'https://platform.openai.com/api-keys',
+        keyUrlLabel: 'OpenAI Platform',
+    },
+    {
+        name: 'Anthropic',
+        status: 'Keys start with sk-ant-',
+        keyUrl: 'https://console.anthropic.com/settings/keys',
+        keyUrlLabel: 'Anthropic Console',
+    },
 ];
 
 export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
@@ -63,7 +79,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
 
         const trimmed = apiKey.trim();
         if (!trimmed) {
-            setError('Please paste your Google AI Studio API key');
+            setError('Please paste a Gemini, OpenAI, or Anthropic API key');
             return;
         }
 
@@ -71,6 +87,8 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
         onSubmit(trimmed, remember);
         setApiKey('');
     };
+
+    const detectedProvider = apiKey.trim() ? PROVIDER_LABELS[detectKeyProvider(apiKey)] : null;
 
     return (
         <AnimatePresence>
@@ -116,63 +134,41 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                 </div>
 
                                 <h2 id="api-key-dialog-title" className="font-sans font-bold text-2xl text-center text-white mb-2 tracking-tight">
-                                    Connect Gemini to Launchpad
+                                    Connect a model provider
                                 </h2>
                                 <p className="font-sans text-sm text-gray-400 text-center mb-6">
-                                    Launchpad uses your key to turn a rough idea into a market, customer, risk, and next-steps analysis.
+                                    Paste a Gemini, OpenAI, or Anthropic key — Launchpad detects the provider automatically and uses your key to run the analysis.
                                 </p>
 
                                 <div className="mb-5 grid gap-2 sm:grid-cols-3">
                                     {providers.map((provider) => (
-                                        <div
+                                        <a
                                             key={provider.name}
-                                            aria-disabled={!provider.active}
-                                            className={`rounded-lg border p-3 ${provider.active
+                                            href={provider.keyUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`rounded-lg border p-3 transition-colors hover:border-velocity-red/50 hover:bg-velocity-red/10 ${detectedProvider === provider.name
                                                 ? 'border-velocity-red/60 bg-velocity-red/10 text-white'
-                                                : 'border-white/10 bg-black/20 text-gray-500 opacity-55'
+                                                : 'border-white/10 bg-black/20 text-gray-300'
                                                 }`}
                                         >
                                             <div className="flex items-center justify-between gap-2">
                                                 <span className="font-sans text-sm font-semibold">{provider.name}</span>
-                                                {provider.active && <CheckCircle2 className="h-4 w-4 text-velocity-red" />}
+                                                {detectedProvider === provider.name ? (
+                                                    <CheckCircle2 className="h-4 w-4 text-velocity-red" />
+                                                ) : (
+                                                    <ExternalLink className="h-3.5 w-3.5 text-gray-500" />
+                                                )}
                                             </div>
                                             <p className="mt-1 font-sans text-[11px] text-gray-500">{provider.status}</p>
-                                        </div>
+                                        </a>
                                     ))}
-                                </div>
-
-                                <div className="mb-5 rounded-lg border border-white/10 bg-black/20 p-4">
-                                    <p className="font-sans text-xs uppercase tracking-[0.18em] text-gray-500 mb-3">
-                                        How to get a key
-                                    </p>
-                                    <ol className="space-y-2 font-sans text-sm text-gray-300">
-                                        <li className="flex gap-3">
-                                            <span className="text-velocity-red">1</span>
-                                            <span>Open Google AI Studio and sign in with your Google account.</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="text-velocity-red">2</span>
-                                            <span>Create an API key from the API keys page.</span>
-                                        </li>
-                                        <li className="flex gap-3">
-                                            <span className="text-velocity-red">3</span>
-                                            <span>Paste it below, then launch your analysis.</span>
-                                        </li>
-                                    </ol>
-                                    <a
-                                        href="https://aistudio.google.com/apikey"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="mt-4 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 font-sans text-xs text-white hover:border-velocity-red/50 hover:bg-velocity-red/10 transition-colors"
-                                    >
-                                        Open Google AI Studio <ExternalLink className="h-3.5 w-3.5" />
-                                    </a>
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="relative">
                                         <label htmlFor="launchpad-api-key" className="sr-only">
-                                            Google AI Studio API key
+                                            AI provider API key
                                         </label>
                                         <input
                                             id="launchpad-api-key"
@@ -188,6 +184,12 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                             autoFocus
                                             autoComplete="off"
                                         />
+                                        {detectedProvider && (
+                                            <p className="mt-2 font-sans text-[11px] text-gray-400">
+                                                Detected provider: <span className="text-white">{detectedProvider}</span>
+                                                {detectedProvider !== 'Gemini' && ' — live web research runs on Gemini keys only; other providers skip it.'}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <label className="flex items-center gap-2 cursor-pointer group">
@@ -226,11 +228,11 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                     <div className="flex items-start gap-2 text-gray-500">
                                         <Shield className="w-4 h-4 flex-shrink-0 mt-0.5 text-green-500/70" />
                                         <p className="font-sans text-[11px] leading-relaxed">
-                                            Your key stays in this browser unless you choose device storage. It is sent to Launchpad only to run the Gemini request and is not stored on Velocity servers.
+                                            Your key stays in this browser unless you choose device storage. It is sent to Launchpad only to run the model request and is not stored on Velocity servers.
                                         </p>
                                     </div>
                                     <p className="font-sans text-[10px] leading-relaxed text-gray-600">
-                                        Provider terms, billing, data handling, and regional rules still apply. UK, EEA, and Swiss users may need a billing-enabled Google Cloud project.{' '}
+                                        Provider terms, billing, data handling, and regional rules still apply. UK, EEA, and Swiss users may need a billing-enabled Google Cloud project for Gemini keys.{' '}
                                         <Link
                                             to="/launchpad/privacy-security"
                                             onClick={onClose}

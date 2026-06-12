@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import analyzeHandler from '../api/analyze.ts';
 import analyzeStreamHandler from '../api/analyze-stream.ts';
+import artifactPreviewHandler from '../api/artifact-preview.ts';
 import generateArtifactsHandler from '../api/generate-artifacts.ts';
 import mutateWidgetHandler from '../api/mutate-widget.ts';
 import automationIntakeChatHandler from '../api/automation-intake-chat.ts';
@@ -23,6 +24,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '2mb' }));
 
 app.use((err: unknown, _req: express.Request, res: express.Response, next: express.NextFunction) => {
   if (!err) return next();
@@ -54,6 +56,10 @@ app.all('/api/generate-artifacts', async (req, res) => {
 
 app.all('/api/mutate-widget', async (req, res) => {
   await mutateWidgetHandler(req as any, res as any);
+});
+
+app.all('/api/artifact-preview', async (req, res) => {
+  await artifactPreviewHandler(req as any, res as any);
 });
 
 app.all('/api/automation-intake-chat', async (req, res) => {

@@ -793,24 +793,11 @@ export function generateMockAnalysis(idea: string, includeArtifacts = false): Pr
                 identity: {
                     name: data.name,
                     tagline: data.tagline,
-                    colors: data.colors,
-                    domain: data.domain,
-                    available: true
                 },
                 monetization: data.monetization,
                 visuals: {
                     logoStyle: "Minimalist",
                     appInterface: data.interface,
-                    screens: [
-                        { type: "map", title: "Home" },
-                        { type: "feed", title: "Feed" },
-                        { type: "profile", title: "Profile" }
-                    ]
-                },
-                blueprint: {
-                    stack: data.stack,
-                    complexity: "Medium",
-                    timeline: "2 Weekends"
                 },
                 distributionChannels: data.distributionChannels,
                 validation: {
@@ -819,27 +806,28 @@ export function generateMockAnalysis(idea: string, includeArtifacts = false): Pr
                         risks: data.market.risks,
                         whatToTestFirst: data.market.whatToTestFirst,
                     },
-                    competitors: 3,
+                    competitors: data.competitors.length,
                     competitorList: data.competitors,
                     marketReports: data.marketReports,
                     marketGap: data.marketGap,
-                    scores: {
-                        viability: 75,
-                        scalability: 65,
-                        complexity: 45
-                    }
                 },
-                sources: data.sources,
+                sources: {
+                    market: data.sources.market,
+                    competitors: data.sources.competitors,
+                    channels: [],
+                    queries: [],
+                    documents: [],
+                },
                 customerSegments: data.customerSegments,
                 promptChain: data.promptChain,
-                ...(includeArtifacts ? {
-                    artifacts: generateMockFounderAssets({
+                artifacts: includeArtifacts
+                    ? generateMockFounderAssets({
                         identity: {
                             name: data.name,
                             tagline: data.tagline,
                         }
                     })
-                } : {})
+                    : {},
             });
         }, 1500); // Shorter delay for dev mode
     });

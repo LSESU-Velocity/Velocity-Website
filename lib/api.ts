@@ -1,212 +1,50 @@
 // API layer with dev-mode bypass for local testing
 import { generateMockAnalysis, generateMockFounderAssets } from './mockData';
+// Type-only imports: erased at build time, so the zod schemas stay out of
+// the client bundle while the contract stays single-sourced.
+import type {
+    ArtifactBundle,
+    CitationRef as SchemaCitationRef,
+    DashboardDTO,
+    IdeaIntake,
+    LabPhase,
+    SourceDocument as SchemaSourceDocument,
+    WidgetTarget,
+} from './launchpad-lab/schemas';
 
 // Dev mode detection - true when running a development server
 const IS_DEV = import.meta.env.DEV;
 const USE_MOCK_ANALYSIS = import.meta.env.VITE_USE_MOCK_ANALYSIS === 'true';
 
-export interface SourceDocument {
-    id: string;
-    title: string;
-    url: string;
-    domain: string;
-    snippet?: string;
-    categories: Array<'market' | 'competitor' | 'channel' | 'report' | 'general'>;
+/**
+ * The dashboard contract is the zod DashboardDTO — the server parses its
+ * responses against the same schema this type derives from.
+ */
+export type AnalysisData = DashboardDTO;
+export type SourceDocument = SchemaSourceDocument;
+export type CitationRef = SchemaCitationRef;
+export type AnalysisIntake = IdeaIntake;
+export type FounderAssets = ArtifactBundle;
+export type LabPhaseId = LabPhase;
+export type WidgetTargetId = WidgetTarget;
+
+// --- BYOK provider detection (mirrors lib/launchpad-lab/model.ts, which is
+// server-only because it imports the provider SDKs) ---
+
+export type ProviderId = 'google' | 'openai' | 'anthropic';
+
+export function detectKeyProvider(apiKey: string): ProviderId {
+    const key = apiKey.trim();
+    if (key.startsWith('sk-ant-')) return 'anthropic';
+    if (key.startsWith('sk-')) return 'openai';
+    return 'google';
 }
 
-export interface CitationRef {
-    sourceIds: string[];
-}
-
-export interface AnalysisData {
-    identity: {
-        name: string;
-        tagline: string;
-        colors?: string[];
-        domain?: string[];
-        available?: boolean;
-    };
-    monetization: Array<{
-        model: string;
-        pricing: string;
-        strategies: string[];
-        examples: string;
-    }>;
-    visuals: {
-        logoStyle: string;
-        appInterface: string;
-        screens?: Array<{ type: string; title: string }>;
-    };
-    blueprint?: {
-        stack: string[];
-        complexity: string;
-        timeline: string;
-    };
-    validation: {
-        industryInsights: {
-            keyInsights: string[];
-            risks: string[];
-            whatToTestFirst: string[];
-        };
-        aiInsight?: string; // Legacy field for older saved analyses
-        competitors: number;
-        competitorList: Array<{
-            name: string;
-            usp?: string;
-            strength: string;
-            weakness: string;
-            x: number;
-            y: number;
-            // Competitor profile fields
-            founded?: string;
-            hq?: string;
-            funding?: string;
-            employees?: string;
-            website?: string;
-        }>;
-        marketReports: Array<{
-            title: string;
-            publisher: string;
-            keyStat: string;
-            url: string;
-            sourceIds?: string[];
-        }>;
-        marketGap: {
-            xAxis: { label: string; low: string; high: string };
-            yAxis: { label: string; low: string; high: string };
-            yourPosition: { x: number; y: number };
-            yourGap: string;
-        };
-        scores?: {
-            viability: number;
-            scalability: number;
-            complexity: number;
-        };
-    };
-    sources: {
-        market: Array<{ id?: string; name: string; url: string }>;
-        competitors: Array<{ id?: string; name: string; url: string }>;
-        channels?: Array<{ id?: string; name: string; url: string }>;
-        queries?: string[];
-        documents?: SourceDocument[];
-    };
-    citations?: {
-        summary?: {
-            recommendation?: CitationRef;
-            openRisks?: Array<CitationRef | null>;
-            nextMoves?: Array<CitationRef | null>;
-        };
-        council?: {
-            finalTake?: CitationRef;
-            bullCase?: Array<CitationRef | null>;
-            bearCase?: Array<CitationRef | null>;
-            decidingFactors?: Array<CitationRef | null>;
-        };
-        validation?: {
-            marketInsights?: Array<CitationRef | null>;
-            risks?: Array<CitationRef | null>;
-            whatToTestFirst?: Array<CitationRef | null>;
-            competitors?: Array<CitationRef | null>;
-            marketGap?: CitationRef;
-            marketSizing?: Array<CitationRef | null>;
-            marketReports?: Array<CitationRef | null>;
-        };
-        strategy?: {
-            distributionChannels?: Array<CitationRef | null>;
-        };
-    };
-    customerSegments: Array<{
-        segment: string;
-        age: string;
-        income: string;
-        interest: string;
-    }>;
-    promptChain: Array<{
-        step: number;
-        title: string;
-        prompt: string;
-    }>;
-    lab?: {
-        intake: null | {
-            idea: string;
-            domain: string;
-            ideaType: string;
-            targetUser: string;
-            coreProblem: string;
-        };
-        council: {
-            bull: null | {
-                perspective: 'bull' | 'bear';
-                keyPoints: string[];
-                opportunities: string[];
-                risks: string[];
-                recommendation: string;
-            };
-            bear: null | {
-                perspective: 'bull' | 'bear';
-                keyPoints: string[];
-                opportunities: string[];
-                risks: string[];
-                recommendation: string;
-            };
-            judge?: null | {
-                verdict: 'bull' | 'bear' | 'split';
-                finalTake: string;
-                bullCase: string[];
-                bearCase: string[];
-                decidingFactors: string[];
-                citations?: {
-                    finalTake?: CitationRef;
-                    bullCase?: CitationRef[];
-                    bearCase?: CitationRef[];
-                    decidingFactors?: CitationRef[];
-                };
-            };
-        };
-        summary: {
-            recommendation: string;
-            confidenceScore: number;
-            confidenceLabel: 'low' | 'medium' | 'high';
-            openRisks: string[];
-            nextMoves: string[];
-        };
-        marketSizing?: Array<{
-            key: 'tam' | 'sam' | 'som';
-            label: 'TAM' | 'SAM' | 'SOM';
-            title: string;
-            value: number;
-            ratio: number;
-        }>;
-    };
-    distributionChannels: Array<{
-        name: string;
-        type: string;
-        members: string;
-    }>;
-    artifacts?: {
-        waitlistHtml?: string;
-        pitchDeckHtml?: string;
-    };
-}
-
-export interface FounderAssets {
-    waitlistHtml?: string;
-    pitchDeckHtml?: string;
-}
-
-export type LabPhaseId = 'validation' | 'strategy' | 'execution';
-
-export type WidgetTargetId =
-    | 'validation'
-    | 'marketSizing'
-    | 'marketPosition'
-    | 'strategy'
-    | 'monetization'
-    | 'customerSegments'
-    | 'distributionChannels'
-    | 'waitlist'
-    | 'pitchDeck'
-    | 'promptChain';
+export const PROVIDER_LABELS: Record<ProviderId, string> = {
+    google: 'Gemini',
+    openai: 'OpenAI',
+    anthropic: 'Anthropic',
+};
 
 export interface LabPromptHistoryEntry {
     id: string;
@@ -355,6 +193,8 @@ export interface ProgressEvent {
     node: string;
     status: 'running' | 'done' | 'error';
     error?: string;
+    /** Node output snapshot (memos, intake, research summary) for live UI. */
+    data?: unknown;
 }
 
 export type StreamProgressCallback = (event: ProgressEvent) => void;
@@ -368,6 +208,8 @@ export interface ClarificationQuestion {
 export interface InterruptEvent {
     reason: string;
     questions: ClarificationQuestion[];
+    /** Intake extracted before the interrupt — returned on resume to skip re-classification. */
+    partialIntake?: AnalysisIntake | null;
 }
 
 export class AnalysisInterruptError extends Error {
@@ -381,6 +223,8 @@ export class AnalysisInterruptError extends Error {
 
 export interface StreamOptions {
     clarifications?: Record<string, string> | null;
+    /** Intake from a previous interrupt, echoed back to skip re-classification. */
+    intake?: AnalysisIntake | null;
 }
 
 function getMockClarificationQuestions(idea: string): ClarificationQuestion[] {
@@ -503,6 +347,9 @@ export async function generateAnalysisStream(
     if (options?.clarifications) {
         body.clarifications = options.clarifications;
     }
+    if (options?.intake) {
+        body.intake = options.intake;
+    }
 
     const response = await fetch(`${API_BASE}/analyze-stream`, {
         method: 'POST',
@@ -525,63 +372,78 @@ export async function generateAnalysisStream(
         throw new Error('No response body for stream');
     }
 
-    return new Promise<AnalysisData>((resolve, reject) => {
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    // Event state must survive across network chunks: a single SSE event
+    // (the ~19KB result especially) routinely arrives split over multiple
+    // reads, with the "event:" line and the terminating blank line in
+    // different chunks.
+    let eventType = '';
+    let dataLines: string[] = [];
 
-        function processChunk() {
-            reader.read().then(({ done, value }) => {
-                if (done) {
-                    reject(new Error('Stream ended without a result event'));
-                    return;
-                }
-
-                buffer += decoder.decode(value, { stream: true });
-
-                // Parse SSE events from buffer
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
-
-                let eventType = '';
-                let eventData = '';
-
-                for (const line of lines) {
-                    if (line.startsWith('event: ')) {
-                        eventType = line.slice(7).trim();
-                    } else if (line.startsWith('data: ')) {
-                        eventData = line.slice(6);
-                    } else if (line === '' && eventType && eventData) {
-                        try {
-                            const parsed = JSON.parse(eventData);
-                            if (eventType === 'progress') {
-                                onProgress(parsed as ProgressEvent);
-                            } else if (eventType === 'result') {
-                                resolve(parsed as AnalysisData);
-                                return;
-                            } else if (eventType === 'interrupt') {
-                                reject(new AnalysisInterruptError(parsed as InterruptEvent));
-                                return;
-                            } else if (eventType === 'error') {
-                                reject(new Error(parsed.error || 'Analysis failed'));
-                                return;
-                            }
-                        } catch (parseErr) {
-                            if (parseErr instanceof AnalysisInterruptError) {
-                                reject(parseErr);
-                                return;
-                            }
-                        }
-                        eventType = '';
-                        eventData = '';
-                    }
-                }
-
-                processChunk();
-            }).catch(reject);
+    const dispatchEvent = (type: string, data: string): AnalysisData | undefined => {
+        let parsed: unknown;
+        try {
+            parsed = JSON.parse(data);
+        } catch {
+            return undefined;
         }
 
-        processChunk();
-    });
+        if (type === 'progress') {
+            onProgress(parsed as ProgressEvent);
+            return undefined;
+        }
+        if (type === 'result') {
+            return parsed as AnalysisData;
+        }
+        if (type === 'interrupt') {
+            throw new AnalysisInterruptError(parsed as InterruptEvent);
+        }
+        if (type === 'error') {
+            throw new Error((parsed as { error?: string }).error || 'Analysis failed');
+        }
+        return undefined;
+    };
+
+    const processLine = (rawLine: string): AnalysisData | undefined => {
+        const line = rawLine.endsWith('\r') ? rawLine.slice(0, -1) : rawLine;
+
+        if (line === '') {
+            const type = eventType;
+            const data = dataLines.join('\n');
+            eventType = '';
+            dataLines = [];
+            return type && data ? dispatchEvent(type, data) : undefined;
+        }
+
+        if (line.startsWith('event:')) {
+            eventType = line.slice(6).trim();
+        } else if (line.startsWith('data:')) {
+            dataLines.push(line.slice(5).replace(/^ /, ''));
+        }
+        return undefined;
+    };
+
+    while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+            break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+            const result = processLine(line);
+            if (result) {
+                reader.cancel().catch(() => {});
+                return result;
+            }
+        }
+    }
+
+    throw new Error('Stream ended without a result event');
 }
 

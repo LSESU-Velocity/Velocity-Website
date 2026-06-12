@@ -35,7 +35,7 @@ Launchpad takes a founder's early idea and runs it through a structured analysis
 
 ### API key note
 
-Launchpad currently runs through Google Gemini via Google AI Studio. Users paste their own Google AI Studio API key in the browser; Velocity does not store the raw key server-side or sell API access. Keys are stored in browser `sessionStorage` by default, with an optional "remember on this device" setting. Provider terms, billing, data handling, and regional rules still apply.
+Launchpad is bring-your-own-key: paste a Google AI Studio (Gemini), OpenAI, or Anthropic API key in the browser and the provider is detected from the key prefix. Live web research (Google Search grounding) runs on Gemini keys only — other providers run the analysis ungrounded. Velocity does not store the raw key server-side or sell API access. Keys are stored in browser `sessionStorage` by default, with an optional "remember on this device" setting. Provider terms, billing, data handling, and regional rules still apply.
 
 ## Tech Stack
 

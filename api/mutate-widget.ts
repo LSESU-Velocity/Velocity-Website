@@ -1,42 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
+import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { mutateWidget } from '../lib/launchpad-lab/index.js';
 import { DashboardDTOSchema, LabPhaseSchema, WidgetTargetSchema } from '../lib/launchpad-lab/schemas.js';
+import { sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
 
-function sanitizeUserInput(input: string): string {
-  let sanitized = input;
-
-  const dangerousPatterns = [
-    /```/g,
-    /"""/g,
-    /\n\s*---+\s*\n/g,
-    /\n\s*===+\s*\n/g,
-    /\[INST\]/gi,
-    /\[\/INST\]/gi,
-    /<\|.*?\|>/g,
-    /<<SYS>>|<<\/SYS>>/gi,
-    /IGNORE\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /DISREGARD\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /FORGET\s+(ALL\s+)?(PREVIOUS|ABOVE|PRIOR)\s+INSTRUCTIONS?/gi,
-    /NEW\s+INSTRUCTIONS?\s*:/gi,
-    /SYSTEM\s*:/gi,
-    /ASSISTANT\s*:/gi,
-    /USER\s*:/gi,
-    /HUMAN\s*:/gi,
-  ];
-
-  for (const pattern of dangerousPatterns) {
-    sanitized = sanitized.replace(pattern, ' ');
-  }
-
-  sanitized = sanitized.replace(/\s+/g, ' ').trim();
-
-  if (sanitized.length > 1000) {
-    sanitized = sanitized.substring(0, 1000);
-  }
-
-  return sanitized;
-}
+export const config = {
+  maxDuration: 60,
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
@@ -48,14 +18,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const userApiKey = getLaunchpadProviderKey(req);
 
   if (!userApiKey) {
-    return res.status(401).json({ error: 'A Google AI Studio API key is required.' });
+    return res.status(401).json({ error: 'An AI provider API key is required.' });
   }
 
   try {
-    const parsedBody =
-      typeof req.body === 'string'
-        ? JSON.parse(req.body || '{}')
-        : (req.body ?? {});
+    let parsedBody: Record<string, unknown>;
+    if (typeof req.body === 'string') {
+      try {
+        parsedBody = JSON.parse(req.body || '{}');
+      } catch {
+        return res.status(400).json({ error: 'Request body must be valid JSON' });
+      }
+    } else {
+      parsedBody = (req.body ?? {}) as Record<string, unknown>;
+    }
 
     const idea = parsedBody?.idea;
     const instruction = parsedBody?.instruction;
@@ -68,17 +44,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'A widget update request is required (min 3 characters)' });
     }
 
-    const phaseId = LabPhaseSchema.parse(parsedBody?.phaseId);
-    const targetId = WidgetTargetSchema.parse(parsedBody?.targetId);
-    const analysis = DashboardDTOSchema.parse(parsedBody?.analysis);
+    const phaseResult = LabPhaseSchema.safeParse(parsedBody?.phaseId);
+    if (!phaseResult.success) {
+      return res.status(400).json({ error: 'Unknown phase id.' });
+    }
+
+    const targetResult = WidgetTargetSchema.safeParse(parsedBody?.targetId);
+    if (!targetResult.success) {
+      return res.status(400).json({ error: 'Unknown widget target id.' });
+    }
+
+    const analysisResult = DashboardDTOSchema.safeParse(parsedBody?.analysis);
+    if (!analysisResult.success) {
+      return res.status(400).json({ error: 'The analysis payload does not match the expected shape.' });
+    }
+
+    if (await enforceLaunchpadRateLimit(req, res, {
+      prefix: 'lp_mutate',
+      limit: 60,
+      windowMs: 24 * 60 * 60 * 1000,
+      minGapMs: 4_000,
+    })) {
+      return;
+    }
 
     const outcome = await mutateWidget({
       apiKey: userApiKey.trim(),
       idea: sanitizeUserInput(idea.trim()),
-      analysis,
-      phaseId,
-      targetId,
-      instruction: sanitizeUserInput(instruction.trim()),
+      analysis: analysisResult.data,
+      phaseId: phaseResult.data,
+      targetId: targetResult.data,
+      instruction: sanitizeUserInput(instruction.trim(), 1000),
     });
 
     if (!outcome.success) {

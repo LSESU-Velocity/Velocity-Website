@@ -1,6 +1,7 @@
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { z } from 'zod';
-import { createModel } from './model.js';
+import { createModel, detectProvider, getDefaultModel, structuredOutputOptions } from './model.js';
+import { classifyProviderError, getErrorMessage } from './errors.js';
 import { buildDirectionalMarketSizing, buildFallbackCouncilJudge } from './lab.js';
 import {
   type ArtifactPromptContext,
@@ -25,9 +26,6 @@ import {
   type LabPhase,
   type WidgetTarget,
 } from './schemas.js';
-
-const DEFAULT_MODEL = process.env.LAUNCHPAD_GEMINI_MODEL || 'gemini-3.1-flash-lite-preview';
-const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const ValidationMutationSchema = z.object({
   marketSizing: z.array(MarketSizingPointSchema).length(3).optional(),
@@ -83,10 +81,6 @@ export interface WidgetMutationError {
 }
 
 export type WidgetMutationOutcome = WidgetMutationResult | WidgetMutationError;
-
-function getErrorMessage(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
 
 function sanitizeHtmlDocument(rawText: string): string | undefined {
   let html = rawText.trim();
@@ -221,14 +215,11 @@ async function runStructuredMutation<TSchema extends z.ZodTypeAny>({
 }): Promise<z.infer<TSchema>> {
   const model = createModel({
     apiKey,
-    model: DEFAULT_MODEL,
+    model: getDefaultModel(detectProvider(apiKey)),
     temperature: 0.35,
     maxOutputTokens: 8192,
   });
-  const structured = model.withStructuredOutput(schema, {
-    name,
-    method: 'jsonSchema',
-  });
+  const structured = model.withStructuredOutput(schema, structuredOutputOptions(apiKey, name));
 
   return structured.invoke([
     new SystemMessage(system),
@@ -439,7 +430,7 @@ async function mutateArtifact(
   const existingHtml = kind === 'waitlist' ? opts.analysis.artifacts?.waitlistHtml : opts.analysis.artifacts?.pitchDeckHtml;
   const model = createModel({
     apiKey: opts.apiKey,
-    model: DEFAULT_MODEL,
+    model: getDefaultModel(detectProvider(opts.apiKey)),
     temperature: 0.55,
     maxOutputTokens: 24576,
   });
@@ -481,36 +472,7 @@ ${trimForPrompt(existingHtml, kind === 'waitlist' ? 12000 : 16000)}` : 'There is
 }
 
 function classifyMutationError(message: string): WidgetMutationError {
-  if (
-    message.includes('API key') ||
-    message.includes('PERMISSION_DENIED') ||
-    message.includes('403') ||
-    message.includes('401') ||
-    message.includes('UNAUTHENTICATED')
-  ) {
-    return {
-      success: false,
-      error: 'Your Google AI Studio key was rejected. Please check it and try again.',
-      statusCode: 401,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  if (message.includes('RESOURCE_EXHAUSTED') || message.includes('429')) {
-    return {
-      success: false,
-      error: 'Your provider account hit a rate or quota limit while updating this widget.',
-      statusCode: 429,
-      ...(IS_DEV ? { details: message } : {}),
-    };
-  }
-
-  return {
-    success: false,
-    error: 'Failed to update this widget. Please try again.',
-    statusCode: 500,
-    ...(IS_DEV ? { details: message } : {}),
-  };
+  return { success: false, ...classifyProviderError(message, { context: 'this widget update' }) };
 }
 
 export async function mutateWidget(opts: WidgetMutationOptions): Promise<WidgetMutationOutcome> {

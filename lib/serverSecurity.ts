@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createHash } from 'crypto';
 import type { Firestore } from 'firebase-admin/firestore';
+import { initFirebase } from './firebase.js';
 
 type RateLimitReason = 'burst' | 'window' | 'unavailable';
 
@@ -8,6 +9,10 @@ export interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   reason?: RateLimitReason;
+  /** Epoch ms when the current window resets. */
+  resetTime?: number;
+  /** Requests counted in the current window, including this one if allowed. */
+  used?: number;
 }
 
 function firstHeaderValue(value: string | string[] | undefined): string {
@@ -115,25 +120,25 @@ export async function checkFirestoreRateLimit(
           resetTime: now + options.windowMs,
           lastRequestAt: now,
         });
-        return { allowed: true, remaining: Math.max(0, options.limit - 1) };
+        return { allowed: true, remaining: Math.max(0, options.limit - 1), resetTime: now + options.windowMs, used: 1 };
       }
 
       const count = typeof data.count === 'number' ? data.count : 0;
       const lastRequestAt = typeof data.lastRequestAt === 'number' ? data.lastRequestAt : 0;
 
       if (options.minGapMs && lastRequestAt + options.minGapMs > now) {
-        return { allowed: false, remaining: Math.max(0, options.limit - count), reason: 'burst' };
+        return { allowed: false, remaining: Math.max(0, options.limit - count), reason: 'burst' as const, resetTime, used: count };
       }
 
       if (count >= options.limit) {
-        return { allowed: false, remaining: 0, reason: 'window' };
+        return { allowed: false, remaining: 0, reason: 'window' as const, resetTime, used: count };
       }
 
       tx.update(ref, {
         count: count + 1,
         lastRequestAt: now,
       });
-      return { allowed: true, remaining: Math.max(0, options.limit - count - 1) };
+      return { allowed: true, remaining: Math.max(0, options.limit - count - 1), resetTime, used: count + 1 };
     });
   } catch (error) {
     console.warn(
@@ -142,4 +147,65 @@ export async function checkFirestoreRateLimit(
     );
     return { allowed: false, remaining: 0, reason: 'unavailable' };
   }
+}
+
+function tryInitFirestore(): Firestore | null {
+  try {
+    return initFirebase();
+  } catch (error) {
+    console.warn('Firestore unavailable for rate limiting:', error instanceof Error ? error.message : 'unknown');
+    return null;
+  }
+}
+
+/**
+ * Per-IP rate limit for Launchpad endpoints. Sends the 429 response itself
+ * and returns true when the request must stop.
+ *
+ * BYOK note: the user's own provider key carries the model cost, so the
+ * limiter's job is protecting Vercel function time — it fails OPEN when
+ * Firestore is unreachable rather than taking Launchpad down with it.
+ */
+export async function enforceLaunchpadRateLimit(
+  req: VercelRequest,
+  res: VercelResponse,
+  options: {
+    prefix: string;
+    limit: number;
+    windowMs: number;
+    minGapMs?: number;
+  },
+): Promise<boolean> {
+  const result = await checkFirestoreRateLimit(tryInitFirestore(), {
+    prefix: options.prefix,
+    identifier: getTrustedClientIp(req),
+    limit: options.limit,
+    windowMs: options.windowMs,
+    minGapMs: options.minGapMs,
+  });
+
+  if (result.allowed) {
+    return false;
+  }
+
+  if (result.reason === 'unavailable') {
+    console.warn(`${options.prefix}: rate limiter unavailable, allowing request`);
+    return false;
+  }
+
+  if (result.reason === 'burst') {
+    res.status(429).json({
+      error: 'Too many requests in a short burst. Wait a few seconds and try again.',
+    });
+    return true;
+  }
+
+  const resetsAt = new Date(result.resetTime || Date.now() + options.windowMs).toISOString();
+  res.status(429).json({
+    error: 'Daily limit reached for this endpoint.',
+    resetsAt,
+    used: result.used ?? options.limit,
+    limit: options.limit,
+  });
+  return true;
 }

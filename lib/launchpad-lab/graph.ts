@@ -4,8 +4,22 @@
  */
 import { Annotation, StateGraph } from '@langchain/langgraph';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
+import type { BaseMessage } from '@langchain/core/messages';
 import { z } from 'zod';
-import { createModel } from './model.js';
+import {
+  createModel,
+  detectProvider,
+  getDefaultModel,
+  getFallbackModel,
+  structuredOutputOptions,
+  supportsGroundedResearch,
+} from './model.js';
+import {
+  getErrorMessage,
+  isFatalProviderError,
+  isHighDemandError,
+  isModelUnavailableError,
+} from './errors.js';
 import { runGroundedResearch, type GroundedResearchPacket } from './research.js';
 import {
   RawAnalysisSchema,
@@ -26,6 +40,8 @@ export interface NodeProgress {
   node: string;
   status: 'running' | 'done' | 'error';
   error?: string;
+  /** Small node output snapshot so the client can render live results. */
+  data?: unknown;
 }
 
 export type ProgressCallback = (progress: NodeProgress) => void;
@@ -268,15 +284,84 @@ GROUNDED RESEARCH:
 ${research.evidenceDigest}`;
 }
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+/**
+ * Invoke a structured-output call with per-node recovery: one in-place retry
+ * when the provider is overloaded, then a switch to the fallback model when
+ * one exists. This replaces the old whole-graph retry, which re-ran every
+ * node (including research) on a single transient failure.
+ */
+async function invokeStructured<TSchema extends z.ZodTypeAny>(opts: {
+  apiKey: string;
+  modelName: string;
+  maxOutputTokens?: number;
+  schema: TSchema;
+  name: string;
+  messages: BaseMessage[];
+}): Promise<z.infer<TSchema>> {
+  const fallbackModel = getFallbackModel(detectProvider(opts.apiKey));
+
+  const run = (modelName: string) =>
+    createModel({ apiKey: opts.apiKey, model: modelName, maxOutputTokens: opts.maxOutputTokens })
+      .withStructuredOutput(opts.schema, structuredOutputOptions(opts.apiKey, opts.name))
+      .invoke(opts.messages);
+
+  try {
+    return await run(opts.modelName);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    const canFallBack = Boolean(fallbackModel && fallbackModel !== opts.modelName);
+
+    if (isHighDemandError(message)) {
+      await sleep(700);
+
+      try {
+        return await run(opts.modelName);
+      } catch (retryError) {
+        const retryMessage = getErrorMessage(retryError);
+
+        if (canFallBack && (isHighDemandError(retryMessage) || isModelUnavailableError(retryMessage))) {
+          console.warn(`[Launchpad Lab] ${opts.name}: ${opts.modelName} overloaded, using ${fallbackModel}`);
+          return run(fallbackModel!);
+        }
+
+        throw retryError;
+      }
+    }
+
+    if (canFallBack && isModelUnavailableError(message)) {
+      console.warn(`[Launchpad Lab] ${opts.name}: ${opts.modelName} unavailable, using ${fallbackModel}`);
+      return run(fallbackModel!);
+    }
+
+    throw error;
+  }
+}
+
 async function classifyIdea(state: GraphStateType): Promise<Partial<GraphStateType>> {
   state.onProgress?.({ node: 'classifyIdea', status: 'running' });
 
-  try {
-    const model = createModel({ apiKey: state.apiKey, model: state.modelName, maxOutputTokens: 1024 });
-    const structured = model.withStructuredOutput(IdeaIntakeSchema, { name: 'classify_idea' });
+  // A preset intake (from a clarification resume) makes the classify call
+  // redundant — reuse it instead of paying for the same extraction again.
+  if (state.intake) {
+    state.onProgress?.({ node: 'classifyIdea', status: 'done', data: { intake: state.intake } });
+    return { intake: state.intake };
+  }
 
-    const intake = await structured.invoke([
-      new SystemMessage(`You are a startup classifier. Extract:
+  try {
+    const intake = await invokeStructured({
+      apiKey: state.apiKey,
+      modelName: state.modelName,
+      maxOutputTokens: 1024,
+      schema: IdeaIntakeSchema,
+      name: 'classify_idea',
+      messages: [
+        new SystemMessage(`You are a startup classifier. Extract:
 - domain: industry or sector
 - ideaType: product type
 - targetUser: primary user persona
@@ -286,14 +371,23 @@ Only use details that are explicit in the founder's wording.
 Do not infer or embellish missing specifics.
 If domain, targetUser, or coreProblem are not clearly stated, return "unspecified".
 Return the original idea in the "idea" field too.`),
-      new HumanMessage(`Classify this startup idea: "${state.idea}"`),
-    ]);
+        new HumanMessage(`Classify this startup idea: "${state.idea}"`),
+      ],
+    });
 
-    state.onProgress?.({ node: 'classifyIdea', status: 'done' });
+    state.onProgress?.({ node: 'classifyIdea', status: 'done', data: { intake } });
     return { intake };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'classifyIdea', status: 'error', error: msg });
+
+    // Auth/quota failures will hit every downstream node too. Surface them
+    // now instead of degrading to a default intake, which would send the
+    // user into a misleading clarification interrupt.
+    if (isFatalProviderError(msg)) {
+      return { error: msg, failedNode: 'classifyIdea' };
+    }
+
     return { intake: null };
   }
 }
@@ -641,6 +735,11 @@ function enrichIntakeWithClarifications(intake: IdeaIntake, clarifications: Reco
 async function normalizeIntake(state: GraphStateType): Promise<Partial<GraphStateType>> {
   state.onProgress?.({ node: 'normalizeIntake', status: 'running' });
 
+  if (state.error) {
+    state.onProgress?.({ node: 'normalizeIntake', status: 'done' });
+    return {};
+  }
+
   let intake = state.intake;
 
   if (!intake) {
@@ -678,6 +777,13 @@ async function normalizeIntake(state: GraphStateType): Promise<Partial<GraphStat
 async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateType>> {
   state.onProgress?.({ node: 'researchWeb', status: 'running' });
 
+  // Grounded research needs Gemini's googleSearch tool. Other providers run
+  // the council ungrounded rather than failing the whole analysis.
+  if (!supportsGroundedResearch(state.apiKey)) {
+    state.onProgress?.({ node: 'researchWeb', status: 'done', data: { skipped: true } });
+    return { research: null };
+  }
+
   try {
     const intake = state.intake;
     if (!intake) {
@@ -695,12 +801,28 @@ async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateTyp
       },
     });
 
-    state.onProgress?.({ node: 'researchWeb', status: 'done' });
+    state.onProgress?.({
+      node: 'researchWeb',
+      status: 'done',
+      data: {
+        summary: research.summary,
+        sourceCount: research.sources.length,
+        queries: research.queries.slice(0, 4),
+      },
+    });
     return { research };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'researchWeb', status: 'error', error: msg });
-    return { error: msg, failedNode: 'researchWeb' };
+
+    if (isFatalProviderError(msg)) {
+      return { error: msg, failedNode: 'researchWeb' };
+    }
+
+    // Research-specific failures (parse issues, missing grounding metadata)
+    // degrade to an ungrounded run instead of discarding the whole analysis.
+    console.warn('[Launchpad Lab] Grounded research degraded:', msg);
+    return { research: null };
   }
 }
 
@@ -708,15 +830,16 @@ async function runBullAnalyst(state: GraphStateType): Promise<Partial<GraphState
   state.onProgress?.({ node: 'runBullAnalyst', status: 'running' });
 
   try {
-    const model = createModel({ apiKey: state.apiKey, model: state.modelName, maxOutputTokens: 1024 });
-    const structured = model.withStructuredOutput(AnalystMemoLooseSchema, {
-      name: 'bull_memo',
-      method: 'jsonSchema',
-    });
     const intake = state.intake!;
 
-    const rawMemo = await structured.invoke([
-      new SystemMessage(`You are the BULL analyst on a startup council.
+    const rawMemo = await invokeStructured({
+      apiKey: state.apiKey,
+      modelName: state.modelName,
+      maxOutputTokens: 1024,
+      schema: AnalystMemoLooseSchema,
+      name: 'bull_memo',
+      messages: [
+        new SystemMessage(`You are the BULL analyst on a startup council.
 
 Your only job is to make the GOOD case for this idea.
 
@@ -726,7 +849,7 @@ Your only job is to make the GOOD case for this idea.
 - risks: 1-2 fragile assumptions even a bull would watch
 
 Keep every line concrete, concise, and non-repetitive. Return perspective as "bull".`),
-      new HumanMessage(`Analyze this opportunity:
+        new HumanMessage(`Analyze this opportunity:
 Idea: ${intake.idea}
 Domain: ${intake.domain}
 Type: ${intake.ideaType}
@@ -736,16 +859,24 @@ Core Problem: ${intake.coreProblem}
 ${buildGroundedResearchContext(state.research)}
 
 Focus on timing, differentiation, and why this wedge could be attractive right now.`),
-    ]);
+      ],
+    });
 
     const memo = normalizeAnalystMemo(rawMemo, 'bull');
 
-    state.onProgress?.({ node: 'runBullAnalyst', status: 'done' });
+    state.onProgress?.({ node: 'runBullAnalyst', status: 'done', data: { memo } });
     return { bullMemo: memo };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runBullAnalyst', status: 'error', error: msg });
-    return { error: msg, failedNode: 'runBullAnalyst' };
+
+    if (isFatalProviderError(msg)) {
+      return { error: msg, failedNode: 'runBullAnalyst' };
+    }
+
+    // A missing memo degrades gracefully — the judge and synthesis treat it
+    // as unavailable rather than failing the run.
+    return { bullMemo: null };
   }
 }
 
@@ -753,15 +884,16 @@ async function runBearAnalyst(state: GraphStateType): Promise<Partial<GraphState
   state.onProgress?.({ node: 'runBearAnalyst', status: 'running' });
 
   try {
-    const model = createModel({ apiKey: state.apiKey, model: state.modelName, maxOutputTokens: 1024 });
-    const structured = model.withStructuredOutput(AnalystMemoLooseSchema, {
-      name: 'bear_memo',
-      method: 'jsonSchema',
-    });
     const intake = state.intake!;
 
-    const rawMemo = await structured.invoke([
-      new SystemMessage(`You are the BEAR analyst on a startup council.
+    const rawMemo = await invokeStructured({
+      apiKey: state.apiKey,
+      modelName: state.modelName,
+      maxOutputTokens: 1024,
+      schema: AnalystMemoLooseSchema,
+      name: 'bear_memo',
+      messages: [
+        new SystemMessage(`You are the BEAR analyst on a startup council.
 
 Your only job is to make the BAD case for this idea.
 
@@ -771,7 +903,7 @@ Your only job is to make the BAD case for this idea.
 - risks: 1-2 highest-severity red flags
 
 Keep every line concrete, concise, and non-repetitive. Return perspective as "bear".`),
-      new HumanMessage(`Stress-test this opportunity:
+        new HumanMessage(`Stress-test this opportunity:
 Idea: ${intake.idea}
 Domain: ${intake.domain}
 Type: ${intake.ideaType}
@@ -781,34 +913,45 @@ Core Problem: ${intake.coreProblem}
 ${buildGroundedResearchContext(state.research)}
 
 Focus on saturation, retention, distribution difficulty, weak differentiation, or regulatory trouble.`),
-    ]);
+      ],
+    });
 
     const memo = normalizeAnalystMemo(rawMemo, 'bear');
 
-    state.onProgress?.({ node: 'runBearAnalyst', status: 'done' });
+    state.onProgress?.({ node: 'runBearAnalyst', status: 'done', data: { memo } });
     return { bearMemo: memo };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runBearAnalyst', status: 'error', error: msg });
-    return { error: msg, failedNode: 'runBearAnalyst' };
+
+    if (isFatalProviderError(msg)) {
+      return { error: msg, failedNode: 'runBearAnalyst' };
+    }
+
+    return { bearMemo: null };
   }
 }
 
 async function runCouncilJudge(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  if (state.error) {
+    return {};
+  }
+
   state.onProgress?.({ node: 'runCouncilJudge', status: 'running' });
 
   try {
-    const model = createModel({ apiKey: state.apiKey, model: state.modelName, maxOutputTokens: 1024 });
-    const structured = model.withStructuredOutput(CouncilJudgeLooseSchema, {
-      name: 'council_judge',
-      method: 'jsonSchema',
-    });
     const intake = state.intake!;
     const bullMemo = state.bullMemo;
     const bearMemo = state.bearMemo;
 
-    const rawJudge = await structured.invoke([
-      new SystemMessage(`You are the final JUDGE on a startup council.
+    const rawJudge = await invokeStructured({
+      apiKey: state.apiKey,
+      modelName: state.modelName,
+      maxOutputTokens: 1024,
+      schema: CouncilJudgeLooseSchema,
+      name: 'council_judge',
+      messages: [
+        new SystemMessage(`You are the final JUDGE on a startup council.
 
 You receive one bull memo and one bear memo.
 Your job is to decide who is more right overall right now, while explicitly noting where each side is correct.
@@ -845,32 +988,37 @@ BEAR MEMO:
 ${buildGroundedResearchContext(state.research)}
 
 Only cite IDs that exist in the source catalog.`),
-    ]);
+      ],
+    });
 
     const judge = sanitizeCouncilJudge(
       normalizeCouncilJudge(rawJudge),
       new Set((state.research?.sources || []).map((source) => source.id)),
     );
 
-    state.onProgress?.({ node: 'runCouncilJudge', status: 'done' });
+    state.onProgress?.({ node: 'runCouncilJudge', status: 'done', data: { judge } });
     return { judgeMemo: judge };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runCouncilJudge', status: 'error', error: msg });
-    return { error: msg, failedNode: 'runCouncilJudge' };
+
+    if (isFatalProviderError(msg)) {
+      return { error: msg, failedNode: 'runCouncilJudge' };
+    }
+
+    // The lab layer builds a deterministic fallback judge from the memos.
+    return { judgeMemo: null };
   }
 }
 
 async function synthesizeOpportunity(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  if (state.error) {
+    return {};
+  }
+
   state.onProgress?.({ node: 'synthesizeOpportunity', status: 'running' });
 
   try {
-    const model = createModel({ apiKey: state.apiKey, model: state.modelName, maxOutputTokens: 16384 });
-    const structured = model.withStructuredOutput(RawAnalysisSchema, {
-      name: 'startup_analysis',
-      method: 'jsonSchema',
-    });
-
     const intake = state.intake!;
     const bullSummary = state.bullMemo
       ? `BULL ANALYST:\nWhy it could work: ${state.bullMemo.keyPoints.join('; ')}\nTailwinds: ${state.bullMemo.opportunities.join('; ')}\nWatchouts: ${state.bullMemo.risks.join('; ')}\nVerdict: ${state.bullMemo.recommendation}`
@@ -882,7 +1030,13 @@ async function synthesizeOpportunity(state: GraphStateType): Promise<Partial<Gra
       ? `COUNCIL JUDGE:\nFinal call: ${state.judgeMemo.finalTake}\nVerdict: ${state.judgeMemo.verdict}\nBull is right about: ${state.judgeMemo.bullCase.join('; ')}\nBear is right about: ${state.judgeMemo.bearCase.join('; ')}\nWhat settles it: ${state.judgeMemo.decidingFactors.join('; ')}`
       : 'Council judge memo unavailable.';
 
-    const synthesis = await structured.invoke([
+    const synthesis = await invokeStructured({
+      apiKey: state.apiKey,
+      modelName: state.modelName,
+      maxOutputTokens: 16384,
+      schema: RawAnalysisSchema,
+      name: 'startup_analysis',
+      messages: [
       new SystemMessage(buildAnalysisSystemPrompt()),
       new HumanMessage(`${buildUserMessage(intake.idea)}
 
@@ -912,7 +1066,8 @@ Citation rules:
 
 Use the council to make the final analysis sharper.
 Treat the judge as the arbitration layer for the final recommendation, while keeping the upside and downside distinct instead of collapsing them into generic advice.`),
-    ]);
+      ],
+    });
 
     const allowedSourceIds = new Set((state.research?.sources || []).map((source) => source.id));
     const normalizedSynthesis = sanitizeRawAnalysis(synthesis, allowedSourceIds);
@@ -920,7 +1075,7 @@ Treat the judge as the arbitration layer for the final recommendation, while kee
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'done' });
     return { synthesis: normalizedSynthesis };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'error', error: msg });
     return { error: msg, failedNode: 'synthesizeOpportunity' };
   }
@@ -952,10 +1107,22 @@ async function qaAndRepair(state: GraphStateType): Promise<Partial<GraphStateTyp
 }
 
 function shouldContinueAfterIntake(state: GraphStateType): string | string[] {
+  if (state.error) {
+    return 'qaAndRepair';
+  }
   if (state.interrupt) {
     return '__end__';
   }
   return 'researchWeb';
+}
+
+function shouldContinueAfterResearch(state: GraphStateType): string | string[] {
+  // Fatal provider errors skip the council entirely instead of burning four
+  // more model calls that will all fail the same way.
+  if (state.error) {
+    return 'qaAndRepair';
+  }
+  return ['runBullAnalyst', 'runBearAnalyst'];
 }
 
 function buildAnalysisGraph() {
@@ -971,10 +1138,11 @@ function buildAnalysisGraph() {
     .addEdge('__start__', 'classifyIdea')
     .addEdge('classifyIdea', 'normalizeIntake')
     .addConditionalEdges('normalizeIntake', shouldContinueAfterIntake, [
-      'researchWeb', 'runBullAnalyst', 'runBearAnalyst', 'qaAndRepair', '__end__',
+      'researchWeb', 'qaAndRepair', '__end__',
     ])
-    .addEdge('researchWeb', 'runBullAnalyst')
-    .addEdge('researchWeb', 'runBearAnalyst')
+    .addConditionalEdges('researchWeb', shouldContinueAfterResearch, [
+      'runBullAnalyst', 'runBearAnalyst', 'qaAndRepair',
+    ])
     .addEdge(['runBullAnalyst', 'runBearAnalyst'], 'runCouncilJudge')
     .addEdge('runCouncilJudge', 'synthesizeOpportunity')
     .addEdge('synthesizeOpportunity', 'qaAndRepair')
@@ -998,6 +1166,8 @@ export interface GraphRunOptions {
   modelName?: string;
   onProgress?: ProgressCallback;
   clarifications?: Record<string, string> | null;
+  /** Intake from a previous interrupt — skips the classify model call. */
+  presetIntake?: IdeaIntake | null;
 }
 
 export interface CouncilMemos {
@@ -1029,39 +1199,17 @@ export interface GraphRunInterrupt {
 
 export type GraphRunOutcome = GraphRunResult | GraphRunError | GraphRunInterrupt;
 
-const DEFAULT_MODEL = process.env.LAUNCHPAD_GEMINI_MODEL || 'gemini-3.1-flash-lite-preview';
-const FALLBACK_MODEL = process.env.LAUNCHPAD_GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash-lite';
-
-function isModelUnavailableError(message: string): boolean {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes('not_found') ||
-    normalized.includes('model not found') ||
-    normalized.includes('unsupported model') ||
-    normalized.includes('unknown model') ||
-    (normalized.includes('model') && normalized.includes('404'))
-  );
-}
-
-function isHighDemandError(message: string): boolean {
-  const normalized = message.toLowerCase();
-  return (
-    normalized.includes('high demand') ||
-    normalized.includes('overloaded') ||
-    normalized.includes('temporarily unavailable') ||
-    normalized.includes('service unavailable') ||
-    normalized.includes('503')
-  );
-}
-
 export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> {
-  const modelName = opts.modelName || DEFAULT_MODEL;
+  const modelName = opts.modelName || getDefaultModel(detectProvider(opts.apiKey));
   const graph = getGraph();
 
+  // Per-node model fallback happens inside invokeStructured, so a single
+  // transient failure no longer re-runs the whole pipeline.
   const finalState = await graph.invoke({
     apiKey: opts.apiKey,
     modelName,
     idea: opts.idea,
+    intake: opts.presetIntake || null,
     onProgress: opts.onProgress || null,
     clarifications: opts.clarifications || null,
   });
@@ -1087,40 +1235,6 @@ export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> 
       },
       research: finalState.research,
     };
-  }
-
-  if (finalState.error && modelName !== FALLBACK_MODEL) {
-    if (isModelUnavailableError(finalState.error) || isHighDemandError(finalState.error)) {
-      opts.onProgress?.({ node: 'retry', status: 'running' });
-      const retryState = await graph.invoke({
-        apiKey: opts.apiKey,
-        modelName: FALLBACK_MODEL,
-        idea: opts.idea,
-        onProgress: opts.onProgress || null,
-        clarifications: opts.clarifications || null,
-      });
-
-      if (retryState.result) {
-        opts.onProgress?.({ node: 'retry', status: 'done' });
-        return {
-          success: true,
-          data: retryState.result,
-          intake: retryState.intake,
-          council: {
-            bull: retryState.bullMemo,
-            bear: retryState.bearMemo,
-            judge: retryState.judgeMemo,
-          },
-          research: retryState.research,
-        };
-      }
-
-      return {
-        success: false,
-        error: retryState.error || 'Fallback analysis finished without a result. The graph did not complete a terminal output.',
-        failedNode: retryState.failedNode || 'runGraph:fallback',
-      };
-    }
   }
 
   return {

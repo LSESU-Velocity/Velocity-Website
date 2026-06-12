@@ -8,8 +8,28 @@ export type { AnalyzeOptions, AnalyzeResult, AnalyzeError, AnalyzeInterrupt, Ana
 export { mutateWidget } from './mutate.js';
 export type { WidgetMutationOptions, WidgetMutationResult, WidgetMutationError, WidgetMutationOutcome } from './mutate.js';
 export { RawAnalysisSchema, DashboardDTOSchema } from './schemas.js';
-export type { RawAnalysis, DashboardDTO, ClarificationQuestion, InterruptPayload, LabPhase, WidgetTarget } from './schemas.js';
+export type { RawAnalysis, DashboardDTO, ClarificationQuestion, InterruptPayload, IdeaIntake, LabPhase, WidgetTarget } from './schemas.js';
 export { toDashboardDTO } from './normalizer.js';
-export { createModel } from './model.js';
+export {
+  createModel,
+  createResearchModel,
+  detectProvider,
+  getDefaultModel,
+  getFallbackModel,
+  structuredOutputOptions,
+  supportsGroundedResearch,
+  PROVIDER_LABELS,
+} from './model.js';
+export type { LaunchpadProvider } from './model.js';
+export {
+  classifyProviderError,
+  getErrorMessage,
+  isAuthError,
+  isFatalProviderError,
+  isHighDemandError,
+  isModelUnavailableError,
+  isQuotaError,
+} from './errors.js';
+export { sanitizeUserInput } from './sanitize.js';
 export { runGraph, GRAPH_NODES } from './graph.js';
 export type { NodeProgress, ProgressCallback, GraphRunOptions, GraphRunOutcome, GraphRunInterrupt } from './graph.js';
