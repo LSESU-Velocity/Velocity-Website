@@ -1,15 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { ArrowUpRight, BadgeCheck, Gift, ShieldCheck } from 'lucide-react';
 import {
-  ArrowUpRight,
-  BadgeCheck,
-  ChevronLeft,
-  ExternalLink,
-  Gift,
-  ShieldCheck,
-  Ticket,
-} from 'lucide-react';
+  Breadcrumb,
+  CornerTicks,
+  Eyebrow,
+  HeaderRule,
+  MetaRow,
+  ResourceFootnote,
+} from './resourceUi';
+
+export { Breadcrumb } from './resourceUi';
 
 type DiscountCategory =
   | 'AI Coding'
@@ -27,7 +28,7 @@ interface Discount {
   howTo: string;
   url: string;
   eligibility: string;
-  badge?: 'Best' | 'Popular' | 'New';
+  badge?: 'Best' | 'Popular' | 'New' | 'Paused';
 }
 
 const discounts: Discount[] = [
@@ -47,21 +48,22 @@ const discounts: Discount[] = [
     id: 'github-copilot',
     name: 'GitHub Copilot',
     category: 'AI Coding',
-    perk: 'Copilot Student — free while verified',
+    perk: 'Student plan sign-ups temporarily paused',
     description:
-      'Verified GitHub Education students get Copilot premium features at no extra cost while they remain eligible.',
-    howTo: 'Get verified on GitHub Education, then activate Copilot Student from your GitHub settings.',
+      'Copilot remains in the GitHub Education pack, but the public pack page says new plan sign-ups are currently paused.',
+    howTo:
+      'Get verified on GitHub Education and check the Copilot offer page before relying on it for a project.',
     url: 'https://education.github.com/pack/redeem/copilot-student',
     eligibility: 'GitHub Education',
-    badge: 'Best',
+    badge: 'Paused',
   },
   {
     id: 'perplexity',
     name: 'Perplexity',
     category: 'AI Models & APIs',
-    perk: 'Education Pro — $10/month',
+    perk: 'Education Pro — discounted plan',
     description:
-      'Student plan with Pro features, Learn Mode, extended research access, and one subscription for the latest AI models.',
+      'Verified students and educators get a discounted Pro plan with Learn Mode, file uploads, premium models, and education-specific nudges.',
     howTo: 'Upgrade inside Perplexity and verify your student status with SheerID.',
     url: 'https://www.perplexity.ai/help-center/en/articles/12590157-what-is-education-pro',
     eligibility: 'SheerID',
@@ -99,17 +101,6 @@ const discounts: Discount[] = [
     howTo: 'Apply with your school email, ISIC/ITIC card, or GitHub Student Developer Pack account.',
     url: 'https://lp.jetbrains.com/pycharm-for-students/',
     eligibility: 'School email or GitHub Pack',
-  },
-  {
-    id: 'replit',
-    name: 'Replit',
-    category: 'AI Coding',
-    perk: '$15 off Core for 6 months',
-    description:
-      'Student discount on Replit Core, which adds AI agent tools, private workspaces, publishing, and monthly credits.',
-    howTo: 'Join Replit with your student email and apply the student discount at checkout.',
-    url: 'https://replit.com/student/submissions',
-    eligibility: 'Student email',
   },
   {
     id: 'framer',
@@ -162,7 +153,7 @@ const discounts: Discount[] = [
     category: 'Infrastructure',
     perk: '$200 in hosting credit',
     description:
-      'Run production apps, databases, and agent infra. Credits valid for 12 months.',
+      'Run apps, databases, and agent infra. Current credit terms exclude GPU droplets, some inference products, and third-party frontier model pass-through charges.',
     howTo: 'Redeem via the GitHub Student Developer Pack.',
     url: 'https://www.digitalocean.com/github-students',
     eligibility: 'GitHub Pack',
@@ -304,6 +295,7 @@ const badgeStyle: Record<NonNullable<Discount['badge']>, string> = {
   Best: 'border-velocity-red/40 bg-velocity-red/10 text-velocity-red',
   Popular: 'border-white/20 bg-white/5 text-white',
   New: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+  Paused: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
 };
 
 export const ResourceDiscounts: React.FC = () => {
@@ -332,79 +324,102 @@ export const ResourceDiscounts: React.FC = () => {
       <div className="mx-auto max-w-7xl">
         <Breadcrumb current="Student Discounts" />
 
-        <div className="mx-auto mb-14 max-w-3xl md:text-center">
-          <div className="mb-4 inline-flex items-center gap-2 border border-white/10 bg-velocity-black/40 px-3 py-1 font-sans text-xs uppercase tracking-widest text-zinc-400">
-            <Ticket className="h-3.5 w-3.5 text-velocity-red" />
-            Perks for UK students
+        {/* Header */}
+        <header className="mb-12">
+          <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <Eyebrow>Perks for UK students</Eyebrow>
+              <h1 className="mb-5 font-sans text-4xl font-black tracking-tighter text-white md:text-6xl">
+                Student Discounts<span className="text-velocity-red">.</span>
+              </h1>
+              <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500 md:text-base">
+                Current AI, dev, design, and infra offers or status notes for UK university
+                students in June 2026, checked against student verification, GitHub
+                Education, and eligible school-account flows.
+              </p>
+            </div>
+            <div className="hidden w-60 flex-shrink-0 flex-col gap-2.5 pb-1 md:flex">
+              <MetaRow label="Perks" value={String(discounts.length)} />
+              <MetaRow
+                label="Categories"
+                value={String(categoryOrder.length).padStart(2, '0')}
+              />
+              <MetaRow label="Reviewed" value="Jun 2026" />
+              <MetaRow label="Proof" value="Email / ID" />
+            </div>
           </div>
-          <h1 className="mb-3 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
-            Student <span className="text-velocity-red">Discounts</span>
-          </h1>
-          <p className="font-sans text-sm leading-relaxed text-gray-500 md:text-base">
-            Current AI, dev, design, and infra offers that UK university students can still
-            claim in April 2026 using student verification, GitHub Education, or an eligible
-            school account.
-          </p>
-        </div>
+          <HeaderRule className="mt-10" />
+        </header>
 
-        {/* Stat strip */}
-        <div className="mb-10 grid grid-cols-1 gap-px overflow-hidden border border-white/10 bg-white/10 sm:grid-cols-3">
-          <StatCell value={discounts.length.toString()} label="Perks currently live" />
-          <StatCell value="Apr 2026" label="Last reviewed" />
-          <StatCell value="Email / ID" label="Typical proof needed" />
-        </div>
-
-        {/* Filter */}
-        <div className="mb-8 flex flex-wrap items-center gap-2">
-          {(['All', ...categoryOrder] as const).map((key) => {
-            const count = key === 'All' ? discounts.length : counts[key as DiscountCategory];
-            const active = filter === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setFilter(key)}
-                className={`relative inline-flex items-center gap-2 border px-4 py-2 font-sans text-xs uppercase tracking-widest transition-colors ${
-                  active
-                    ? 'border-velocity-red/40 bg-velocity-red/10 text-velocity-red'
-                    : 'border-white/10 bg-velocity-black/40 text-zinc-400 hover:border-white/25 hover:text-white'
-                }`}
-              >
-                {key}
-                <span className={active ? 'text-velocity-red/70' : 'text-zinc-600'}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+        {/* Filter toolbar */}
+        <div className="z-30 mb-10 border-y border-white/10 bg-velocity-black/90 py-4 backdrop-blur-md md:sticky md:top-[72px]">
+          <div className="flex flex-wrap gap-1.5">
+            {(['All', ...categoryOrder] as const).map((key) => {
+              const count = key === 'All' ? discounts.length : counts[key as DiscountCategory];
+              const active = filter === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setFilter(key)}
+                  aria-pressed={active}
+                  className={`inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors ${
+                    active
+                      ? 'border-velocity-red/50 bg-velocity-red/[0.08] text-white'
+                      : 'border-white/10 text-zinc-500 hover:border-white/30 hover:text-white'
+                  }`}
+                >
+                  <span
+                    aria-hidden
+                    className={`h-1 w-1 ${active ? 'bg-velocity-red' : 'bg-zinc-700'}`}
+                  />
+                  {key}
+                  <span
+                    className={`tabular-nums ${active ? 'text-velocity-red' : 'text-zinc-700'}`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Grid */}
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {visible.map((discount) => (
-            <DiscountCard key={discount.id} discount={discount} />
+          {visible.map((discount, i) => (
+            <DiscountCard key={discount.id} discount={discount} index={i} />
           ))}
         </div>
 
         {/* Trust strip */}
-        <div className="mt-16 flex flex-col items-start gap-4 border border-white/10 bg-velocity-black/40 p-6 md:flex-row md:items-center md:justify-between md:p-8">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-velocity-red" />
-            <p className="font-sans text-sm leading-relaxed text-zinc-400">
-              <span className="text-white">Reviewed by Velocity.</span> Every perk links
-              directly to the vendor and was checked against current public eligibility pages
-              in April 2026. We don't earn affiliate revenue — this list exists because
-              builders should build, not hunt for deals.
-            </p>
+        <div className="relative mt-20 overflow-hidden border border-white/10 bg-white/[0.02] p-6 md:p-8">
+          <CornerTicks />
+          <div className="relative flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="mt-0.5 h-5 w-5 flex-shrink-0 text-velocity-red" />
+              <p className="max-w-2xl font-sans text-sm leading-relaxed text-zinc-400">
+                <span className="font-bold text-white">Reviewed by Velocity.</span> Every
+                entry links directly to the vendor and was checked against current public
+                eligibility pages in June 2026. We don't earn affiliate revenue — this list
+                exists because builders should build, not hunt for deals.
+              </p>
+            </div>
+            <a
+              href="mailto:velocity@lsesu.org?subject=New discount idea"
+              className="inline-flex flex-shrink-0 items-center gap-2 border border-white/20 px-6 py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-300 transition-colors hover:border-velocity-red/60 hover:text-white"
+            >
+              Suggest a perk
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
           </div>
-          <a
-            href="mailto:velocity@lsesu.org?subject=New discount idea"
-            className="inline-flex flex-shrink-0 items-center gap-2 border border-white/20 px-5 py-2.5 font-sans text-xs uppercase tracking-widest text-zinc-300 transition-colors hover:border-white/40 hover:text-white"
-          >
-            Suggest a perk
-            <ArrowUpRight className="h-4 w-4" />
-          </a>
         </div>
+
+        <ResourceFootnote>
+          Offers, eligibility, and pricing change without notice — confirm details on the
+          vendor's page before relying on a perk. Velocity doesn't operate these third-party
+          services and isn't liable for account, billing, data, or policy issues.
+        </ResourceFootnote>
       </div>
     </section>
   );
@@ -412,103 +427,67 @@ export const ResourceDiscounts: React.FC = () => {
 
 interface DiscountCardProps {
   discount: Discount;
+  index: number;
 }
 
-const DiscountCard: React.FC<DiscountCardProps> = ({ discount }) => {
-  const initial = discount.name.trim().charAt(0).toUpperCase();
+const chipClass =
+  'inline-flex items-center gap-1 border px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.12em]';
 
-  return (
-    <motion.a
-      href={discount.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      whileHover={{ y: -3 }}
-      transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-      className="group relative flex h-full flex-col overflow-hidden border border-white/10 bg-velocity-black/40 p-6 transition-colors duration-300 hover:border-white/25"
-    >
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center border border-white/10 bg-gradient-to-br from-white/5 to-transparent font-sans text-base font-bold text-white">
-            {initial}
-          </div>
-          <div>
-            <h3 className="font-sans text-base font-bold text-white transition-colors group-hover:text-velocity-red">
-              {discount.name}
-            </h3>
-            <p className="font-sans text-[10px] uppercase tracking-widest text-zinc-500">
-              {discount.category}
-            </p>
-          </div>
-        </div>
-        {discount.badge && (
-          <span
-            className={`inline-flex items-center gap-1 border px-2 py-0.5 font-sans text-[10px] uppercase tracking-widest ${
-              badgeStyle[discount.badge]
-            }`}
-          >
-            {discount.badge === 'Best' && <BadgeCheck className="h-3 w-3" />}
-            {discount.badge === 'New' && <Gift className="h-3 w-3" />}
-            {discount.badge}
-          </span>
-        )}
-      </div>
-
-      <p className="mb-3 font-sans text-sm font-medium leading-snug text-velocity-red">
-        {discount.perk}
-      </p>
-      <p className="mb-5 flex-1 font-sans text-sm leading-relaxed text-zinc-400">
-        {discount.description}
-      </p>
-
-      <div className="mb-5 border-l-2 border-white/10 pl-3 font-sans text-xs leading-relaxed text-zinc-500">
-        <span className="mb-1 block text-[10px] uppercase tracking-widest text-zinc-600">
-          How to claim
+const DiscountCard: React.FC<DiscountCardProps> = ({ discount, index }) => (
+  <motion.a
+    href={discount.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    initial={{ opacity: 0, y: 12 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true, margin: '-40px' }}
+    whileHover={{ y: -3 }}
+    transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+    className="group relative flex h-full flex-col overflow-hidden border border-white/10 bg-gradient-to-b from-white/[0.03] to-transparent p-6 transition-colors duration-300 hover:border-velocity-red/40"
+  >
+    <div className="mb-4 flex items-start justify-between gap-3">
+      <span className="font-mono text-[11px] tabular-nums text-zinc-600 transition-colors group-hover:text-velocity-red">
+        {String(index + 1).padStart(2, '0')}
+      </span>
+      {discount.badge && (
+        <span className={`${chipClass} flex-shrink-0 ${badgeStyle[discount.badge]}`}>
+          {discount.badge === 'Best' && <BadgeCheck className="h-3 w-3" />}
+          {discount.badge === 'New' && <Gift className="h-3 w-3" />}
+          {discount.badge}
         </span>
-        {discount.howTo}
-      </div>
+      )}
+    </div>
 
-      <div className="flex items-center justify-between border-t border-white/5 pt-4 font-sans text-[11px] uppercase tracking-widest text-zinc-500">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-1.5 w-1.5 bg-velocity-red" />
-          {discount.eligibility}
-        </span>
-        <span className="inline-flex items-center gap-1 transition-colors group-hover:text-white">
-          Claim
-          <ExternalLink className="h-3.5 w-3.5" />
-        </span>
-      </div>
-    </motion.a>
-  );
-};
-
-interface StatCellProps {
-  value: string;
-  label: string;
-}
-
-const StatCell: React.FC<StatCellProps> = ({ value, label }) => (
-  <div className="bg-velocity-black/60 px-6 py-6 text-center">
-    <p className="mb-1 font-sans text-3xl font-bold text-white md:text-4xl">
-      <span className="text-velocity-red">{value}</span>
+    <h3 className="mb-1 font-sans text-lg font-bold text-white transition-colors group-hover:text-velocity-red">
+      {discount.name}
+    </h3>
+    <p className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+      {discount.category}
     </p>
-    <p className="font-sans text-[11px] uppercase tracking-widest text-zinc-500">{label}</p>
-  </div>
-);
 
-interface BreadcrumbProps {
-  current: string;
-}
+    <p className="mb-3 font-sans text-sm font-medium leading-snug text-velocity-red">
+      {discount.perk}
+    </p>
+    <p className="mb-5 flex-1 font-sans text-sm leading-relaxed text-zinc-400">
+      {discount.description}
+    </p>
 
-export const Breadcrumb: React.FC<BreadcrumbProps> = ({ current }) => (
-  <div className="mb-10 flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-zinc-500">
-    <Link
-      to="/resources"
-      className="inline-flex items-center gap-1.5 transition-colors hover:text-white"
-    >
-      <ChevronLeft className="h-3.5 w-3.5" />
-      Resources
-    </Link>
-    <span className="text-zinc-700">/</span>
-    <span className="text-zinc-400">{current}</span>
-  </div>
+    <div className="mb-5 border-l-2 border-white/15 bg-white/[0.02] py-2.5 pl-3.5 pr-3">
+      <p className="mb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+        How to claim
+      </p>
+      <p className="font-sans text-[13px] leading-relaxed text-zinc-400">{discount.howTo}</p>
+    </div>
+
+    <div className="flex items-center justify-between gap-3 border-t border-white/10 pt-3.5 font-mono text-[10px] uppercase tracking-[0.15em] text-zinc-600">
+      <span className="inline-flex min-w-0 items-center gap-1.5">
+        <span className="h-1.5 w-1.5 flex-shrink-0 bg-velocity-red" />
+        <span className="truncate">{discount.eligibility}</span>
+      </span>
+      <span className="inline-flex flex-shrink-0 items-center gap-1 text-zinc-500 transition-colors group-hover:text-white">
+        Claim
+        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+      </span>
+    </div>
+  </motion.a>
 );

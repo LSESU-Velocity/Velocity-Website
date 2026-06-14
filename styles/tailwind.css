@@ -48,3 +48,86 @@
     animation: gradient 3s ease infinite;
   }
 }
+
+/* --- Ignition sequence (ChipScroll loader/hero) --- */
+
+@keyframes vel-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes vel-drift {
+  from {
+    transform: translate(0, 0);
+  }
+
+  to {
+    transform: translate(var(--vel-dx, 14px), var(--vel-dy, -20px));
+  }
+}
+
+@keyframes vel-twinkle {
+
+  0%,
+  100% {
+    opacity: 0.12;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+}
+
+@keyframes vel-ignite-flare {
+  0% {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2)) brightness(1);
+  }
+
+  30% {
+    filter: drop-shadow(0 0 28px rgba(255, 31, 31, 0.6)) brightness(1.9);
+  }
+
+  100% {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.2)) brightness(1);
+  }
+}
+
+@layer utilities {
+  .vel-letter {
+    display: inline-block;
+    opacity: 0;
+    animation: vel-letter-in 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .vel-fade-up {
+    opacity: 0;
+    animation: vel-letter-in 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .vel-ignite {
+    animation: vel-ignite-flare 900ms ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .vel-letter,
+  .vel-fade-up,
+  .vel-ignite {
+    animation-duration: 1ms;
+  }
+
+  .vel-particle {
+    animation: none !important;
+    opacity: 0.25;
+  }
+}
