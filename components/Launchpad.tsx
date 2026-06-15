@@ -165,7 +165,9 @@ export const Launchpad: React.FC = () => {
   const [activeMutationTarget, setActiveMutationTarget] = useState<string | null>(null);
   const [liveFeed, setLiveFeed] = useState<LiveFeedEntry[]>([]);
 
+  const progressAnchorRef = useRef<HTMLDivElement>(null);
   const resultsAnchorRef = useRef<HTMLDivElement>(null);
+  const hasScrolledToProgressRef = useRef(false);
   const lastRenderedResultRef = useRef<AnalysisData | null>(null);
   const launchButtonRef = useMagnetic<HTMLButtonElement>();
   const activeSavedRecord = activeSavedId ? savedAnalyses.find((record) => record.id === activeSavedId) || null : null;
@@ -218,6 +220,33 @@ export const Launchpad: React.FC = () => {
   const loadingPercent = isGenerating
     ? Math.min(Math.floor((completedNodes.length / TOTAL_NODES) * 99), 99)
     : 0;
+
+  useEffect(() => {
+    if (!isGenerating) {
+      hasScrolledToProgressRef.current = false;
+      return;
+    }
+
+    if (hasScrolledToProgressRef.current) {
+      return;
+    }
+
+    hasScrolledToProgressRef.current = true;
+    const timeoutId = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        const behavior: ScrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          ? 'auto'
+          : 'smooth';
+
+        progressAnchorRef.current?.scrollIntoView({
+          behavior,
+          block: 'center',
+        });
+      });
+    }, 80);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isGenerating]);
 
   // Clear transient progress state when a run ends. Depends only on
   // isGenerating — including completedNodes here loops, because resetting it
@@ -762,6 +791,8 @@ export const Launchpad: React.FC = () => {
           <AnimatePresence>
             {isGenerating && (
               <motion.div
+                ref={progressAnchorRef}
+                data-testid="launchpad-live-progress"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}

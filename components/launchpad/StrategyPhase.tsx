@@ -140,11 +140,8 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
 
                     <div className="space-y-3.5">
                         {data.distributionChannels.slice(0, 5).map((channel, index) => (
-                            <motion.a
+                            <motion.div
                                 key={`${channel.name}-${index}`}
-                                href={getChannelHref(channel.name, index)}
-                                target="_blank"
-                                rel="noopener noreferrer"
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ delay: 0.45 + index * 0.08 }}
@@ -153,7 +150,14 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
                                 <div className="flex items-center gap-3 min-w-0">
                                     <div className="h-2.5 w-2.5 rounded-full bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.45)]" />
                                     <p className="font-sans text-[0.95rem] font-bold text-white truncate">
+                                        <a
+                                            href={getChannelHref(channel.name, index)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="hover:text-blue-200"
+                                        >
                                         {channel.name}
+                                        </a>
                                         {renderCitation(data.citations?.strategy?.distributionChannels?.[index], `distribution-channel-${index}`)}
                                     </p>
                                 </div>
@@ -163,7 +167,7 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
                                     </span>
                                     <span className="font-sans text-[0.95rem] font-bold text-velocity-red">{channel.members}</span>
                                 </div>
-                            </motion.a>
+                            </motion.div>
                         ))}
                     </div>
                 </div>

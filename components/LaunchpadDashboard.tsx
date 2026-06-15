@@ -88,12 +88,17 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         (data.sources.channels?.length || 0),
     );
 
-    const renderCitation = (citation?: CitationRef | null, keyPrefix = 'citation') => (
+    const renderCitation = (
+        citation?: CitationRef | null,
+        keyPrefix = 'citation',
+        options?: { interactive?: boolean },
+    ) => (
         <CitationLinks
             citation={citation}
             keyPrefix={keyPrefix}
             sourceMap={sourceMap}
             sourcesPageHref={sourcesPageHref}
+            interactive={options?.interactive}
         />
     );
 

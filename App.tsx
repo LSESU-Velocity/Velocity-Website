@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import { BackgroundGrid } from './components/ui/BackgroundGrid';
 import { Home } from './components/Home';
 import { Launchpad } from './components/Launchpad';
+import { ArtifactPreviewRedirect } from './components/launchpad/ArtifactPreviewRedirect';
 import { LaunchpadSources } from './components/LaunchpadSources';
 import { AutomationIntake } from './components/AutomationIntake';
 import { AutomationIntakeAdmin } from './components/AutomationIntakeAdmin';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/launchpad" element={<Launchpad />} />
+              <Route path="/artifact-preview" element={<ArtifactPreviewRedirect />} />
               <Route path="/launchpad/privacy-security" element={<LaunchpadPrivacySecurity />} />
               <Route path="/launchpad/sources/:analysisId" element={<LaunchpadSources />} />
               <Route path="/automation-intake" element={<AutomationIntake />} />

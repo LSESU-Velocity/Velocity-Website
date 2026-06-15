@@ -173,7 +173,7 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                                             <p className="font-sans text-[10px] uppercase tracking-[0.16em] text-white/35">{report.publisher}</p>
                                             <p className="mt-1 font-sans text-sm leading-relaxed text-white">
                                                 {report.title}
-                                                {renderCitation(data.citations?.validation?.marketReports?.[index], `market-report-${index}`)}
+                                                {renderCitation(data.citations?.validation?.marketReports?.[index], `market-report-${index}`, { interactive: false })}
                                             </p>
                                             <p className="mt-2 font-sans text-xs leading-relaxed text-white/50">{report.keyStat}</p>
                                         </div>

@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { mutateWidget } from '../lib/launchpad-lab/index.js';
 import { DashboardDTOSchema, LabPhaseSchema, WidgetTargetSchema } from '../lib/launchpad-lab/schemas.js';
-import { sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
+import { getLaunchpadInputSafetyIssue, sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
 
 export const config = {
   maxDuration: 60,
@@ -44,6 +44,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'A widget update request is required (min 3 characters)' });
     }
 
+    const safetyIssue = getLaunchpadInputSafetyIssue(`${idea}\n${instruction}`);
+    if (safetyIssue) {
+      return res.status(400).json({ error: safetyIssue });
+    }
+
     const phaseResult = LabPhaseSchema.safeParse(parsedBody?.phaseId);
     if (!phaseResult.success) {
       return res.status(400).json({ error: 'Unknown phase id.' });
@@ -63,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       prefix: 'lp_mutate',
       limit: 60,
       windowMs: 24 * 60 * 60 * 1000,
-      minGapMs: 4_000,
+      minGapMs: 2_000,
     })) {
       return;
     }

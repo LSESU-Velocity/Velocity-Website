@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { DashboardDTOSchema, generateFounderArtifacts } from '../lib/launchpad-lab/index.js';
+import { getLaunchpadInputSafetyIssue, sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
 
 export const config = {
   maxDuration: 90,
@@ -38,6 +39,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
     }
 
+    const safetyIssue = getLaunchpadInputSafetyIssue(idea);
+    if (safetyIssue) {
+      return res.status(400).json({ error: safetyIssue });
+    }
+
     const analysisResult = DashboardDTOSchema.safeParse(analysis);
     if (!analysisResult.success) {
       return res.status(400).json({ error: 'The analysis payload does not match the expected shape.' });
@@ -48,14 +54,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       prefix: 'lp_artifacts',
       limit: 20,
       windowMs: 24 * 60 * 60 * 1000,
-      minGapMs: 10_000,
+      minGapMs: 2_500,
     })) {
       return;
     }
 
     const outcome = await generateFounderArtifacts({
       apiKey: userApiKey.trim(),
-      idea: idea.trim(),
+      idea: sanitizeUserInput(idea.trim()),
       analysis: validatedAnalysis,
     });
 

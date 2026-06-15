@@ -11,6 +11,8 @@ export interface RateLimitResult {
   reason?: RateLimitReason;
   /** Epoch ms when the current window resets. */
   resetTime?: number;
+  /** Milliseconds until a burst-limited request can be retried. */
+  retryAfterMs?: number;
   /** Requests counted in the current window, including this one if allowed. */
   used?: number;
 }
@@ -127,7 +129,14 @@ export async function checkFirestoreRateLimit(
       const lastRequestAt = typeof data.lastRequestAt === 'number' ? data.lastRequestAt : 0;
 
       if (options.minGapMs && lastRequestAt + options.minGapMs > now) {
-        return { allowed: false, remaining: Math.max(0, options.limit - count), reason: 'burst' as const, resetTime, used: count };
+        return {
+          allowed: false,
+          remaining: Math.max(0, options.limit - count),
+          reason: 'burst' as const,
+          resetTime,
+          retryAfterMs: Math.max(0, lastRequestAt + options.minGapMs - now),
+          used: count,
+        };
       }
 
       if (count >= options.limit) {
@@ -194,8 +203,12 @@ export async function enforceLaunchpadRateLimit(
   }
 
   if (result.reason === 'burst') {
+    const retryAfterSeconds = Math.max(1, Math.ceil((result.retryAfterMs ?? options.minGapMs ?? 1000) / 1000));
+    res.setHeader('Retry-After', String(retryAfterSeconds));
     res.status(429).json({
       error: 'Too many requests in a short burst. Wait a few seconds and try again.',
+      code: 'launchpad_burst_rate_limited',
+      retryAfterSeconds,
     });
     return true;
   }

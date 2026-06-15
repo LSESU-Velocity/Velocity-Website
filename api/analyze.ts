@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
-import { sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
+import { getLaunchpadInputSafetyIssue, sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
 
 export const config = {
   maxDuration: 120,
@@ -41,6 +41,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
     }
 
+    const safetyIssue = getLaunchpadInputSafetyIssue(idea);
+    if (safetyIssue) {
+      return res.status(400).json({ error: safetyIssue });
+    }
+
     const sanitizedIdea = sanitizeUserInput(idea.trim());
 
     // Shares the same daily pool as the streaming endpoint.
@@ -48,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       prefix: 'lp_analyze',
       limit: 30,
       windowMs: 24 * 60 * 60 * 1000,
-      minGapMs: 10_000,
+      minGapMs: 2_500,
     })) {
       return;
     }

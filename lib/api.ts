@@ -79,6 +79,67 @@ async function readResponsePayload(response: Response): Promise<unknown> {
     }
 }
 
+const BURST_RATE_LIMIT_CODE = 'launchpad_burst_rate_limited';
+const BURST_RATE_LIMIT_TEXT = 'Too many requests in a short burst';
+const MAX_BURST_RETRIES = 2;
+
+function getNumericField(value: unknown, field: string): number | null {
+    if (!value || typeof value !== 'object' || !(field in value)) {
+        return null;
+    }
+
+    const numericValue = Number((value as Record<string, unknown>)[field]);
+    return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : null;
+}
+
+function getBurstRetryDelayMs(response: Response, payload: unknown): number | null {
+    if (response.status !== 429 || !payload || typeof payload !== 'object') {
+        return null;
+    }
+
+    const data = payload as Record<string, unknown>;
+    const code = typeof data.code === 'string' ? data.code : '';
+    const error = typeof data.error === 'string' ? data.error : '';
+
+    if (code !== BURST_RATE_LIMIT_CODE && !error.includes(BURST_RATE_LIMIT_TEXT)) {
+        return null;
+    }
+
+    const payloadRetrySeconds = getNumericField(data, 'retryAfterSeconds');
+    const headerRetrySeconds = Number(response.headers.get('Retry-After'));
+    const retrySeconds = payloadRetrySeconds
+        ?? (Number.isFinite(headerRetrySeconds) && headerRetrySeconds > 0 ? headerRetrySeconds : null)
+        ?? 3;
+
+    return Math.min(Math.max((retrySeconds * 1000) + 250, 500), 15_000);
+}
+
+async function fetchWithBurstRetry(url: string, init: RequestInit): Promise<Response> {
+    for (let attempt = 0; attempt <= MAX_BURST_RETRIES; attempt += 1) {
+        const response = await fetch(url, init);
+
+        if (attempt >= MAX_BURST_RETRIES || response.status !== 429) {
+            return response;
+        }
+
+        let payload: unknown = null;
+        try {
+            payload = await readResponsePayload(response.clone());
+        } catch {
+            return response;
+        }
+
+        const retryDelayMs = getBurstRetryDelayMs(response, payload);
+        if (retryDelayMs === null) {
+            return response;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+    }
+
+    throw new Error('Unable to reach Launchpad API');
+}
+
 export async function generateAnalysis(idea: string, apiKey: string, includeArtifacts = false): Promise<AnalysisData> {
     // Optional dev-mode bypass for quick UI iteration without hitting the backend
     if (IS_DEV && USE_MOCK_ANALYSIS) {
@@ -86,7 +147,7 @@ export async function generateAnalysis(idea: string, apiKey: string, includeArti
         return generateMockAnalysis(idea, includeArtifacts);
     }
 
-    const response = await fetch(`${API_BASE}/analyze`, {
+    const response = await fetchWithBurstRetry(`${API_BASE}/analyze`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,7 +209,7 @@ export async function generateFounderAssets(
         return generateMockFounderAssets(analysis);
     }
 
-    const response = await fetch(`${API_BASE}/generate-artifacts`, {
+    const response = await fetchWithBurstRetry(`${API_BASE}/generate-artifacts`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -277,7 +338,7 @@ export async function generateWidgetMutation(
         instruction: string;
     },
 ): Promise<WidgetMutationResult> {
-    const response = await fetch(`${API_BASE}/mutate-widget`, {
+    const response = await fetchWithBurstRetry(`${API_BASE}/mutate-widget`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -351,7 +412,7 @@ export async function generateAnalysisStream(
         body.intake = options.intake;
     }
 
-    const response = await fetch(`${API_BASE}/analyze-stream`, {
+    const response = await fetchWithBurstRetry(`${API_BASE}/analyze-stream`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -446,4 +507,3 @@ export async function generateAnalysisStream(
 
     throw new Error('Stream ended without a result event');
 }
-

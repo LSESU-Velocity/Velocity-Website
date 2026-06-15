@@ -7,7 +7,11 @@ import { Loader2, Sparkles } from 'lucide-react';
 import type { AnalysisData, CitationRef, LabPhaseId, LabPromptHistoryEntry, SourceDocument, WidgetTargetId } from '../../lib/api';
 import { useDividerDraw } from './gsapFx';
 
-export type RenderCitation = (citation?: CitationRef | null, keyPrefix?: string) => React.ReactNode;
+export type RenderCitation = (
+    citation?: CitationRef | null,
+    keyPrefix?: string,
+    options?: { interactive?: boolean },
+) => React.ReactNode;
 
 export const PHASE_TARGETS: Record<LabPhaseId, Array<{ id: WidgetTargetId; label: string }>> = {
     validation: [
@@ -259,9 +263,16 @@ export interface CitationLinksProps {
     keyPrefix?: string;
     sourceMap: Map<string, SourceDocument>;
     sourcesPageHref: string | null;
+    interactive?: boolean;
 }
 
-export const CitationLinks: React.FC<CitationLinksProps> = ({ citation, keyPrefix = 'citation', sourceMap, sourcesPageHref }) => {
+export const CitationLinks: React.FC<CitationLinksProps> = ({
+    citation,
+    keyPrefix = 'citation',
+    sourceMap,
+    sourcesPageHref,
+    interactive = true,
+}) => {
     if (!citation?.sourceIds?.length) {
         return null;
     }
@@ -276,7 +287,7 @@ export const CitationLinks: React.FC<CitationLinksProps> = ({ citation, keyPrefi
 
                 const sourceHref = normalizeExternalHref(source?.url);
 
-                if (sourceHref) {
+                if (interactive && sourceHref) {
                     return (
                         <a
                             key={`${keyPrefix}-${sourceId}-${index}`}
@@ -292,7 +303,7 @@ export const CitationLinks: React.FC<CitationLinksProps> = ({ citation, keyPrefi
                     );
                 }
 
-                if (sourcesPageHref) {
+                if (interactive && sourcesPageHref) {
                     return (
                         <Link
                             key={`${keyPrefix}-${sourceId}-${index}`}

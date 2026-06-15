@@ -10,24 +10,67 @@
  */
 import React, { useEffect, useId, useRef } from 'react';
 
-const PREVIEW_ENDPOINT = '/api/artifact-preview';
+export const PREVIEW_ENDPOINT = '/api/artifact-preview';
+export const ARTIFACT_PREVIEW_STORAGE_PREFIX = 'launchpad_artifact_preview:';
+export const ARTIFACT_PREVIEW_MAX_AGE_MS = 5 * 60 * 1000;
 
-export function openArtifactInNewTab(html: string) {
+function cleanupStoredArtifactPreviews() {
+    try {
+        const now = Date.now();
+        for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+            const key = localStorage.key(i);
+            if (!key?.startsWith(ARTIFACT_PREVIEW_STORAGE_PREFIX)) continue;
+
+            const raw = localStorage.getItem(key);
+            const parsed = raw ? JSON.parse(raw) as { createdAt?: unknown } : null;
+            const createdAt = typeof parsed?.createdAt === 'number' ? parsed.createdAt : 0;
+            if (!createdAt || now - createdAt > ARTIFACT_PREVIEW_MAX_AGE_MS) {
+                localStorage.removeItem(key);
+            }
+        }
+    } catch {
+        // Local preview cleanup is best-effort.
+    }
+}
+
+export function submitArtifactForm(html: string, target: string) {
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = PREVIEW_ENDPOINT;
-    form.target = '_blank';
-    form.rel = 'noopener';
+    form.target = target;
+    form.style.display = 'none';
 
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'html';
-    input.value = html;
-    form.appendChild(input);
+    const textarea = document.createElement('textarea');
+    textarea.name = 'html';
+    textarea.value = html;
+    form.appendChild(textarea);
 
     document.body.appendChild(form);
     form.submit();
-    form.remove();
+    window.setTimeout(() => form.remove(), 1000);
+}
+
+function storeArtifactPreviewHtml(html: string): string | null {
+    try {
+        cleanupStoredArtifactPreviews();
+        const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        localStorage.setItem(`${ARTIFACT_PREVIEW_STORAGE_PREFIX}${id}`, JSON.stringify({
+            createdAt: Date.now(),
+            html,
+        }));
+        return `/artifact-preview#${encodeURIComponent(id)}`;
+    } catch {
+        return null;
+    }
+}
+
+export function openArtifactInNewTab(html: string) {
+    const previewUrl = storeArtifactPreviewHtml(html);
+    if (previewUrl && window.open(previewUrl, '_blank', 'noopener,noreferrer')) {
+        return;
+    }
+
+    submitArtifactForm(html, '_blank');
 }
 
 export function downloadHtml(html: string, filename: string) {
@@ -94,7 +137,7 @@ export const ArtifactFrame: React.FC<ArtifactFrameProps> = ({ html, title, class
                 className="hidden"
                 aria-hidden="true"
             >
-                <input type="hidden" name="html" value={html} readOnly />
+                <textarea name="html" value={html} readOnly />
             </form>
             <iframe
                 name={frameName}
