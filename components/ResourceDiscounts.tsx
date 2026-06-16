@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, BadgeCheck, Gift, ShieldCheck } from 'lucide-react';
 import {
@@ -300,6 +300,7 @@ const badgeStyle: Record<NonNullable<Discount['badge']>, string> = {
 
 export const ResourceDiscounts: React.FC = () => {
   const [filter, setFilter] = useState<'All' | DiscountCategory>('All');
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -318,6 +319,13 @@ export const ResourceDiscounts: React.FC = () => {
       ),
     []
   );
+
+  const handleFilterChange = (nextFilter: 'All' | DiscountCategory) => {
+    setFilter(nextFilter);
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
 
   return (
     <section className="relative z-10 min-h-screen bg-velocity-black px-6 py-32">
@@ -361,7 +369,7 @@ export const ResourceDiscounts: React.FC = () => {
                 <button
                   key={key}
                   type="button"
-                  onClick={() => setFilter(key)}
+                  onClick={() => handleFilterChange(key)}
                   aria-pressed={active}
                   className={`inline-flex items-center gap-2 border px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.15em] transition-colors ${
                     active
@@ -386,10 +394,12 @@ export const ResourceDiscounts: React.FC = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {visible.map((discount, i) => (
-            <DiscountCard key={discount.id} discount={discount} index={i} />
-          ))}
+        <div ref={resultsRef} className="scroll-mt-40">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {visible.map((discount, i) => (
+              <DiscountCard key={discount.id} discount={discount} index={i} />
+            ))}
+          </div>
         </div>
 
         {/* Trust strip */}

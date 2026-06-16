@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowUpRight, Cpu, Flame, Search, Sparkles } from 'lucide-react';
@@ -738,6 +738,7 @@ export const ResourceTools: React.FC = () => {
   const requestedCategory = categoryFromSlug(searchParams.get('category'));
   const [filter, setFilter] = useState<'All' | ToolCategory>(requestedCategory ?? 'All');
   const [query, setQuery] = useState('');
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -781,6 +782,9 @@ export const ResourceTools: React.FC = () => {
     }
 
     setSearchParams(nextParams, { replace: true });
+    window.requestAnimationFrame(() => {
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   return (
@@ -867,32 +871,34 @@ export const ResourceTools: React.FC = () => {
         </div>
 
         {/* Tool grid */}
-        {visible.length === 0 ? (
-          <div className="border border-white/10 bg-white/[0.02] p-12 text-center">
-            <p className="mb-2 font-mono text-xs uppercase tracking-[0.25em] text-zinc-500">
-              No matches
-            </p>
-            <p className="mb-6 font-sans text-sm text-zinc-600">
-              Nothing in the stack matches that search.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setQuery('');
-                handleFilterChange('All');
-              }}
-              className="border border-white/15 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:border-white/40 hover:text-white"
-            >
-              Clear filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {visible.map((tool, i) => (
-              <ToolCard key={tool.id} tool={tool} index={i} />
-            ))}
-          </div>
-        )}
+        <div ref={resultsRef} className="scroll-mt-40">
+          {visible.length === 0 ? (
+            <div className="border border-white/10 bg-white/[0.02] p-12 text-center">
+              <p className="mb-2 font-mono text-xs uppercase tracking-[0.25em] text-zinc-500">
+                No matches
+              </p>
+              <p className="mb-6 font-sans text-sm text-zinc-600">
+                Nothing in the stack matches that search.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  handleFilterChange('All');
+                }}
+                className="border border-white/15 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:border-white/40 hover:text-white"
+              >
+                Clear filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {visible.map((tool, i) => (
+                <ToolCard key={tool.id} tool={tool} index={i} />
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Nominate strip */}
         <div className="relative mt-20 overflow-hidden border border-white/10 bg-white/[0.02] p-8 md:p-10">
