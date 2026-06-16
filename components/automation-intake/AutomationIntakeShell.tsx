@@ -41,6 +41,46 @@ export const AutomationIntakeShell: React.FC<Props> = ({
     setConfirmingReset(false);
   };
 
+  const resetControl = canReset && onReset ? (
+    <div className="flex items-center justify-end gap-2">
+      {confirmingReset ? (
+        <div className="flex items-center gap-2 border border-velocity-red/40 bg-velocity-red/10 px-2 py-2">
+          <span className="px-2 text-[11px] uppercase tracking-[0.18em] text-white/65">
+            Clear this draft?
+          </span>
+          <button
+            type="button"
+            onClick={() => setConfirmingReset(false)}
+            disabled={resetDisabled}
+            aria-label="Cancel reset"
+            className="inline-flex h-8 w-8 items-center justify-center border border-white/10 text-white/60 hover:text-white hover:border-white/25 disabled:opacity-40"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={handleReset}
+            disabled={resetDisabled}
+            className="inline-flex h-8 items-center gap-2 bg-velocity-red px-3 text-[11px] uppercase tracking-[0.18em] text-white hover:bg-velocity-red/80 disabled:opacity-40"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            Reset
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setConfirmingReset(true)}
+          disabled={resetDisabled}
+          className="inline-flex h-10 items-center gap-2 border border-white/10 bg-black/40 px-4 text-xs uppercase tracking-[0.2em] text-white/55 backdrop-blur-sm hover:border-velocity-red/50 hover:text-white disabled:opacity-40"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          Reset
+        </button>
+      )}
+    </div>
+  ) : null;
+
   return (
     <div className="relative min-h-screen bg-velocity-black pt-28 pb-24">
       {/* Viewport-fixed red ambient glows — travel with scroll so the page never
@@ -101,52 +141,13 @@ export const AutomationIntakeShell: React.FC<Props> = ({
         </motion.div>
 
         {!hideToggle && (
-          <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div className="mb-6">
             <AutomationIntakeProgress currentStep={currentStep} status={status} />
-            {canReset && onReset && (
-              <div className="flex items-center justify-end gap-2 flex-wrap">
-                {confirmingReset ? (
-                  <div className="flex items-center gap-2 border border-velocity-red/40 bg-velocity-red/10 px-2 py-2">
-                    <span className="px-2 text-[11px] uppercase tracking-[0.18em] text-white/65">
-                      Clear this draft?
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmingReset(false)}
-                      disabled={resetDisabled}
-                      aria-label="Cancel reset"
-                      className="inline-flex h-8 w-8 items-center justify-center border border-white/10 text-white/60 hover:text-white hover:border-white/25 disabled:opacity-40"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleReset}
-                      disabled={resetDisabled}
-                      className="inline-flex h-8 items-center gap-2 bg-velocity-red px-3 text-[11px] uppercase tracking-[0.18em] text-white hover:bg-velocity-red/80 disabled:opacity-40"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      Reset
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setConfirmingReset(true)}
-                    disabled={resetDisabled}
-                    className="inline-flex h-10 items-center gap-2 border border-white/10 bg-black/40 px-4 text-xs uppercase tracking-[0.2em] text-white/55 backdrop-blur-sm hover:border-velocity-red/50 hover:text-white disabled:opacity-40"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" />
-                    Reset
-                  </button>
-                )}
-              </div>
-            )}
           </div>
         )}
 
         {!hideToggle && (
-          <div className="mb-8 flex justify-start">
+          <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <AutomationIntakeToggle
               value={mode}
               onChange={onModeChange}
@@ -154,6 +155,7 @@ export const AutomationIntakeShell: React.FC<Props> = ({
               chatLocked={chatLocked}
               onLockedChatClick={onLockedChatClick}
             />
+            {resetControl}
           </div>
         )}
 
