@@ -35,7 +35,7 @@ const resourceNavItems: SubNavItem[] = liveResourceCatalog.map((resource) => ({
 const navItems: NavItem[] = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
-  { label: 'For Businesses', path: '/automation-intake', isSection: false },
+  { label: 'Student Projects', path: '/automation-intake', isSection: false },
   {
     label: 'Resources',
     path: '/resources',

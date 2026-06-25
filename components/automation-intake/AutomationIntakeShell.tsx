@@ -127,7 +127,7 @@ export const AutomationIntakeShell: React.FC<Props> = ({
           className="mb-8"
         >
           <div className="text-[11px] uppercase tracking-[0.3em] text-velocity-red/80 mb-3">
-            For Businesses · Automation Intake
+            Student Projects · Automation Intake
           </div>
           <h1 className="font-sans text-3xl md:text-5xl font-light text-white leading-tight tracking-tight">
             Partner with Velocity on a semester-long student project.
