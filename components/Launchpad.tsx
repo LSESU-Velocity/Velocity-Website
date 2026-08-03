@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Rocket, Target, BarChart3, ArrowRight, Loader2, Zap, TrendingUp, Globe, Smartphone, AlertTriangle, Key, X, PencilLine, Plus, GitBranch, MessageCircle, Scale } from 'lucide-react';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowRight, Loader2, AlertTriangle, Key, X, PencilLine, Plus, GitBranch } from 'lucide-react';
 import { ApiKeyEntry } from './ApiKeyEntry';
 import {
   detectKeyProvider,
@@ -18,23 +18,21 @@ import {
   type WidgetTargetId,
 } from '../lib/api';
 import { LaunchpadDashboard } from './LaunchpadDashboard';
-import { AnimatedText } from './LaunchpadWidgets';
 import { SavedRunsPanel } from './launchpad/SavedRunsPanel';
-import { useMagnetic } from './launchpad/gsapFx';
 import { deleteSavedAnalysis, getSavedAnalyses, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
-import { Player } from '@remotion/player';
-import {
-  LaunchpadPreview,
-  DURATION_IN_FRAMES as PREVIEW_DURATION,
-  FPS as PREVIEW_FPS,
-  PREVIEW_WIDTH,
-  PREVIEW_HEIGHT,
-} from './LaunchpadPreview';
+
+// The Remotion player + scripted demo is ~a third of this route's weight and
+// purely decorative: split it so the idea input is interactive sooner.
+const PreviewPlayer = lazy(() => import('./launchpad/PreviewPlayer'));
+const PREVIEW_ASPECT_RATIO = '1280 / 720';
 
 const SESSION_KEY = 'launchpad_provider_key';
 const PERSIST_KEY = 'launchpad_provider_key_persist';
 const LEGACY_SESSION_KEY = 'launchpad_gemini_key';
 const LEGACY_PERSIST_KEY = 'launchpad_gemini_key_persist';
+
+/** The rail printed under the hero, mirroring the homepage pipeline schematic. */
+const STAGE_RAIL = ['Bull', 'Bear', 'Market', 'Position', 'Build'];
 
 function getStoredKey(): string | null {
   if (typeof window === 'undefined') {
@@ -101,7 +99,7 @@ function buildLiveFeedEntry(event: ProgressEvent): LiveFeedEntry | null {
       return {
         id: event.node,
         label: 'Web research',
-        detail: 'Grounded search is Gemini-only — continuing without live sources.',
+        detail: 'Grounded search is Gemini-only: continuing without live sources.',
         tone: 'neutral',
       };
     }
@@ -136,10 +134,17 @@ function buildLiveFeedEntry(event: ProgressEvent): LiveFeedEntry | null {
 }
 
 const LIVE_FEED_TONES: Record<LiveFeedEntry['tone'], string> = {
-  neutral: 'border-white/10 bg-black text-white/70',
-  bull: 'border-blue-500/25 bg-blue-500/[0.07] text-blue-100',
-  bear: 'border-velocity-red/25 bg-velocity-red/[0.07] text-red-100',
-  judge: 'border-white/20 bg-white/[0.05] text-white',
+  neutral: 'text-zinc-500',
+  bull: 'text-white',
+  bear: 'text-velocity-red',
+  judge: 'text-white',
+};
+
+const LIVE_FEED_MARKERS: Record<LiveFeedEntry['tone'], string> = {
+  neutral: 'bg-white/25',
+  bull: 'bg-white',
+  bear: 'bg-velocity-red',
+  judge: 'bg-velocity-red',
 };
 
 export const Launchpad: React.FC = () => {
@@ -165,11 +170,13 @@ export const Launchpad: React.FC = () => {
   const [activeMutationTarget, setActiveMutationTarget] = useState<string | null>(null);
   const [liveFeed, setLiveFeed] = useState<LiveFeedEntry[]>([]);
 
+  const prefersReducedMotion = useReducedMotion();
+  const still = Boolean(prefersReducedMotion);
+
   const progressAnchorRef = useRef<HTMLDivElement>(null);
   const resultsAnchorRef = useRef<HTMLDivElement>(null);
   const hasScrolledToProgressRef = useRef(false);
   const lastRenderedResultRef = useRef<AnalysisData | null>(null);
-  const launchButtonRef = useMagnetic<HTMLButtonElement>();
   const activeSavedRecord = activeSavedId ? savedAnalyses.find((record) => record.id === activeSavedId) || null : null;
 
   // Scroll to top when component mounts
@@ -203,17 +210,29 @@ export const Launchpad: React.FC = () => {
   }, [data, isGenerating]);
 
   // Node-to-display mapping for real progress
-  const nodeDisplayMap: Record<string, { text: string; icon: typeof Zap }> = {
-    classifyIdea: { text: "Classifying idea", icon: Zap },
-    normalizeIntake: { text: "Preparing analysis", icon: Globe },
-    researchWeb: { text: "Grounding live sources", icon: Globe },
-    runBullAnalyst: { text: "Bull analyst evaluating", icon: TrendingUp },
-    runBearAnalyst: { text: "Bear analyst stress-testing", icon: Target },
-    runCouncilJudge: { text: "Council judge deciding", icon: Scale },
-    synthesizeOpportunity: { text: "Synthesizing findings", icon: BarChart3 },
-    qaAndRepair: { text: "Validating report", icon: Rocket },
-    retry: { text: "Retrying with fallback model", icon: Smartphone },
+  const nodeDisplayMap: Record<string, { text: string; rail: string }> = {
+    classifyIdea: { text: "Classifying idea", rail: 'Classify' },
+    normalizeIntake: { text: "Preparing analysis", rail: 'Prepare' },
+    researchWeb: { text: "Grounding live sources", rail: 'Research' },
+    runBullAnalyst: { text: "Bull analyst evaluating", rail: 'Bull' },
+    runBearAnalyst: { text: "Bear analyst stress-testing", rail: 'Bear' },
+    runCouncilJudge: { text: "Council judge deciding", rail: 'Judge' },
+    synthesizeOpportunity: { text: "Synthesizing findings", rail: 'Synthesize' },
+    qaAndRepair: { text: "Validating report", rail: 'Validate' },
+    retry: { text: "Retrying with fallback model", rail: 'Retry' },
   };
+
+  // The eight graph nodes drawn on the build-log rail, in run order.
+  const PIPELINE_NODES = [
+    'classifyIdea',
+    'normalizeIntake',
+    'researchWeb',
+    'runBullAnalyst',
+    'runBearAnalyst',
+    'runCouncilJudge',
+    'synthesizeOpportunity',
+    'qaAndRepair',
+  ];
 
   const TOTAL_NODES = 8;
 
@@ -249,7 +268,7 @@ export const Launchpad: React.FC = () => {
   }, [isGenerating]);
 
   // Clear transient progress state when a run ends. Depends only on
-  // isGenerating — including completedNodes here loops, because resetting it
+  // isGenerating: including completedNodes here loops, because resetting it
   // creates a new [] reference that re-fires the effect.
   useEffect(() => {
     if (isGenerating) return;
@@ -371,7 +390,7 @@ export const Launchpad: React.FC = () => {
           reason: err.interrupt.reason,
           questions: err.interrupt.questions,
         };
-        // No analysis exists yet at interrupt time — persist the interrupt
+        // No analysis exists yet at interrupt time: persist the interrupt
         // marker alone instead of a stale or empty data object.
         persistAnalysis(idea, null, activeSavedId, {
           interruptState: interruptSnapshot,
@@ -415,7 +434,7 @@ export const Launchpad: React.FC = () => {
 
   const handleSkipClarification = async () => {
     if (!apiKey || !idea.trim()) return;
-    // Skip means proceed without answers — an empty object tells the server
+    // Skip means proceed without answers: an empty object tells the server
     // the clarification step already happened.
     setInterruptQuestions(null);
     setClarificationAnswers({});
@@ -541,16 +560,12 @@ export const Launchpad: React.FC = () => {
     }
   };
 
-  return (
-    <section className="min-h-screen pt-32 md:pt-48 pb-24 px-6 relative overflow-hidden bg-black">
-      {/* Ambient brand glow behind the hero */}
-      <div
-        className="absolute left-1/2 top-0 h-[60vh] w-[120vw] -translate-x-1/2 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at center top, rgba(255,31,31,0.07) 0%, rgba(255,31,31,0.02) 40%, transparent 70%)',
-        }}
-      />
+  const activeNodeLabel = activeNode && nodeDisplayMap[activeNode]
+    ? nodeDisplayMap[activeNode].text
+    : 'Starting analysis';
 
+  return (
+    <section className="relative min-h-screen overflow-hidden px-6 pb-24 pt-28 md:pt-36">
       {/* API Key Entry Modal */}
       <ApiKeyEntry
         isOpen={showKeyModal}
@@ -558,334 +573,348 @@ export const Launchpad: React.FC = () => {
         onSubmit={handleKeySubmit}
       />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="relative z-10 mx-auto max-w-6xl">
         {/* Error Display */}
         {error && (
           <motion.div
             role="alert"
-            initial={{ opacity: 0, y: -20 }}
+            initial={still ? false : { opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-8 p-4 border rounded-lg flex items-center gap-3 max-w-2xl mx-auto bg-red-500/10 border-red-500/20"
+            className="mb-8 flex items-start gap-3 border border-velocity-red/40 bg-velocity-darkRed/20 px-4 py-3"
           >
-            <AlertTriangle className="w-5 h-5 flex-shrink-0 text-red-400" />
-            <p className="text-sm text-red-400">{error}</p>
+            <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-velocity-red" />
+            <p className="min-w-0 flex-1 font-sans text-sm leading-relaxed text-zinc-200">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="ml-auto p-1 text-red-400 hover:text-red-300"
+              className="flex-shrink-0 text-zinc-400 transition-colors hover:text-white"
               aria-label="Dismiss error"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </button>
           </motion.div>
         )}
 
-        {/* Header Section */}
-        <div className="flex flex-col items-center justify-center mb-16 text-center">
+        {/* Hero + command bar */}
+        <div className="max-w-4xl">
+          <motion.p
+            initial={still ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]"
+          >
+            Launchpad <span className="text-velocity-red">//</span> Idea in. Analysis out.
+          </motion.p>
 
-          <h1 className="flex flex-col items-center mb-8 leading-[0.85] select-none w-full">
-            <AnimatedText
-              text="Got an idea?"
-              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
-              delay={0.2}
-            />
-            <AnimatedText
-              text="Start here."
-              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
-              delay={1.5}
-            />
+          <h1 className="mt-6 font-sans text-[2.5rem] font-bold leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl">
+            <motion.span
+              className="block"
+              initial={still ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: still ? 0 : 0.06, ease: 'easeOut' }}
+            >
+              Got an idea?
+            </motion.span>
+            <motion.span
+              className="block text-velocity-red"
+              initial={still ? false : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.45, delay: still ? 0 : 0.16, ease: 'easeOut' }}
+            >
+              Start here.
+            </motion.span>
           </h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-            className="font-sans text-sm md:text-base text-white max-w-3xl mb-12 leading-relaxed text-balance"
+            transition={{ duration: 0.45, delay: still ? 0 : 0.24, ease: 'easeOut' }}
+            className="mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base"
           >
-            Turn a rough spark into a structured startup analysis: market, customers, risks, monetization, distribution, and next build prompts.
+            A rough spark goes in. Market, customers, risks, monetization, distribution
+            and the next build prompts come out.
           </motion.p>
 
-          {/* Key status indicator */}
+          {/* Stage rail: the pipeline this console drives */}
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={still ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.6, duration: 0.4 }}
-            className="mb-4"
+            transition={{ duration: 0.4, delay: still ? 0 : 0.3 }}
+            className="mt-8 border-y border-white/10 py-3"
+          >
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.26em] text-zinc-500">
+              {STAGE_RAIL.map((stage, index) => (
+                <React.Fragment key={stage}>
+                  {index > 0 && <span className="text-velocity-red">/</span>}
+                  <span>{stage}</span>
+                </React.Fragment>
+              ))}
+            </p>
+          </motion.div>
+
+          {/* Provider status */}
+          <motion.div
+            initial={still ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: still ? 0 : 0.34 }}
+            className="mt-8"
           >
             {apiKey ? (
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/25 text-blue-300 text-xs font-sans">
-                <Key className="w-3 h-3" />
-                <span>{PROVIDER_LABELS[detectKeyProvider(apiKey)]} connected</span>
+              <span className="inline-flex items-center gap-2 border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
+                <Key className="h-3 w-3 text-velocity-red" />
+                Model <span className="text-velocity-red">//</span>
+                {PROVIDER_LABELS[detectKeyProvider(apiKey)]} connected
                 <button
                   onClick={handleClearKey}
-                  className="ml-1 p-0.5 hover:bg-white/10 rounded transition-colors"
+                  className="ml-1 text-zinc-500 transition-colors hover:text-white"
                   aria-label="Clear API key"
                 >
-                  <X className="w-3 h-3" />
+                  <X className="h-3 w-3" />
                 </button>
-              </div>
+              </span>
             ) : (
               <button
                 onClick={() => setShowKeyModal(true)}
-                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 text-xs font-sans transition-all"
+                className="inline-flex items-center gap-2 border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400 transition-colors hover:border-white/35 hover:text-white"
               >
-                <Key className="w-3 h-3" />
-                <span>Add AI API key to start</span>
+                <Key className="h-3 w-3" />
+                Connect model key
               </button>
             )}
           </motion.div>
 
-          {/* Input Section */}
+          {/* Command bar */}
           <motion.form
-            initial={{ opacity: 0, y: 20 }}
+            initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6, duration: 0.6 }}
+            transition={{ duration: 0.45, delay: still ? 0 : 0.38, ease: 'easeOut' }}
             onSubmit={handleLaunch}
-            className="w-full max-w-3xl relative z-20"
+            className="relative z-20 mt-3"
           >
             <label htmlFor="launchpad-idea" className="sr-only">
               Describe your startup idea
             </label>
-            <div className="relative group rounded-2xl md:rounded-full p-[1px] bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-2xl shadow-2xl transition-all duration-500">
-              <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 bg-black/80 rounded-2xl md:rounded-full p-3 md:p-2 md:pl-6 border border-white/5 transition-all duration-500 group-hover:bg-black/60 focus-within:bg-black/90 focus-within:ring-1 focus-within:ring-velocity-red/50">
+            <div className="flex flex-col border border-white/15 bg-velocity-black transition-colors duration-300 focus-within:border-velocity-red/60 md:flex-row md:items-stretch">
+              <span aria-hidden className="hidden items-center pl-4 font-mono text-sm text-velocity-red md:flex">
+                &gt;
+              </span>
+              <input
+                id="launchpad-idea"
+                type="text"
+                value={idea}
+                onChange={(e) => setIdea(e.target.value)}
+                placeholder="Describe the idea in one sentence"
+                className="w-full min-w-0 flex-1 appearance-none bg-transparent px-4 py-4 font-mono text-sm text-white outline-none placeholder:text-zinc-600 md:px-3"
+                disabled={isGenerating}
+                maxLength={500}
+              />
 
-                <input
-                  id="launchpad-idea"
-                  type="text"
-                  value={idea}
-                  onChange={(e) => setIdea(e.target.value)}
-                  placeholder="An AI-powered meal planning app that learns your tastes..."
-                  className="flex-1 bg-transparent text-white px-2 py-3 outline-none placeholder:text-gray-500 font-sans text-base md:text-lg appearance-none w-full"
-                  disabled={isGenerating}
-                  maxLength={500}
-                />
-
-                <button
-                  ref={launchButtonRef}
-                  type="submit"
-                  disabled={isGenerating || !idea}
-                  className="relative w-full md:w-auto px-8 py-3.5 rounded-xl md:rounded-full font-sans text-sm font-bold uppercase tracking-wide transition-colors duration-300 bg-velocity-red text-white hover:bg-red-600 hover:shadow-[0_0_30px_rgba(255,31,31,0.4)] disabled:cursor-not-allowed flex items-center justify-center gap-2 group/btn shadow-lg"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      Launch <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={isGenerating || !idea}
+                className="group flex flex-shrink-0 items-center justify-center gap-3 border-t border-white/15 bg-velocity-red px-6 py-4 font-mono text-[11px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:bg-velocity-red/85 disabled:cursor-not-allowed disabled:bg-zinc-900 disabled:text-zinc-600 md:border-l md:border-t-0"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    Run analysis
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none motion-reduce:transform-none" />
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="mt-4 flex justify-center">
-              <label className="inline-flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeFounderAssets}
-                  onChange={(e) => setIncludeFounderAssets(e.target.checked)}
-                  className="h-3.5 w-3.5 rounded border-white/20 bg-black/30 text-velocity-red focus:ring-velocity-red/40"
-                  disabled={isGenerating || isGeneratingAssets}
-                />
-                <span className="font-sans text-[11px] text-white/55">
-                  Include founder assets (waitlist + pitch deck)
-                </span>
-              </label>
-            </div>
+            <label className="mt-px flex cursor-pointer items-center gap-3 border border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500 transition-colors hover:text-zinc-300">
+              <input
+                type="checkbox"
+                checked={includeFounderAssets}
+                onChange={(e) => setIncludeFounderAssets(e.target.checked)}
+                className="h-3.5 w-3.5 flex-shrink-0 appearance-none border border-white/25 bg-black outline-none transition-colors checked:border-velocity-red checked:bg-velocity-red focus-visible:border-velocity-red disabled:opacity-40"
+                disabled={isGenerating || isGeneratingAssets}
+              />
+              Also draft waitlist + deck
+            </label>
 
             {activeSavedId && (
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-[11px] font-sans text-white/60">
-                <PencilLine className="w-3.5 h-3.5 text-velocity-red" />
-                Editing a saved Launchpad run
+              <div className="mt-px flex flex-wrap items-center gap-3 border border-white/10 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">
+                <PencilLine className="h-3 w-3 flex-shrink-0 text-velocity-red" />
+                Editing saved run
                 <button
                   type="button"
                   onClick={handleStartNewAnalysis}
-                  className="ml-2 inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-1 text-[10px] uppercase tracking-[0.18em] text-white/55 hover:border-white/20 hover:text-white"
+                  className="ml-auto inline-flex items-center gap-1.5 border border-white/15 px-2.5 py-1 text-zinc-400 transition-colors hover:border-white/35 hover:text-white"
                 >
-                  <Plus className="w-3 h-3" />
+                  <Plus className="h-2.5 w-2.5" />
                   New
                 </button>
               </div>
             )}
-          </motion.form>
 
-          {/* Interrupt / Clarification Panel */}
-          <AnimatePresence>
-            {interruptQuestions && !isGenerating && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mt-8 w-full max-w-xl mx-auto"
-              >
-                <div className="rounded-2xl border border-velocity-red/25 bg-black p-6 shadow-2xl">
-                    <div className="flex items-center gap-2 mb-4">
-                      <MessageCircle className="w-4 h-4 text-velocity-red" />
-                      <span className="font-sans text-sm font-semibold text-red-300">
-                        A few quick questions to clarify the idea
-                      </span>
-                    </div>
-
-                  <div className="space-y-4">
-                    {interruptQuestions.map((q) => (
-                      <div key={q.field}>
-                        <label className="block font-sans text-sm text-white/80 mb-1">
-                          {q.question}
-                        </label>
-                        {q.hint && (
-                          <p className="font-sans text-xs text-white/40 mb-2">{q.hint}</p>
-                        )}
-                        <input
-                          type="text"
-                          value={clarificationAnswers[q.field] || ''}
-                          onChange={(e) =>
-                            setClarificationAnswers((prev) => ({ ...prev, [q.field]: e.target.value }))
-                          }
-                          className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 outline-none focus:border-velocity-red/40"
-                          placeholder="Type your answer..."
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 flex items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={handleResumeClarification}
-                      disabled={Object.values(clarificationAnswers).filter(Boolean).length === 0}
-                      className="px-5 py-2.5 rounded-full bg-velocity-red/15 border border-velocity-red/35 text-red-200 text-xs font-sans font-bold uppercase tracking-wide hover:bg-velocity-red/25 hover:shadow-[0_0_18px_rgba(255,31,31,0.2)] disabled:opacity-40 disabled:cursor-not-allowed transition-all"
-                    >
-                      Continue Analysis
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSkipClarification}
-                      className="px-4 py-2.5 rounded-full border border-white/10 text-white/50 text-xs font-sans uppercase tracking-wide hover:text-white/80 transition-colors"
-                    >
-                      Skip And Continue
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+            {branchingFromId && !isGenerating && (
+              <div className="mt-px flex flex-wrap items-center gap-3 border border-velocity-red/40 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
+                <GitBranch className="h-3 w-3 flex-shrink-0 text-velocity-red" />
+                Branch mode <span className="text-velocity-red">//</span> Edit, then rerun
+                <button
+                  type="button"
+                  onClick={() => { setBranchingFromId(null); handleStartNewAnalysis(); }}
+                  className="ml-auto text-zinc-500 transition-colors hover:text-white"
+                  aria-label="Exit branch mode"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
             )}
-          </AnimatePresence>
+          </motion.form>
+        </div>
 
-          {/* Branching indicator */}
-          {branchingFromId && !isGenerating && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/[0.08] px-4 py-2 text-[11px] font-sans text-blue-300"
-            >
-              <GitBranch className="w-3.5 h-3.5" />
-              Branching — edit the idea and relaunch to create a variant
+        {/* Interrupt / Clarification Panel. Rendered conditionally rather than
+            through AnimatePresence: a stalled exit would leave an invisible
+            block holding vertical space in the flow. */}
+        {interruptQuestions && !isGenerating && (
+          <motion.div
+            initial={still ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="mt-8 max-w-4xl border border-velocity-red/40 bg-velocity-black p-5 md:p-6"
+          >
+            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+              Clarify <span className="text-velocity-red">//</span> A few quick questions
+            </p>
+
+            <div className="mt-5 space-y-4">
+              {interruptQuestions.map((q) => (
+                <div key={q.field} className="min-w-0">
+                  <label
+                    htmlFor={`clarify-${q.field}`}
+                    className="block font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400"
+                  >
+                    {q.question}
+                  </label>
+                  {q.hint && (
+                    <p className="mt-1.5 font-sans text-xs leading-relaxed text-zinc-500">{q.hint}</p>
+                  )}
+                  <input
+                    id={`clarify-${q.field}`}
+                    type="text"
+                    value={clarificationAnswers[q.field] || ''}
+                    onChange={(e) =>
+                      setClarificationAnswers((prev) => ({ ...prev, [q.field]: e.target.value }))
+                    }
+                    className="mt-2 w-full border border-white/10 bg-black px-3 py-2.5 font-mono text-sm text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-velocity-red/60"
+                    placeholder="Type your answer"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={() => { setBranchingFromId(null); handleStartNewAnalysis(); }}
-                className="ml-2 p-0.5 hover:bg-white/10 rounded transition-colors"
+                onClick={handleResumeClarification}
+                disabled={Object.values(clarificationAnswers).filter(Boolean).length === 0}
+                className="border border-velocity-red/50 bg-velocity-darkRed/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:border-velocity-red hover:bg-velocity-red disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-zinc-600"
               >
-                <X className="w-3 h-3" />
+                Continue
               </button>
-            </motion.div>
-          )}
-
-          {/* Loading State */}
-          <AnimatePresence>
-            {isGenerating && (
-              <motion.div
-                ref={progressAnchorRef}
-                data-testid="launchpad-live-progress"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                className="mt-8 flex flex-col items-center"
-                role="status"
-                aria-live="polite"
+              <button
+                type="button"
+                onClick={handleSkipClarification}
+                className="border border-white/15 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.24em] text-zinc-400 transition-colors duration-300 hover:border-white/35 hover:text-white"
               >
-                {/* Active node display */}
-                <div className="flex items-center gap-3 mb-4">
-                  {activeNode && nodeDisplayMap[activeNode] ? (
-                    <>
-                      {React.createElement(nodeDisplayMap[activeNode].icon, {
-                        className: "w-4 h-4 text-velocity-red"
-                      })}
-                      <span className="font-sans text-sm text-gray-400">
-                        {nodeDisplayMap[activeNode].text}...
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="w-4 h-4 text-velocity-red" />
-                      <span className="font-sans text-sm text-gray-400">
-                        Starting analysis...
-                      </span>
-                    </>
-                  )}
-                </div>
+                Skip
+              </button>
+            </div>
+          </motion.div>
+        )}
 
-                {/* Completed nodes indicator */}
-                {completedNodes.length > 0 && (
-                  <div className="flex items-center gap-1.5 mb-3">
-                    {completedNodes.map((node) => (
-                      <div
-                        key={node}
-                        className="w-2 h-2 rounded-full bg-velocity-red"
-                        title={nodeDisplayMap[node]?.text || node}
-                      />
-                    ))}
-                    {Array.from({ length: Math.max(0, TOTAL_NODES - completedNodes.length) }).map((_, i) => (
-                      <div
-                        key={`pending-${i}`}
-                        className="w-2 h-2 rounded-full bg-white/10"
-                      />
-                    ))}
+        {/* Build log */}
+        {isGenerating && (
+          <motion.div
+            ref={progressAnchorRef}
+            data-testid="launchpad-live-progress"
+            initial={still ? false : { opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="mt-10"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+                Build log <span className="text-velocity-red">//</span> {completedNodes.length}/{TOTAL_NODES}
+              </p>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
+                {activeNodeLabel}
+              </p>
+            </div>
+
+            {/* Node rail */}
+            <div className="mt-4 grid grid-cols-2 gap-px border border-white/10 bg-white/10 sm:grid-cols-4 lg:grid-cols-8">
+              {PIPELINE_NODES.map((node) => {
+                const done = completedNodes.includes(node);
+                const active = activeNode === node;
+
+                return (
+                  <div
+                    key={node}
+                    className={`flex min-w-0 flex-col gap-2 px-3 py-3 ${active ? 'bg-velocity-darkRed/25' : 'bg-velocity-black'}`}
+                  >
+                    <span
+                      aria-hidden
+                      className={`h-1.5 w-1.5 flex-shrink-0 ${
+                        active
+                          ? 'bg-velocity-red shadow-[0_0_10px_rgba(255,31,31,0.9)]'
+                          : done
+                            ? 'bg-velocity-red'
+                            : 'bg-white/15'
+                      }`}
+                    />
+                    <span
+                      className={`truncate font-mono text-[9px] uppercase tracking-[0.16em] ${
+                        active ? 'text-white' : done ? 'text-zinc-400' : 'text-zinc-600'
+                      }`}
+                    >
+                      {nodeDisplayMap[node].rail}
+                    </span>
                   </div>
-                )}
+                );
+              })}
+            </div>
 
-                {/* Progress bar */}
-                <div className="relative w-64 h-1 bg-white/10 overflow-hidden">
-                  <div
-                    className="absolute inset-y-0 left-0 bg-velocity-red transition-all duration-500"
-                    style={{ width: `${loadingPercent}%` }}
-                  />
-                  <div
-                    className="absolute inset-y-0 w-8 pointer-events-none"
-                    style={{
-                      left: `calc(${loadingPercent}% - 2rem)`,
-                      background: 'radial-gradient(ellipse at right center, rgba(255, 31, 31, 0.6) 0%, rgba(255, 31, 31, 0.3) 30%, transparent 70%)',
-                      filter: 'blur(4px)',
-                    }}
-                  />
+            {/* Progress rail */}
+            <div className="relative mt-px h-px w-full bg-white/10">
+              <div
+                className="absolute inset-0 origin-left bg-velocity-red transition-transform duration-500 motion-reduce:transition-none"
+                style={{ transform: `scaleX(${loadingPercent / 100})` }}
+              />
+            </div>
+
+            {/* Streaming ledger */}
+            {liveFeed.length > 0 && (
+              <div className="mt-4 border border-white/10 bg-black">
+                {/* Entries only ever append, so each one animates itself on
+                    mount; no presence tracking is needed. */}
+                {liveFeed.map((entry) => (
                   <motion.div
-                    className="absolute inset-0 bg-velocity-red/20 motion-reduce:hidden"
-                    animate={{ opacity: [0, 0.3, 0] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                </div>
-                <span className="font-sans text-[10px] text-gray-500 mt-2">
-                  {completedNodes.length}/{TOTAL_NODES} steps
-                </span>
-
-                {/* Live council feed — node outputs stream in as they land */}
-                {liveFeed.length > 0 && (
-                  <div className="mt-6 w-full max-w-xl space-y-2 text-left">
-                    <AnimatePresence initial={false}>
-                      {liveFeed.map((entry) => (
-                        <motion.div
-                          key={entry.id}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className={`rounded-2xl border px-4 py-3 ${LIVE_FEED_TONES[entry.tone]}`}
-                        >
-                          <p className="font-sans text-[10px] uppercase tracking-[0.18em] opacity-70">{entry.label}</p>
-                          <p className="mt-1 font-sans text-sm leading-relaxed">{entry.detail}</p>
-                        </motion.div>
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                )}
-              </motion.div>
+                    key={entry.id}
+                    initial={still ? false : { opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    className="flex min-w-0 items-start gap-3 border-b border-white/5 px-4 py-3 last:border-b-0"
+                  >
+                    <span aria-hidden className={`mt-[7px] h-1.5 w-1.5 flex-shrink-0 ${LIVE_FEED_MARKERS[entry.tone]}`} />
+                    <p className="min-w-0 font-mono text-[11px] leading-relaxed">
+                      <span className={`uppercase tracking-[0.16em] ${LIVE_FEED_TONES[entry.tone]}`}>
+                        {entry.label} <span className="text-velocity-red">//</span>
+                      </span>{' '}
+                      <span className="text-zinc-400">{entry.detail}</span>
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
             )}
-          </AnimatePresence>
-        </div>
+          </motion.div>
+        )}
 
         {!isGenerating && (
           <SavedRunsPanel
@@ -900,33 +929,26 @@ export const Launchpad: React.FC = () => {
 
         {!showResults && !isGenerating && !interruptQuestions && (
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 0.6 }}
-            className="max-w-4xl mx-auto mb-10"
+            transition={{ duration: 0.5, delay: still ? 0 : 0.45, ease: 'easeOut' }}
+            className="mt-12 max-w-4xl"
           >
-            <div className="relative rounded-3xl border border-white/10 bg-white/[0.02] p-2 overflow-hidden">
-              <Player
-                component={LaunchpadPreview}
-                durationInFrames={PREVIEW_DURATION}
-                compositionWidth={PREVIEW_WIDTH}
-                compositionHeight={PREVIEW_HEIGHT}
-                fps={PREVIEW_FPS}
-                loop
-                autoPlay
-                controls={false}
-                clickToPlay={false}
-                style={{
-                  width: '100%',
-                  aspectRatio: `${PREVIEW_WIDTH} / ${PREVIEW_HEIGHT}`,
-                  borderRadius: '1.25rem',
-                  overflow: 'hidden',
-                }}
-              />
-            </div>
-            <p className="mt-3 text-center font-sans text-[11px] uppercase tracking-[0.22em] text-white/35">
-              A preview of what Launchpad will do with your idea
+            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+              Live demo <span className="text-velocity-red">//</span> Idea to build plan
             </p>
+            <div className="border border-white/10 bg-velocity-black">
+              <Suspense
+                fallback={
+                  <div
+                    className="w-full animate-pulse bg-white/[0.03] motion-reduce:animate-none"
+                    style={{ aspectRatio: PREVIEW_ASPECT_RATIO }}
+                  />
+                }
+              >
+                <PreviewPlayer />
+              </Suspense>
+            </div>
           </motion.div>
         )}
 

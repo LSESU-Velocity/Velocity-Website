@@ -1,9 +1,9 @@
 /**
  * Phase 2: Strategy. Customer segments, monetization, distribution channels.
  */
-import React, { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { CheckCircle2, ChevronLeft, ChevronRight, Coins, MessageCircle, Users } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Coins, MessageCircle, Users } from 'lucide-react';
 import type { AnalysisData } from '../../lib/api';
 import { Widget } from '../LaunchpadWidgets';
 import type { RenderCitation } from './shared';
@@ -15,6 +15,9 @@ interface StrategyPhaseProps {
     getChannelHref: (channelName: string, index: number) => string;
 }
 
+const CAROUSEL_BUTTON =
+    'flex h-7 w-7 flex-shrink-0 items-center justify-center border border-white/15 text-zinc-400 transition-colors hover:border-white/35 hover:text-white';
+
 export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
     data,
     showResults,
@@ -22,6 +25,14 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
     getChannelHref,
 }) => {
     const [monetizationIndex, setMonetizationIndex] = useState(0);
+    const prefersReducedMotion = useReducedMotion();
+    const still = Boolean(prefersReducedMotion);
+
+    // Reset on the data reference, not identity strings: branches keep the
+    // same name/tagline, so a string key would carry state across runs.
+    useEffect(() => {
+        setMonetizationIndex(0);
+    }, [data]);
 
     const monetizationItems = data.monetization.length ? data.monetization : [{
         model: 'Monetization still being defined',
@@ -32,32 +43,39 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
     const activeMonetization = monetizationItems[monetizationIndex % monetizationItems.length];
 
     return (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:items-start">
-            <Widget title="Customer Segments" icon={Users} visible={showResults} className="h-full" compact>
-                <div className="space-y-4 pt-1">
+        <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 xl:grid-cols-12">
+            <Widget title="Customers" icon={Users} visible={showResults} className="xl:col-span-4" dense>
+                <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10">
                     {data.customerSegments.slice(0, 3).map((segment, index) => (
                         <motion.div
                             key={`${segment.segment}-${index}`}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.35 + index * 0.08 }}
-                            className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] px-5 py-4"
+                            initial={still ? false : { opacity: 0, y: 8 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-40px' }}
+                            transition={{ duration: 0.35, delay: still ? 0 : index * 0.07, ease: 'easeOut' }}
+                            className="min-w-0 bg-velocity-black p-4"
                         >
-                            <div className="flex items-start justify-between gap-4">
-                                <p className="font-sans text-[1.05rem] leading-tight font-black tracking-tight text-white max-w-[75%]">{segment.segment}</p>
-                                <span className="rounded-full border border-white/10 bg-black/40 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-white/65">
+                            <div className="flex min-w-0 items-start justify-between gap-3">
+                                <p className="min-w-0 font-sans text-sm font-bold leading-tight tracking-tight text-white">
+                                    {segment.segment}
+                                </p>
+                                <span className="flex-shrink-0 border border-white/15 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-400">
                                     {segment.age}
                                 </span>
                             </div>
 
-                            <div className="space-y-2.5 mt-4">
-                                <div className="flex items-start gap-3 font-sans text-[0.95rem] leading-relaxed">
-                                    <span className="min-w-[56px] text-velocity-red">Target:</span>
-                                    <span className="text-gray-200 line-clamp-2">{segment.interest}</span>
+                            <div className="mt-2.5 space-y-1.5 font-sans text-[13px] leading-relaxed">
+                                <div className="flex min-w-0 items-start gap-2">
+                                    <span className="w-14 flex-shrink-0 font-mono text-[9px] uppercase tracking-[0.16em] text-velocity-red">
+                                        Target
+                                    </span>
+                                    <span className="min-w-0 text-zinc-300">{segment.interest}</span>
                                 </div>
-                                <div className="flex items-start gap-3 font-sans text-[0.95rem] leading-relaxed">
-                                    <span className="min-w-[56px] text-blue-400">Income:</span>
-                                    <span className="text-gray-200">{segment.income}</span>
+                                <div className="flex min-w-0 items-start gap-2">
+                                    <span className="w-14 flex-shrink-0 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500">
+                                        Income
+                                    </span>
+                                    <span className="min-w-0 text-zinc-300">{segment.income}</span>
                                 </div>
                             </div>
                         </motion.div>
@@ -66,110 +84,98 @@ export const StrategyPhase: React.FC<StrategyPhaseProps> = ({
             </Widget>
 
             <Widget
-                title="Monetization Strategy"
+                title="Revenue model"
                 icon={Coins}
                 visible={showResults}
-                compact
+                className="xl:col-span-4"
+                dense
                 action={
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex flex-shrink-0 items-center gap-1.5">
                         <button
                             onClick={() => setMonetizationIndex((prev) => (prev - 1 + monetizationItems.length) % monetizationItems.length)}
                             aria-label="Previous monetization model"
-                            className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                            className={CAROUSEL_BUTTON}
                         >
-                            <ChevronLeft className="w-4 h-4" />
+                            <ChevronLeft className="h-3.5 w-3.5" />
                         </button>
-                        <span className="font-sans text-[10px] text-white/45 tabular-nums px-1" aria-live="polite">
+                        <span className="select-none font-mono text-[10px] tabular-nums text-zinc-500" aria-live="polite">
                             {(monetizationIndex % monetizationItems.length) + 1}/{monetizationItems.length}
                         </span>
                         <button
                             onClick={() => setMonetizationIndex((prev) => (prev + 1) % monetizationItems.length)}
                             aria-label="Next monetization model"
-                            className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                            className={CAROUSEL_BUTTON}
                         >
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="h-3.5 w-3.5" />
                         </button>
                     </div>
                 }
-                className="h-full"
             >
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={monetizationIndex}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex flex-col h-full gap-4 pt-1"
-                    >
-                        <div>
-                            <p className="font-sans text-[10px] text-blue-300 uppercase tracking-[0.18em] mb-2">Model</p>
-                            <p className="font-sans text-[2.05rem] font-black tracking-tight text-white leading-none">{activeMonetization.model}</p>
-                            <p className="font-sans text-lg text-velocity-red mt-3 leading-snug">{activeMonetization.pricing}</p>
+                {/* Keyed remount instead of AnimatePresence: the swap has to be
+                    instant, and a waiting exit would hold the stale model. */}
+                <motion.div
+                    key={monetizationIndex}
+                    initial={still ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    className="flex h-full min-w-0 flex-col gap-4"
+                >
+                        <div className="min-w-0">
+                            <p className="font-sans text-2xl font-bold leading-tight tracking-tight text-white">
+                                {activeMonetization.model}
+                            </p>
+                            <p className="mt-2 font-mono text-sm tracking-tight text-velocity-red">{activeMonetization.pricing}</p>
                         </div>
 
-                        <div className="rounded-[1.7rem] border border-white/10 bg-white/[0.03] p-4 space-y-3.5">
+                        <div className="space-y-2.5">
                             {activeMonetization.strategies.map((strategy, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                    <CheckCircle2 className="w-3.5 h-3.5 text-velocity-red mt-0.5 flex-shrink-0" />
-                                    <p className="font-sans text-[0.95rem] text-gray-200 leading-relaxed">{strategy}</p>
+                                <div key={index} className="flex min-w-0 items-start gap-2.5">
+                                    <span aria-hidden className="mt-[7px] h-1.5 w-1.5 flex-shrink-0 bg-velocity-red" />
+                                    <p className="min-w-0 font-sans text-[13px] leading-relaxed text-zinc-300">{strategy}</p>
                                 </div>
                             ))}
                         </div>
 
-                        <div className="mt-auto pt-2">
-                            <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-400 mb-2.5">Who Does This Well</p>
-                            <p className="border-l-2 border-white/10 pl-3 font-sans text-[0.95rem] italic text-gray-300 leading-relaxed">
+                        <div className="mt-auto border-t border-white/10 pt-4">
+                            <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">Who does this well</p>
+                            <p className="mt-2 font-sans text-[13px] leading-relaxed text-zinc-300">
                                 {activeMonetization.examples}
                             </p>
                         </div>
-                    </motion.div>
-                </AnimatePresence>
+                </motion.div>
             </Widget>
 
-            <Widget title="Distribution Channels" icon={MessageCircle} visible={showResults} className="h-full" compact>
-                <div className="flex flex-col gap-4 pt-1">
-                    <div className="flex items-center justify-between">
-                        <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-200/80">
-                            Where Your Users Hang Out
-                        </p>
-                        <div className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-sans text-[10px] uppercase tracking-[0.14em] text-white/70">
-                            Top 5
-                        </div>
-                    </div>
-
-                    <div className="space-y-3.5">
-                        {data.distributionChannels.slice(0, 5).map((channel, index) => (
-                            <motion.div
-                                key={`${channel.name}-${index}`}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.45 + index * 0.08 }}
-                                className="flex items-center justify-between gap-4 rounded-[1.7rem] border border-white/10 bg-white/[0.03] px-4 py-3 hover:bg-white/[0.05]"
-                            >
-                                <div className="flex items-center gap-3 min-w-0">
-                                    <div className="h-2.5 w-2.5 rounded-full bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.45)]" />
-                                    <p className="font-sans text-[0.95rem] font-bold text-white truncate">
-                                        <a
-                                            href={getChannelHref(channel.name, index)}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="hover:text-blue-200"
-                                        >
+            <Widget title="Channels" icon={MessageCircle} visible={showResults} className="xl:col-span-4" dense>
+                <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10">
+                    {data.distributionChannels.slice(0, 5).map((channel, index) => (
+                        <motion.div
+                            key={`${channel.name}-${index}`}
+                            initial={still ? false : { opacity: 0, y: 8 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: '-40px' }}
+                            transition={{ duration: 0.35, delay: still ? 0 : index * 0.05, ease: 'easeOut' }}
+                            className="flex min-w-0 items-center justify-between gap-3 bg-velocity-black px-4 py-3 transition-colors hover:bg-white/[0.03]"
+                        >
+                            <div className="flex min-w-0 items-center gap-2.5">
+                                <span aria-hidden className="h-1.5 w-1.5 flex-shrink-0 bg-velocity-red" />
+                                <p className="min-w-0 truncate font-sans text-[13px] font-bold text-white">
+                                    <a
+                                        href={getChannelHref(channel.name, index)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="transition-colors hover:text-velocity-red"
+                                    >
                                         {channel.name}
-                                        </a>
-                                        {renderCitation(data.citations?.strategy?.distributionChannels?.[index], `distribution-channel-${index}`)}
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-3 shrink-0">
-                                    <span className="rounded-full border border-white/10 bg-black/40 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.14em] text-white/65">
-                                        {channel.type}
-                                    </span>
-                                    <span className="font-sans text-[0.95rem] font-bold text-velocity-red">{channel.members}</span>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                                    </a>
+                                    {renderCitation(data.citations?.strategy?.distributionChannels?.[index], `distribution-channel-${index}`)}
+                                </p>
+                            </div>
+                            <div className="flex flex-shrink-0 items-center gap-3">
+                                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-500">{channel.type}</span>
+                                <span className="font-mono text-[11px] text-velocity-red">{channel.members}</span>
+                            </div>
+                        </motion.div>
+                    ))}
                 </div>
             </Widget>
         </div>

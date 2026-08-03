@@ -1,117 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { motion, useMotionTemplate, useMotionValue, Variants } from 'framer-motion';
+/**
+ * The Launchpad console cell: a square, hairline-free panel that sits inside a
+ * cell grid (`grid gap-px border border-white/10 bg-white/10`) so the grid gap
+ * draws the hairlines instead of each cell carrying its own border.
+ */
+import React from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
+export interface WidgetProps {
+    /** Mono kicker shown at the top of the cell. */
+    title: string;
+    icon?: React.ComponentType<{ className?: string }>;
+    children: React.ReactNode;
+    /** Seconds of entrance delay, ignored under reduced motion. */
+    delay?: number;
+    className?: string;
+    /** Right-aligned controls in the kicker row (carousel arrows, counters). */
+    action?: React.ReactNode;
+    visible?: boolean;
+    /** Tighter padding for cells that sit three-across. */
+    dense?: boolean;
+}
 
-// Animated text component matching Hero.tsx
-export const AnimatedText = ({
-    text,
-    className,
-    delay = 0
-}: {
-    text: string,
-    className?: string,
-    delay?: number
+export const Widget: React.FC<WidgetProps> = ({
+    title,
+    icon: Icon,
+    children,
+    delay = 0,
+    className = '',
+    action,
+    visible = true,
+    dense = false,
 }) => {
-    const container: Variants = {
-        hidden: { opacity: 0 },
-        visible: (i = 1) => ({
-            opacity: 1,
-            transition: { staggerChildren: 0.06, delayChildren: delay }
-        })
-    };
-
-    const child: Variants = {
-        visible: {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            transition: {
-                duration: 0.8,
-                ease: [0.2, 0.65, 0.3, 0.9], // Custom cubic-bezier for "premium" feel
-            }
-        },
-        hidden: {
-            opacity: 0,
-            y: 20,
-            filter: "blur(10px)",
-            transition: {
-                duration: 0.8,
-                ease: [0.2, 0.65, 0.3, 0.9],
-            }
-        }
-    };
-
-    return (
-        <motion.span
-            variants={container}
-            initial="hidden"
-            animate="visible"
-            className={`flex flex-wrap justify-center gap-x-[0.25em] ${className}`}
-        >
-            {text.split(" ").map((word, index) => (
-                <span key={index} className="whitespace-nowrap inline-block">
-                    {Array.from(word).map((letter, i) => (
-                        <motion.span variants={child} key={i} className="inline-block">
-                            {letter}
-                        </motion.span>
-                    ))}
-                </span>
-            ))}
-        </motion.span>
-    );
-};
-
-
-
-// Widget with spotlight effect - Updated for Premium Apple-like Design
-export const Widget = ({ title, icon: Icon, children, delay = 0, className = "", action, visible = true, compact = false }: any) => {
-    const mouseX = useMotionValue(0);
-    const mouseY = useMotionValue(0);
-
-    const handleMouseMove = ({ currentTarget, clientX, clientY }: React.MouseEvent) => {
-        const { left, top } = currentTarget.getBoundingClientRect();
-        mouseX.set(clientX - left);
-        mouseY.set(clientY - top);
-    };
+    const prefersReducedMotion = useReducedMotion();
+    const still = Boolean(prefersReducedMotion);
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            exit={{ opacity: 0, y: 20, transition: { duration: 0.3 } }}
-            transition={{ duration: 0.5, delay: visible ? delay : 0 }}
-            onMouseMove={handleMouseMove}
-            className={`relative group bg-black border border-white/5 overflow-hidden h-full flex flex-col shadow-2xl ${compact ? 'rounded-[2rem]' : 'rounded-3xl'} ${className}`}
+            initial={still ? false : { opacity: 0, y: 12 }}
+            whileInView={visible || still ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.4, delay: still ? 0 : delay, ease: 'easeOut' }}
+            className={`flex h-full min-w-0 flex-col bg-velocity-black ${dense ? 'p-5' : 'p-6'} ${className}`}
         >
-            {/* Spotlight Effect - Subtle */}
-            <motion.div
-                className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
-                style={{
-                    background: useMotionTemplate`
-            radial-gradient(
-              600px circle at ${mouseX}px ${mouseY}px,
-              rgba(255, 255, 255, 0.03),
-              transparent 40%
-            )
-          `,
-                }}
-            />
-
-            <div className={`relative z-10 h-full flex flex-col ${compact ? 'p-6' : 'p-8'}`}>
-                <div className={`flex items-center justify-between ${compact ? 'mb-5' : 'mb-6'}`}>
-                    <div className="flex items-center gap-3">
-                        <div className={`${compact ? 'p-1.5' : 'p-2'} bg-white/5 border border-white/5 rounded-full group-hover:border-velocity-red/30 group-hover:bg-velocity-red/10 transition-colors duration-300`}>
-                            <Icon className={`${compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-gray-400 group-hover:text-velocity-red transition-colors duration-300`} />
-                        </div>
-                        <span className={`font-sans text-gray-400 uppercase tracking-widest font-medium ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{title}</span>
-                    </div>
-                    {action}
-                </div>
-                <div className="flex-1">
-                    {children}
-                </div>
+            <div className={`flex min-w-0 items-center justify-between gap-3 ${dense ? 'mb-4' : 'mb-5'}`}>
+                <p className="flex min-w-0 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+                    {Icon ? <Icon className="h-3 w-3 flex-shrink-0 text-velocity-red" /> : null}
+                    <span className="truncate">{title}</span>
+                </p>
+                {action}
             </div>
+            <div className="min-w-0 flex-1">{children}</div>
         </motion.div>
     );
 };
-

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { BookOpenText, FileDown } from 'lucide-react';
 import type { AnalysisData, CitationRef, LabPhaseId, LabPromptHistoryEntry, SourceDocument, WidgetTargetId } from '../lib/api';
 import { buildAnalysisReportHtml } from '../lib/launchpad-report';
@@ -9,8 +9,10 @@ import {
     CitationLinks,
     PhaseDivider,
     PhasePromptComposer,
+    VerdictNeedle,
     buildFallbackJudge,
     createFallbackLab,
+    getCouncilVerdictMeta,
     getLatestPromptForPhase,
     hasValidLab,
     normalizeExternalHref,
@@ -31,6 +33,9 @@ interface LaunchpadDashboardProps {
     promptHistory?: LabPromptHistoryEntry[];
 }
 
+const ACTION_BUTTON =
+    'inline-flex items-center justify-center gap-2 border border-white/15 px-3 py-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-300 transition-colors duration-300 hover:border-white/35 hover:text-white';
+
 export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
     data,
     idea = '',
@@ -43,6 +48,8 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
     promptHistory = [],
 }) => {
     const revealRef = useRevealGroup<HTMLDivElement>();
+    const prefersReducedMotion = useReducedMotion();
+    const still = Boolean(prefersReducedMotion);
     const [phasePrompts, setPhasePrompts] = useState<Record<LabPhaseId, string>>({
         validation: '',
         strategy: '',
@@ -53,6 +60,9 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         strategy: 'strategy',
         execution: 'waitlist',
     });
+    // Only one scenario console is open at a time, so the phase bands stay
+    // readable while a scoped mutation is being written.
+    const [expandedConsole, setExpandedConsole] = useState<LabPhaseId | null>(null);
 
     useEffect(() => {
         setPhasePrompts({
@@ -65,7 +75,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
             strategy: 'strategy',
             execution: 'waitlist',
         });
-    }, [data?.identity?.name, data?.identity?.tagline]);
+        setExpandedConsole(null);
+        // The data reference, not identity strings: branches share name and
+        // tagline, so a string key would carry drafts across loaded runs.
+    }, [data]);
 
     if (!data) return null;
 
@@ -76,6 +89,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         lab.council.bear || fallbackLab.council.bear!,
         lab.summary.recommendation,
     );
+    const verdictMeta = getCouncilVerdictMeta(councilJudge.verdict);
 
     const sourceDocuments = Array.isArray(data.sources.documents) ? data.sources.documents : [];
     const sourceMap = new Map<string, SourceDocument>(sourceDocuments.map((source) => [source.id, source]));
@@ -127,6 +141,10 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
         setSelectedTargets((current) => ({ ...current, [phaseId]: targetId }));
     };
 
+    const handleConsoleExpanded = (phaseId: LabPhaseId, expanded: boolean) => {
+        setExpandedConsole(expanded ? phaseId : null);
+    };
+
     const handleApplyPhasePrompt = (phaseId: LabPhaseId) => {
         const instruction = phasePrompts[phaseId].trim();
         if (!instruction || !onRunScopedPrompt) {
@@ -143,13 +161,13 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
             ...current,
             [phaseId]: '',
         }));
+        setExpandedConsole(null);
     };
 
-    const renderComposer = (phaseId: LabPhaseId, title: string, description: string) => (
+    const renderComposer = (phaseId: LabPhaseId, title: string) => (
         <PhasePromptComposer
             phaseId={phaseId}
             title={title}
-            description={description}
             promptValue={phasePrompts[phaseId]}
             onPromptChange={updatePhasePrompt}
             targetId={selectedTargets[phaseId]}
@@ -158,147 +176,155 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
             isBusy={activeMutationTarget === `${phaseId}:${selectedTargets[phaseId]}`}
             applyDisabled={!phasePrompts[phaseId].trim() || !onRunScopedPrompt || Boolean(activeMutationTarget)}
             onApply={handleApplyPhasePrompt}
+            expanded={expandedConsole === phaseId}
+            onExpandedChange={handleConsoleExpanded}
         />
     );
 
+    if (!showResults) return null;
+
     return (
-        <AnimatePresence>
-            {showResults && (
-                <motion.div
-                    ref={revealRef}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="flex flex-col gap-8 max-w-[1440px] mx-auto py-8"
-                >
-                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
-                        <div data-reveal className="relative overflow-hidden rounded-[2rem] border border-white/5 bg-black p-6 shadow-2xl">
-                            <div className="pointer-events-none absolute -top-28 right-0 h-56 w-[28rem] rounded-full bg-velocity-red/10 blur-[110px]" />
-                            <div className="relative flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                                <div>
-                                    <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-white/35">Launchpad</p>
-                                    <h2 className="mt-3 font-sans text-3xl font-black tracking-tight text-white md:text-4xl">{data.identity.name}</h2>
-                                    <p className="mt-3 font-sans text-base italic text-white/70">{data.identity.tagline}</p>
-                                    <p className="mt-5 max-w-3xl font-sans text-sm leading-relaxed text-white/80">
-                                        {lab.summary.recommendation}
-                                        {renderCitation(data.citations?.summary?.recommendation, 'summary-recommendation')}
-                                    </p>
-                                </div>
+        <motion.div
+            ref={revealRef}
+            initial={still ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-col gap-12 pt-12"
+        >
+            {/* Report band */}
+            <div data-reveal className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 md:grid-cols-12">
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-6 md:p-6">
+                    <p className="truncate font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+                        Report <span className="text-velocity-red">//</span> {data.identity.name}
+                    </p>
+                    <h2 className="mt-4 font-sans text-3xl font-bold tracking-tight text-white md:text-4xl">
+                        {data.identity.name}<span className="text-velocity-red">.</span>
+                    </h2>
+                    <p className="mt-3 font-sans text-sm leading-relaxed text-zinc-400">{data.identity.tagline}</p>
+                </div>
 
-                                <div className="relative z-[60] flex flex-col items-start gap-2 pointer-events-auto md:items-end">
-                                    {sourcesPageHref && hasGroundedSources ? (
-                                        <div className="flex flex-wrap gap-2">
-                                            {sourceDocuments.length > 0 && (
-                                                <span className="rounded-full border border-sky-400/20 bg-sky-400/[0.08] px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-sky-200">
-                                                    {sourceDocuments.length} sources
-                                                </span>
-                                            )}
-                                            {(data.sources.queries?.length || 0) > 0 && (
-                                                <span className="rounded-full border border-white/10 bg-black/30 px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-white/60">
-                                                    {data.sources.queries!.length} searches
-                                                </span>
-                                            )}
-                                        </div>
-                                    ) : null}
-                                    <div className="flex flex-wrap gap-2">
-                                        {sourcesPageHref && hasGroundedSources ? (
-                                            <a
-                                                href={sourcesPageHref}
-                                                onClick={(event) => {
-                                                    event.stopPropagation();
-                                                    window.location.assign(sourcesPageHref);
-                                                }}
-                                                className="relative z-[70] inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.18em] text-white hover:bg-white/10"
-                                            >
-                                                <BookOpenText className="w-3.5 h-3.5" />
-                                                Sources Page
-                                            </a>
-                                        ) : null}
-                                        <button
-                                            type="button"
-                                            onClick={handleDownloadReport}
-                                            className="relative z-[70] inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 font-sans text-[11px] uppercase tracking-[0.18em] text-white hover:bg-white/10"
-                                        >
-                                            <FileDown className="w-3.5 h-3.5" />
-                                            Report
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-2 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Judge</p>
+                    <p className="mt-4 font-sans text-base font-bold tracking-tight text-white">{verdictMeta.label}</p>
+                    <VerdictNeedle verdict={councilJudge.verdict} className="mt-4" />
+                </div>
 
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-1">
-                            <div data-reveal className="rounded-[1.7rem] border border-white/5 bg-black p-5 shadow-2xl">
-                                <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-300/80">Confidence</p>
-                                <p className="mt-3 font-sans text-3xl font-black tracking-tight text-white">
-                                    <CountUpNumber value={lab.summary.confidenceScore} />
-                                    <span className="text-lg text-white/35">/100</span>
-                                </p>
-                                <p className="mt-2 font-sans text-xs uppercase tracking-[0.16em] text-velocity-red">{lab.summary.confidenceLabel}</p>
-                            </div>
-                            <div data-reveal className="rounded-[1.7rem] border border-white/5 bg-black p-5 shadow-2xl">
-                                <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-300/80">Open risk</p>
-                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">
-                                    {lab.summary.openRisks[0]}
-                                    {renderCitation(data.citations?.summary?.openRisks?.[0], 'summary-open-risk')}
-                                </p>
-                            </div>
-                            <div data-reveal className="rounded-[1.7rem] border border-white/5 bg-black p-5 shadow-2xl">
-                                <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-300/80">Next move</p>
-                                <p className="mt-3 font-sans text-sm leading-relaxed text-white/80">
-                                    {lab.summary.nextMoves[0]}
-                                    {renderCitation(data.citations?.summary?.nextMoves?.[0], 'summary-next-move')}
-                                </p>
-                            </div>
-                        </div>
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-2 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Confidence</p>
+                    <p className="mt-4 font-mono text-[2rem] leading-none tracking-tight text-velocity-red">
+                        <CountUpNumber value={lab.summary.confidenceScore} />
+                        <span className="text-base text-zinc-600">/100</span>
+                    </p>
+                    <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
+                        {lab.summary.confidenceLabel}
+                    </p>
+                    <p className="mt-2 font-sans text-[11px] leading-relaxed text-zinc-400">
+                        Directional score. Not a measured probability.
+                    </p>
+                </div>
+
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-2 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Export</p>
+                    <div className="mt-4 flex flex-col gap-2">
+                        {sourcesPageHref && hasGroundedSources ? (
+                            <a
+                                href={sourcesPageHref}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    window.location.assign(sourcesPageHref);
+                                }}
+                                className={`${ACTION_BUTTON} cursor-pointer`}
+                            >
+                                <BookOpenText className="h-3.5 w-3.5" />
+                                Sources page
+                            </a>
+                        ) : null}
+                        <button
+                            type="button"
+                            onClick={handleDownloadReport}
+                            className={ACTION_BUTTON}
+                        >
+                            <FileDown className="h-3.5 w-3.5" />
+                            Report
+                        </button>
                     </div>
+                    {sourcesPageHref && hasGroundedSources ? (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                            {sourceDocuments.length > 0 && (
+                                <span className="border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500">
+                                    {sourceDocuments.length} sources
+                                </span>
+                            )}
+                            {(data.sources.queries?.length || 0) > 0 && (
+                                <span className="border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-500">
+                                    {data.sources.queries!.length} searches
+                                </span>
+                            )}
+                        </div>
+                    ) : null}
+                </div>
 
-                    <PhaseDivider label="Phase 1: Validation" />
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-6 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Recommendation</p>
+                    <p className="mt-3 font-sans text-sm leading-relaxed text-zinc-200">
+                        {lab.summary.recommendation}
+                        {renderCitation(data.citations?.summary?.recommendation, 'summary-recommendation')}
+                    </p>
+                </div>
 
-                    {renderComposer(
-                        'validation',
-                        'Scenario prompt',
-                        'Use one prompt to test a validation shift, or target just the market sizing / market position widget.',
-                    )}
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-3 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Open risk</p>
+                    <p className="mt-3 font-sans text-sm leading-relaxed text-zinc-400">
+                        {lab.summary.openRisks[0]}
+                        {renderCitation(data.citations?.summary?.openRisks?.[0], 'summary-open-risk')}
+                    </p>
+                </div>
 
-                    <ValidationPhase
-                        data={data}
-                        lab={lab}
-                        councilJudge={councilJudge}
-                        showResults={showResults}
-                        renderCitation={renderCitation}
-                    />
+                <div className="min-w-0 bg-velocity-black p-5 md:col-span-3 md:p-6">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">Next move</p>
+                    <p className="mt-3 font-sans text-sm leading-relaxed text-zinc-400">
+                        {lab.summary.nextMoves[0]}
+                        {renderCitation(data.citations?.summary?.nextMoves?.[0], 'summary-next-move')}
+                    </p>
+                </div>
+            </div>
 
-                    <PhaseDivider label="Phase 2: Strategy" />
+            {/* Phase 1 */}
+            <div className="flex flex-col gap-4">
+                <PhaseDivider no="01" label="Validate" />
+                {renderComposer('validation', 'Validation')}
+                <ValidationPhase
+                    data={data}
+                    lab={lab}
+                    councilJudge={councilJudge}
+                    showResults={showResults}
+                    renderCitation={renderCitation}
+                />
+            </div>
 
-                    {renderComposer(
-                        'strategy',
-                        'Scenario prompt',
-                        'Use one prompt to test pricing, customer, or channel shifts without regenerating the entire analysis.',
-                    )}
+            {/* Phase 2 */}
+            <div className="flex flex-col gap-4">
+                <PhaseDivider no="02" label="Strategy" />
+                {renderComposer('strategy', 'Strategy')}
+                <StrategyPhase
+                    data={data}
+                    showResults={showResults}
+                    renderCitation={renderCitation}
+                    getChannelHref={getChannelHref}
+                />
+            </div>
 
-                    <StrategyPhase
-                        data={data}
-                        showResults={showResults}
-                        renderCitation={renderCitation}
-                        getChannelHref={getChannelHref}
-                    />
-
-                    <PhaseDivider label="Phase 3: Execution" />
-
-                    {renderComposer(
-                        'execution',
-                        'Asset prompt',
-                        'Target the waitlist, the pitch deck, or the prompt chain directly when the strategy shifts.',
-                    )}
-
-                    <ExecutionPhase
-                        data={data}
-                        showResults={showResults}
-                        onGenerateFounderAssets={onGenerateFounderAssets}
-                        isGeneratingAssets={isGeneratingAssets}
-                    />
-                </motion.div>
-            )}
-        </AnimatePresence>
-    );
+            {/* Phase 3 */}
+            <div className="flex flex-col gap-4">
+                <PhaseDivider no="03" label="Execute" />
+                {renderComposer('execution', 'Execution')}
+                <ExecutionPhase
+                    data={data}
+                    showResults={showResults}
+                    onGenerateFounderAssets={onGenerateFounderAssets}
+                    isGeneratingAssets={isGeneratingAssets}
+                />
+            </div>
+        </motion.div>
+);
 };

@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Loader2, Sparkles } from 'lucide-react';
+import { ChevronDown, Loader2 } from 'lucide-react';
 import type { AnalysisData, CitationRef, LabPhaseId, LabPromptHistoryEntry, SourceDocument, WidgetTargetId } from '../../lib/api';
 import { useDividerDraw } from './gsapFx';
 
@@ -84,29 +84,61 @@ export function normalizeExternalHref(value?: string | null) {
     }
 }
 
+/**
+ * Verdict palette: bull reads as white, bear as red, split as neutral zinc.
+ * `position` is the needle offset in percent along the BULL..BEAR rail.
+ */
 export function getCouncilVerdictMeta(verdict: 'bull' | 'bear' | 'split') {
     if (verdict === 'bull') {
         return {
             label: 'Bull leads',
-            tone: 'text-blue-300',
-            badge: 'border-blue-500/25 bg-blue-500/10 text-blue-200',
+            tone: 'text-white',
+            badge: 'border-white/25 text-white',
+            position: 4,
         };
     }
 
     if (verdict === 'bear') {
         return {
             label: 'Bear leads',
-            tone: 'text-red-300',
-            badge: 'border-velocity-red/25 bg-velocity-red/10 text-red-200',
+            tone: 'text-white',
+            badge: 'border-velocity-red/50 text-velocity-red',
+            position: 96,
         };
     }
 
     return {
         label: 'Split decision',
-        tone: 'text-white/85',
-        badge: 'border-white/15 bg-white/[0.06] text-white/70',
+        tone: 'text-white',
+        badge: 'border-white/15 text-zinc-300',
+        position: 50,
     };
 }
+
+/** Instrument needle showing where the judge landed between the two poles. */
+export const VerdictNeedle: React.FC<{ verdict: 'bull' | 'bear' | 'split'; className?: string }> = ({
+    verdict,
+    className = '',
+}) => {
+    const { position } = getCouncilVerdictMeta(verdict);
+
+    return (
+        <div className={`min-w-0 ${className}`}>
+            <div className="relative h-px w-full bg-white/15">
+                <span
+                    aria-hidden
+                    className="absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.6)]"
+                    style={{ left: `${position}%` }}
+                />
+            </div>
+            <div className="mt-2 flex items-center justify-between gap-2 font-mono text-[9px] uppercase tracking-[0.2em]">
+                <span className={verdict === 'bull' ? 'text-white' : 'text-zinc-600'}>Bull</span>
+                <span className={verdict === 'split' ? 'text-white' : 'text-zinc-600'}>Split</span>
+                <span className={verdict === 'bear' ? 'text-velocity-red' : 'text-zinc-600'}>Bear</span>
+            </div>
+        </div>
+    );
+};
 
 export function buildFallbackJudge(
     bull: NonNullable<NonNullable<AnalysisData['lab']>['council']['bull']>,
@@ -119,6 +151,8 @@ export function buildFallbackJudge(
 
     return {
         verdict: 'split' as const,
+        // Synthesized locally from memo fragments, flagged so the UI can say so.
+        degraded: true,
         finalTake: recommendation || 'Both sides have a case, so keep the first wedge narrow and evidence-led.',
         bullCase: bullCase.length ? bullCase : ['There is a plausible wedge worth testing.'],
         bearCase: bearCase.length ? bearCase : ['Differentiation still needs stronger proof.'],
@@ -243,17 +277,19 @@ export function getLatestPromptForPhase(promptHistory: LabPromptHistoryEntry[], 
     return [...promptHistory].reverse().find((entry) => entry.phaseId === phaseId) || null;
 }
 
-export const PhaseDivider: React.FC<{ label: string }> = ({ label }) => {
+/**
+ * Phase rail header: mono index, phase name, and a hairline rail that draws
+ * out to the right edge when the band scrolls into view.
+ */
+export const PhaseDivider: React.FC<{ no: string; label: string }> = ({ no, label }) => {
     const ref = useDividerDraw<HTMLDivElement>();
 
     return (
         <div ref={ref} className="flex items-center gap-4">
-            <div data-divider-line="left" className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-velocity-red/40" />
-            <span data-divider-label className="inline-flex items-center gap-2 font-sans text-[10px] uppercase tracking-[0.22em] text-white/40">
-                <span className="h-1.5 w-1.5 rounded-full bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.45)]" />
-                {label}
-            </span>
-            <div data-divider-line="right" className="h-px flex-1 bg-gradient-to-l from-transparent via-white/10 to-velocity-red/40" />
+            <p data-divider-label className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+                {no} <span className="text-velocity-red">//</span> {label}
+            </p>
+            <div data-divider-line="right" className="h-px min-w-0 flex-1 bg-white/10" />
         </div>
     );
 };
@@ -277,7 +313,7 @@ export const CitationLinks: React.FC<CitationLinksProps> = ({
         return null;
     }
 
-    const badgeClass = 'rounded-full border border-blue-400/20 bg-blue-400/[0.08] px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.14em] text-blue-200';
+    const badgeClass = 'inline-block border border-white/15 px-1 font-mono text-[9px] uppercase leading-[1.5] tracking-[0.1em] text-zinc-400 transition-colors hover:border-white/35 hover:text-white';
 
     return (
         <span className="ml-1.5 inline-flex flex-wrap items-center gap-1 align-super">
@@ -331,8 +367,8 @@ export const CitationLinks: React.FC<CitationLinksProps> = ({
 
 export interface PhasePromptComposerProps {
     phaseId: LabPhaseId;
+    /** Mono label after the SCENARIO CONSOLE prefix, e.g. "Validation". */
     title: string;
-    description: string;
     promptValue: string;
     onPromptChange: (phaseId: LabPhaseId, value: string) => void;
     targetId: WidgetTargetId;
@@ -341,12 +377,17 @@ export interface PhasePromptComposerProps {
     isBusy: boolean;
     applyDisabled: boolean;
     onApply: (phaseId: LabPhaseId) => void;
+    expanded: boolean;
+    onExpandedChange: (phaseId: LabPhaseId, expanded: boolean) => void;
 }
 
+/**
+ * Scenario console: a collapsed terminal prompt line that opens into the
+ * scoped-mutation composer (target chips, instruction, apply).
+ */
 export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
     phaseId,
     title,
-    description,
     promptValue,
     onPromptChange,
     targetId,
@@ -355,82 +396,95 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
     isBusy,
     applyDisabled,
     onApply,
-}) => (
-    <div data-reveal className="rounded-[2rem] border border-white/5 bg-black p-5 shadow-2xl">
-        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-            <div>
-                <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-blue-300/80">{title}</p>
-                <p className="font-sans text-sm text-white mt-2 leading-relaxed">{description}</p>
-            </div>
-            <div className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 font-sans text-[10px] uppercase tracking-[0.16em] text-white/55">
-                Branch-aware update
-            </div>
-        </div>
+    expanded,
+    onExpandedChange,
+}) => {
+    const panelId = `scenario-console-${phaseId}`;
 
-        <div className="mt-4 flex flex-wrap gap-2">
-            {PHASE_TARGETS[phaseId].map((target) => {
-                const selected = target.id === targetId;
-
-                return (
-                    <button
-                        key={`${phaseId}-${target.id}`}
-                        type="button"
-                        onClick={() => onTargetChange(phaseId, target.id)}
-                        className={`rounded-full border px-3 py-1.5 font-sans text-[11px] uppercase tracking-[0.16em] transition-colors ${
-                            selected
-                                ? 'border-velocity-red/40 bg-velocity-red/15 text-white shadow-[0_0_18px_rgba(255,31,31,0.18)]'
-                                : 'border-white/10 bg-white/[0.03] text-white/45 hover:text-white/75'
-                        }`}
-                    >
-                        {target.label}
-                    </button>
-                );
-            })}
-        </div>
-
-        <div className="mt-4">
-            <label className="sr-only" htmlFor={`phase-prompt-${phaseId}`}>
-                {title}
-            </label>
-            <textarea
-                id={`phase-prompt-${phaseId}`}
-                value={promptValue}
-                onChange={(event) => onPromptChange(phaseId, event.target.value)}
-                placeholder={getPhasePromptPlaceholder(phaseId, targetId)}
-                rows={3}
-                className="w-full rounded-[1.5rem] border border-white/10 bg-white/[0.03] px-4 py-3 font-sans text-sm text-white outline-none placeholder:text-white/25 focus:border-velocity-red/40"
-            />
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            {latestPrompt ? (
-                <p className="font-sans text-xs text-white/40 leading-relaxed">
-                    Latest update: <span className="text-white/65">{latestPrompt.summary}</span>
-                </p>
-            ) : (
-                <p className="font-sans text-xs text-white/30 leading-relaxed">
-                    Use this to test a strategy shift against just this phase or one widget inside it.
-                </p>
-            )}
-
+    return (
+        <div className="border border-white/10 bg-velocity-black">
             <button
                 type="button"
-                onClick={() => onApply(phaseId)}
-                disabled={applyDisabled}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-[11px] font-sans font-semibold uppercase tracking-[0.18em] text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => onExpandedChange(phaseId, !expanded)}
+                aria-expanded={expanded}
+                aria-controls={panelId}
+                className="flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-white/[0.02] md:px-5"
             >
-                {isBusy ? (
-                    <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        Updating
-                    </>
-                ) : (
-                    <>
-                        <Sparkles className="w-4 h-4" />
-                        Apply to Widget
-                    </>
-                )}
+                <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+                    Scenario console <span className="text-velocity-red">//</span> {title}
+                </span>
+                <span className="hidden min-w-0 flex-1 truncate font-mono text-[11px] text-zinc-600 md:block">
+                    &gt; Describe a shift, then apply it
+                </span>
+                <ChevronDown
+                    className={`ml-auto h-3.5 w-3.5 flex-shrink-0 text-zinc-500 transition-transform duration-300 motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
+                />
             </button>
+
+            {expanded && (
+                <div id={panelId} className="border-t border-white/10 px-4 pb-4 pt-4 md:px-5">
+                    <div className="flex flex-wrap gap-px bg-white/10 p-px">
+                        {PHASE_TARGETS[phaseId].map((target) => {
+                            const selected = target.id === targetId;
+
+                            return (
+                                <button
+                                    key={`${phaseId}-${target.id}`}
+                                    type="button"
+                                    onClick={() => onTargetChange(phaseId, target.id)}
+                                    aria-pressed={selected}
+                                    className={`px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors ${
+                                        selected
+                                            ? 'bg-velocity-red text-white'
+                                            : 'bg-velocity-black text-zinc-500 hover:text-white'
+                                    }`}
+                                >
+                                    {target.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    <label className="sr-only" htmlFor={`phase-prompt-${phaseId}`}>
+                        Scenario instruction for the {title} phase
+                    </label>
+                    <textarea
+                        id={`phase-prompt-${phaseId}`}
+                        value={promptValue}
+                        onChange={(event) => onPromptChange(phaseId, event.target.value)}
+                        placeholder={getPhasePromptPlaceholder(phaseId, targetId)}
+                        rows={3}
+                        className="mt-3 w-full border border-white/10 bg-black px-3 py-3 font-mono text-[12px] leading-relaxed text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-velocity-red/60"
+                    />
+
+                    <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        {latestPrompt ? (
+                            <p className="min-w-0 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
+                                Last update <span className="text-velocity-red">//</span>{' '}
+                                <span className="normal-case tracking-normal text-zinc-300">{latestPrompt.summary}</span>
+                            </p>
+                        ) : (
+                            <span />
+                        )}
+
+                        <button
+                            type="button"
+                            onClick={() => onApply(phaseId)}
+                            disabled={applyDisabled}
+                            className="inline-flex flex-shrink-0 items-center justify-center gap-2 border border-velocity-red/50 bg-velocity-darkRed/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:border-velocity-red hover:bg-velocity-red disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-zinc-600"
+                        >
+                            {isBusy ? (
+                                <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    Rewiring
+                                </>
+                            ) : (
+                                'Apply update'
+                            )}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
-    </div>
-);
+    );
+};

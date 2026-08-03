@@ -31,12 +31,12 @@ export function useRevealGroup<T extends HTMLElement>() {
         if (!targets.length) return;
 
         const ctx = gsap.context(() => {
-            gsap.set(targets, { autoAlpha: 0, y: 26 });
+            gsap.set(targets, { autoAlpha: 0, y: 18 });
             ScrollTrigger.batch(targets, {
-                start: 'top 92%',
+                start: 'top 94%',
                 once: true,
                 onEnter: (batch) =>
-                    gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.08 }),
+                    gsap.to(batch, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power3.out', stagger: 0.07 }),
             });
         }, root);
 
@@ -153,7 +153,10 @@ export function useMagnetic<T extends HTMLElement>(radius = 130, strength = 0.32
     return ref;
 }
 
-/** Draws the divider lines outward from the label when scrolled into view. */
+/**
+ * Phase rail header: the kicker fades up and the hairline rail draws outward
+ * when the header scrolls into view.
+ */
 export function useDividerDraw<T extends HTMLElement>() {
     const ref = useRef<T | null>(null);
 
@@ -161,10 +164,20 @@ export function useDividerDraw<T extends HTMLElement>() {
         const root = ref.current;
         if (!root || prefersReducedMotion()) return;
 
+        const lines = Array.from(root.querySelectorAll<HTMLElement>('[data-divider-line]'));
+        const labels = Array.from(root.querySelectorAll<HTMLElement>('[data-divider-label]'));
+        if (!lines.length && !labels.length) return;
+
         const ctx = gsap.context(() => {
-            gsap.set('[data-divider-line="left"]', { scaleX: 0, transformOrigin: 'right center' });
-            gsap.set('[data-divider-line="right"]', { scaleX: 0, transformOrigin: 'left center' });
-            gsap.set('[data-divider-label]', { autoAlpha: 0, letterSpacing: '0.5em' });
+            lines.forEach((line) => {
+                gsap.set(line, {
+                    scaleX: 0,
+                    transformOrigin: line.dataset.dividerLine === 'left' ? 'right center' : 'left center',
+                });
+            });
+            if (labels.length) {
+                gsap.set(labels, { autoAlpha: 0, y: 6 });
+            }
 
             // Standalone trigger + callback: timelines bound directly to
             // ScrollTrigger mis-measure under React's dev double-mount.
@@ -173,9 +186,13 @@ export function useDividerDraw<T extends HTMLElement>() {
                 start: 'top 94%',
                 once: true,
                 onEnter: () => {
-                    gsap.timeline()
-                        .to(root.querySelectorAll('[data-divider-label]'), { autoAlpha: 1, letterSpacing: '0.22em', duration: 0.7, ease: 'power2.out' })
-                        .to(root.querySelectorAll('[data-divider-line="left"], [data-divider-line="right"]'), { scaleX: 1, duration: 0.8, ease: 'power3.inOut' }, '<');
+                    const timeline = gsap.timeline();
+                    if (labels.length) {
+                        timeline.to(labels, { autoAlpha: 1, y: 0, duration: 0.45, ease: 'power2.out' });
+                    }
+                    if (lines.length) {
+                        timeline.to(lines, { scaleX: 1, duration: 0.7, ease: 'power3.inOut' }, '<');
+                    }
                 },
             });
         }, root);
@@ -187,8 +204,41 @@ export function useDividerDraw<T extends HTMLElement>() {
 }
 
 /**
- * Perceptual map build-in: axes draw first, competitor pins pop in with an
- * elastic ease, then the "You" marker lands and keeps a pulsing ring.
+ * Market sizing instrument: every `[data-bar]` fill draws from the shared
+ * left baseline once the panel scrolls into view.
+ */
+export function useBarDraw<T extends HTMLElement>(identityKey: string) {
+    const ref = useRef<T | null>(null);
+
+    useEffect(() => {
+        const root = ref.current;
+        if (!root || prefersReducedMotion()) return;
+
+        const bars = Array.from(root.querySelectorAll<HTMLElement>('[data-bar]'));
+        if (!bars.length) return;
+
+        const ctx = gsap.context(() => {
+            gsap.set(bars, { scaleX: 0, transformOrigin: 'left center' });
+
+            ScrollTrigger.create({
+                trigger: root,
+                start: 'top 90%',
+                once: true,
+                onEnter: () => {
+                    gsap.to(bars, { scaleX: 1, duration: 0.9, ease: 'power3.out', stagger: 0.1 });
+                },
+            });
+        }, root);
+
+        return () => ctx.revert();
+    }, [identityKey]);
+
+    return ref;
+}
+
+/**
+ * Perceptual map build-in: axes draw first, competitor pins land, then the
+ * "You" marker arrives and keeps a pulsing ring while the map is on screen.
  * Re-runs when the competitor set changes (e.g. after a widget mutation).
  */
 export function usePerceptualMapFx<T extends HTMLElement>(identityKey: string) {
@@ -205,6 +255,18 @@ export function usePerceptualMapFx<T extends HTMLElement>(identityKey: string) {
             gsap.set('[data-map-you]', { scale: 0, autoAlpha: 0, transformOrigin: '50% 50%' });
             gsap.set('[data-map-pulse]', { scale: 1, autoAlpha: 0.55 });
 
+            // Built paused so the infinite ring only ever runs while the map
+            // is actually on screen (the visibility trigger below drives it).
+            const pulse = gsap.to(root.querySelectorAll('[data-map-pulse]'), {
+                scale: 2.2,
+                autoAlpha: 0,
+                duration: 1.6,
+                ease: 'power1.out',
+                repeat: -1,
+                repeatDelay: 0.5,
+                paused: true,
+            });
+
             ScrollTrigger.create({
                 trigger: root,
                 start: 'top 85%',
@@ -213,18 +275,22 @@ export function usePerceptualMapFx<T extends HTMLElement>(identityKey: string) {
                     gsap.timeline()
                         .to(root.querySelectorAll('[data-map-axis="x"]'), { scaleX: 1, duration: 0.6, ease: 'power3.inOut' })
                         .to(root.querySelectorAll('[data-map-axis="y"]'), { scaleY: 1, duration: 0.6, ease: 'power3.inOut' }, '<0.12')
-                        .to(root.querySelectorAll('[data-map-pin]'), { scale: 1, autoAlpha: 1, duration: 0.85, ease: 'elastic.out(1, 0.55)', stagger: 0.09 }, '-=0.25')
-                        .to(root.querySelectorAll('[data-map-you]'), { scale: 1, autoAlpha: 1, duration: 0.95, ease: 'elastic.out(1, 0.45)' }, '-=0.45')
-                        .add(() => {
-                            gsap.to(root.querySelectorAll('[data-map-pulse]'), {
-                                scale: 1.9,
-                                autoAlpha: 0,
-                                duration: 1.6,
-                                ease: 'power1.out',
-                                repeat: -1,
-                                repeatDelay: 0.5,
-                            });
-                        });
+                        .to(root.querySelectorAll('[data-map-pin]'), { scale: 1, autoAlpha: 1, duration: 0.5, ease: 'power3.out', stagger: 0.07 }, '-=0.25')
+                        .to(root.querySelectorAll('[data-map-you]'), { scale: 1, autoAlpha: 1, duration: 0.55, ease: 'power3.out' }, '-=0.3')
+                        .add(() => pulse.play());
+                },
+            });
+
+            ScrollTrigger.create({
+                trigger: root,
+                start: 'top bottom',
+                end: 'bottom top',
+                onToggle: (self) => {
+                    if (self.isActive && pulse.progress() > 0) {
+                        pulse.play();
+                    } else {
+                        pulse.pause();
+                    }
                 },
             });
         }, root);

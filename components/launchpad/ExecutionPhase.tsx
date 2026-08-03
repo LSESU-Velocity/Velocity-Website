@@ -1,10 +1,10 @@
 /**
- * Phase 3: Execution. Founder asset workspace and the build prompt chain.
+ * Phase 3: Execution. Build prompt terminal and the founder asset workspace.
  */
-import React, { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight, Copy, Download, ExternalLink, Loader2, Presentation, Sparkles, Terminal } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Copy, Download, ExternalLink, Loader2, Sparkles } from 'lucide-react';
 import type { AnalysisData } from '../../lib/api';
-import { Widget } from '../LaunchpadWidgets';
 import { ArtifactFrame, downloadHtml, normalizePitchDeckHtml, openArtifactInNewTab } from './ArtifactFrame';
 import { getPromptPreview } from './shared';
 
@@ -15,19 +15,34 @@ interface ExecutionPhaseProps {
     isGeneratingAssets: boolean;
 }
 
+const CAROUSEL_BUTTON =
+    'flex h-7 w-7 flex-shrink-0 items-center justify-center border border-white/15 text-zinc-400 transition-colors hover:border-white/35 hover:text-white';
+
+const ICON_BUTTON =
+    'flex h-7 w-7 flex-shrink-0 items-center justify-center border border-white/15 text-zinc-400 transition-colors hover:border-white/35 hover:text-white';
+
+const TEXT_BUTTON =
+    'inline-flex items-center gap-2 border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400 transition-colors duration-300 hover:border-white/35 hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
+
+const pad = (value: number) => value.toString().padStart(2, '0');
+
 export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
     data,
-    showResults,
     onGenerateFounderAssets,
     isGeneratingAssets,
 }) => {
     const [promptChainIndex, setPromptChainIndex] = useState(0);
     const [showFullPrompt, setShowFullPrompt] = useState(false);
+    const terminalRef = useRef<HTMLDivElement>(null);
+    const inView = useInView(terminalRef, { margin: '80px 0px' });
+    const prefersReducedMotion = useReducedMotion();
+    const still = Boolean(prefersReducedMotion);
 
     useEffect(() => {
         setPromptChainIndex(0);
         setShowFullPrompt(false);
-    }, [data.identity?.name, data.identity?.tagline]);
+        // The data reference, not identity strings: branches share them.
+    }, [data]);
 
     const hasFounderAssets = Boolean(data.artifacts?.waitlistHtml || data.artifacts?.pitchDeckHtml);
     const promptSteps = data.promptChain.length ? data.promptChain : [{
@@ -42,91 +57,153 @@ export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
     };
 
     return (
-        <>
-            <Widget title="Founder Asset Workspace" icon={Presentation} visible={showResults}>
-                <div className="flex flex-col gap-5">
-                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                        <div>
-                            <p className="font-sans text-sm text-white">Optional founder assets</p>
-                            <p className="font-sans text-xs text-white/45 mt-1 leading-relaxed">
-                                Generate the waitlist page and pitch deck only when you need them, then iterate on each one with the execution prompt above.
-                            </p>
-                        </div>
-
-                        {!hasFounderAssets && (
+        <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 xl:grid-cols-12">
+            {/* Build prompt terminal */}
+            <div ref={terminalRef} className="flex min-w-0 flex-col bg-velocity-black xl:col-span-4">
+                <div className="flex min-w-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                    <p className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
+                        Build prompt <span className="text-velocity-red">//</span> Step {pad((promptChainIndex % promptSteps.length) + 1)}/{pad(promptSteps.length)}
+                    </p>
+                    {promptSteps.length > 1 && (
+                        <div className="flex flex-shrink-0 items-center gap-1.5">
                             <button
-                                onClick={onGenerateFounderAssets}
-                                disabled={!onGenerateFounderAssets || isGeneratingAssets}
-                                className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-xs font-sans font-semibold uppercase tracking-[0.18em] text-white hover:bg-white/10 disabled:opacity-60 disabled:cursor-not-allowed"
+                                onClick={() => setPromptChainIndex((prev) => (prev - 1 + promptSteps.length) % promptSteps.length)}
+                                aria-label="Previous prompt step"
+                                className={CAROUSEL_BUTTON}
                             >
-                                {isGeneratingAssets ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Generating Assets
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4" />
-                                        Generate Founder Assets
-                                    </>
-                                )}
+                                <ChevronLeft className="h-3.5 w-3.5" />
                             </button>
+                            <span className="select-none font-mono text-[10px] tabular-nums text-zinc-500" aria-live="polite">
+                                {(promptChainIndex % promptSteps.length) + 1}/{promptSteps.length}
+                            </span>
+                            <button
+                                onClick={() => setPromptChainIndex((prev) => (prev + 1) % promptSteps.length)}
+                                aria-label="Next prompt step"
+                                className={CAROUSEL_BUTTON}
+                            >
+                                <ChevronRight className="h-3.5 w-3.5" />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex min-w-0 flex-1 flex-col p-5">
+                    <p className="font-sans text-sm font-bold tracking-tight text-white">{activePromptStep.title}</p>
+
+                    <div
+                        role="button"
+                        tabIndex={0}
+                        aria-label="Copy prompt to clipboard"
+                        onClick={copyPrompt}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyPrompt(); } }}
+                        className="mt-3 min-w-0 flex-1 cursor-pointer border border-white/10 bg-black p-4 font-mono text-[11px] leading-relaxed text-zinc-400 transition-colors hover:border-white/25 hover:text-zinc-300"
+                    >
+                        <span className="text-velocity-red">&gt;</span> {getPromptPreview(activePromptStep.prompt, showFullPrompt)}
+                        {still || !inView ? (
+                            <span aria-hidden className="ml-1 inline-block h-3 w-[7px] translate-y-[2px] bg-velocity-red" />
+                        ) : (
+                            <motion.span
+                                aria-hidden
+                                className="ml-1 inline-block h-3 w-[7px] translate-y-[2px] bg-velocity-red"
+                                animate={{ opacity: [1, 1, 0, 0] }}
+                                transition={{ duration: 1.1, repeat: Infinity, ease: 'linear' }}
+                            />
                         )}
                     </div>
 
-                    <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
-                        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-                            <div className="flex items-center justify-between gap-3 mb-4">
-                                <p className="font-sans text-sm text-white">Waitlist page</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                        <button type="button" onClick={copyPrompt} className={TEXT_BUTTON}>
+                            <Copy className="h-3 w-3" />
+                            Copy prompt
+                        </button>
+                        {activePromptStep.prompt.length > 260 && (
+                            <button
+                                type="button"
+                                onClick={() => setShowFullPrompt((current) => !current)}
+                                aria-expanded={showFullPrompt}
+                                className={TEXT_BUTTON}
+                            >
+                                {showFullPrompt ? 'Collapse' : 'Expand'}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Founder asset workspace. No transformed ancestors here: the
+                artifact iframes must never sit inside an animated element. */}
+            <div className="flex min-w-0 flex-col bg-velocity-black xl:col-span-8">
+                <div className="flex min-w-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                    <p className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
+                        Founder assets <span className="text-velocity-red">//</span> Waitlist + deck
+                    </p>
+                </div>
+
+                {hasFounderAssets ? (
+                    <div className="grid grid-cols-1 gap-px bg-white/10 md:grid-cols-2">
+                        <div className="min-w-0 bg-velocity-black p-4">
+                            <div className="flex min-w-0 items-center justify-between gap-3">
+                                <p className="min-w-0 truncate font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">Waitlist</p>
                                 {data.artifacts?.waitlistHtml && (
-                                    <div className="flex gap-2">
-                                        <button onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'waitlist.html')} aria-label="Download waitlist page" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
-                                            <Download className="w-4 h-4" />
+                                    <div className="flex flex-shrink-0 gap-1.5">
+                                        <button
+                                            onClick={() => downloadHtml(data.artifacts!.waitlistHtml!, 'waitlist.html')}
+                                            aria-label="Download waitlist page"
+                                            className={ICON_BUTTON}
+                                        >
+                                            <Download className="h-3.5 w-3.5" />
                                         </button>
-                                        <button onClick={() => openArtifactInNewTab(data.artifacts!.waitlistHtml!)} aria-label="Preview waitlist page in new tab" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
-                                            <ExternalLink className="w-4 h-4" />
+                                        <button
+                                            onClick={() => openArtifactInNewTab(data.artifacts!.waitlistHtml!)}
+                                            aria-label="Preview waitlist page in new tab"
+                                            className={ICON_BUTTON}
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
                                         </button>
                                     </div>
                                 )}
                             </div>
 
                             {data.artifacts?.waitlistHtml ? (
-                                <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-4">
-                                    <div className="mx-auto w-full max-w-[330px] rounded-[2.8rem] border border-white/10 bg-[#050505] p-[12px] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
-                                        <div className="relative overflow-hidden rounded-[2.25rem] border border-white/5 bg-black aspect-[9/19.5]">
-                                            <div className="pointer-events-none absolute left-1/2 top-3 z-10 h-6 w-28 -translate-x-1/2 rounded-full border border-white/5 bg-black/90" />
-                                            <ArtifactFrame
-                                                html={data.artifacts.waitlistHtml}
-                                                title="Waitlist preview"
-                                                className="absolute inset-0 h-[200%] w-[200%] origin-top-left scale-50 border-0 bg-white"
-                                            />
-                                        </div>
-                                    </div>
+                                <div className="mt-3 h-[300px] border border-white/10 bg-black">
+                                    <ArtifactFrame
+                                        html={data.artifacts.waitlistHtml}
+                                        title="Waitlist preview"
+                                        className="h-full w-full border-0 bg-white"
+                                    />
                                 </div>
                             ) : (
-                                <div className="rounded-2xl border border-dashed border-white/10 px-5 py-8 text-center font-sans text-sm text-white/45">
-                                    No waitlist asset generated yet.
-                                </div>
+                                <p className="mt-3 border border-dashed border-white/15 px-4 py-6 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
+                                    No waitlist asset yet
+                                </p>
                             )}
                         </div>
 
-                        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-                            <div className="flex items-center justify-between gap-3 mb-4">
-                                <p className="font-sans text-sm text-white">Pitch deck</p>
+                        <div className="min-w-0 bg-velocity-black p-4">
+                            <div className="flex min-w-0 items-center justify-between gap-3">
+                                <p className="min-w-0 truncate font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">Pitch deck</p>
                                 {data.artifacts?.pitchDeckHtml && (
-                                    <div className="flex gap-2">
-                                        <button onClick={() => openArtifactInNewTab(normalizePitchDeckHtml(data.artifacts!.pitchDeckHtml!))} aria-label="Open pitch deck fullscreen" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
-                                            <ExternalLink className="w-4 h-4" />
+                                    <div className="flex flex-shrink-0 gap-1.5">
+                                        <button
+                                            onClick={() => openArtifactInNewTab(normalizePitchDeckHtml(data.artifacts!.pitchDeckHtml!))}
+                                            aria-label="Open pitch deck fullscreen"
+                                            className={ICON_BUTTON}
+                                        >
+                                            <ExternalLink className="h-3.5 w-3.5" />
                                         </button>
-                                        <button onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')} aria-label="Download pitch deck" className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20">
-                                            <Download className="w-4 h-4" />
+                                        <button
+                                            onClick={() => downloadHtml(data.artifacts!.pitchDeckHtml!, 'pitch-deck.html')}
+                                            aria-label="Download pitch deck"
+                                            className={ICON_BUTTON}
+                                        >
+                                            <Download className="h-3.5 w-3.5" />
                                         </button>
                                     </div>
                                 )}
                             </div>
 
                             {data.artifacts?.pitchDeckHtml ? (
-                                <div className="aspect-[16/10] overflow-hidden rounded-3xl border border-white/10 bg-black">
+                                <div className="mt-3 h-[300px] border border-white/10 bg-black">
                                     <ArtifactFrame
                                         html={normalizePitchDeckHtml(data.artifacts.pitchDeckHtml)}
                                         title="Pitch deck preview"
@@ -134,72 +211,37 @@ export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
                                     />
                                 </div>
                             ) : (
-                                <div className="rounded-2xl border border-dashed border-white/10 px-5 py-8 text-center font-sans text-sm text-white/45">
-                                    No pitch deck generated yet.
-                                </div>
+                                <p className="mt-3 border border-dashed border-white/15 px-4 py-6 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
+                                    No pitch deck yet
+                                </p>
                             )}
                         </div>
                     </div>
-                </div>
-            </Widget>
-
-            <Widget
-                title="Prompt Chain"
-                icon={Terminal}
-                visible={showResults}
-                action={
-                    <div className="flex items-center gap-1.5">
+                ) : (
+                    <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5">
+                        <p className="min-w-0 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">
+                            No assets <span className="text-velocity-red">//</span> Generate waitlist + deck
+                        </p>
                         <button
-                            onClick={() => setPromptChainIndex((prev) => (prev - 1 + promptSteps.length) % promptSteps.length)}
-                            aria-label="Previous prompt step"
-                            className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                            onClick={onGenerateFounderAssets}
+                            disabled={!onGenerateFounderAssets || isGeneratingAssets}
+                            className="inline-flex flex-shrink-0 items-center justify-center gap-2 border border-velocity-red/50 bg-velocity-darkRed/20 px-5 py-3 font-mono text-[10px] uppercase tracking-[0.24em] text-white transition-colors duration-300 hover:border-velocity-red hover:bg-velocity-red disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-transparent disabled:text-zinc-600"
                         >
-                            <ChevronLeft className="w-4 h-4" />
-                        </button>
-                        <span className="font-sans text-[10px] text-white/45 tabular-nums px-1" aria-live="polite">
-                            {(promptChainIndex % promptSteps.length) + 1}/{promptSteps.length}
-                        </span>
-                        <button
-                            onClick={() => setPromptChainIndex((prev) => (prev + 1) % promptSteps.length)}
-                            aria-label="Next prompt step"
-                            className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
-                        >
-                            <ChevronRight className="w-4 h-4" />
+                            {isGeneratingAssets ? (
+                                <>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    Drafting
+                                </>
+                            ) : (
+                                <>
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Generate
+                                </>
+                            )}
                         </button>
                     </div>
-                }
-            >
-                <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-white/40 mb-2">
-                    Step {activePromptStep.step}
-                </p>
-                <h3 className="font-sans text-xl font-black tracking-tight text-white">{activePromptStep.title}</h3>
-                <p className="mt-3 font-sans text-sm text-white/50 leading-relaxed">
-                    Cycle through the build phases, or update the entire prompt chain from the execution prompt above.
-                </p>
-                <div
-                    role="button"
-                    tabIndex={0}
-                    aria-label="Copy prompt to clipboard"
-                    onClick={copyPrompt}
-                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); copyPrompt(); } }}
-                    className="relative rounded-3xl border border-white/10 bg-white/[0.03] p-5 font-mono text-sm text-gray-300 leading-relaxed cursor-pointer hover:bg-white/[0.05] transition-colors mt-5"
-                >
-                    {getPromptPreview(activePromptStep.prompt, showFullPrompt)}
-                    <div className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-velocity-red px-3 py-1.5 font-sans text-[10px] uppercase tracking-[0.18em] text-white">
-                        <Copy className="w-3 h-3" />
-                        Copy
-                    </div>
-                </div>
-                {activePromptStep.prompt.length > 260 && (
-                    <button
-                        type="button"
-                        onClick={() => setShowFullPrompt((current) => !current)}
-                        className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-[11px] font-sans uppercase tracking-[0.18em] text-white/60 hover:text-white"
-                    >
-                        {showFullPrompt ? 'Collapse Prompt' : 'Show Full Prompt'}
-                    </button>
                 )}
-            </Widget>
-        </>
+            </div>
+        </div>
     );
 };

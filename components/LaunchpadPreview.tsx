@@ -132,7 +132,7 @@ const SceneTyping: React.FC = () => {
             transform: `translateY(${barShift}px)`,
             width: 900,
             padding: 2,
-            borderRadius: 999,
+            borderRadius: 0,
             background:
               'linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 100%)',
             boxShadow: '0 30px 80px rgba(0,0,0,0.5)',
@@ -144,7 +144,7 @@ const SceneTyping: React.FC = () => {
               alignItems: 'center',
               gap: 16,
               padding: '14px 14px 14px 28px',
-              borderRadius: 999,
+              borderRadius: 0,
               background: 'rgba(18,18,18,0.9)',
               border: '1px solid rgba(255,255,255,0.06)',
             }}
@@ -181,7 +181,7 @@ const SceneTyping: React.FC = () => {
             <div
               style={{
                 padding: '14px 34px',
-                borderRadius: 999,
+                borderRadius: 0,
                 background: VELOCITY_RED,
                 color: 'white',
                 fontSize: 14,
@@ -238,7 +238,7 @@ const SceneLaunch: React.FC = () => {
             position: 'absolute',
             width: 120,
             height: 120,
-            borderRadius: 999,
+            borderRadius: 0,
             border: `2px solid ${VELOCITY_RED}`,
             transform: `scale(${rippleScale})`,
             opacity: rippleOpacity,
@@ -250,7 +250,7 @@ const SceneLaunch: React.FC = () => {
             opacity: contentOpacity,
             width: 900,
             padding: 2,
-            borderRadius: 999,
+            borderRadius: 0,
             background:
               'linear-gradient(180deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.04) 100%)',
           }}
@@ -261,7 +261,7 @@ const SceneLaunch: React.FC = () => {
               alignItems: 'center',
               gap: 16,
               padding: '14px 14px 14px 28px',
-              borderRadius: 999,
+              borderRadius: 0,
               background: 'rgba(18,18,18,0.9)',
               border: '1px solid rgba(255,255,255,0.06)',
             }}
@@ -279,7 +279,7 @@ const SceneLaunch: React.FC = () => {
             <div
               style={{
                 padding: '14px 34px',
-                borderRadius: 999,
+                borderRadius: 0,
                 background: VELOCITY_RED,
                 color: 'white',
                 fontSize: 14,
@@ -315,7 +315,7 @@ const StepIcon: React.FC<{ index: number }> = ({ index }) => {
       style={{
         width: 44,
         height: 44,
-        borderRadius: 12,
+        borderRadius: 0,
         background: 'rgba(255,31,31,0.14)',
         border: `1px solid ${VELOCITY_RED}55`,
         display: 'flex',
@@ -421,7 +421,7 @@ const SceneAnalysis: React.FC = () => {
             alignItems: 'center',
             gap: 18,
             padding: '18px 32px',
-            borderRadius: 999,
+            borderRadius: 0,
             border: '1px solid rgba(255,255,255,0.08)',
             background: 'rgba(255,255,255,0.03)',
             minWidth: 560,
@@ -452,7 +452,7 @@ const SceneAnalysis: React.FC = () => {
                 style={{
                   width: isActive ? 14 : 10,
                   height: isActive ? 14 : 10,
-                  borderRadius: 999,
+                  borderRadius: 0,
                   background:
                     isDone || isActive ? VELOCITY_RED : 'rgba(255,255,255,0.1)',
                   boxShadow: isActive ? `0 0 16px ${VELOCITY_RED}` : 'none',
@@ -469,7 +469,7 @@ const SceneAnalysis: React.FC = () => {
             height: 4,
             background: 'rgba(255,255,255,0.08)',
             overflow: 'hidden',
-            borderRadius: 2,
+            borderRadius: 0,
           }}
         >
           <div
@@ -535,7 +535,7 @@ const ResultCard: React.FC<ResultCardProps> = ({ delay, children, style }) => {
       style={{
         opacity,
         transform: `translateY(${y}px) scale(${scale})`,
-        borderRadius: 18,
+        borderRadius: 0,
         border: '1px solid rgba(255,255,255,0.08)',
         background: 'rgba(255,255,255,0.03)',
         padding: 16,
@@ -608,7 +608,7 @@ const PhaseBanner: React.FC<{ label: string; accent?: string }> = ({
           style={{
             width: 6,
             height: 6,
-            borderRadius: 999,
+            borderRadius: 0,
             background: accent,
             boxShadow: `0 0 10px ${accent}`,
           }}
@@ -754,7 +754,7 @@ const ScenePhase1: React.FC = () => {
                   ratio={ratio}
                   index={i}
                   accent={
-                    i === 0 ? '#ffffff' : i === 1 ? '#FCD34D' : VELOCITY_RED
+                    i === 0 ? '#ffffff' : i === 1 ? '#71717A' : VELOCITY_RED
                   }
                 />
               ))}
@@ -772,9 +772,9 @@ const ScenePhase1: React.FC = () => {
             >
               <div
                 style={{
-                  border: '1px solid rgba(16,185,129,0.25)',
-                  background: 'rgba(16,185,129,0.06)',
-                  borderRadius: 14,
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  background: 'rgba(255,255,255,0.04)',
+                  borderRadius: 0,
                   padding: 12,
                 }}
               >
@@ -783,7 +783,7 @@ const ScenePhase1: React.FC = () => {
                     fontSize: 9,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color: '#6EE7B7',
+                    color: '#FFFFFF',
                     marginBottom: 6,
                   }}
                 >
@@ -794,14 +794,14 @@ const ScenePhase1: React.FC = () => {
                     'Clear weeknight-time pain',
                     'Recipes beat grocery delivery on value',
                   ]}
-                  dot="#34D399"
+                  dot="#FFFFFF"
                 />
               </div>
               <div
                 style={{
-                  border: '1px solid rgba(251,191,36,0.25)',
-                  background: 'rgba(251,191,36,0.06)',
-                  borderRadius: 14,
+                  border: '1px solid rgba(255,31,31,0.30)',
+                  background: 'rgba(255,31,31,0.07)',
+                  borderRadius: 0,
                   padding: 12,
                 }}
               >
@@ -810,7 +810,7 @@ const ScenePhase1: React.FC = () => {
                     fontSize: 9,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color: '#FCD34D',
+                    color: '#FF1F1F',
                     marginBottom: 6,
                   }}
                 >
@@ -821,7 +821,7 @@ const ScenePhase1: React.FC = () => {
                     'Recipe fatigue after 6 weeks',
                     'Grocery API coverage is thin',
                   ]}
-                  dot="#FBBF24"
+                  dot="#FF1F1F"
                 />
               </div>
             </div>
@@ -830,7 +830,7 @@ const ScenePhase1: React.FC = () => {
                 marginTop: 12,
                 border: '1px solid rgba(255,255,255,0.08)',
                 background: 'rgba(255,255,255,0.03)',
-                borderRadius: 14,
+                borderRadius: 0,
                 padding: 12,
               }}
             >
@@ -919,7 +919,7 @@ const MarketBar: React.FC<{
       <div
         style={{
           height: 8,
-          borderRadius: 6,
+          borderRadius: 0,
           background: 'rgba(255,255,255,0.06)',
           overflow: 'hidden',
         }}
@@ -929,7 +929,7 @@ const MarketBar: React.FC<{
             width: `${Math.max(width, 6)}%`,
             height: '100%',
             background: accent,
-            borderRadius: 6,
+            borderRadius: 0,
             boxShadow: `0 0 14px ${accent}66`,
           }}
         />
@@ -960,7 +960,7 @@ const BulletList: React.FC<{ items: string[]; dot: string }> = ({
             marginTop: 6,
             width: 5,
             height: 5,
-            borderRadius: 999,
+            borderRadius: 0,
             background: dot,
             flexShrink: 0,
           }}
@@ -1029,7 +1029,7 @@ const ScenePhase2: React.FC = () => {
           opacity,
         }}
       >
-        <PhaseBanner label="Phase 2: Strategy" accent="#60A5FA" />
+        <PhaseBanner label="Phase 2: Strategy" accent="#FFFFFF" />
 
         <div
           style={{
@@ -1040,7 +1040,7 @@ const ScenePhase2: React.FC = () => {
           }}
         >
           <ResultCard delay={2}>
-            <MiniLabel color="#93C5FD">Customer segments</MiniLabel>
+            <MiniLabel color="#A1A1AA">Customer segments</MiniLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {segments.map((s, i) => (
                 <SegmentRow key={s.name} seg={s} delay={8 + i * 6} />
@@ -1049,7 +1049,7 @@ const ScenePhase2: React.FC = () => {
           </ResultCard>
 
           <ResultCard delay={14}>
-            <MiniLabel color="#93C5FD">Monetization strategy</MiniLabel>
+            <MiniLabel color="#A1A1AA">Monetization strategy</MiniLabel>
             <div
               style={{
                 fontSize: 11,
@@ -1085,7 +1085,7 @@ const ScenePhase2: React.FC = () => {
                 marginTop: 12,
                 border: '1px solid rgba(255,255,255,0.08)',
                 background: 'rgba(255,255,255,0.03)',
-                borderRadius: 14,
+                borderRadius: 0,
                 padding: 12,
                 display: 'flex',
                 flexDirection: 'column',
@@ -1111,7 +1111,7 @@ const ScenePhase2: React.FC = () => {
                     style={{
                       width: 6,
                       height: 6,
-                      borderRadius: 999,
+                      borderRadius: 0,
                       background: VELOCITY_RED,
                       flexShrink: 0,
                     }}
@@ -1126,7 +1126,7 @@ const ScenePhase2: React.FC = () => {
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: '#93C5FD',
+                color: '#A1A1AA',
               }}
             >
               Who does this well
@@ -1147,7 +1147,7 @@ const ScenePhase2: React.FC = () => {
           </ResultCard>
 
           <ResultCard delay={26}>
-            <MiniLabel color="#93C5FD">Distribution channels</MiniLabel>
+            <MiniLabel color="#A1A1AA">Distribution channels</MiniLabel>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {channels.map((c, i) => (
                 <ChannelRow key={c.name} channel={c} delay={30 + i * 6} />
@@ -1177,7 +1177,7 @@ const SegmentRow: React.FC<{
   return (
     <div
       style={{
-        borderRadius: 14,
+        borderRadius: 0,
         border: '1px solid rgba(255,255,255,0.08)',
         background: 'rgba(255,255,255,0.03)',
         padding: 12,
@@ -1198,7 +1198,7 @@ const SegmentRow: React.FC<{
         </div>
         <div
           style={{
-            borderRadius: 999,
+            borderRadius: 0,
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(0,0,0,0.3)',
             padding: '3px 8px',
@@ -1218,7 +1218,7 @@ const SegmentRow: React.FC<{
         </div>
       </div>
       <div style={{ display: 'flex', gap: 6, marginTop: 4, fontSize: 12 }}>
-        <span style={{ color: '#60A5FA' }}>Income:</span>
+        <span style={{ color: '#71717A' }}>Income:</span>
         <span style={{ color: 'rgba(255,255,255,0.85)' }}>{seg.income}</span>
       </div>
     </div>
@@ -1242,7 +1242,7 @@ const ChannelRow: React.FC<{
   return (
     <div
       style={{
-        borderRadius: 14,
+        borderRadius: 0,
         border: '1px solid rgba(255,255,255,0.08)',
         background: 'rgba(255,255,255,0.03)',
         padding: '10px 12px',
@@ -1259,7 +1259,7 @@ const ChannelRow: React.FC<{
           style={{
             width: 8,
             height: 8,
-            borderRadius: 999,
+            borderRadius: 0,
             background: VELOCITY_RED,
             boxShadow: `0 0 12px ${VELOCITY_RED}88`,
             flexShrink: 0,
@@ -1281,7 +1281,7 @@ const ChannelRow: React.FC<{
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
         <span
           style={{
-            borderRadius: 999,
+            borderRadius: 0,
             border: '1px solid rgba(255,255,255,0.1)',
             background: 'rgba(0,0,0,0.3)',
             padding: '2px 8px',
@@ -1343,7 +1343,7 @@ const ScenePhase3: React.FC = () => {
           opacity,
         }}
       >
-        <PhaseBanner label="Phase 3: Execution" accent="#A78BFA" />
+        <PhaseBanner label="Phase 3: Execution" accent="#FFFFFF" />
 
         <div
           style={{
@@ -1362,7 +1362,7 @@ const ScenePhase3: React.FC = () => {
                 marginBottom: 10,
               }}
             >
-              <MiniLabel color="#C4B5FD">Waitlist page</MiniLabel>
+              <MiniLabel color="#A1A1AA">Waitlist page</MiniLabel>
               <div
                 style={{
                   display: 'flex',
@@ -1378,9 +1378,9 @@ const ScenePhase3: React.FC = () => {
                   style={{
                     width: 6,
                     height: 6,
-                    borderRadius: 999,
-                    background: '#22c55e',
-                    boxShadow: '0 0 8px #22c55e',
+                    borderRadius: 0,
+                    background: '#FF1F1F',
+                    boxShadow: '0 0 8px #FF1F1F',
                   }}
                 />
                 Live preview
@@ -1389,10 +1389,10 @@ const ScenePhase3: React.FC = () => {
 
             <div
               style={{
-                borderRadius: 14,
+                borderRadius: 0,
                 border: '1px solid rgba(255,255,255,0.08)',
                 background:
-                  'radial-gradient(ellipse at top, rgba(167,139,250,0.12) 0%, rgba(167,139,250,0) 60%), rgba(10,10,10,0.7)',
+                  'radial-gradient(ellipse at top, rgba(255,31,31,0.10) 0%, rgba(255,31,31,0) 60%), rgba(10,10,10,0.7)',
                 padding: 22,
                 display: 'flex',
                 flexDirection: 'column',
@@ -1406,13 +1406,13 @@ const ScenePhase3: React.FC = () => {
                   alignItems: 'center',
                   gap: 8,
                   padding: '4px 10px',
-                  borderRadius: 999,
-                  border: '1px solid rgba(167,139,250,0.25)',
-                  background: 'rgba(167,139,250,0.08)',
+                  borderRadius: 0,
+                  border: '1px solid rgba(255,255,255,0.18)',
+                  background: 'rgba(255,255,255,0.04)',
                   fontSize: 10,
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
-                  color: '#C4B5FD',
+                  color: '#A1A1AA',
                   width: 'fit-content',
                 }}
               >
@@ -1446,7 +1446,7 @@ const ScenePhase3: React.FC = () => {
                   gap: 8,
                   marginTop: 6,
                   padding: 4,
-                  borderRadius: 999,
+                  borderRadius: 0,
                   background: 'rgba(255,255,255,0.05)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   maxWidth: 420,
@@ -1465,7 +1465,7 @@ const ScenePhase3: React.FC = () => {
                 <div
                   style={{
                     padding: '8px 16px',
-                    borderRadius: 999,
+                    borderRadius: 0,
                     background: VELOCITY_RED,
                     color: 'white',
                     fontSize: 11,
@@ -1492,9 +1492,9 @@ const ScenePhase3: React.FC = () => {
                   style={{
                     width: 8,
                     height: 8,
-                    borderRadius: 999,
-                    background: '#22c55e',
-                    boxShadow: '0 0 10px #22c55e',
+                    borderRadius: 0,
+                    background: '#FF1F1F',
+                    boxShadow: '0 0 10px #FF1F1F',
                   }}
                 />
                 <span style={{ color: 'white', fontWeight: 700 }}>
@@ -1514,7 +1514,7 @@ const ScenePhase3: React.FC = () => {
                 marginBottom: 10,
               }}
             >
-              <MiniLabel color="#C4B5FD">Pitch deck</MiniLabel>
+              <MiniLabel color="#A1A1AA">Pitch deck</MiniLabel>
               <div
                 style={{
                   fontSize: 10,
@@ -1543,7 +1543,7 @@ const ScenePhase3: React.FC = () => {
               style={{
                 width: 6,
                 height: 36,
-                borderRadius: 2,
+                borderRadius: 0,
                 background: VELOCITY_RED,
                 boxShadow: `0 0 14px ${VELOCITY_RED}88`,
               }}
@@ -1562,7 +1562,7 @@ const ScenePhase3: React.FC = () => {
             <div
               style={{
                 padding: '8px 16px',
-                borderRadius: 999,
+                borderRadius: 0,
                 border: '1px solid rgba(255,255,255,0.15)',
                 background: 'rgba(255,255,255,0.05)',
                 fontSize: 10,
@@ -1598,7 +1598,7 @@ const SlideStack: React.FC = () => {
       <div
         style={{
           position: 'relative',
-          borderRadius: 14,
+          borderRadius: 0,
           border: '1px solid rgba(255,255,255,0.08)',
           background:
             'radial-gradient(ellipse at bottom right, rgba(255,31,31,0.12) 0%, rgba(255,31,31,0) 60%), rgba(10,10,10,0.7)',
@@ -1643,7 +1643,7 @@ const SlideStack: React.FC = () => {
                 style={{
                   width: i === activeIndex ? 18 : 6,
                   height: 3,
-                  borderRadius: 2,
+                  borderRadius: 0,
                   background:
                     i === activeIndex
                       ? VELOCITY_RED
