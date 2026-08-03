@@ -73,7 +73,7 @@ export const EventsPage: React.FC = () => {
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.35em] text-zinc-500">
-            Events <span className="text-velocity-red">//</span> {seasonLabel}
+            Events <span className="text-velocity-red">{seasonLabel}</span>
           </p>
           <h1 className="max-w-3xl font-sans text-4xl font-bold tracking-tight text-white md:text-6xl">
             The season ahead<span className="text-velocity-red">.</span>
@@ -410,7 +410,7 @@ const EventBrief: React.FC<{ event: VelocityEventPack; onClose: () => void }> = 
         {/* Sticky brief bar */}
         <div className="sticky top-0 z-20 flex items-center justify-between border-b border-white/10 bg-velocity-black/95 px-6 py-4 backdrop-blur-md md:px-10">
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-            Event brief <span className="text-velocity-red">//</span> {event.no}
+            Event brief <span className="text-velocity-red">{event.no}</span>
           </p>
           <button
             type="button"

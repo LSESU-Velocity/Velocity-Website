@@ -52,7 +52,7 @@ export const PartnersJoin: React.FC = () => {
           className="text-center"
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            Get involved <span className="text-velocity-red">//</span> Two ways in
+            Get involved <span className="text-velocity-red">Two ways in</span>
           </p>
           <h2 className="mx-auto mt-6 max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
             Pick your side of the room<span className="text-velocity-red">.</span>
@@ -148,7 +148,7 @@ export const PartnersJoin: React.FC = () => {
           {/* Students door */}
           <div className="bg-velocity-black p-8 md:p-10">
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-              01 <span className="text-velocity-red">//</span> Students
+              <span className="text-velocity-red">01</span> Students
             </p>
             <h3 className="mt-5 font-sans text-2xl font-bold tracking-tight text-white md:text-3xl">
               Build with us<span className="text-velocity-red">.</span>
@@ -176,7 +176,7 @@ export const PartnersJoin: React.FC = () => {
           {/* Sponsors door */}
           <div className="bg-velocity-black p-8 md:p-10">
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-              02 <span className="text-velocity-red">//</span> Partners
+              <span className="text-velocity-red">02</span> Partners
             </p>
             <h3 className="mt-5 font-sans text-2xl font-bold tracking-tight text-white md:text-3xl">
               Back the builders<span className="text-velocity-red">.</span>

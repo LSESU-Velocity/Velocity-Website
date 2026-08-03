@@ -324,7 +324,7 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
 
                             <div className="min-w-0 bg-velocity-black p-4">
                                 <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">
-                                    Your gap <span className="text-velocity-red">//</span>
+                                    Your gap
                                 </p>
                                 <p className="mt-3 font-sans text-[13px] leading-relaxed text-white">
                                     {marketGap.yourGap}
@@ -349,7 +349,7 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                             <div key={item.key} className="min-w-0">
                                 <div className="flex items-baseline justify-between gap-4">
                                     <p className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-500">
-                                        <span className="text-white">{item.label}</span> <span className="text-velocity-red">//</span> {item.title}
+                                        <span className="text-velocity-red">{item.label}</span> {item.title}
                                     </p>
                                     <p className="flex-shrink-0 font-mono text-lg leading-none tracking-tight text-white">
                                         <CountUpNumber value={item.value} format={formatCompactUsers} />

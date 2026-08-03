@@ -283,7 +283,7 @@ export const PhaseDivider: React.FC<{ no: string; label: string }> = ({ no, labe
     return (
         <div ref={ref} className="flex items-center gap-4">
             <p data-divider-label className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                {no} <span className="text-velocity-red">//</span> {label}
+                <span className="text-velocity-red">{no}</span> {label}
             </p>
             <div data-divider-line="right" className="h-px min-w-0 flex-1 bg-white/10" />
         </div>
@@ -411,7 +411,7 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                 className="group flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-4 text-left transition-colors hover:bg-velocity-darkRed/10 md:px-5"
             >
                 <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-                    What if <span className="text-velocity-red">//</span> {title}
+                    What if <span className="text-velocity-red">{title}</span>
                 </span>
                 <span className="ml-auto flex flex-shrink-0 items-center gap-1.5 border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-400 transition-colors group-hover:border-velocity-red/60 group-hover:text-white md:order-last">
                     {expanded ? 'Close' : 'Try it'}
@@ -438,7 +438,7 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                     </p>
 
                     <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">
-                        Rewrite <span className="text-velocity-red">//</span>
+                        Rewrite
                     </p>
                     <div className="mt-2 flex flex-wrap gap-px bg-white/10 p-px">
                         {PHASE_TARGETS[phaseId].map((target) => {
@@ -472,8 +472,8 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                         }}
                         className="mt-3 flex w-full min-w-0 items-baseline gap-2 border border-dashed border-white/20 px-3 py-2.5 text-left font-mono text-[11px] text-zinc-400 transition-colors hover:border-velocity-red/50 hover:text-white"
                     >
-                        <span className="flex-shrink-0 uppercase tracking-[0.2em] text-zinc-500">
-                            Try <span className="text-velocity-red">//</span>
+                        <span className="flex-shrink-0 uppercase tracking-[0.2em] text-velocity-red">
+                            Try
                         </span>
                         <span className="min-w-0">{getScenarioExample(targetId)}</span>
                     </button>
@@ -494,7 +494,7 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                     <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                         {latestPrompt ? (
                             <p className="min-w-0 font-mono text-[10px] uppercase tracking-[0.16em] text-zinc-500">
-                                Last update <span className="text-velocity-red">//</span>{' '}
+                                Last update{' '}
                                 <span className="normal-case tracking-normal text-zinc-300">{latestPrompt.summary}</span>
                             </p>
                         ) : (

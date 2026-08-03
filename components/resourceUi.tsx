@@ -27,7 +27,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ current }) => (
 
 export const Eyebrow: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.3em] text-zinc-500">
-    <span className="text-velocity-red">///</span> {children}
+    {children}
   </p>
 );
 
@@ -58,7 +58,7 @@ interface SectionLabelProps {
 export const SectionLabel: React.FC<SectionLabelProps> = ({ children, className = '' }) => (
   <div className={`flex items-center gap-4 ${className}`}>
     <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
-      <span className="text-velocity-red">///</span> {children}
+      {children}
     </span>
     <span aria-hidden className="h-px flex-1 bg-white/10" />
   </div>

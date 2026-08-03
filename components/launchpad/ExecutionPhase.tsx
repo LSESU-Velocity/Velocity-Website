@@ -62,7 +62,7 @@ export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
             <div ref={terminalRef} className="flex min-w-0 flex-col bg-velocity-black xl:col-span-4">
                 <div className="flex min-w-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
                     <p className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
-                        Build prompt <span className="text-velocity-red">//</span> Step {pad((promptChainIndex % promptSteps.length) + 1)}/{pad(promptSteps.length)}
+                        Build prompt <span className="text-velocity-red">Step {pad((promptChainIndex % promptSteps.length) + 1)}/{pad(promptSteps.length)}</span>
                     </p>
                     {promptSteps.length > 1 && (
                         <div className="flex flex-shrink-0 items-center gap-1.5">
@@ -135,7 +135,7 @@ export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
             <div className="flex min-w-0 flex-col bg-velocity-black xl:col-span-8">
                 <div className="flex min-w-0 items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
                     <p className="min-w-0 truncate font-mono text-[10px] uppercase tracking-[0.24em] text-zinc-500">
-                        Founder assets <span className="text-velocity-red">//</span> Waitlist + deck
+                        Founder assets <span className="text-velocity-red">Waitlist + deck</span>
                     </p>
                 </div>
 
@@ -220,7 +220,7 @@ export const ExecutionPhase: React.FC<ExecutionPhaseProps> = ({
                 ) : (
                     <div className="flex flex-wrap items-center justify-between gap-4 px-5 py-5">
                         <p className="min-w-0 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">
-                            No assets <span className="text-velocity-red">//</span> Generate waitlist + deck
+                            No assets <span className="text-velocity-red">Generate waitlist + deck</span>
                         </p>
                         <button
                             onClick={onGenerateFounderAssets}

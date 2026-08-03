@@ -141,7 +141,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                 >
                     <div className="flex items-start justify-between gap-4">
                         <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                            Model access <span className="text-velocity-red">//</span> BYOK
+                            Model access <span className="text-velocity-red">BYOK</span>
                         </p>
                         <button
                             onClick={onClose}

@@ -67,7 +67,7 @@ export const VelocityExplainer: React.FC = () => {
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            What is Velocity <span className="text-velocity-red">//</span> Est. 2025
+            What is Velocity <span className="text-velocity-red">Est. 2025</span>
           </p>
           <h2 className="mt-6 max-w-3xl font-sans text-[2.15rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
             LSE&rsquo;s AI builders&rsquo; society<span className="text-velocity-red">.</span>
@@ -76,7 +76,7 @@ export const VelocityExplainer: React.FC = () => {
             We exist so students ship real products, not just essays about them.
           </p>
           <p className="mt-7 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-            Born at LSE <span className="text-velocity-red/70">//</span> 2025
+            Born at LSE <span className="text-velocity-red/70">2025</span>
           </p>
         </motion.header>
 

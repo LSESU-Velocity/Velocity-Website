@@ -20,7 +20,7 @@ export const SeasonStats: React.FC = () => {
     <section className="relative px-6 pb-24 md:pb-32">
       <div className="mx-auto max-w-5xl">
         <p className="mb-6 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-          By the numbers <span className="text-velocity-red">//</span> 2026&ndash;27
+          By the numbers <span className="text-velocity-red">2026&ndash;27</span>
         </p>
 
         <div className="grid grid-cols-2 gap-px border border-white/10 bg-white/10 md:grid-cols-4">

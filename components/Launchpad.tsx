@@ -603,7 +603,7 @@ export const Launchpad: React.FC = () => {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]"
           >
-            Launchpad <span className="text-velocity-red">//</span> Idea in. Analysis out.
+            Launchpad <span className="text-velocity-red">Idea in. Analysis out.</span>
           </motion.p>
 
           <h1 className="mt-8 flex w-full select-none flex-col items-center leading-[0.85]">
@@ -639,7 +639,7 @@ export const Launchpad: React.FC = () => {
             <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.26em] text-zinc-500">
               {STAGE_RAIL.map((stage, index) => (
                 <React.Fragment key={stage}>
-                  {index > 0 && <span className="text-velocity-red">/</span>}
+                  {index > 0 && <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red" />}
                   <span>{stage}</span>
                 </React.Fragment>
               ))}
@@ -656,8 +656,7 @@ export const Launchpad: React.FC = () => {
             {apiKey ? (
               <span className="inline-flex items-center gap-2 border border-white/15 px-3 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
                 <Key className="h-3 w-3 text-velocity-red" />
-                Model <span className="text-velocity-red">//</span>
-                {PROVIDER_LABELS[detectKeyProvider(apiKey)]} connected
+                Model <span className="text-velocity-red">{PROVIDER_LABELS[detectKeyProvider(apiKey)]}</span> connected
                 <button
                   onClick={handleClearKey}
                   className="ml-1 text-zinc-500 transition-colors hover:text-white"
@@ -748,7 +747,7 @@ export const Launchpad: React.FC = () => {
             {branchingFromId && !isGenerating && (
               <div className="mt-px flex flex-wrap items-center gap-3 border border-velocity-red/40 px-4 py-3 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
                 <GitBranch className="h-3 w-3 flex-shrink-0 text-velocity-red" />
-                Branch mode <span className="text-velocity-red">//</span> Edit, then rerun
+                Branch mode <span className="text-velocity-red">Edit, then rerun</span>
                 <button
                   type="button"
                   onClick={() => { setBranchingFromId(null); handleStartNewAnalysis(); }}
@@ -773,7 +772,7 @@ export const Launchpad: React.FC = () => {
             className="mx-auto mt-8 w-full max-w-3xl border border-velocity-red/40 bg-velocity-black p-5 text-left md:p-6"
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
-              Clarify <span className="text-velocity-red">//</span> A few quick questions
+              Clarify <span className="text-velocity-red">A few quick questions</span>
             </p>
 
             <div className="mt-5 space-y-4">
@@ -836,7 +835,7 @@ export const Launchpad: React.FC = () => {
           >
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                Build log <span className="text-velocity-red">//</span> {completedNodes.length}/{TOTAL_NODES}
+                Build log <span className="text-velocity-red">{completedNodes.length}/{TOTAL_NODES}</span>
               </p>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
                 {activeNodeLabel}
@@ -900,7 +899,7 @@ export const Launchpad: React.FC = () => {
                     <span aria-hidden className={`mt-[7px] h-1.5 w-1.5 flex-shrink-0 ${LIVE_FEED_MARKERS[entry.tone]}`} />
                     <p className="min-w-0 font-mono text-[11px] leading-relaxed">
                       <span className={`uppercase tracking-[0.16em] ${LIVE_FEED_TONES[entry.tone]}`}>
-                        {entry.label} <span className="text-velocity-red">//</span>
+                        {entry.label}
                       </span>{' '}
                       <span className="text-zinc-400">{entry.detail}</span>
                     </p>
@@ -930,7 +929,7 @@ export const Launchpad: React.FC = () => {
             className="mx-auto mt-12 w-full max-w-4xl"
           >
             <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-              Live demo <span className="text-velocity-red">//</span> Idea to build plan
+              Live demo <span className="text-velocity-red">Idea to build plan</span>
             </p>
             <div className="border border-white/10 bg-velocity-black">
               <Suspense

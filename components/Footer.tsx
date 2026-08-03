@@ -8,7 +8,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
 
         <div className="flex flex-col items-center md:items-start text-center md:text-left gap-2">
-          <p className="font-sans text-xs text-gray-500 tracking-[0.2em]">EST. 2025 // LSE</p>
+          <p className="font-sans text-xs text-gray-500 tracking-[0.2em]">EST. 2025 <span className="text-velocity-red">LSE</span></p>
           <a href="mailto:velocity@lsesu.org" className="font-sans text-sm text-gray-400 hover:text-white transition-colors tracking-wide">
             velocity@lsesu.org
           </a>

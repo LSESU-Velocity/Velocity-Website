@@ -90,7 +90,7 @@ const FinaleStage: React.FC = () => {
           >
             {CADENCE.map((word, index) => (
               <React.Fragment key={word}>
-                {index > 0 && <span className="text-velocity-red">/</span>}
+                {index > 0 && <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red" />}
                 <span>{word}</span>
               </React.Fragment>
             ))}
@@ -177,7 +177,7 @@ const FinaleStill: React.FC = () => (
       <div className="mt-7 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.35em] text-zinc-400 sm:gap-4 sm:text-[11px]">
         {CADENCE.map((word, index) => (
           <React.Fragment key={word}>
-            {index > 0 && <span className="text-velocity-red">/</span>}
+            {index > 0 && <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red" />}
             <span>{word}</span>
           </React.Fragment>
         ))}

@@ -10,7 +10,7 @@ interface Stage {
 }
 
 const STAGES: Stage[] = [
-  { no: '01', label: 'Bull / Bear council' },
+  { no: '01', label: 'Bull vs Bear council' },
   { no: '02', label: 'Market sizing' },
   { no: '03', label: 'Competitor map' },
   { no: '04', label: 'MVP prompt chain' },
@@ -45,7 +45,7 @@ export const BuildProof: React.FC = () => {
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            Built by Velocity <span className="text-velocity-red">//</span>
+            Built by Velocity
           </p>
           <h2 className="mt-6 max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
             We build our own tools<span className="text-velocity-red">.</span>
@@ -71,7 +71,7 @@ export const BuildProof: React.FC = () => {
         {/* Everything else we keep open for builders */}
         <div className="mt-16">
           <p className="mb-5 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-            Also open <span className="text-velocity-red">//</span> Free to use
+            Also open <span className="text-velocity-red">Free to use</span>
           </p>
           <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 sm:grid-cols-3">
             {liveResourceCatalog.map((resource) => {
@@ -150,7 +150,7 @@ const PipelineWide: React.FC<{ still: boolean }> = ({ still }) => {
     <div ref={ref} className="hidden lg:block">
       {/* The visual runs right-to-left rows; give AT the flow in one line instead. */}
       <p className="sr-only">
-        Rough idea in, then Bull / Bear council, Market sizing, Competitor map and
+        Rough idea in, then Bull vs Bear council, Market sizing, Competitor map and
         MVP prompt chain, startup analysis out.
       </p>
       <div aria-hidden>

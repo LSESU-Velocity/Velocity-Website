@@ -182,7 +182,7 @@ export const SavedRunsPanel: React.FC<SavedRunsPanelProps> = ({
         >
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                    Run archive <span className="text-velocity-red">//</span> {records.length} saved
+                    Run archive <span className="text-velocity-red">{records.length} saved</span>
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                     {compareRecords.length === 2 && (
@@ -349,7 +349,7 @@ export const SavedRunsPanel: React.FC<SavedRunsPanelProps> = ({
                         >
                             <div className="flex items-start justify-between gap-4">
                                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                                    Branch compare <span className="text-velocity-red">//</span> 02 runs
+                                    Branch compare <span className="text-velocity-red">02 runs</span>
                                 </p>
                                 <button
                                     type="button"

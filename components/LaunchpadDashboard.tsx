@@ -195,7 +195,7 @@ export const LaunchpadDashboard: React.FC<LaunchpadDashboardProps> = ({
             <div data-reveal className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 md:grid-cols-12">
                 <div className="min-w-0 bg-velocity-black p-5 md:col-span-6 md:p-6">
                     <p className="truncate font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-                        Report <span className="text-velocity-red">//</span> {data.identity.name}
+                        Report <span className="text-velocity-red">{data.identity.name}</span>
                     </p>
                     <h2 className="mt-4 font-sans text-3xl font-bold tracking-tight text-white md:text-4xl">
                         {data.identity.name}<span className="text-velocity-red">.</span>

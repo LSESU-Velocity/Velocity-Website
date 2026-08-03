@@ -21,7 +21,7 @@ export const SeasonProgramme: React.FC = () => {
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
           <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            Events <span className="text-velocity-red">//</span> 2026&ndash;27 season
+            Events <span className="text-velocity-red">2026&ndash;27 season</span>
           </p>
           <div className="mt-6 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
             <h2 className="font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">

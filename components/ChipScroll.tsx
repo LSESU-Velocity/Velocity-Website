@@ -438,9 +438,9 @@ export const ChipScroll: React.FC = () => {
                                 style={{ animationDelay: '750ms' }}
                             >
                                 <span>Build</span>
-                                <span className="text-velocity-red/80">/</span>
+                                <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red/80" />
                                 <span>Test</span>
-                                <span className="text-velocity-red/80">/</span>
+                                <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red/80" />
                                 <span>Iterate</span>
                             </p>
                         </div>
