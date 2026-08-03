@@ -18,6 +18,7 @@ import {
   type WidgetTargetId,
 } from '../lib/api';
 import { LaunchpadDashboard } from './LaunchpadDashboard';
+import { AnimatedText } from './LaunchpadWidgets';
 import { SavedRunsPanel } from './launchpad/SavedRunsPanel';
 import { deleteSavedAnalysis, getSavedAnalyses, type SavedLaunchpadAnalysis, upsertSavedAnalysis } from '../lib/launchpad-storage';
 
@@ -595,7 +596,7 @@ export const Launchpad: React.FC = () => {
         )}
 
         {/* Hero + command bar */}
-        <div className="max-w-4xl">
+        <div className="mx-auto flex w-full max-w-4xl flex-col items-center text-center">
           <motion.p
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -605,29 +606,23 @@ export const Launchpad: React.FC = () => {
             Launchpad <span className="text-velocity-red">//</span> Idea in. Analysis out.
           </motion.p>
 
-          <h1 className="mt-6 font-sans text-[2.5rem] font-bold leading-[1.02] tracking-tight text-white sm:text-5xl md:text-6xl">
-            <motion.span
-              className="block"
-              initial={still ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: still ? 0 : 0.06, ease: 'easeOut' }}
-            >
-              Got an idea?
-            </motion.span>
-            <motion.span
-              className="block text-velocity-red"
-              initial={still ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: still ? 0 : 0.16, ease: 'easeOut' }}
-            >
-              Start here.
-            </motion.span>
+          <h1 className="mt-8 flex w-full select-none flex-col items-center leading-[0.85]">
+            <AnimatedText
+              text="Got an idea?"
+              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-white"
+              delay={0.2}
+            />
+            <AnimatedText
+              text="Start here."
+              className="font-sans font-extrabold text-5xl md:text-7xl lg:text-8xl tracking-tighter text-velocity-red pb-4"
+              delay={1.5}
+            />
           </h1>
 
           <motion.p
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: still ? 0 : 0.24, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: still ? 0 : 1.4, ease: 'easeOut' }}
             className="mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base"
           >
             A rough spark goes in. Market, customers, risks, monetization, distribution
@@ -638,10 +633,10 @@ export const Launchpad: React.FC = () => {
           <motion.div
             initial={still ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: still ? 0 : 0.3 }}
-            className="mt-8 border-y border-white/10 py-3"
+            transition={{ duration: 0.4, delay: still ? 0 : 1.5 }}
+            className="mt-8 w-full border-y border-white/10 py-3"
           >
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.26em] text-zinc-500">
+            <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.26em] text-zinc-500">
               {STAGE_RAIL.map((stage, index) => (
                 <React.Fragment key={stage}>
                   {index > 0 && <span className="text-velocity-red">/</span>}
@@ -655,7 +650,7 @@ export const Launchpad: React.FC = () => {
           <motion.div
             initial={still ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: still ? 0 : 0.34 }}
+            transition={{ duration: 0.4, delay: still ? 0 : 1.6 }}
             className="mt-8"
           >
             {apiKey ? (
@@ -686,9 +681,9 @@ export const Launchpad: React.FC = () => {
           <motion.form
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, delay: still ? 0 : 0.38, ease: 'easeOut' }}
+            transition={{ duration: 0.45, delay: still ? 0 : 1.6, ease: 'easeOut' }}
             onSubmit={handleLaunch}
-            className="relative z-20 mt-3"
+            className="relative z-20 mt-3 w-full max-w-3xl text-left"
           >
             <label htmlFor="launchpad-idea" className="sr-only">
               Describe your startup idea
@@ -775,7 +770,7 @@ export const Launchpad: React.FC = () => {
             initial={still ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="mt-8 max-w-4xl border border-velocity-red/40 bg-velocity-black p-5 md:p-6"
+            className="mx-auto mt-8 w-full max-w-3xl border border-velocity-red/40 bg-velocity-black p-5 text-left md:p-6"
           >
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
               Clarify <span className="text-velocity-red">//</span> A few quick questions
@@ -835,7 +830,7 @@ export const Launchpad: React.FC = () => {
             initial={still ? false : { opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="mt-10"
+            className="mx-auto mt-10 w-full max-w-4xl"
             role="status"
             aria-live="polite"
           >
@@ -931,10 +926,10 @@ export const Launchpad: React.FC = () => {
           <motion.div
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: still ? 0 : 0.45, ease: 'easeOut' }}
-            className="mt-12 max-w-4xl"
+            transition={{ duration: 0.5, delay: still ? 0 : 1.8, ease: 'easeOut' }}
+            className="mx-auto mt-12 w-full max-w-4xl"
           >
-            <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+            <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
               Live demo <span className="text-velocity-red">//</span> Idea to build plan
             </p>
             <div className="border border-white/10 bg-velocity-black">

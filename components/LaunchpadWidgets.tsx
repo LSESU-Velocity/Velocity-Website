@@ -4,7 +4,73 @@
  * draws the hairlines instead of each cell carrying its own border.
  */
 import React from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion, type Variants } from 'framer-motion';
+
+/**
+ * Letter-cascade heading for the Launchpad hero: words stay intact, letters
+ * rise out of a blur one by one. Renders as static text under reduced motion.
+ */
+export const AnimatedText = ({
+    text,
+    className,
+    delay = 0,
+}: {
+    text: string;
+    className?: string;
+    delay?: number;
+}) => {
+    const prefersReducedMotion = useReducedMotion();
+
+    if (prefersReducedMotion) {
+        return (
+            <span className={`flex flex-wrap justify-center gap-x-[0.25em] ${className ?? ''}`}>
+                {text}
+            </span>
+        );
+    }
+
+    const container: Variants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: { staggerChildren: 0.06, delayChildren: delay },
+        },
+    };
+
+    const child: Variants = {
+        visible: {
+            opacity: 1,
+            y: 0,
+            filter: 'blur(0px)',
+            transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] },
+        },
+        hidden: {
+            opacity: 0,
+            y: 20,
+            filter: 'blur(10px)',
+            transition: { duration: 0.8, ease: [0.2, 0.65, 0.3, 0.9] },
+        },
+    };
+
+    return (
+        <motion.span
+            variants={container}
+            initial="hidden"
+            animate="visible"
+            className={`flex flex-wrap justify-center gap-x-[0.25em] ${className ?? ''}`}
+        >
+            {text.split(' ').map((word, index) => (
+                <span key={index} className="inline-block whitespace-nowrap">
+                    {Array.from(word).map((letter, letterIndex) => (
+                        <motion.span variants={child} key={letterIndex} className="inline-block">
+                            {letter}
+                        </motion.span>
+                    ))}
+                </span>
+            ))}
+        </motion.span>
+    );
+};
 
 export interface WidgetProps {
     /** Mono kicker shown at the top of the cell. */

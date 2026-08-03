@@ -178,7 +178,7 @@ export const SavedRunsPanel: React.FC<SavedRunsPanelProps> = ({
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: 'easeOut' }}
-            className="mt-12 max-w-4xl"
+            className="mx-auto mt-12 w-full max-w-4xl"
         >
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">

@@ -184,7 +184,17 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                     }
                 >
                     <div className="flex h-full min-w-0 flex-col border border-white/10">
-                        <div ref={mapRef} className="relative min-h-[260px] flex-1 overflow-hidden">
+                        {/* The map keeps a glass finish (gradient sheen, inner
+                            glow, blurred chips) so pin positions read against
+                            depth; corners stay square. */}
+                        <div
+                            ref={mapRef}
+                            className="relative min-h-[260px] flex-1 overflow-hidden bg-[linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)_55%,rgba(255,255,255,0.01))] shadow-[inset_0_1px_0_rgba(255,255,255,0.07),inset_0_0_28px_rgba(255,255,255,0.02)]"
+                        >
+                            <div
+                                aria-hidden
+                                className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,31,31,0.07),transparent_58%)]"
+                            />
                             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
                                 <div data-map-axis="x" className="h-px w-full bg-white/10" />
                                 <div className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2">
@@ -192,16 +202,16 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                                 </div>
                             </div>
 
-                            <span className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400">
+                            <span className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 backdrop-blur-sm">
                                 {marketGap.yAxis.high}
                             </span>
-                            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400">
+                            <span className="pointer-events-none absolute bottom-2 left-1/2 -translate-x-1/2 border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 backdrop-blur-sm">
                                 {marketGap.yAxis.low}
                             </span>
-                            <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400">
+                            <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 backdrop-blur-sm">
                                 {marketGap.xAxis.low}
                             </span>
-                            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400">
+                            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 border border-white/10 bg-black/40 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-400 backdrop-blur-sm">
                                 {marketGap.xAxis.high}
                             </span>
 
@@ -224,10 +234,10 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                                         >
                                             <span
                                                 data-map-pin
-                                                className={`flex items-center gap-1.5 border px-1.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] transition-colors ${
+                                                className={`flex items-center gap-1.5 border px-1.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] backdrop-blur-sm transition-colors ${
                                                     isActive
-                                                        ? 'border-velocity-red/60 bg-velocity-darkRed/40 text-white'
-                                                        : 'border-white/15 bg-velocity-black text-zinc-500 hover:text-white'
+                                                        ? 'border-velocity-red/60 bg-velocity-darkRed/50 text-white shadow-[0_0_18px_rgba(255,31,31,0.2)]'
+                                                        : 'border-white/15 bg-black/60 text-zinc-400 hover:text-white'
                                                 }`}
                                             >
                                                 <span aria-hidden className={`h-1.5 w-1.5 flex-shrink-0 ${isActive ? 'bg-velocity-red' : 'bg-white/40'}`} />
@@ -246,7 +256,7 @@ export const ValidationPhase: React.FC<ValidationPhaseProps> = ({
                                 >
                                     <div data-map-you className="relative">
                                         <span data-map-pulse aria-hidden className="pointer-events-none absolute inset-0 border border-velocity-red/60" />
-                                        <div className="relative flex items-center gap-1.5 border border-velocity-red/60 bg-velocity-darkRed/40 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-white">
+                                        <div className="relative flex items-center gap-1.5 border border-velocity-red/60 bg-velocity-darkRed/50 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.16em] text-white shadow-[0_0_22px_rgba(255,31,31,0.28)] backdrop-blur-sm">
                                             <span aria-hidden className="h-1.5 w-1.5 bg-velocity-red shadow-[0_0_10px_rgba(255,31,31,0.8)]" />
                                             You
                                         </div>
