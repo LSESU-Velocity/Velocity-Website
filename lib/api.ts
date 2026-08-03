@@ -17,7 +17,7 @@ const IS_DEV = import.meta.env.DEV;
 const USE_MOCK_ANALYSIS = import.meta.env.VITE_USE_MOCK_ANALYSIS === 'true';
 
 /**
- * The dashboard contract is the zod DashboardDTO — the server parses its
+ * The dashboard contract is the zod DashboardDTO: the server parses its
  * responses against the same schema this type derives from.
  */
 export type AnalysisData = DashboardDTO;
@@ -269,7 +269,7 @@ export interface ClarificationQuestion {
 export interface InterruptEvent {
     reason: string;
     questions: ClarificationQuestion[];
-    /** Intake extracted before the interrupt — returned on resume to skip re-classification. */
+    /** Intake extracted before the interrupt, returned on resume to skip re-classification. */
     partialIntake?: AnalysisIntake | null;
 }
 

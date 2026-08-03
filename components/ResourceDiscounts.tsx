@@ -61,7 +61,7 @@ const discounts: Discount[] = [
     id: 'perplexity',
     name: 'Perplexity',
     category: 'AI Models & APIs',
-    perk: 'Education Pro — discounted plan',
+    perk: 'Education Pro: discounted plan',
     description:
       'Verified students and educators get a discounted Pro plan with Learn Mode, file uploads, premium models, and education-specific nudges.',
     howTo: 'Upgrade inside Perplexity and verify your student status with SheerID.',
@@ -84,7 +84,7 @@ const discounts: Discount[] = [
     id: 'figma',
     name: 'Figma',
     category: 'Design',
-    perk: 'Education plan — free',
+    perk: 'Education plan: free',
     description:
       'Verified students get access to Figma education teams with professional paid tools, including FigJam and Dev Mode.',
     howTo: 'Create a Figma account, then complete the verification flow on the Education page.',
@@ -106,7 +106,7 @@ const discounts: Discount[] = [
     id: 'framer',
     name: 'Framer',
     category: 'Design',
-    perk: 'Basic plan + AI tools — free',
+    perk: 'Basic plan + AI tools: free',
     description:
       'Students get a free Basic site plan worth $120/year, full design canvas access, and free AI tools for portfolios or project sites.',
     howTo: 'Apply with your school email, graduation date, and a photo of your student ID.',
@@ -128,7 +128,7 @@ const discounts: Discount[] = [
     id: 'microsoft',
     name: 'Microsoft 365',
     category: 'Productivity',
-    perk: 'Office 365 Education — free',
+    perk: 'Office 365 Education: free',
     description:
       'Eligible students at qualified institutions can get Word, Excel, PowerPoint, Teams, and related education services at no cost.',
     howTo: 'Check eligibility with your school account through Microsoft Education.',
@@ -184,7 +184,7 @@ const discounts: Discount[] = [
     id: 'codespaces',
     name: 'GitHub Codespaces',
     category: 'Infrastructure',
-    perk: 'Pro-level access — free',
+    perk: 'Pro-level access: free',
     description:
       'Spin up cloud development environments in your GitHub account without paying for the usual Pro-level tier.',
     howTo: 'Verify on GitHub Education and activate Codespaces from the Student Developer Pack.',
@@ -196,7 +196,7 @@ const discounts: Discount[] = [
     id: 'github-pro',
     name: 'GitHub Pro',
     category: 'Productivity',
-    perk: 'GitHub Pro — free while you’re a student',
+    perk: 'GitHub Pro: free while you’re a student',
     description:
       'Verified students can unlock GitHub Pro for a stronger personal workflow, portfolio, and repo management setup.',
     howTo: 'Apply to GitHub Education, then activate GitHub Pro from your student benefits.',
@@ -241,7 +241,7 @@ const discounts: Discount[] = [
     id: 'termius',
     name: 'Termius',
     category: 'Infrastructure',
-    perk: 'Pro + Team features — free',
+    perk: 'Pro + Team features: free',
     description:
       'SSH from desktop or mobile with free access to Termius Pro and Team features while you are a student.',
     howTo: 'Redeem the Termius offer inside the GitHub Student Developer Pack.',
@@ -411,7 +411,7 @@ export const ResourceDiscounts: React.FC = () => {
               <p className="max-w-2xl font-sans text-sm leading-relaxed text-zinc-400">
                 <span className="font-bold text-white">Reviewed by Velocity.</span> Every
                 entry links directly to the vendor and was checked against current public
-                eligibility pages in June 2026. We don't earn affiliate revenue — this list
+                eligibility pages in June 2026. We don't earn affiliate revenue: this list
                 exists because builders should build, not hunt for deals.
               </p>
             </div>
@@ -426,7 +426,7 @@ export const ResourceDiscounts: React.FC = () => {
         </div>
 
         <ResourceFootnote>
-          Offers, eligibility, and pricing change without notice — confirm details on the
+          Offers, eligibility, and pricing change without notice: confirm details on the
           vendor's page before relying on a perk. Velocity doesn't operate these third-party
           services and isn't liable for account, billing, data, or policy issues.
         </ResourceFootnote>

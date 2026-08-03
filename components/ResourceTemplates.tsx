@@ -35,7 +35,7 @@ const templates: Template[] = [
   {
     id: 'vibe-starter',
     name: 'Vibe Coding Starter',
-    tagline: 'The Velocity default — ship an MVP in 30 minutes.',
+    tagline: 'The Velocity default: ship an MVP in 30 minutes.',
     description:
       'Next.js 15 + Tailwind + shadcn/ui with Claude API and Vercel AI SDK wired up. Cursor rules and prompts included.',
     category: 'Full-stack',
@@ -206,7 +206,7 @@ export const ResourceTemplates: React.FC = () => {
             Starter <span className="text-velocity-red">Templates</span>
           </h1>
           <p className="font-sans text-sm leading-relaxed text-gray-500 md:text-base">
-            Boilerplates tuned for student builders — clone, configure, ship. Each one
+            Boilerplates tuned for student builders: clone, configure, ship. Each one
             is battle-tested by Launchpad teams.
           </p>
         </div>

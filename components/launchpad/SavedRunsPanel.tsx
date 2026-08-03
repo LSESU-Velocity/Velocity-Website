@@ -52,21 +52,21 @@ interface CompareField {
 
 const COMPARE_FIELDS: CompareField[] = [
     { label: 'Tagline', pick: (data) => data.identity.tagline },
-    { label: 'Recommendation', pick: (data) => data.lab?.summary.recommendation || '—' },
-    { label: 'Confidence', pick: (data) => data.lab ? `${data.lab.summary.confidenceScore}/100 (${data.lab.summary.confidenceLabel})` : '—' },
-    { label: 'Council verdict', pick: (data) => data.lab?.council.judge?.verdict || '—' },
+    { label: 'Recommendation', pick: (data) => data.lab?.summary.recommendation || 'N/A' },
+    { label: 'Confidence', pick: (data) => data.lab ? `${data.lab.summary.confidenceScore}/100 (${data.lab.summary.confidenceLabel})` : 'N/A' },
+    { label: 'Council verdict', pick: (data) => data.lab?.council.judge?.verdict || 'N/A' },
     { label: 'Market gap', pick: (data) => data.validation.marketGap.yourGap },
     {
         label: 'SOM (beachhead)',
         pick: (data) => {
             const som = data.lab?.marketSizing?.find((point) => point.key === 'som');
-            return som ? `${som.value.toLocaleString()} users` : '—';
+            return som ? `${som.value.toLocaleString()} users` : 'N/A';
         },
     },
-    { label: 'Lead monetization', pick: (data) => data.monetization[0] ? `${data.monetization[0].model} — ${data.monetization[0].pricing}` : '—' },
-    { label: 'Top segment', pick: (data) => data.customerSegments[0]?.segment || '—' },
-    { label: 'Top risk', pick: (data) => data.lab?.summary.openRisks[0] || data.validation.industryInsights.risks[0] || '—' },
-    { label: 'Next move', pick: (data) => data.lab?.summary.nextMoves[0] || data.validation.industryInsights.whatToTestFirst[0] || '—' },
+    { label: 'Lead monetization', pick: (data) => data.monetization[0] ? `${data.monetization[0].model}: ${data.monetization[0].pricing}` : 'N/A' },
+    { label: 'Top segment', pick: (data) => data.customerSegments[0]?.segment || 'N/A' },
+    { label: 'Top risk', pick: (data) => data.lab?.summary.openRisks[0] || data.validation.industryInsights.risks[0] || 'N/A' },
+    { label: 'Next move', pick: (data) => data.lab?.summary.nextMoves[0] || data.validation.industryInsights.whatToTestFirst[0] || 'N/A' },
 ];
 
 export const SavedRunsPanel: React.FC<SavedRunsPanelProps> = ({

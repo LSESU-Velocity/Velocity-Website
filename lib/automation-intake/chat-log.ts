@@ -32,7 +32,7 @@ export function logChatTurn(entry: ChatTurnLogInput): void {
     ...entry,
   };
   try {
-    // stdout only — never log the raw answer text or full draft.
+    // stdout only: never log the raw answer text or full draft.
     console.log(JSON.stringify(line));
   } catch {
     // Logging must never crash a handler.

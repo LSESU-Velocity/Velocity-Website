@@ -1,6 +1,6 @@
 /**
  * Safe merge helpers for Automation Intake.
- * Model-produced patches are treated as untrusted — every merge clamps lengths,
+ * Model-produced patches are treated as untrusted: every merge clamps lengths,
  * dedupes arrays, and ignores unknown keys.
  */
 import {

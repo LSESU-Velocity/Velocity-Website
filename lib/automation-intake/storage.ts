@@ -1,6 +1,6 @@
 /**
  * Session-scoped draft storage for Automation Intake.
- * Lives in sessionStorage — draft data is not persisted across tabs/devices.
+ * Lives in sessionStorage: draft data is not persisted across tabs/devices.
  * Cleared after successful submission.
  */
 import { AutomationIntakeDraftSchema, type AutomationIntakeDraft } from './schemas.js';
@@ -33,7 +33,7 @@ export function saveDraft(draft: AutomationIntakeDraft): void {
   try {
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
   } catch {
-    // Quota exceeded — drop the transcript (the largest field) and retry once.
+    // Quota exceeded: drop the transcript (the largest field) and retry once.
     try {
       const trimmed = { ...draft, transcript: draft.transcript.slice(-20) };
       window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));

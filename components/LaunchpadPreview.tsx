@@ -1555,7 +1555,7 @@ const ScenePhase3: React.FC = () => {
               <div
                 style={{ fontSize: 12, color: 'rgba(255,255,255,0.55)' }}
               >
-                &ldquo;Add a family plan at $12/mo&rdquo; — only the monetization
+                &ldquo;Add a family plan at $12/mo&rdquo;: only the monetization
                 card updates.
               </div>
             </div>

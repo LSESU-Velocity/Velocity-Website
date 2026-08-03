@@ -1,5 +1,5 @@
 /**
- * Phase 2: Strategy — customer segments, monetization, distribution channels.
+ * Phase 2: Strategy. Customer segments, monetization, distribution channels.
  */
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';

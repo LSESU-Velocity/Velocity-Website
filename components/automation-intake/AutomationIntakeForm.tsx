@@ -225,7 +225,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
       }}
       className="space-y-0"
     >
-      {/* Honeypot — visually hidden, aria-hidden. Real users never fill this. */}
+      {/* Honeypot: visually hidden, aria-hidden. Real users never fill this. */}
       <div aria-hidden="true" style={{ position: 'absolute', left: '-10000px', top: 'auto', width: 1, height: 1, overflow: 'hidden' }}>
         <label>
           Website (do not fill)
@@ -291,7 +291,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
             value={draft.business.whatTheyDo ?? ''}
             onChange={(e) => setBusiness({ whatTheyDo: e.target.value })}
             maxLength={2000}
-            placeholder="A sentence or two — no marketing copy needed."
+            placeholder="A sentence or two, no marketing copy needed."
           />
         </Field>
         <Field label="Who do you serve?">
@@ -508,7 +508,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
             </label>
           </div>
         </Field>
-        <Field label="Notes on sensitive data (optional)" helper="Describe the category only — never paste actual records.">
+        <Field label="Notes on sensitive data (optional)" helper="Describe the category only. Never paste actual records.">
           <textarea
             className={`${inputClass} min-h-[70px]`}
             value={draft.constraints.sensitiveDataNotes ?? ''}
@@ -648,7 +648,7 @@ export const AutomationIntakeForm: React.FC<Props> = ({
       <div className="sticky bottom-4 z-20 flex items-center justify-between gap-3 flex-wrap p-5 bg-black/85 border border-white/10 backdrop-blur-sm shadow-2xl shadow-black/40">
         <div className="text-sm text-white/60">
           {readyToReview
-            ? 'Looks good — ready to review.'
+            ? 'Looks good, ready to review.'
             : `Still needed: ${formatMissingRequirements(missing)}.`}
         </div>
         <button

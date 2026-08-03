@@ -132,8 +132,8 @@ export const Resources: React.FC = () => {
                 Built something worth sharing?
               </h3>
               <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500">
-                Submit your project, a tool you swear by, or a template your team uses —
-                we'll credit you and add it to the library.
+                Submit your project, a tool you swear by, or a template your team uses.
+                We'll credit you and add it to the library.
               </p>
             </div>
             <a
@@ -149,7 +149,7 @@ export const Resources: React.FC = () => {
         <ResourceFootnote>
           Velocity curates third-party tools, models, and perks but doesn't operate or audit
           them. Review each provider's terms and data practices before sharing sensitive or
-          personal data — external services are used at your own risk.
+          personal data: external services are used at your own risk.
         </ResourceFootnote>
       </div>
     </section>

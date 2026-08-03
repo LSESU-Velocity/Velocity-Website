@@ -77,7 +77,7 @@ export const AutomationIntake: React.FC = () => {
     });
   }, [draft.sessionId]);
 
-  // Scroll to top on mount — React Router preserves scroll position between routes otherwise.
+  // Scroll to top on mount: React Router preserves scroll position between routes otherwise.
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -120,7 +120,7 @@ export const AutomationIntake: React.FC = () => {
   // If engine bumped us into 'review', switch page mode unless we're already there.
   useEffect(() => {
     if (draft.status === 'review' && pageMode === 'collect') {
-      // Stay in 'collect' until the user clicks the review CTA — don't auto-jump.
+      // Stay in 'collect' until the user clicks the review CTA: don't auto-jump.
     }
   }, [draft.status, pageMode]);
 

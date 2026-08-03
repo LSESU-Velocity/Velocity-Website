@@ -37,7 +37,7 @@ export interface DeterministicAdvanceResult {
 
 /**
  * Strict opt-out matcher. The phrase must be *essentially the entire message*
- * (optionally with trailing punctuation) — otherwise a substantive reply like
+ * (optionally with trailing punctuation). Otherwise a substantive reply like
  * "No, we don't use AI yet because of compliance concerns" would short-circuit
  * into a skip and drop the content.
  */
@@ -260,7 +260,7 @@ export async function generateDeterministicFinalBrief(
         targetWorkflow: workflowName,
         problemSummary:
           primary?.painPoints?.[0] ??
-          'No specific pain point captured — scope with the partner before starting.',
+          'No specific pain point captured: scope with the partner before starting.',
         proposedAutomation:
           'Lightweight integration between the tools currently in the workflow, prioritising manual handoffs.',
         expectedImpact: draft.goals.desiredOutcomes[0] ?? 'Reduce manual effort on recurring work.',
@@ -345,7 +345,7 @@ function buildDraftFromChatState(
 /**
  * Helpers used by the assisted edit rebuild in engine.ts. Intentionally
  * exported so engine.ts can share the same transcript/status/currentStep
- * derivation the deterministic rebuild uses — the only divergence is the
+ * derivation the deterministic rebuild uses: the only divergence is the
  * patch source (AI vs heuristic).
  */
 export function extractChatStateForRebuild(draft: AutomationIntakeDraft): {
@@ -506,7 +506,7 @@ function buildTranscript(
     transcript.push(
       makeAssistantMessage(
         status === 'review'
-          ? "That's everything I needed — hit 'Review submission' whenever you're ready."
+          ? "That's everything I needed. Hit 'Review submission' whenever you're ready."
           : buildCatchUpPrompt(currentStep, missing),
         currentStep,
         true,
@@ -560,12 +560,12 @@ function isReusableTerminalAssistant(
       .map((candidate) => candidate.stepId!),
   );
   if (promptedSteps.size === STEP_DEFINITIONS.length) return true;
-  if (message.content === "That's everything I needed — hit 'Review submission' whenever you're ready.") {
+  if (message.content === "That's everything I needed. Hit 'Review submission' whenever you're ready.") {
     return true;
   }
   return (
     message.content.startsWith('Before review, I still need ') ||
-    message.content.startsWith('Almost there — could you add ') ||
+    message.content.startsWith('Almost there. Could you add ') ||
     message.content.startsWith('Still missing ') ||
     message.content.startsWith('One last pass on ')
   );
@@ -613,7 +613,7 @@ function extractChatState(draft: AutomationIntakeDraft): {
   for (const message of draft.transcript) {
     if (message.role !== 'user' || !message.stepId) continue;
     const stepId = message.stepId;
-    // chatAnswers is authoritative — the transcript is derived from it. Only fall
+    // chatAnswers is authoritative: the transcript is derived from it. Only fall
     // back to transcript content for legacy drafts where chatAnswers is missing
     // a step; otherwise this loop would re-append every saved answer on each call.
     if (answers[stepId]?.trim() || skips.has(stepId)) continue;
@@ -763,7 +763,7 @@ export function buildHeuristicPatch(stepId: StepId, safeAnswer: string): StepPat
 
 function splitList(text: string): string[] {
   return text
-    .split(/[,;\n•·]+|\s[-–—]\s|\band\b/gi)
+    .split(/[,;\n•·]+|\s[-–\u2014]\s|\band\b/gi)
     .map((item) => cleanStructuredListItem(item))
     .filter((item) => item.length >= 2);
 }

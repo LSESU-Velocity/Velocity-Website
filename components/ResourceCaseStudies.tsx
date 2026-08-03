@@ -51,7 +51,7 @@ const caseStudies: CaseStudy[] = [
     product: 'Ledger',
     tagline: 'An AI-first study-group scheduler for busy students.',
     builders: 'Ade Okonkwo & Priya Desai',
-    cohort: 'Launchpad — Michaelmas 2025',
+    cohort: 'Launchpad · Michaelmas 2025',
     stage: 'Launched',
     oneLiner:
       'Won Velocity Lent Hackathon then shipped to 600 LSE students in six weeks.',
@@ -76,7 +76,7 @@ const caseStudies: CaseStudy[] = [
       body: 'Ledger spread across project groups via word of mouth. Within six weeks it was scheduling over 120 meetings a week and is now on the LSE100 student tools list.',
     },
     quote:
-      'We had 40 users by the Monday after the hackathon. The vibe coding stack made the difference — we skipped setup and went straight to shipping.',
+      'We had 40 users by the Monday after the hackathon. The vibe coding stack made the difference: we skipped setup and went straight to shipping.',
     quoteBy: 'Ade Okonkwo, co-founder',
     productUrl: 'https://ledger.app',
     featured: true,
@@ -86,7 +86,7 @@ const caseStudies: CaseStudy[] = [
     product: 'Margin',
     tagline: 'AI essay feedback trained on LSE marking criteria.',
     builders: 'Elena Park & Hana Yoshida',
-    cohort: 'Launchpad — Michaelmas 2025',
+    cohort: 'Launchpad · Michaelmas 2025',
     stage: 'Shipped MVP',
     oneLiner:
       'Three LSE classes adopted Margin for draft feedback in a single term.',
@@ -118,9 +118,9 @@ const caseStudies: CaseStudy[] = [
   {
     id: 'parser',
     product: 'Parser',
-    tagline: 'Receipt photo in, expense report out — no typing.',
+    tagline: 'Receipt photo in, expense report out, no typing.',
     builders: 'Rohan Patel (solo)',
-    cohort: 'Launchpad — Lent 2026',
+    cohort: 'Launchpad · Lent 2026',
     stage: 'Funded',
     oneLiner:
       'Closed a £40k pre-seed from Seedcamp four months after winning Lent Hackathon.',
@@ -154,7 +154,7 @@ const caseStudies: CaseStudy[] = [
     product: 'Compass',
     tagline: 'Career-path simulator for LSE students.',
     builders: 'Talia Chen & David Kline',
-    cohort: 'Velocity Hack Weekend — Feb 2026',
+    cohort: 'Velocity Hack Weekend · Feb 2026',
     stage: 'Shipped MVP',
     oneLiner: '800 LSE students ran simulations in the first two weeks.',
     image:
@@ -214,7 +214,7 @@ const caseStudies: CaseStudy[] = [
     product: 'Citeology',
     tagline: 'Citation-accurate AI research assistant for essays.',
     builders: 'Aliyah Gomez (solo)',
-    cohort: 'Launchpad — Lent 2026',
+    cohort: 'Launchpad · Lent 2026',
     stage: 'Shipped MVP',
     oneLiner:
       'The first AI tool LSE100 explicitly permitted in its 2026 guidelines.',
@@ -236,10 +236,10 @@ const caseStudies: CaseStudy[] = [
     },
     outcome: {
       heading: 'The outcome',
-      body: 'LSE100 updated its 2026 AI guidelines to explicitly permit verifiable citation tools — Citeology was named. Running at 96% citation accuracy on a 500-essay eval set.',
+      body: 'LSE100 updated its 2026 AI guidelines to explicitly permit verifiable citation tools. Citeology was named. Running at 96% citation accuracy on a 500-essay eval set.',
     },
     quote:
-      'The eval harness is what made this work. I built the evals before the product — once I had 500 essays to test against, everything else fell into place.',
+      'The eval harness is what made this work. I built the evals before the product: once I had 500 essays to test against, everything else fell into place.',
     quoteBy: 'Aliyah Gomez, founder',
     productUrl: 'https://citeology.app',
   },
@@ -305,7 +305,7 @@ export const ResourceCaseStudies: React.FC = () => {
             Case <span className="text-velocity-red">Studies</span>
           </h1>
           <p className="font-sans text-sm leading-relaxed text-gray-500 md:text-base">
-            Real teardowns of products built by Velocity members — wins, failures, and
+            Real teardowns of products built by Velocity members: wins, failures, and
             the lessons behind the metrics.
           </p>
         </div>
@@ -340,7 +340,7 @@ export const ResourceCaseStudies: React.FC = () => {
                 Built something worth a case study?
               </h3>
               <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500">
-                We interview every featured builder and publish the full story — process,
+                We interview every featured builder and publish the full story: process,
                 decisions, and mistakes included.
               </p>
             </div>

@@ -288,7 +288,7 @@ export type SubmitResponse = z.infer<typeof SubmitResponseSchema>;
 /**
  * Server-side minimum completeness. Kept intentionally narrow, but a primary
  * workflow is required because the intake exists to scope an automation project.
- * Outcomes and metrics stay recommended rather than required — a partner may
+ * Outcomes and metrics stay recommended rather than required: a partner may
  * not have concrete numbers yet, and blocking submission on them creates a
  * dead end.
  *
@@ -353,7 +353,7 @@ export function formatMissingRequirements(missing: string[]): string {
 }
 
 /**
- * Non-blocking recommendations — shown in the UI so the partner knows what
+ * Non-blocking recommendations, shown in the UI so the partner knows what
  * detail would make the brief more useful, without forcing them to fill it.
  */
 export function checkRecommendedCompleteness(draft: AutomationIntakeDraft): string[] {

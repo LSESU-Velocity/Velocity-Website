@@ -41,7 +41,7 @@ export function useRevealGroup<T extends HTMLElement>() {
         }, root);
 
         // The dashboard mounts while the layout above it is still settling
-        // (preview block unmounting, scroll-into-view) — re-measure once the
+        // (preview block unmounting, scroll-into-view): re-measure once the
         // frame after mount so every trigger has correct positions.
         const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
 

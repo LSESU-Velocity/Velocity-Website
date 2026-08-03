@@ -1,6 +1,6 @@
 /**
  * Canonical step definitions for the Automation Intake conversation.
- * Fixed order, fixed copy — the engine walks this list; the AI does not choose the path.
+ * Fixed order, fixed copy: the engine walks this list; the AI does not choose the path.
  */
 import type { StepId } from './schemas.js';
 
@@ -26,7 +26,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Business overview',
     intro: 'A quick snapshot of what the business does and who it serves.',
     assistantPrompt:
-      "Let's start with the basics. What does your business do, and who do you serve? A few sentences is plenty — include the company name and your website if you can.",
+      "Let's start with the basics. What does your business do, and who do you serve? A few sentences is plenty. Include the company name and your website if you can.",
     formHelper: 'Company name, website, sector, team size, what you do, who you serve.',
     allowsFollowUp: true,
   },
@@ -46,7 +46,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Workflow to scope',
     intro: "The one workflow we'll turn into a student project brief.",
     assistantPrompt:
-      "What's one recurring workflow you'd most like help with? A short name is fine — we'll dig into the details next.",
+      "What's one recurring workflow you'd most like help with? A short name is fine. We'll dig into the details next.",
     formHelper: 'Name the primary workflow you want to scope.',
     allowsFollowUp: true,
   },
@@ -76,7 +76,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Current steps',
     intro: 'A walkthrough of how the workflow runs today.',
     assistantPrompt:
-      'Walk me through the main steps in plain English — what happens first, next, and so on.',
+      'Walk me through the main steps in plain English: what happens first, next, and so on.',
     formHelper: 'Short imperative steps in order.',
     allowsFollowUp: true,
   },
@@ -96,7 +96,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Current AI usage',
     intro: 'What AI (if any) is already working for the team.',
     assistantPrompt:
-      "Are you using any AI tools today — ChatGPT, Copilot, Gemini, a writing assistant? Where have they genuinely helped?",
+      "Are you using any AI tools today (ChatGPT, Copilot, Gemini, a writing assistant)? Where have they genuinely helped?",
     formHelper: 'Tools you use, where they help, rough maturity level.',
     allowsFollowUp: true,
   },
@@ -106,7 +106,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Gaps & blockers',
     intro: 'Where AI could help but something is stopping you.',
     assistantPrompt:
-      "Where would AI obviously help but you haven't adopted it yet? What's blocking it — data sensitivity, approvals, integration pain, cost, or just time?",
+      "Where would AI obviously help but you haven't adopted it yet? What's blocking it: data sensitivity, approvals, integration pain, cost, or just time?",
     formHelper: "Areas you'd want AI to help with, and the blockers in the way.",
     allowsFollowUp: true,
   },
@@ -114,7 +114,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     id: 'constraints',
     order: 10,
     title: 'Constraints & boundaries',
-    intro: 'Hard limits we should respect — sensitive data, compliance, approvals.',
+    intro: 'Hard limits we should respect: sensitive data, compliance, approvals.',
     assistantPrompt:
       'Any constraints we should know about? Sensitive data categories, compliance rules, required approvals, or integrations that are off-limits.',
     formHelper: 'Sensitive data, approval needs, compliance notes, integration limits.',
@@ -136,7 +136,7 @@ export const STEP_DEFINITIONS: readonly StepDefinition[] = [
     title: 'Contact & consent',
     intro: 'Who we should reach out to, and your agreement to proceed.',
     assistantPrompt:
-      "Last step — who should we get back to? Share your name, role, and a work email, then type 'I consent' if you're happy for Velocity to store this intake and contact you about it.",
+      "Last step: who should we get back to? Share your name, role, and a work email, then type 'I consent' if you're happy for Velocity to store this intake and contact you about it.",
     formHelper: "Name, role, email, and type 'I consent' or tick the box to let Velocity store the intake and follow up.",
     allowsFollowUp: false,
   },

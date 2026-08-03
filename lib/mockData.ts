@@ -8,7 +8,7 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{NAME}} — Join the Waitlist</title>
+    <title>{{NAME}} | Join the Waitlist</title>
     <meta name="description" content="{{TAGLINE}} Join the waitlist for early access.">
     <meta name="theme-color" content="#FF1F1F">
     <style>
@@ -232,7 +232,7 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
                         </span>
                         <h3 class="font-semibold">Founder pricing</h3>
                     </div>
-                    <p class="mt-3 text-sm text-white/60">Lock in the lowest price we'll ever offer—forever.</p>
+                    <p class="mt-3 text-sm text-white/60">Lock in the lowest price we'll ever offer, forever.</p>
                 </div>
             </div>
 
@@ -345,7 +345,7 @@ const MOCK_WAITLIST_HTML = `<!DOCTYPE html>
                         <span class="font-semibold">Will this work on mobile?</span>
                         <span class="text-white/40 group-open:rotate-45 transition-transform">+</span>
                     </summary>
-                    <p class="mt-3 text-sm text-white/60">Yes—mobile-first spacing, readable typography, and touch-friendly CTAs.</p>
+                    <p class="mt-3 text-sm text-white/60">Yes: mobile-first spacing, readable typography, and touch-friendly CTAs.</p>
                 </details>
                 <details class="group rounded-2xl border border-white/10 bg-white/5 p-5">
                     <summary class="cursor-pointer list-none flex items-center justify-between gap-4">

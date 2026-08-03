@@ -1,5 +1,5 @@
 /**
- * Launchpad Lab — server-side analysis pipeline.
+ * Launchpad Lab: server-side analysis pipeline.
  * Public API re-exported from submodules.
  */
 export { runAnalysis } from './analyze.js';

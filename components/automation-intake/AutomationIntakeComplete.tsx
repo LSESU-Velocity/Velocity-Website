@@ -29,7 +29,7 @@ export const AutomationIntakeComplete: React.FC<Props> = ({ brief }) => {
             Submitted
           </div>
           <h2 className="text-2xl md:text-3xl text-white font-light leading-tight">
-            Thanks — Velocity has your intake.
+            Thanks. Velocity has your intake.
           </h2>
         </div>
       </div>
@@ -93,7 +93,7 @@ export const AutomationIntakeComplete: React.FC<Props> = ({ brief }) => {
           <ul className="space-y-2 text-sm text-white/80">
             {openQuestions.map((q, idx) => (
               <li key={idx} className="flex gap-2">
-                <span className="text-velocity-red/70 shrink-0">—</span>
+                <span className="text-velocity-red/70 shrink-0">•</span>
                 <span>{q}</span>
               </li>
             ))}

@@ -1,5 +1,5 @@
 /**
- * Phase 3: Execution — founder asset workspace and the build prompt chain.
+ * Phase 3: Execution. Founder asset workspace and the build prompt chain.
  */
 import React, { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, Copy, Download, ExternalLink, Loader2, Presentation, Sparkles, Terminal } from 'lucide-react';

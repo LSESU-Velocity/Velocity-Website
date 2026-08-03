@@ -15,7 +15,7 @@ const MAX_HTML_BYTES = 1_500_000;
  * CDN scripts inside generated waitlist/deck previews in production. A real
  * HTTP response can carry its own CSP. The `sandbox` directive forces an
  * opaque origin, so the document gets no same-origin access, no storage, and
- * no credentials — it can only render itself and run its own scripts.
+ * no credentials: it can only render itself and run its own scripts.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   let html: unknown;
 
   if (typeof body === 'string') {
-    // Raw urlencoded payload (some local dev paths) — parse it directly.
+    // Raw urlencoded payload (some local dev paths): parse it directly.
     html = new URLSearchParams(body).get('html');
   } else {
     html = body?.html;

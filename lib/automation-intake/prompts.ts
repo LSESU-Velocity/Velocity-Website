@@ -23,7 +23,7 @@ You are NOT a freeform chatbot. You MUST NOT:
 
 Output rules:
 - Only extract fields that are clearly present in the user's message. Omit unknown fields.
-- Keep extracted strings concise — single phrases or short sentences — and remove marketing fluff.
+- Keep extracted strings concise (single phrases or short sentences) and remove marketing fluff.
 - Output MUST conform to the provided JSON schema. Omit optional fields rather than filling them with placeholders.
 - If the user goes off-topic, either emit a short redirect follow-up back to the current step or leave followUpQuestion empty so the server can advance.`;
 
@@ -69,7 +69,7 @@ Extract a single short noun phrase as the workflow name (e.g. "Monthly client re
 Extract: owner (role or person), frequency (e.g. "daily", "weekly", "every Monday"). Put these on the first workflow (index 0).`,
 
   'workflow-tools': `The user is listing the tools/apps the workflow touches.
-Extract tools into an array of product names (e.g. ["Gmail", "Google Sheets", "HubSpot"]) and put them on the first workflow (index 0). Do not include verbs or verbs-of-tools — names only.`,
+Extract tools into an array of product names (e.g. ["Gmail", "Google Sheets", "HubSpot"]) and put them on the first workflow (index 0). Do not include verbs or verbs-of-tools: names only.`,
 
   'workflow-steps': `The user is walking through the steps of the workflow in plain English.
 Extract currentSteps: an ordered array of short imperative clauses, one per concrete step (e.g. ["Receive invoice email", "Copy fields into Sheet", "Send for approval", "File in Drive"]). Put them on the first workflow (index 0). Keep each step under 120 characters.`,
@@ -81,10 +81,10 @@ Extract each distinct pain point into the first workflow's painPoints array. Kee
 Extract: currentTools (product names like "ChatGPT", "Copilot", "Gemini"), currentUseCases (short phrases describing where AI helps), maturity ("none" if they don't use AI, "experimental" for occasional/informal use, "active" for regular embedded use).`,
 
   'ai-non-use': `The user is describing where AI could help but isn't used yet, and the blockers.
-Extract: nonUseAreas (short phrases), blockers (short phrases naming the obstacles — e.g. "data sensitivity", "integration cost", "approval process").`,
+Extract: nonUseAreas (short phrases), blockers (short phrases naming the obstacles, e.g. "data sensitivity", "integration cost", "approval process").`,
 
   constraints: `The user is listing constraints.
-Extract: sensitiveData (boolean — true if they mention any sensitive/regulated data), sensitiveDataNotes (short description if any), approvalRequirements (list), complianceNotes (list), integrationLimits (list).`,
+Extract: sensitiveData (boolean: true if they mention any sensitive/regulated data), sensitiveDataNotes (short description if any), approvalRequirements (list), complianceNotes (list), integrationLimits (list).`,
 
   goals: `The user is describing desired outcomes and success measures.
 Extract: desiredOutcomes (short phrases describing the intended change), successMetrics (concrete measurable signals), timeline (e.g. "this quarter"), preferredProjectShape (short phrase like "a Zapier automation" or "an internal dashboard").`,
@@ -118,7 +118,7 @@ You will be given a structured draft (business info, tool stack, workflows, AI u
 Produce:
 - clientSummary: 2–3 concise sentences confirming what we heard from the partner, in plain warm professional tone. No jargon. Hard limit: ${FINAL_BRIEF_CLIENT_SUMMARY_MAX_CHARS} characters.
 - internalSummary: 3–5 sentences for Velocity staff that highlights the most promising automation angles, integration constraints, and anything worth clarifying before scoping.
-- recommendedProjects: 1–3 concrete student project ideas anchored to the primary workflow. Each project MUST include: title (short), targetWorkflow (the workflow name), problemSummary, proposedAutomation (high-level approach — e.g. "n8n workflow that syncs new Intercom tickets to a Linear project"), expectedImpact (measurable where possible), dataSensitivity (low/medium/high based on what was shared), studentDeliveryFit (how a pair of students could scope this in 4–8 weeks), feasibility (low/medium/high).
+- recommendedProjects: 1–3 concrete student project ideas anchored to the primary workflow. Each project MUST include: title (short), targetWorkflow (the workflow name), problemSummary, proposedAutomation (high-level approach, e.g. "n8n workflow that syncs new Intercom tickets to a Linear project"), expectedImpact (measurable where possible), dataSensitivity (low/medium/high based on what was shared), studentDeliveryFit (how a pair of students could scope this in 4–8 weeks), feasibility (low/medium/high).
 - openQuestions: up to ${FINAL_BRIEF_OPEN_QUESTIONS_MAX} short, specific questions Velocity should ask the partner before starting.
 
 Do not invent facts. If the submission lacks detail, note it in openQuestions rather than fabricating.

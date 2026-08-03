@@ -83,7 +83,7 @@ export const AutomationIntakeShell: React.FC<Props> = ({
 
   return (
     <div className="relative min-h-screen bg-velocity-black pt-28 pb-24">
-      {/* Viewport-fixed red ambient glows — travel with scroll so the page never
+      {/* Viewport-fixed red ambient glows: travel with scroll so the page never
           darkens out beneath the fold. Stacked radials for depth; the large
           center layer keeps the middle column from going pitch black. */}
       <div

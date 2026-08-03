@@ -195,7 +195,7 @@ const tools: Tool[] = [
     category: 'AI Coding',
     oneLiner: 'Full-stack app generator with Supabase baked in.',
     verdict:
-      'Ships a working app in minutes. Great for prototypes — you will outgrow it past PMF.',
+      'Ships a working app in minutes. Great for prototypes. You will outgrow it past PMF.',
     bestFor: 'End-to-end MVPs',
     pricing: 'Freemium',
     url: 'https://lovable.dev',
@@ -584,7 +584,7 @@ const tools: Tool[] = [
     id: 'supabase',
     name: 'Supabase',
     category: 'Deploy & Backend',
-    oneLiner: 'Open-source Firebase — Postgres, auth, storage, vectors.',
+    oneLiner: 'Open-source Firebase: Postgres, auth, storage, vectors.',
     verdict: 'Our default for anything with a database. Vector search works well for RAG.',
     bestFor: 'Auth, database, pgvector',
     pricing: 'Freemium',

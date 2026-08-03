@@ -1,6 +1,6 @@
 /**
  * Browser-side client for the Automation Intake API.
- * Thin fetch wrapper — no retries, no caching. The endpoint is idempotent.
+ * Thin fetch wrapper: no retries, no caching. The endpoint is idempotent.
  */
 import type {
   AutomationIntakeDraft,

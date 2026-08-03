@@ -13,7 +13,7 @@ interface ApiKeyEntryProps {
 const providers = [
     {
         name: 'Gemini',
-        status: 'Keys start with AIza — includes live web research',
+        status: 'Keys start with AIza, includes live web research',
         keyUrl: 'https://aistudio.google.com/apikey',
         keyUrlLabel: 'Google AI Studio',
     },
@@ -137,7 +137,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                     Connect a model provider
                                 </h2>
                                 <p className="font-sans text-sm text-gray-400 text-center mb-6">
-                                    Paste a Gemini, OpenAI, or Anthropic key — Launchpad detects the provider automatically and uses your key to run the analysis.
+                                    Paste a Gemini, OpenAI, or Anthropic key. Launchpad detects the provider automatically and uses your key to run the analysis.
                                 </p>
 
                                 <div className="mb-5 grid gap-2 sm:grid-cols-3">
@@ -187,7 +187,7 @@ export const ApiKeyEntry: React.FC<ApiKeyEntryProps> = ({
                                         {detectedProvider && (
                                             <p className="mt-2 font-sans text-[11px] text-gray-400">
                                                 Detected provider: <span className="text-white">{detectedProvider}</span>
-                                                {detectedProvider !== 'Gemini' && ' — live web research runs on Gemini keys only; other providers skip it.'}
+                                                {detectedProvider !== 'Gemini' && '. Live web research runs on Gemini keys only; other providers skip it.'}
                                             </p>
                                         )}
                                     </div>

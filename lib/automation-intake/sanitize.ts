@@ -2,7 +2,7 @@
  * Free-text sanitizer for Automation Intake.
  * Strips common prompt-injection patterns before anything is forwarded to the model.
  *
- * Deliberately not imported from api/analyze.ts — keeps the intake module
+ * Deliberately not imported from api/analyze.ts: keeps the intake module
  * decoupled from Launchpad. Shares the same defensive patterns.
  */
 import {

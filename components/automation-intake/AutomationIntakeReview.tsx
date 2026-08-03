@@ -176,15 +176,15 @@ export const AutomationIntakeReview: React.FC<Props> = ({
             <KV k="Frequency" v={primary.frequency} />
             <div>
               <div className="text-white/40 text-xs mb-1">Tools</div>
-              <TagList items={primary.tools ?? []} empty="—" />
+              <TagList items={primary.tools ?? []} empty="None" />
             </div>
             <div>
               <div className="text-white/40 text-xs mb-1">Current steps</div>
-              <TagList items={primary.currentSteps ?? []} empty="—" />
+              <TagList items={primary.currentSteps ?? []} empty="None" />
             </div>
             <div>
               <div className="text-white/40 text-xs mb-1">Pain points</div>
-              <TagList items={primary.painPoints ?? []} empty="—" />
+              <TagList items={primary.painPoints ?? []} empty="None" />
             </div>
           </div>
         ) : (
@@ -202,19 +202,19 @@ export const AutomationIntakeReview: React.FC<Props> = ({
         <KV k="Maturity" v={draft.aiUsage.maturity} />
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Tools in use</div>
-          <TagList items={draft.aiUsage.currentTools ?? []} empty="—" />
+          <TagList items={draft.aiUsage.currentTools ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Where AI helps today</div>
-          <TagList items={draft.aiUsage.currentUseCases ?? []} empty="—" />
+          <TagList items={draft.aiUsage.currentUseCases ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Gaps</div>
-          <TagList items={draft.aiUsage.nonUseAreas ?? []} empty="—" />
+          <TagList items={draft.aiUsage.nonUseAreas ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Blockers</div>
-          <TagList items={draft.aiUsage.blockers ?? []} empty="—" />
+          <TagList items={draft.aiUsage.blockers ?? []} empty="None" />
         </div>
       </Card>
 
@@ -237,26 +237,26 @@ export const AutomationIntakeReview: React.FC<Props> = ({
         )}
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Approvals</div>
-          <TagList items={draft.constraints.approvalRequirements ?? []} empty="—" />
+          <TagList items={draft.constraints.approvalRequirements ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Compliance</div>
-          <TagList items={draft.constraints.complianceNotes ?? []} empty="—" />
+          <TagList items={draft.constraints.complianceNotes ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Integration limits</div>
-          <TagList items={draft.constraints.integrationLimits ?? []} empty="—" />
+          <TagList items={draft.constraints.integrationLimits ?? []} empty="None" />
         </div>
       </Card>
 
       <Card title="Goals" sectionId="goals" onEdit={onEdit}>
         <div>
           <div className="text-white/40 text-xs mb-1">Desired outcomes</div>
-          <TagList items={draft.goals.desiredOutcomes ?? []} empty="—" />
+          <TagList items={draft.goals.desiredOutcomes ?? []} empty="None" />
         </div>
         <div>
           <div className="text-white/40 text-xs mb-1 mt-2">Success metrics</div>
-          <TagList items={draft.goals.successMetrics ?? []} empty="—" />
+          <TagList items={draft.goals.successMetrics ?? []} empty="None" />
         </div>
         <KV k="Timeline" v={draft.goals.timeline} />
         <KV k="Preferred project" v={draft.goals.preferredProjectShape} />
@@ -271,7 +271,7 @@ export const AutomationIntakeReview: React.FC<Props> = ({
           v={
             draft.contact.consent
               ? 'Given'
-              : "Missing — tick the checkbox in form mode or type 'I consent' in chat."
+              : "Missing: tick the checkbox in form mode or type 'I consent' in chat."
           }
         />
       </Card>

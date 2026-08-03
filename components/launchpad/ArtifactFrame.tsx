@@ -5,7 +5,7 @@
  * site's strict CSP blocks inside srcdoc iframes (they inherit the parent
  * policy). Instead, the HTML is form-POSTed to /api/artifact-preview, which
  * echoes it back as a standalone response carrying its own
- * `Content-Security-Policy: sandbox` header — an opaque origin with no
+ * `Content-Security-Policy: sandbox` header, an opaque origin with no
  * access to this app, its storage, or its cookies.
  */
 import React, { useEffect, useId, useRef } from 'react';
