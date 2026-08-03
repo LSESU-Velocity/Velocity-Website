@@ -28,10 +28,10 @@ const PHASE_PIXELS = {
     // Remaining 1650px (from 1350 to 3000) is pure visibility buffer
 };
 
-// Blueprint "V" drawn during loading — foreshadows the V the cheetah assembles into.
+// Blueprint "V" drawn during loading: foreshadows the V the cheetah assembles into.
 // Vertex order matches the path direction so the nodes ignite along the stroke.
-const V_PATH = 'M28 40 L74 40 L100 116 L126 40 L172 40 L118 164 L82 164 Z';
-const V_VERTICES: Array<[number, number]> = [
+export const V_PATH = 'M28 40 L74 40 L100 116 L126 40 L172 40 L118 164 L82 164 Z';
+export const V_VERTICES: Array<[number, number]> = [
     [28, 40], [74, 40], [100, 116], [126, 40], [172, 40], [118, 164], [82, 164],
 ];
 
@@ -161,7 +161,7 @@ export const ChipScroll: React.FC = () => {
         );
     });
 
-    // Ambient constellation specks during loading — deterministic pseudo-random layout
+    // Ambient constellation specks during loading: deterministic pseudo-random layout
     const particles = useMemo(() => {
         return Array.from({ length: 26 }, (_, i) => {
             const rand = (seed: number) => {
