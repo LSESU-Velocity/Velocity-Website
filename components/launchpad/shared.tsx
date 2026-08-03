@@ -251,26 +251,22 @@ export function getPromptPreview(prompt: string, expanded: boolean) {
     return `${prompt.slice(0, 260).trim()}...`;
 }
 
-export function getPhasePromptPlaceholder(phaseId: LabPhaseId, targetId: WidgetTargetId) {
-    if (phaseId === 'validation') {
-        return targetId === 'marketPosition'
-            ? 'Example: Reframe this for UK boutique law firms instead of broad SMBs. How should the market gap shift?'
-            : 'Example: If the product is $100/month for agency teams, how do TAM, SAM, and SOM change?';
-    }
+/** One concrete what-if per target: shown as a click-to-fill example chip. */
+const SCENARIO_EXAMPLES: Record<WidgetTargetId, string> = {
+    validation: 'What if we launch on one campus first?',
+    marketSizing: 'What if pricing is GBP 100/month for agencies?',
+    marketPosition: 'What if boutique law firms are the wedge?',
+    strategy: 'What if boutique law firms are our first segment?',
+    monetization: 'What if pricing moves to GBP 100/month?',
+    customerSegments: 'What if we only target fintech operators?',
+    distributionChannels: 'What if we go campus-first instead of online?',
+    waitlist: 'What if the waitlist targets enterprise buyers?',
+    pitchDeck: 'What if the deck leads with ROI instead of vision?',
+    promptChain: 'What if the MVP starts as a concierge service?',
+};
 
-    if (phaseId === 'strategy') {
-        return targetId === 'customerSegments'
-            ? 'Example: Which customer profile is most likely to pay $100/month, and why?'
-            : targetId === 'distributionChannels'
-                ? 'Example: If we target fintech operators first, which channels become highest intent?'
-                : 'Example: If price moves to $100/month, what monetization strategy and customer mix make sense now?';
-    }
-
-    return targetId === 'promptChain'
-        ? 'Example: Update the build prompts so the MVP starts with a premium concierge workflow first.'
-        : targetId === 'pitchDeck'
-            ? 'Example: Include a stronger ROI slide and make the narrative more enterprise-focused.'
-            : 'Example: Change the waitlist palette from red to emerald and add founder credibility near the signup form.';
+export function getScenarioExample(targetId: WidgetTargetId) {
+    return SCENARIO_EXAMPLES[targetId];
 }
 
 export function getLatestPromptForPhase(promptHistory: LabPromptHistoryEntry[], phaseId: LabPhaseId) {
@@ -400,44 +396,51 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
     onExpandedChange,
 }) => {
     const panelId = `scenario-console-${phaseId}`;
+    const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+    const targetLabel = PHASE_TARGETS[phaseId].find((target) => target.id === targetId)?.label ?? 'target';
 
     return (
-        // The red left edge, live cursor, and Expand chip mark this strip as
-        // an input, so it cannot be mistaken for the static widgets around it.
+        // The red left edge, the what-if hint, and the Try it chip mark this
+        // strip as the phase's rewrite input, not another static widget.
         <div className="border border-velocity-red/25 border-l-2 border-l-velocity-red bg-velocity-black">
             <button
                 type="button"
                 onClick={() => onExpandedChange(phaseId, !expanded)}
                 aria-expanded={expanded}
                 aria-controls={panelId}
-                className="group flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-velocity-darkRed/10 md:px-5"
+                className="group flex w-full min-w-0 flex-wrap items-center gap-x-3 gap-y-2 px-4 py-4 text-left transition-colors hover:bg-velocity-darkRed/10 md:px-5"
             >
                 <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-                    Scenario console <span className="text-velocity-red">//</span> {title}
+                    What if <span className="text-velocity-red">//</span> {title}
                 </span>
-                {!expanded && (
-                    <span className="hidden min-w-0 flex-1 items-center gap-2 font-mono text-[11px] text-zinc-400 md:flex">
-                        <span aria-hidden className="flex-shrink-0 text-velocity-red">&gt;</span>
-                        <span className="truncate transition-colors group-hover:text-zinc-200">
-                            Describe a shift, then apply it
-                        </span>
-                        <span
-                            aria-hidden
-                            className="h-3.5 w-[7px] flex-shrink-0 animate-pulse bg-velocity-red/80 motion-reduce:animate-none"
-                        />
-                    </span>
-                )}
-                <span className="ml-auto flex flex-shrink-0 items-center gap-1.5 border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-400 transition-colors group-hover:border-velocity-red/60 group-hover:text-white">
-                    {expanded ? 'Close' : 'Expand'}
+                <span className="ml-auto flex flex-shrink-0 items-center gap-1.5 border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-400 transition-colors group-hover:border-velocity-red/60 group-hover:text-white md:order-last">
+                    {expanded ? 'Close' : 'Try it'}
                     <ChevronDown
                         className={`h-3 w-3 flex-shrink-0 transition-transform duration-300 motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
                     />
                 </span>
+                {/* Full sentence on its own row below the title on mobile,
+                    inline between title and chip on md and up. */}
+                {!expanded && (
+                    <span className="flex w-full min-w-0 items-baseline gap-2 font-mono text-[11px] text-zinc-400 md:w-auto md:flex-1">
+                        <span aria-hidden className="flex-shrink-0 text-velocity-red">&gt;</span>
+                        <span className="min-w-0 transition-colors group-hover:text-zinc-200 md:truncate">
+                            Change an assumption. AI rewrites the widgets below.
+                        </span>
+                    </span>
+                )}
             </button>
 
             {expanded && (
                 <div id={panelId} className="border-t border-white/10 px-4 pb-4 pt-4 md:px-5">
-                    <div className="flex flex-wrap gap-px bg-white/10 p-px">
+                    <p className="font-mono text-[10px] leading-relaxed text-zinc-400">
+                        AI rewrites only the selected target. Everything else stays.
+                    </p>
+
+                    <p className="mt-4 font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-500">
+                        Rewrite <span className="text-velocity-red">//</span>
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-px bg-white/10 p-px">
                         {PHASE_TARGETS[phaseId].map((target) => {
                             const selected = target.id === targetId;
 
@@ -459,14 +462,31 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                         })}
                     </div>
 
+                    {/* Click-to-fill example: teaches the input by doing. It
+                        only fills the textarea, it never applies. */}
+                    <button
+                        type="button"
+                        onClick={() => {
+                            onPromptChange(phaseId, getScenarioExample(targetId));
+                            textareaRef.current?.focus();
+                        }}
+                        className="mt-3 flex w-full min-w-0 items-baseline gap-2 border border-dashed border-white/20 px-3 py-2.5 text-left font-mono text-[11px] text-zinc-400 transition-colors hover:border-velocity-red/50 hover:text-white"
+                    >
+                        <span className="flex-shrink-0 uppercase tracking-[0.2em] text-zinc-500">
+                            Try <span className="text-velocity-red">//</span>
+                        </span>
+                        <span className="min-w-0">{getScenarioExample(targetId)}</span>
+                    </button>
+
                     <label className="sr-only" htmlFor={`phase-prompt-${phaseId}`}>
-                        Scenario instruction for the {title} phase
+                        What-if scenario for the {title} phase
                     </label>
                     <textarea
+                        ref={textareaRef}
                         id={`phase-prompt-${phaseId}`}
                         value={promptValue}
                         onChange={(event) => onPromptChange(phaseId, event.target.value)}
-                        placeholder={getPhasePromptPlaceholder(phaseId, targetId)}
+                        placeholder="Describe the change you want to test..."
                         rows={3}
                         className="mt-3 w-full border border-white/10 bg-black px-3 py-3 font-mono text-[12px] leading-relaxed text-white outline-none transition-colors placeholder:text-zinc-600 focus:border-velocity-red/60"
                     />
@@ -489,11 +509,11 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
                         >
                             {isBusy ? (
                                 <>
-                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                    Rewiring
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
+                                    Rewriting
                                 </>
                             ) : (
-                                'Apply update'
+                                `Rewrite ${targetLabel}`
                             )}
                         </button>
                     </div>
