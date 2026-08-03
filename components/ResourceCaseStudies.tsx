@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   ArrowUpRight,
   Calendar,
@@ -355,10 +355,10 @@ export const ResourceCaseStudies: React.FC = () => {
         </div>
       </div>
 
-      {/* Detail modal */}
-      <AnimatePresence>
-        {active && <CaseStudyModal study={active} onClose={() => setActive(null)} />}
-      </AnimatePresence>
+      {/* Detail modal. Rendered conditionally rather than through
+          AnimatePresence: exits never resolve in this app, and a stalled
+          fixed overlay would swallow every click on the page. */}
+      {active && <CaseStudyModal study={active} onClose={() => setActive(null)} />}
     </section>
   );
 };
@@ -512,7 +512,6 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ study, onClose }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
-    exit={{ opacity: 0 }}
     transition={{ duration: 0.2 }}
     className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 p-4 pt-28 backdrop-blur-sm"
     onClick={onClose}
@@ -520,7 +519,6 @@ const CaseStudyModal: React.FC<CaseStudyModalProps> = ({ study, onClose }) => (
     <motion.div
       initial={{ opacity: 0, scale: 0.96, y: 8 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.96, y: 8 }}
       transition={{ type: 'spring', damping: 25, stiffness: 300 }}
       className="max-h-[calc(100vh-8rem)] w-full max-w-3xl overflow-y-auto border border-white/10 bg-velocity-black"
       onClick={(e) => e.stopPropagation()}

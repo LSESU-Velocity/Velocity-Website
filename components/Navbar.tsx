@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { SCROLL_DISTANCE } from './ChipScroll';
 import {
@@ -36,6 +36,7 @@ const navItems: NavItem[] = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
   { label: 'Student Projects', path: '/automation-intake', isSection: false },
+  { label: 'Events', path: '/events', isSection: false },
   {
     label: 'Resources',
     path: '/resources',
@@ -229,14 +230,15 @@ export const Navbar: React.FC = () => {
                     )}
                   </Link>
 
-                  <AnimatePresence>
-                    {isOpen && (
-                      <DropdownPanel
-                        children={item.children}
-                        onClose={() => setOpenDropdown(null)}
-                      />
-                    )}
-                  </AnimatePresence>
+                  {/* No AnimatePresence: exits never resolve in this app, and
+                      a stalled invisible dropdown would swallow clicks on the
+                      content underneath the navbar. */}
+                  {isOpen && (
+                    <DropdownPanel
+                      children={item.children}
+                      onClose={() => setOpenDropdown(null)}
+                    />
+                  )}
                 </div>
               );
             }
@@ -317,7 +319,6 @@ const DropdownPanel: React.FC<DropdownPanelProps> = ({ children, onClose }) => (
   <motion.div
     initial={{ opacity: 0, y: -6, scale: 0.98 }}
     animate={{ opacity: 1, y: 0, scale: 1 }}
-    exit={{ opacity: 0, y: -6, scale: 0.98 }}
     transition={{ duration: 0.16, ease: 'easeOut' }}
     className="absolute left-1/2 top-full w-[380px] -translate-x-1/2 pt-4"
   >

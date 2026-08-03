@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowUp, Pencil } from 'lucide-react';
 import {
   advanceDeterministicDraftFromAnswer,
@@ -52,6 +52,15 @@ export const AutomationIntakeChat: React.FC<Props> = ({
   const messages = formatTranscript(draft.transcript);
   const readyForReview = draft.status === 'review';
   const previousCompletedStep = getPreviousCompletedStep(draft);
+
+  // Messages already in the transcript at first render must not animate in
+  // (this replicates AnimatePresence initial={false}, which was dropped
+  // because exits never resolve in this app and truncated messages from the
+  // edit flow could linger). Only messages appended later animate.
+  const initialMessageIdsRef = useRef<Set<string> | null>(null);
+  if (initialMessageIdsRef.current === null) {
+    initialMessageIdsRef.current = new Set(messages.map((message) => message.id));
+  }
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -171,13 +180,13 @@ export const AutomationIntakeChat: React.FC<Props> = ({
         style={{ borderRadius: '1.5rem', maxHeight: '60vh', minHeight: '420px' }}
       >
         <div className="p-5 md:p-8 space-y-5">
-          <AnimatePresence initial={false}>
+          <>
             {messages.map((msg) => {
               const editable = msg.role === 'user' && Boolean(msg.stepId);
               return (
                 <motion.div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
+                  initial={initialMessageIdsRef.current?.has(msg.id) ? false : { opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.25, ease: 'easeOut' }}
                   className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
@@ -288,7 +297,7 @@ export const AutomationIntakeChat: React.FC<Props> = ({
                 </div>
               </motion.div>
             )}
-          </AnimatePresence>
+          </>
         </div>
       </div>
 

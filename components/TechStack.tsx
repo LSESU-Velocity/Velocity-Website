@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const items = [
   { name: "CURSOR", desc: "AI pair programmer. Tab to accept the future." },
@@ -102,13 +102,15 @@ const PortalTooltip = ({
 }) => {
   if (typeof document === 'undefined') return null;
 
+  // Rendered conditionally rather than through AnimatePresence: exits never
+  // resolve in this app, so every hover would leave a zombie tooltip mounted
+  // on document.body forever.
   return createPortal(
-    <AnimatePresence>
+    <>
       {isVisible && (
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.95 }}
           animate={{ opacity: 1, y: -20, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.95 }}
           transition={{ duration: 0.15, ease: "easeOut" }}
           style={{
             position: 'absolute',
@@ -148,7 +150,7 @@ const PortalTooltip = ({
           <div className="w-[1px] h-6 bg-gradient-to-b from-white/20 to-transparent mx-auto" />
         </motion.div>
       )}
-    </AnimatePresence>,
+    </>,
     document.body
   );
 };
