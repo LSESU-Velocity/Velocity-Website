@@ -402,23 +402,37 @@ export const PhasePromptComposer: React.FC<PhasePromptComposerProps> = ({
     const panelId = `scenario-console-${phaseId}`;
 
     return (
-        <div className="border border-white/10 bg-velocity-black">
+        // The red left edge, live cursor, and Expand chip mark this strip as
+        // an input, so it cannot be mistaken for the static widgets around it.
+        <div className="border border-velocity-red/25 border-l-2 border-l-velocity-red bg-velocity-black">
             <button
                 type="button"
                 onClick={() => onExpandedChange(phaseId, !expanded)}
                 aria-expanded={expanded}
                 aria-controls={panelId}
-                className="flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-white/[0.02] md:px-5"
+                className="group flex w-full min-w-0 items-center gap-3 px-4 py-4 text-left transition-colors hover:bg-velocity-darkRed/10 md:px-5"
             >
-                <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-500">
+                <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
                     Scenario console <span className="text-velocity-red">//</span> {title}
                 </span>
-                <span className="hidden min-w-0 flex-1 truncate font-mono text-[11px] text-zinc-600 md:block">
-                    &gt; Describe a shift, then apply it
+                {!expanded && (
+                    <span className="hidden min-w-0 flex-1 items-center gap-2 font-mono text-[11px] text-zinc-400 md:flex">
+                        <span aria-hidden className="flex-shrink-0 text-velocity-red">&gt;</span>
+                        <span className="truncate transition-colors group-hover:text-zinc-200">
+                            Describe a shift, then apply it
+                        </span>
+                        <span
+                            aria-hidden
+                            className="h-3.5 w-[7px] flex-shrink-0 animate-pulse bg-velocity-red/80 motion-reduce:animate-none"
+                        />
+                    </span>
+                )}
+                <span className="ml-auto flex flex-shrink-0 items-center gap-1.5 border border-white/15 px-2 py-1 font-mono text-[9px] uppercase tracking-[0.2em] text-zinc-400 transition-colors group-hover:border-velocity-red/60 group-hover:text-white">
+                    {expanded ? 'Close' : 'Expand'}
+                    <ChevronDown
+                        className={`h-3 w-3 flex-shrink-0 transition-transform duration-300 motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
+                    />
                 </span>
-                <ChevronDown
-                    className={`ml-auto h-3.5 w-3.5 flex-shrink-0 text-zinc-500 transition-transform duration-300 motion-reduce:transition-none ${expanded ? 'rotate-180' : ''}`}
-                />
             </button>
 
             {expanded && (
