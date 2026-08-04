@@ -1,7 +1,8 @@
 import type { VercelRequest } from '@vercel/node';
 import { createHash, randomBytes } from 'crypto';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore, type Firestore } from 'firebase-admin/firestore';
+import type { Firestore } from 'firebase-admin/firestore';
+
+import { tryInitFirebaseAdmin } from '../firebaseAdmin.js';
 
 const MAGIC_LINK_COLLECTION = 'automationIntakeMagicLinks';
 const VERIFIED_SESSION_COLLECTION = 'automationIntakeVerifiedEmailSessions';
@@ -98,34 +99,7 @@ export function hashMagicEmail(email: string): string {
 }
 
 export function initAutomationIntakeFirebase(): Firestore | null {
-  try {
-    if (getApps().length > 0) return getFirestore();
-
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-    if (!projectId || !clientEmail || !privateKey) return null;
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.slice(1, -1);
-    }
-
-    initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey: privateKey.replace(/\\n/g, '\n'),
-      }),
-    });
-
-    return getFirestore();
-  } catch (error) {
-    console.warn(
-      'Automation intake Firebase init failed:',
-      error instanceof Error ? error.message : 'unknown',
-    );
-    return null;
-  }
+  return tryInitFirebaseAdmin();
 }
 
 export function getAutomationIntakeBaseUrl(req: VercelRequest): string {
@@ -199,19 +173,19 @@ export async function sendMagicEmail(args: {
   const escapedUrl = escapeHtml(args.verificationUrl);
   const subject = 'Verify your email for Velocity AI chat';
   const text = [
-    'Use this one-time link to unlock AI chat for the Velocity automation intake:',
+    'Open this link and press "Confirm email" to unlock AI chat for the Velocity automation intake:',
     args.verificationUrl,
     '',
-    'This link expires in 30 minutes. If you did not request this, ignore this email.',
+    'The confirmation is single-use and expires in 30 minutes. If you did not request this, ignore this email.',
   ].join('\n');
 
   const html = [
     '<div style="font-family:Arial,sans-serif;line-height:1.55;color:#111">',
     '<h1 style="font-size:20px;margin:0 0 16px">Verify your email</h1>',
-    '<p>Use this one-time link to unlock AI chat for the Velocity automation intake.</p>',
+    '<p>Open the link below, then press <strong>Confirm email</strong> on the page to unlock AI chat for the Velocity automation intake.</p>',
     `<p><a href="${escapedUrl}" style="display:inline-block;background:#ff1f1f;color:#fff;padding:12px 16px;text-decoration:none">Verify email</a></p>`,
     `<p style="font-size:13px;color:#555">Or paste this link into your browser:<br><a href="${escapedUrl}">${escapedUrl}</a></p>`,
-    '<p style="font-size:13px;color:#555">This link expires in 30 minutes. If you did not request this, ignore this email.</p>',
+    '<p style="font-size:13px;color:#555">The confirmation is single-use and expires in 30 minutes. If you did not request this, ignore this email.</p>',
     '</div>',
   ].join('');
 
@@ -264,8 +238,6 @@ export async function redeemMagicEmailToken(args: {
   const now = Date.now();
   const sessionExpiresAt = now + VERIFIED_SESSION_TTL_MS;
 
-  let redirectTo = '/automation-intake?intakeEmailVerified=1';
-
   try {
     await args.db.runTransaction(async (tx) => {
       const tokenRef = args.db.collection(MAGIC_LINK_COLLECTION).doc(tokenHash);
@@ -294,7 +266,6 @@ export async function redeemMagicEmailToken(args: {
       });
     });
   } catch (error) {
-    redirectTo = '/automation-intake?intakeEmailVerified=0';
     console.warn(
       'Automation intake magic email verification failed:',
       error instanceof Error ? error.message : 'unknown',
@@ -304,7 +275,7 @@ export async function redeemMagicEmailToken(args: {
 
   return {
     ok: true,
-    redirectTo,
+    redirectTo: '/automation-intake?intakeEmailVerified=1',
     cookie: buildCookie(args.req, sessionToken, Math.floor(VERIFIED_SESSION_TTL_MS / 1000)),
   };
 }

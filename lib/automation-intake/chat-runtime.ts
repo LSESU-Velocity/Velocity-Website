@@ -16,7 +16,7 @@
  * alive via deterministic fallback.
  */
 import { createHash } from 'crypto';
-import type { Firestore } from 'firebase-admin/firestore';
+import { FieldValue, type Firestore } from 'firebase-admin/firestore';
 
 import { STEP_IDS, type StepId } from './schemas.js';
 import { hasModelKey } from './model.js';
@@ -109,6 +109,15 @@ export function getDailySessionsPerIpCap(): number {
 
 function dateBucket(now: number = Date.now()): string {
   return new Date(now).toISOString().slice(0, 10);
+}
+
+/**
+ * Deterministic expiry for a per-day bucket doc: 36h past the end of the
+ * bucket's UTC day. Every writer computes the same value, so concurrent
+ * merges never fight over it.
+ */
+function bucketExpiresAt(bucket: string): number {
+  return Date.parse(`${bucket}T00:00:00.000Z`) + 24 * 60 * 60 * 1000 + DAILY_TTL_MS;
 }
 
 // ---------- Cost estimation ----------
@@ -229,6 +238,9 @@ export async function saveRuntime(db: Firestore | null, runtime: ChatRuntime): P
  * Track distinct (ipHash, date, sessionId) triples with a per-IP bucket doc.
  * If the sessionId is already seen for today, allow. If the bucket is at cap,
  * deny further *new* sessions from this IP. Existing ones continue to work.
+ *
+ * Runs in a transaction: two concurrent first-turns from new sessions used to
+ * read the same pre-cap array and both slip in past the limit.
  */
 export async function checkAndRecordIpSession(
   db: Firestore | null,
@@ -244,29 +256,32 @@ export async function checkAndRecordIpSession(
     .doc(`intake_ai_sessions_${bucket}_${ipHash}`);
   const limit = getDailySessionsPerIpCap();
   try {
-    const doc = await ref.get();
-    const now = Date.now();
-    const data = doc.exists ? doc.data() ?? {} : {};
-    const existing: string[] = Array.isArray(data.sessionIds) ? data.sessionIds : [];
-    if (existing.includes(sessionId)) {
-      return { allowed: true, count: existing.length, available: true };
-    }
-    if (existing.length >= limit) {
-      return { allowed: false, count: existing.length, available: true };
-    }
-    const next = [...existing, sessionId];
-    await ref.set(
-      {
-        sessionIds: next,
-        count: next.length,
-        updatedAt: now,
-        expiresAt: now + DAILY_TTL_MS,
-      },
-      { merge: true },
-    );
-    return { allowed: true, count: next.length, available: true };
+    return await db.runTransaction(async (tx) => {
+      const doc = await tx.get(ref);
+      const now = Date.now();
+      const data = doc.exists ? doc.data() ?? {} : {};
+      const existing: string[] = Array.isArray(data.sessionIds) ? data.sessionIds : [];
+      if (existing.includes(sessionId)) {
+        return { allowed: true, count: existing.length, available: true };
+      }
+      if (existing.length >= limit) {
+        return { allowed: false, count: existing.length, available: true };
+      }
+      const next = [...existing, sessionId];
+      tx.set(
+        ref,
+        {
+          sessionIds: next,
+          count: next.length,
+          updatedAt: now,
+          expiresAt: bucketExpiresAt(bucket),
+        },
+        { merge: true },
+      );
+      return { allowed: true, count: next.length, available: true };
+    });
   } catch (error) {
-    // Partial Firestore failure. Don't assume the cap is fine — surface it as
+    // Partial Firestore failure. Don't assume the cap is fine: surface it as
     // unavailable so the guard fails closed.
     console.warn(
       'Intake chat IP session check failed:',
@@ -280,7 +295,7 @@ export async function checkAndRecordIpSession(
 
 /**
  * Read the current day's AI spend counter. Returns 0 on failure so we don't block
- * AI calls because Firestore hiccupped — but note the guard so the caller can log it.
+ * AI calls because Firestore hiccupped, but note the guard so the caller can log it.
  */
 export async function getDailySpendCents(
   db: Firestore | null,
@@ -309,17 +324,17 @@ export async function bumpDailySpendCents(
   const bucket = dateBucket();
   const ref = db.collection(RATE_LIMITS_COLLECTION).doc(`intake_ai_spend_${bucket}`);
   try {
-    const now = Date.now();
-    const doc = await ref.get();
-    if (!doc.exists) {
-      await ref.set({ cents: deltaCents, updatedAt: now, expiresAt: now + DAILY_TTL_MS });
-      return;
-    }
-    const prev = doc.data()?.cents ?? 0;
-    await ref.update({
-      cents: (typeof prev === 'number' && Number.isFinite(prev) ? prev : 0) + deltaCents,
-      updatedAt: now,
-    });
+    // Atomic increment: the old read-then-write lost concurrent bumps, which
+    // silently under-counted spend against the daily cap. expiresAt is
+    // deterministic per bucket so concurrent merges write the same value.
+    await ref.set(
+      {
+        cents: FieldValue.increment(deltaCents),
+        updatedAt: Date.now(),
+        expiresAt: bucketExpiresAt(bucket),
+      },
+      { merge: true },
+    );
   } catch (error) {
     console.warn(
       'Intake chat spend bump failed:',
@@ -416,7 +431,7 @@ export function withBumpedModelCall(runtime: ChatRuntime): ChatRuntime {
   };
 }
 
-/** Bump the session model-call counter by N at once — used for edit rebuilds. */
+/** Bump the session model-call counter by N at once, used for edit rebuilds. */
 export function withBumpedModelCalls(runtime: ChatRuntime, delta: number): ChatRuntime {
   if (!Number.isFinite(delta) || delta <= 0) return runtime;
   return {

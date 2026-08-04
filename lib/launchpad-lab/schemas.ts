@@ -1,6 +1,6 @@
 /**
  * Zod schemas for Launchpad Lab analysis output.
- * These are the source of truth for the analysis contract — the prompt
+ * These are the source of truth for the analysis contract: the prompt
  * and the dashboard both derive from these types.
  */
 import { z } from 'zod';
@@ -139,6 +139,8 @@ export const AnalystMemoSchema = z.object({
   opportunities: z.array(z.string().max(140)).min(1).max(2),
   risks: z.array(z.string().max(140)).min(1).max(2),
   recommendation: z.string().max(180),
+  /** True when canned fallback content replaced thin model output: the UI labels these. */
+  degraded: z.boolean().optional(),
 });
 
 export type AnalystMemo = z.infer<typeof AnalystMemoSchema>;
@@ -149,6 +151,8 @@ export const CouncilJudgeSchema = z.object({
   bullCase: z.array(z.string().max(140)).min(1).max(2),
   bearCase: z.array(z.string().max(140)).min(1).max(2),
   decidingFactors: z.array(z.string().max(140)).min(1).max(2),
+  /** True when the judge was synthesized from fallbacks rather than a model verdict. */
+  degraded: z.boolean().optional(),
   citations: z.object({
     finalTake: CitationRefSchema.optional(),
     bullCase: z.array(CitationRefSchema).optional(),

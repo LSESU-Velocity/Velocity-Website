@@ -51,7 +51,7 @@ interface DistributionCitationItem {
   citation?: CitationRef;
 }
 
-interface MarketReportCitationItem extends MarketReport {}
+type MarketReportCitationItem = MarketReport;
 
 export interface GroundedResearchPacket {
   summary: string;
@@ -676,7 +676,8 @@ function extractJsonObject(rawText: string): string {
   throw new Error('Grounded research returned malformed JSON.');
 }
 
-function parseGroundedResearch(rawText: string): GroundedResearch {
+/** Exported for unit tests: pure text-to-structure parsing with a sectioned-text fallback. */
+export function parseGroundedResearch(rawText: string): GroundedResearch {
   try {
     const jsonText = extractJsonObject(rawText);
     const parsed = JSON.parse(jsonText);
@@ -708,6 +709,7 @@ export async function runGroundedResearch(opts: {
     targetUser: string;
     coreProblem: string;
   };
+  signal?: AbortSignal | null;
 }): Promise<GroundedResearchPacket> {
   const groundedResearchModel = createResearchModel({
     apiKey: opts.apiKey,
@@ -769,7 +771,7 @@ Return grounded research for:
 - real competitors with websites
 - real distribution channels with audience-size cues
 - up to 4 market reports or authoritative sources with one key stat or takeaway each. Return fewer when only weak sources are available.`),
-  ]) as AIMessage;
+  ], opts.signal ? { signal: opts.signal } : undefined) as AIMessage;
 
   const rawText = getRawText(rawMessage);
   const parsedResearch = parseGroundedResearch(rawText);

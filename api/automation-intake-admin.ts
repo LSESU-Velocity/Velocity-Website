@@ -1,10 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { timingSafeEqual } from 'crypto';
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getFirestore, type Firestore, type QueryDocumentSnapshot } from 'firebase-admin/firestore';
+import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 
 import { decryptText } from '../lib/encryption.js';
-import { handleCors } from '../lib/serverSecurity.js';
+import { initFirebaseAdmin } from '../lib/firebaseAdmin.js';
+import { firstHeaderValue, handleCors } from '../lib/serverSecurity.js';
 
 const COLLECTION = 'automationIntakes';
 const ENCRYPTION_ENV_VAR = 'AUTOMATION_INTAKE_ENCRYPTION_KEY';
@@ -14,11 +14,6 @@ const MAX_LIMIT = 50;
 
 function isProductionDeployment(): boolean {
   return process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-}
-
-function firstHeaderValue(value: string | string[] | undefined): string {
-  if (Array.isArray(value)) return value[0] || '';
-  return value || '';
 }
 
 function getQueryValue(value: string | string[] | undefined): string {
@@ -65,30 +60,7 @@ function requireAdmin(req: VercelRequest, res: VercelResponse): boolean {
 }
 
 function initFirestore(): Firestore {
-  if (getApps().length === 0) {
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-
-    if (!projectId) throw new Error('FIREBASE_PROJECT_ID is not set');
-    if (!clientEmail) throw new Error('FIREBASE_CLIENT_EMAIL is not set');
-    if (!privateKey) throw new Error('FIREBASE_PRIVATE_KEY is not set');
-
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.slice(1, -1);
-    }
-    privateKey = privateKey.replace(/\\n/g, '\n');
-
-    initializeApp({
-      credential: cert({
-        projectId,
-        clientEmail,
-        privateKey,
-      }),
-    });
-  }
-
-  return getFirestore();
+  return initFirebaseAdmin();
 }
 
 function serializeFirestoreValue(value: unknown): unknown {
@@ -121,8 +93,11 @@ function pickIndexFields(id: string, data: Record<string, unknown>): Record<stri
     website: data.website ?? null,
     sector: data.sector ?? null,
     teamSizeBand: data.teamSizeBand ?? null,
+    // Contact PII now lives only in the encrypted blobs; the index carries a
+    // correlation hash. Legacy records may still have the plaintext fields.
     contactName: data.contactName ?? null,
     contactEmail: data.contactEmail ?? null,
+    contactEmailHash: data.contactEmailHash ?? null,
     submissionMode: data.submissionMode ?? null,
     workflowTitles: data.workflowTitles ?? [],
     status: data.status ?? null,

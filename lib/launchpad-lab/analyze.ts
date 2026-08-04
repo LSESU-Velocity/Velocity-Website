@@ -14,6 +14,7 @@ import {
 import { toDashboardDTO } from './normalizer.js';
 import { buildDashboardLab } from './lab.js';
 import { generateFallbackArtifacts } from './fallback-assets.js';
+import { extractTextContent, sanitizeHtmlDocument } from './html.js';
 
 export interface AnalyzeOptions {
   apiKey: string;
@@ -21,6 +22,8 @@ export interface AnalyzeOptions {
   includeArtifacts?: boolean;
   clarifications?: Record<string, string> | null;
   presetIntake?: IdeaIntake | null;
+  /** Aborts in-flight model calls when the HTTP client disconnects. */
+  signal?: AbortSignal | null;
 }
 
 export interface AnalyzeResult {
@@ -43,60 +46,6 @@ export interface AnalyzeInterrupt {
 
 export type AnalyzeOutcome = AnalyzeResult | AnalyzeError | AnalyzeInterrupt;
 export type ArtifactGenerationOutcome = { success: true; data: ArtifactBundle } | AnalyzeError;
-
-function extractTextContent(result: unknown): string {
-  if (typeof result === 'string') {
-    return result;
-  }
-
-  if (result && typeof result === 'object' && 'content' in result) {
-    const content = (result as { content: unknown }).content;
-
-    if (typeof content === 'string') {
-      return content;
-    }
-
-    if (Array.isArray(content)) {
-      return content
-        .map((part) => {
-          if (typeof part === 'string') {
-            return part;
-          }
-
-          if (part && typeof part === 'object' && 'text' in part && typeof part.text === 'string') {
-            return part.text;
-          }
-
-          return '';
-        })
-        .filter(Boolean)
-        .join('\n');
-    }
-  }
-
-  return '';
-}
-
-function sanitizeHtmlDocument(rawText: string): string | undefined {
-  let html = rawText.trim();
-
-  if (!html) {
-    return undefined;
-  }
-
-  html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-
-  const lower = html.toLowerCase();
-  const doctypeIndex = lower.indexOf('<!doctype');
-  const htmlIndex = lower.indexOf('<html');
-  const startIndex = doctypeIndex >= 0 ? doctypeIndex : htmlIndex;
-
-  if (startIndex > 0) {
-    html = html.slice(startIndex).trim();
-  }
-
-  return html.includes('<html') ? html : undefined;
-}
 
 function createArtifactContextFromRawAnalysis(idea: string, rawAnalysis: RawAnalysis): ArtifactPromptContext {
   return {
@@ -132,6 +81,7 @@ async function generateArtifact(
   modelName: string,
   kind: 'waitlist' | 'pitchDeck',
   context: ArtifactPromptContext,
+  signal?: AbortSignal | null,
 ): Promise<string | undefined> {
   const model = createModel({
     apiKey,
@@ -149,7 +99,7 @@ async function generateArtifact(
     const response = await model.invoke([
       new SystemMessage(prompt.system),
       new HumanMessage(prompt.user),
-    ]);
+    ], signal ? { signal } : undefined);
 
     return sanitizeHtmlDocument(extractTextContent(response));
   } catch (error) {
@@ -162,10 +112,11 @@ async function generateArtifacts(
   apiKey: string,
   modelName: string,
   context: ArtifactPromptContext,
+  signal?: AbortSignal | null,
 ): Promise<ArtifactBundle> {
   const [waitlistHtml, pitchDeckHtml] = await Promise.all([
-    generateArtifact(apiKey, modelName, 'waitlist', context),
-    generateArtifact(apiKey, modelName, 'pitchDeck', context),
+    generateArtifact(apiKey, modelName, 'waitlist', context, signal),
+    generateArtifact(apiKey, modelName, 'pitchDeck', context, signal),
   ]);
 
   return {
@@ -192,11 +143,11 @@ function ensureArtifactsWithFallback(artifacts: ArtifactBundle, context: Artifac
  * Returns either a successful DashboardDTO or a typed error.
  */
 export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('./graph.js').ProgressCallback }): Promise<AnalyzeOutcome> {
-  const { apiKey, idea, includeArtifacts = false, onProgress, clarifications, presetIntake } = opts;
+  const { apiKey, idea, includeArtifacts = false, onProgress, clarifications, presetIntake, signal } = opts;
   const { runGraph } = await import('./graph.js');
 
   try {
-    const graphOutcome = await runGraph({ apiKey, idea, onProgress, clarifications, presetIntake });
+    const graphOutcome = await runGraph({ apiKey, idea, onProgress, clarifications, presetIntake, signal });
 
     if ('interrupted' in graphOutcome && graphOutcome.interrupted) {
       return {
@@ -225,6 +176,7 @@ export async function runAnalysis(opts: AnalyzeOptions & { onProgress?: import('
         apiKey,
         getDefaultModel(detectProvider(apiKey)),
         createArtifactContextFromRawAnalysis(idea, rawAnalysis),
+        signal,
       )
       : {};
 
@@ -241,19 +193,20 @@ export async function generateFounderArtifacts(opts: {
   apiKey: string;
   idea: string;
   analysis: DashboardDTO;
+  signal?: AbortSignal | null;
 }): Promise<ArtifactGenerationOutcome> {
-  const { apiKey, idea, analysis } = opts;
+  const { apiKey, idea, analysis, signal } = opts;
   const context = createArtifactContextFromDashboard(idea, analysis);
   const provider = detectProvider(apiKey);
 
   try {
     let modelName = getDefaultModel(provider);
-    let artifacts = await generateArtifacts(apiKey, modelName, context);
+    let artifacts = await generateArtifacts(apiKey, modelName, context, signal);
 
     const fallbackModel = getFallbackModel(provider);
     if (!artifacts.waitlistHtml && !artifacts.pitchDeckHtml && fallbackModel && fallbackModel !== modelName) {
       modelName = fallbackModel;
-      artifacts = await generateArtifacts(apiKey, modelName, context);
+      artifacts = await generateArtifacts(apiKey, modelName, context, signal);
     }
 
     return { success: true, data: ensureArtifactsWithFallback(artifacts, context) };

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { parseJsonBody, rejectOversizedBody, requireMethod } from '../lib/apiHelpers.js';
 import {
   checkFirestoreRateLimit,
   getTrustedClientIp,
@@ -38,30 +39,15 @@ const RATE_LIMIT = 30;
 const RATE_WINDOW_MS = 60 * 1000;
 const MIN_REQUEST_GAP_MS = 1500;
 
-function bodyIsTooLarge(req: VercelRequest): boolean {
-  const len = Number(req.headers['content-length'] ?? 0);
-  return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
+  if (requireMethod(req, res, 'POST')) return;
+  if (rejectOversizedBody(req, res, MAX_BODY_BYTES)) return;
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  const parsedBody = parseJsonBody(req, res);
+  if (!parsedBody.ok) return;
 
-  if (bodyIsTooLarge(req)) {
-    return res.status(413).json({ error: 'Payload too large' });
-  }
-
-  let body: unknown;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON body' });
-  }
-
-  const parsed = ChatRequestSchema.safeParse(body);
+  const parsed = ChatRequestSchema.safeParse(parsedBody.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid request body' });
   }

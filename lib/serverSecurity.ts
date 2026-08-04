@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { createHash } from 'crypto';
 import type { Firestore } from 'firebase-admin/firestore';
-import { initFirebase } from './firebase.js';
+import { tryInitFirebaseAdmin } from './firebaseAdmin.js';
 
 type RateLimitReason = 'burst' | 'window' | 'unavailable';
 
@@ -17,7 +17,7 @@ export interface RateLimitResult {
   used?: number;
 }
 
-function firstHeaderValue(value: string | string[] | undefined): string {
+export function firstHeaderValue(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] || '';
   return value || '';
 }
@@ -159,12 +159,7 @@ export async function checkFirestoreRateLimit(
 }
 
 function tryInitFirestore(): Firestore | null {
-  try {
-    return initFirebase();
-  } catch (error) {
-    console.warn('Firestore unavailable for rate limiting:', error instanceof Error ? error.message : 'unknown');
-    return null;
-  }
+  return tryInitFirebaseAdmin();
 }
 
 /**
@@ -172,7 +167,7 @@ function tryInitFirestore(): Firestore | null {
  * and returns true when the request must stop.
  *
  * BYOK note: the user's own provider key carries the model cost, so the
- * limiter's job is protecting Vercel function time — it fails OPEN when
+ * limiter's job is protecting Vercel function time: it fails OPEN when
  * Firestore is unreachable rather than taking Launchpad down with it.
  */
 export async function enforceLaunchpadRateLimit(

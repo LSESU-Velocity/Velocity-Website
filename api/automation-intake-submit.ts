@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
 
+import { parseJsonBody, rejectOversizedBody, requireMethod } from '../lib/apiHelpers.js';
+import { tryInitFirebaseAdmin } from '../lib/firebaseAdmin.js';
 import {
   checkFirestoreRateLimit,
   getTrustedClientIp,
@@ -18,46 +18,19 @@ import { generateFinalBrief } from '../lib/automation-intake/engine.js';
 import { sanitizeDraftForServer } from '../lib/automation-intake/sanitize.js';
 import { saveIntakeSubmission } from '../lib/automation-intake/persistence.js';
 
-const MAX_BODY_BYTES = 96 * 1024; // 96 KB — full transcript included at submit time.
+const MAX_BODY_BYTES = 96 * 1024; // 96 KB: full transcript included at submit time.
 const RATE_LIMIT = 5;
 const RATE_WINDOW_MS = 60 * 1000;
 
-function initFirebaseSafe() {
-  if (getApps().length > 0) return getFirestore();
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  if (!projectId || !clientEmail || !privateKey) return null;
-  if (privateKey.startsWith('"') && privateKey.endsWith('"')) privateKey = privateKey.slice(1, -1);
-  privateKey = privateKey.replace(/\\n/g, '\n');
-  initializeApp({ credential: cert({ projectId, clientEmail, privateKey }) });
-  return getFirestore();
-}
-
-function bodyIsTooLarge(req: VercelRequest): boolean {
-  const len = Number(req.headers['content-length'] ?? 0);
-  return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
-}
-
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
+  if (requireMethod(req, res, 'POST')) return;
+  if (rejectOversizedBody(req, res, MAX_BODY_BYTES)) return;
 
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  const parsedBody = parseJsonBody(req, res);
+  if (!parsedBody.ok) return;
 
-  if (bodyIsTooLarge(req)) {
-    return res.status(413).json({ error: 'Payload too large' });
-  }
-
-  let body: unknown;
-  try {
-    body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON body' });
-  }
-
-  const parsed = SubmitRequestSchema.safeParse(body);
+  const parsed = SubmitRequestSchema.safeParse(parsedBody.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Invalid submission' });
   }
@@ -69,7 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ error: 'Thanks!' });
   }
 
-  const db = initFirebaseSafe();
+  const db = tryInitFirebaseAdmin();
   const ip = getTrustedClientIp(req);
   const rateLimit = await checkFirestoreRateLimit(db, {
     prefix: 'intake_submit',
@@ -94,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .json({ error: `Submission is missing required detail: ${formatMissingRequirements(missing)}.` });
   }
 
-  // Drop empty-named workflows before anything downstream sees the draft — these
+  // Drop empty-named workflows before anything downstream sees the draft: these
   // come from partial extraction or the form's "add workflow" shortcut and
   // carry no useful data.
   const cleanedDraft = {

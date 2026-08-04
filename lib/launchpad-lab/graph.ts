@@ -16,9 +16,11 @@ import {
 } from './model.js';
 import {
   getErrorMessage,
+  isAbortError,
   isFatalProviderError,
   isHighDemandError,
   isModelUnavailableError,
+  isSchemaValidationError,
 } from './errors.js';
 import { runGroundedResearch, type GroundedResearchPacket } from './research.js';
 import {
@@ -62,7 +64,19 @@ const GraphState = Annotation.Root({
   onProgress: Annotation<ProgressCallback | null>({ reducer: (_, v) => v, default: () => null }),
   interrupt: Annotation<InterruptPayload | null>({ reducer: (_, v) => v, default: () => null }),
   clarifications: Annotation<Record<string, string> | null>({ reducer: (_, v) => v, default: () => null }),
+  /** Set when the HTTP client disconnects: nodes stop instead of billing dead runs. */
+  signal: Annotation<AbortSignal | null>({ reducer: (_, v) => v, default: () => null }),
 });
+
+export const ANALYSIS_ABORTED_MESSAGE = 'Analysis aborted by the client.';
+
+/** Non-null when the run should stop because the caller went away. */
+function abortShortCircuit(state: { signal: AbortSignal | null }, node: string): Partial<GraphStateType> | null {
+  if (state.signal?.aborted) {
+    return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: node };
+  }
+  return null;
+}
 
 type GraphStateType = typeof GraphState.State;
 
@@ -207,12 +221,24 @@ function normalizeAnalystMemo(
 
   const fallback = fallbackByPerspective[perspective];
 
+  // Fallback text is a last resort, not analysis: mark the memo so the UI
+  // can tell the user this section carries low signal instead of passing
+  // canned filler off as a model verdict.
+  const hasContent = (items: string[]) =>
+    items.some((item) => shortenText(item, 140).length > 0);
+  const degraded =
+    !hasContent(rawMemo.keyPoints) ||
+    !hasContent(rawMemo.opportunities) ||
+    !hasContent(rawMemo.risks) ||
+    !shortenText(rawMemo.recommendation || '', 180);
+
   return AnalystMemoSchema.parse({
     perspective,
     keyPoints: normalizeMemoList(rawMemo.keyPoints, 4, 140, fallback.keyPoints),
     opportunities: normalizeMemoList(rawMemo.opportunities, 2, 140, fallback.opportunities),
     risks: normalizeMemoList(rawMemo.risks, 2, 140, fallback.risks),
     recommendation: shortenText(rawMemo.recommendation || fallback.recommendation, 180) || fallback.recommendation,
+    ...(degraded ? { degraded: true } : {}),
   });
 }
 
@@ -225,12 +251,21 @@ function normalizeCouncilJudge(rawJudge: z.infer<typeof CouncilJudgeLooseSchema>
     decidingFactors: ['Run one concrete validation loop before broadening the product.'],
   };
 
+  const hasContent = (items: string[]) =>
+    items.some((item) => shortenText(item, 140).length > 0);
+  const degraded =
+    !shortenText(rawJudge.finalTake || '', 220) ||
+    !hasContent(rawJudge.bullCase) ||
+    !hasContent(rawJudge.bearCase) ||
+    !hasContent(rawJudge.decidingFactors);
+
   return CouncilJudgeSchema.parse({
     verdict: rawJudge.verdict || fallback.verdict,
     finalTake: shortenText(rawJudge.finalTake || fallback.finalTake, 220) || fallback.finalTake,
     bullCase: normalizeMemoList(rawJudge.bullCase, 2, 140, fallback.bullCase),
     bearCase: normalizeMemoList(rawJudge.bearCase, 2, 140, fallback.bearCase),
     decidingFactors: normalizeMemoList(rawJudge.decidingFactors, 2, 140, fallback.decidingFactors),
+    ...(degraded ? { degraded: true } : {}),
     citations: rawJudge.citations ? {
       finalTake: coerceCitationRef(rawJudge.citations.finalTake),
       bullCase: coerceCitationArray(rawJudge.citations.bullCase),
@@ -292,9 +327,10 @@ function sleep(ms: number): Promise<void> {
 
 /**
  * Invoke a structured-output call with per-node recovery: one in-place retry
- * when the provider is overloaded, then a switch to the fallback model when
- * one exists. This replaces the old whole-graph retry, which re-ran every
- * node (including research) on a single transient failure.
+ * when the provider is overloaded, a switch to the fallback model when one
+ * exists, and one repair attempt when the model produced output that failed
+ * schema validation (the validation error is fed back so the regeneration is
+ * targeted, not a blind roll). Abort errors always propagate untouched.
  */
 async function invokeStructured<TSchema extends z.ZodTypeAny>(opts: {
   apiKey: string;
@@ -303,17 +339,23 @@ async function invokeStructured<TSchema extends z.ZodTypeAny>(opts: {
   schema: TSchema;
   name: string;
   messages: BaseMessage[];
+  signal?: AbortSignal | null;
 }): Promise<z.infer<TSchema>> {
   const fallbackModel = getFallbackModel(detectProvider(opts.apiKey));
+  const invokeConfig = opts.signal ? { signal: opts.signal } : undefined;
 
-  const run = (modelName: string) =>
+  const run = (modelName: string, messages: BaseMessage[] = opts.messages) =>
     createModel({ apiKey: opts.apiKey, model: modelName, maxOutputTokens: opts.maxOutputTokens })
       .withStructuredOutput(opts.schema, structuredOutputOptions(opts.apiKey, opts.name))
-      .invoke(opts.messages);
+      .invoke(messages, invokeConfig);
 
   try {
     return await run(opts.modelName);
   } catch (error) {
+    if (isAbortError(error)) {
+      throw error;
+    }
+
     const message = getErrorMessage(error);
     const canFallBack = Boolean(fallbackModel && fallbackModel !== opts.modelName);
 
@@ -323,6 +365,9 @@ async function invokeStructured<TSchema extends z.ZodTypeAny>(opts: {
       try {
         return await run(opts.modelName);
       } catch (retryError) {
+        if (isAbortError(retryError)) {
+          throw retryError;
+        }
         const retryMessage = getErrorMessage(retryError);
 
         if (canFallBack && (isHighDemandError(retryMessage) || isModelUnavailableError(retryMessage))) {
@@ -339,15 +384,32 @@ async function invokeStructured<TSchema extends z.ZodTypeAny>(opts: {
       return run(fallbackModel!);
     }
 
+    if (isSchemaValidationError(message)) {
+      console.warn(`[Launchpad Lab] ${opts.name}: output failed validation, attempting one repair pass`);
+      const repairMessages: BaseMessage[] = [
+        ...opts.messages,
+        new HumanMessage(
+          `Your previous response was rejected because it did not satisfy the required output schema. ` +
+          `Validation error: ${message.slice(0, 1200)}\n\n` +
+          `Respond again with ONLY a corrected JSON object that satisfies the schema exactly. ` +
+          `Fix the reported fields, keep every other value equivalent, and respect all length limits.`,
+        ),
+      ];
+      return run(opts.modelName, repairMessages);
+    }
+
     throw error;
   }
 }
 
 async function classifyIdea(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  const aborted = abortShortCircuit(state, 'classifyIdea');
+  if (aborted) return aborted;
+
   state.onProgress?.({ node: 'classifyIdea', status: 'running' });
 
   // A preset intake (from a clarification resume) makes the classify call
-  // redundant — reuse it instead of paying for the same extraction again.
+  // redundant: reuse it instead of paying for the same extraction again.
   if (state.intake) {
     state.onProgress?.({ node: 'classifyIdea', status: 'done', data: { intake: state.intake } });
     return { intake: state.intake };
@@ -360,6 +422,7 @@ async function classifyIdea(state: GraphStateType): Promise<Partial<GraphStateTy
       maxOutputTokens: 1024,
       schema: IdeaIntakeSchema,
       name: 'classify_idea',
+      signal: state.signal,
       messages: [
         new SystemMessage(`You are a startup classifier. Extract:
 - domain: industry or sector
@@ -378,6 +441,9 @@ Return the original idea in the "idea" field too.`),
     state.onProgress?.({ node: 'classifyIdea', status: 'done', data: { intake } });
     return { intake };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'classifyIdea' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'classifyIdea', status: 'error', error: msg });
 
@@ -775,6 +841,9 @@ async function normalizeIntake(state: GraphStateType): Promise<Partial<GraphStat
 }
 
 async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  const aborted = abortShortCircuit(state, 'researchWeb');
+  if (aborted) return aborted;
+
   state.onProgress?.({ node: 'researchWeb', status: 'running' });
 
   // Grounded research needs Gemini's googleSearch tool. Other providers run
@@ -799,6 +868,7 @@ async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateTyp
         targetUser: intake.targetUser,
         coreProblem: intake.coreProblem,
       },
+      signal: state.signal,
     });
 
     state.onProgress?.({
@@ -812,6 +882,9 @@ async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateTyp
     });
     return { research };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'researchWeb' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'researchWeb', status: 'error', error: msg });
 
@@ -827,6 +900,9 @@ async function researchWeb(state: GraphStateType): Promise<Partial<GraphStateTyp
 }
 
 async function runBullAnalyst(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  const aborted = abortShortCircuit(state, 'runBullAnalyst');
+  if (aborted) return aborted;
+
   state.onProgress?.({ node: 'runBullAnalyst', status: 'running' });
 
   try {
@@ -838,6 +914,7 @@ async function runBullAnalyst(state: GraphStateType): Promise<Partial<GraphState
       maxOutputTokens: 1024,
       schema: AnalystMemoLooseSchema,
       name: 'bull_memo',
+      signal: state.signal,
       messages: [
         new SystemMessage(`You are the BULL analyst on a startup council.
 
@@ -867,6 +944,9 @@ Focus on timing, differentiation, and why this wedge could be attractive right n
     state.onProgress?.({ node: 'runBullAnalyst', status: 'done', data: { memo } });
     return { bullMemo: memo };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'runBullAnalyst' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runBullAnalyst', status: 'error', error: msg });
 
@@ -874,13 +954,16 @@ Focus on timing, differentiation, and why this wedge could be attractive right n
       return { error: msg, failedNode: 'runBullAnalyst' };
     }
 
-    // A missing memo degrades gracefully — the judge and synthesis treat it
+    // A missing memo degrades gracefully: the judge and synthesis treat it
     // as unavailable rather than failing the run.
     return { bullMemo: null };
   }
 }
 
 async function runBearAnalyst(state: GraphStateType): Promise<Partial<GraphStateType>> {
+  const aborted = abortShortCircuit(state, 'runBearAnalyst');
+  if (aborted) return aborted;
+
   state.onProgress?.({ node: 'runBearAnalyst', status: 'running' });
 
   try {
@@ -892,6 +975,7 @@ async function runBearAnalyst(state: GraphStateType): Promise<Partial<GraphState
       maxOutputTokens: 1024,
       schema: AnalystMemoLooseSchema,
       name: 'bear_memo',
+      signal: state.signal,
       messages: [
         new SystemMessage(`You are the BEAR analyst on a startup council.
 
@@ -921,6 +1005,9 @@ Focus on saturation, retention, distribution difficulty, weak differentiation, o
     state.onProgress?.({ node: 'runBearAnalyst', status: 'done', data: { memo } });
     return { bearMemo: memo };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'runBearAnalyst' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runBearAnalyst', status: 'error', error: msg });
 
@@ -937,6 +1024,9 @@ async function runCouncilJudge(state: GraphStateType): Promise<Partial<GraphStat
     return {};
   }
 
+  const aborted = abortShortCircuit(state, 'runCouncilJudge');
+  if (aborted) return aborted;
+
   state.onProgress?.({ node: 'runCouncilJudge', status: 'running' });
 
   try {
@@ -950,6 +1040,7 @@ async function runCouncilJudge(state: GraphStateType): Promise<Partial<GraphStat
       maxOutputTokens: 1024,
       schema: CouncilJudgeLooseSchema,
       name: 'council_judge',
+      signal: state.signal,
       messages: [
         new SystemMessage(`You are the final JUDGE on a startup council.
 
@@ -999,6 +1090,9 @@ Only cite IDs that exist in the source catalog.`),
     state.onProgress?.({ node: 'runCouncilJudge', status: 'done', data: { judge } });
     return { judgeMemo: judge };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'runCouncilJudge' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'runCouncilJudge', status: 'error', error: msg });
 
@@ -1015,6 +1109,9 @@ async function synthesizeOpportunity(state: GraphStateType): Promise<Partial<Gra
   if (state.error) {
     return {};
   }
+
+  const aborted = abortShortCircuit(state, 'synthesizeOpportunity');
+  if (aborted) return aborted;
 
   state.onProgress?.({ node: 'synthesizeOpportunity', status: 'running' });
 
@@ -1036,6 +1133,7 @@ async function synthesizeOpportunity(state: GraphStateType): Promise<Partial<Gra
       maxOutputTokens: 16384,
       schema: RawAnalysisSchema,
       name: 'startup_analysis',
+      signal: state.signal,
       messages: [
       new SystemMessage(buildAnalysisSystemPrompt()),
       new HumanMessage(`${buildUserMessage(intake.idea)}
@@ -1075,12 +1173,20 @@ Treat the judge as the arbitration layer for the final recommendation, while kee
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'done' });
     return { synthesis: normalizedSynthesis };
   } catch (err) {
+    if (isAbortError(err)) {
+      return { error: ANALYSIS_ABORTED_MESSAGE, failedNode: 'synthesizeOpportunity' };
+    }
     const msg = getErrorMessage(err);
     state.onProgress?.({ node: 'synthesizeOpportunity', status: 'error', error: msg });
     return { error: msg, failedNode: 'synthesizeOpportunity' };
   }
 }
 
+/**
+ * Final validation gate. Repair itself happens upstream in invokeStructured
+ * (one regeneration pass with the validation errors fed back); this node is
+ * the last schema check before the result is declared terminal.
+ */
 async function qaAndRepair(state: GraphStateType): Promise<Partial<GraphStateType>> {
   state.onProgress?.({ node: 'qaAndRepair', status: 'running' });
 
@@ -1166,8 +1272,10 @@ export interface GraphRunOptions {
   modelName?: string;
   onProgress?: ProgressCallback;
   clarifications?: Record<string, string> | null;
-  /** Intake from a previous interrupt — skips the classify model call. */
+  /** Intake from a previous interrupt, skips the classify model call. */
   presetIntake?: IdeaIntake | null;
+  /** Aborts in-flight model calls when the HTTP client disconnects. */
+  signal?: AbortSignal | null;
 }
 
 export interface CouncilMemos {
@@ -1212,6 +1320,7 @@ export async function runGraph(opts: GraphRunOptions): Promise<GraphRunOutcome> 
     intake: opts.presetIntake || null,
     onProgress: opts.onProgress || null,
     clarifications: opts.clarifications || null,
+    signal: opts.signal || null,
   });
 
   if (finalState.interrupt) {

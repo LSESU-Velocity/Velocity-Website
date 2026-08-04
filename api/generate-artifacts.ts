@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { parseJsonBody, requireMethod } from '../lib/apiHelpers.js';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { DashboardDTOSchema, generateFounderArtifacts } from '../lib/launchpad-lab/index.js';
 import { getLaunchpadInputSafetyIssue, sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
@@ -9,10 +10,7 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'POST')) return;
 
   const userApiKey = getLaunchpadProviderKey(req);
 
@@ -21,16 +19,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    let parsedBody: Record<string, unknown>;
-    if (typeof req.body === 'string') {
-      try {
-        parsedBody = JSON.parse(req.body || '{}') as Record<string, unknown>;
-      } catch {
-        return res.status(400).json({ error: 'Request body must be valid JSON' });
-      }
-    } else {
-      parsedBody = (req.body ?? {}) as Record<string, unknown>;
-    }
+    const parsed = parseJsonBody(req, res);
+    if (!parsed.ok) return;
+    const parsedBody = parsed.body;
 
     const idea = parsedBody.idea;
     const analysis = parsedBody.analysis;
@@ -59,11 +50,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    const abortController = new AbortController();
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        abortController.abort();
+      }
+    });
+
     const outcome = await generateFounderArtifacts({
       apiKey: userApiKey.trim(),
       idea: sanitizeUserInput(idea.trim()),
       analysis: validatedAnalysis,
+      signal: abortController.signal,
     });
+
+    if (abortController.signal.aborted) {
+      return res.end();
+    }
 
     if (!outcome.success) {
       console.error('Founder asset generation failed:', outcome.error, outcome.details ? `| details: ${outcome.details}` : '');

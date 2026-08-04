@@ -5,10 +5,11 @@
  * Sensitive payloads (full draft, transcript, final brief) are AES-256-GCM encrypted
  * using AUTOMATION_INTAKE_ENCRYPTION_KEY.
  */
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getFirestore, FieldValue, type Firestore } from 'firebase-admin/firestore';
+import { FieldValue } from 'firebase-admin/firestore';
 
 import { encryptText } from '../encryption.js';
+import { initFirebaseAdmin } from '../firebaseAdmin.js';
+import { hashMagicEmail } from './email-verification.js';
 import type {
   AutomationIntakeDraft,
   ChatMessage,
@@ -18,26 +19,6 @@ import type {
 
 const COLLECTION = 'automationIntakes';
 const ENCRYPTION_ENV_VAR = 'AUTOMATION_INTAKE_ENCRYPTION_KEY';
-
-function initFirebaseForIntake(): Firestore {
-  if (getApps().length === 0) {
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    if (!privateKey) throw new Error('FIREBASE_PRIVATE_KEY is not set');
-    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.slice(1, -1);
-    }
-    privateKey = privateKey.replace(/\\n/g, '\n');
-
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey,
-      }),
-    });
-  }
-  return getFirestore();
-}
 
 export interface SaveIntakeArgs {
   draft: AutomationIntakeDraft;
@@ -57,20 +38,22 @@ export async function saveIntakeSubmission(args: SaveIntakeArgs): Promise<SaveIn
     throw new Error(`${ENCRYPTION_ENV_VAR} is not set`);
   }
 
-  const db = initFirebaseForIntake();
+  const db = initFirebaseAdmin();
 
   const { draft, rawTranscript, finalBrief, submissionMode, ipHash } = args;
   const transcriptForRecord = rawTranscript ?? draft.transcript;
   const rawUserMessages = transcriptForRecord.filter((message) => message.role === 'user');
 
-  // Plaintext index fields only. Everything sensitive lives in the encrypted blobs.
+  // Plaintext index fields only. Everything person-identifying (contact name,
+  // email, transcript, brief) lives in the encrypted blobs; the index keeps a
+  // salt-free email hash so operators can correlate records without exposing
+  // the address itself.
   const plaintextIndex = {
     businessName: draft.business.businessName ?? null,
     website: draft.business.website ?? null,
     sector: draft.business.sector ?? null,
     teamSizeBand: draft.business.teamSizeBand ?? null,
-    contactName: draft.contact.name ?? null,
-    contactEmail: draft.contact.email ?? null,
+    contactEmailHash: draft.contact.email ? hashMagicEmail(draft.contact.email) : null,
     submissionMode,
     workflowTitles: draft.workflows.map((w) => w.name).filter(Boolean),
     status: 'new' as const,

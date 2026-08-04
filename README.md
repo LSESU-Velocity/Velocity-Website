@@ -16,26 +16,26 @@ Launchpad takes a founder's early idea and runs it through a structured analysis
 2. Connect an LLM API key when prompted.
 3. Launchpad runs the idea through an orchestrated LangGraph workflow:
    - **Idea classification and intake normalization**
-   - **Bull analyst** — identifies upside, market opportunity, and momentum
-   - **Bear analyst** — stress-tests assumptions, surfaces risks and objections
-   - **Synthesis** — merges perspectives into a unified opportunity assessment
-   - **QA and repair** — validates the report against the output schema
+   - **Bull analyst**: identifies upside, market opportunity, and momentum
+   - **Bear analyst**: stress-tests assumptions, surfaces risks and objections
+   - **Synthesis**: merges perspectives into a unified opportunity assessment
+   - **QA and repair**: schema-validation failures trigger one targeted regeneration pass with the errors fed back, then a final validation gate
 
 ### What you get
 
-- **Analyst Council** — Bull and bear perspectives with key points and recommendations
-- **Confidence Score** — Overall assessment with open risks and next moves
-- **Market Sizing** — Directional TAM/SAM/SOM based on reachable communities
-- **Competitor Map** — Visual perceptual map showing your gap
-- **Customer Segments** — Target demographics with income levels and pain points
-- **Monetization Strategy** — Revenue models with pricing suggestions
-- **Distribution Channels** — Real communities where your users hang out
-- **Prompt Chain** — Step-by-step prompts to build your MVP with AI coding assistants
-- **Founder Assets** (optional) — Waitlist landing page and pitch deck, generated on demand
+- **Analyst Council**: Bull and bear perspectives with key points and recommendations
+- **Confidence Score**: Overall assessment with open risks and next moves
+- **Market Sizing**: Directional TAM/SAM/SOM based on reachable communities
+- **Competitor Map**: Visual perceptual map showing your gap
+- **Customer Segments**: Target demographics with income levels and pain points
+- **Monetization Strategy**: Revenue models with pricing suggestions
+- **Distribution Channels**: Real communities where your users hang out
+- **Prompt Chain**: Step-by-step prompts to build your MVP with AI coding assistants
+- **Founder Assets** (optional): Waitlist landing page and pitch deck, generated on demand
 
 ### API key note
 
-Launchpad is bring-your-own-key: paste a Google AI Studio (Gemini), OpenAI, or Anthropic API key in the browser and the provider is detected from the key prefix. Live web research (Google Search grounding) runs on Gemini keys only — other providers run the analysis ungrounded. Velocity does not store the raw key server-side or sell API access. Keys are stored in browser `sessionStorage` by default, with an optional "remember on this device" setting. Provider terms, billing, data handling, and regional rules still apply.
+Launchpad is bring-your-own-key: paste a Google AI Studio (Gemini), OpenAI, or Anthropic API key in the browser and the provider is detected from the key prefix. Live web research (Google Search grounding) runs on Gemini keys only. Other providers run the analysis ungrounded. Velocity does not store the raw key server-side or sell API access. Keys are stored in browser `sessionStorage` by default, with an optional "remember on this device" setting. Provider terms, billing, data handling, and regional rules still apply.
 
 ## Tech Stack
 
@@ -70,7 +70,7 @@ Launchpad is bring-your-own-key: paste a Google AI Studio (Gemini), OpenAI, or A
    cp .env.example .env.local
    ```
 
-4. Configure `.env.local` — see `.env.example` for available variables. Launchpad does not require a platform model API key; users supply their own Google AI Studio key in the browser.
+4. Configure `.env.local`. See `.env.example` for available variables. Launchpad does not require a platform model API key; users supply their own Google AI Studio key in the browser.
 
 5. Start the API server (needed for Launchpad analysis):
    ```bash
@@ -83,6 +83,17 @@ Launchpad is bring-your-own-key: paste a Google AI Studio (Gemini), OpenAI, or A
    ```
 
 7. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Development checks
+
+```bash
+npm run typecheck   # TypeScript, no emit
+npm run lint        # ESLint (errors block CI; react-hooks compiler rules warn)
+npm test            # Vitest unit suite (sanitizers, SSE parser, guards, crypto)
+npm run build       # Production bundle
+```
+
+CI runs all four on every push and pull request (`.github/workflows/ci.yml`).
 
 ## Project Structure
 

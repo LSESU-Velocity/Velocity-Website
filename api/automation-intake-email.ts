@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { parseJsonBody, rejectOversizedBody, requireMethod } from '../lib/apiHelpers.js';
 import {
   checkFirestoreRateLimit,
   getTrustedClientIp,
@@ -30,12 +31,10 @@ const EMAIL_RATE_LIMIT = 3;
 const EMAIL_RATE_WINDOW_MS = 15 * 60 * 1000;
 const MIN_REQUEST_GAP_MS = 5 * 1000;
 
-type EmailAction = 'start' | 'status' | 'verify';
+type EmailAction = 'start' | 'status' | 'verify' | 'confirm';
 
-function bodyIsTooLarge(req: VercelRequest): boolean {
-  const len = Number(req.headers['content-length'] ?? 0);
-  return Number.isFinite(len) && len > 0 && len > MAX_BODY_BYTES;
-}
+// Magic-link tokens are base64url from randomBytes: anything else is noise.
+const TOKEN_PATTERN = /^[A-Za-z0-9_-]{1,256}$/;
 
 function firstQueryValue(value: string | string[] | undefined): string {
   if (Array.isArray(value)) return value[0] || '';
@@ -44,41 +43,86 @@ function firstQueryValue(value: string | string[] | undefined): string {
 
 function getAction(req: VercelRequest): EmailAction | null {
   const action = firstQueryValue(req.query.action);
-  if (action === 'start' || action === 'status' || action === 'verify') return action;
+  if (action === 'start' || action === 'status' || action === 'verify' || action === 'confirm') {
+    return action;
+  }
   return null;
 }
 
-function getToken(req: VercelRequest): string {
-  return firstQueryValue(req.query.token);
+function getQueryToken(req: VercelRequest): string {
+  const token = firstQueryValue(req.query.token);
+  return TOKEN_PATTERN.test(token) ? token : '';
 }
 
-function redirect(res: VercelResponse, location: string): void {
-  res.statusCode = 302;
+/** Token from an urlencoded confirm POST; body may be a parsed object or a raw string. */
+function getBodyToken(req: VercelRequest): string {
+  let token = '';
+  if (typeof req.body === 'string') {
+    token = new URLSearchParams(req.body).get('token') || '';
+  } else if (req.body && typeof req.body === 'object') {
+    const raw = (req.body as Record<string, unknown>).token;
+    token = typeof raw === 'string' ? raw : '';
+  }
+  return TOKEN_PATTERN.test(token) ? token : '';
+}
+
+function redirect(res: VercelResponse, location: string, status = 302): void {
+  res.statusCode = status;
   res.setHeader('Location', location);
   res.end();
 }
 
-async function readJsonBody(req: VercelRequest): Promise<unknown> {
-  return typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body ?? {};
+/**
+ * Confirmation page served on the emailed GET link. The GET consumes nothing:
+ * corporate mail scanners that prefetch links can no longer burn the one-time
+ * token before the human arrives. Redemption happens only on the button's POST.
+ *
+ * Styling is inline-attribute only and there is no script: the page must
+ * render under the site CSP (script-src 'self', style-src-attr 'unsafe-inline').
+ */
+function renderConfirmPage(token: string): string {
+  const page = 'font-family:Arial,Helvetica,sans-serif;background:#0a0a0a;color:#ffffff;min-height:100vh;display:flex;align-items:center;justify-content:center;margin:0;padding:24px';
+  const card = 'max-width:420px;width:100%;border:1px solid #2a2a2a;border-radius:16px;padding:32px;background:#111111;text-align:center';
+  const button = 'display:inline-block;width:100%;box-sizing:border-box;background:#ff1f1f;color:#ffffff;border:none;border-radius:9999px;padding:14px 20px;font-size:15px;font-weight:bold;letter-spacing:0.04em;cursor:pointer';
+  const muted = 'color:#8a8a8a;font-size:13px;line-height:1.55';
+
+  return [
+    '<!DOCTYPE html>',
+    '<html lang="en">',
+    '<head>',
+    '<meta charset="utf-8" />',
+    '<meta name="viewport" content="width=device-width, initial-scale=1" />',
+    '<meta name="robots" content="noindex" />',
+    '<title>Confirm your email | Velocity</title>',
+    '</head>',
+    `<body style="${page}">`,
+    `<main style="${card}">`,
+    '<h1 style="font-size:22px;margin:0 0 12px">Confirm your email</h1>',
+    `<p style="${muted};margin:0 0 24px">Press the button below to unlock AI chat for the Velocity automation intake. This link is single-use and expires 30 minutes after it was requested.</p>`,
+    '<form method="POST" action="/api/automation-intake-email?action=confirm">',
+    `<input type="hidden" name="token" value="${token}" />`,
+    `<button type="submit" style="${button}">Confirm email</button>`,
+    '</form>',
+    `<p style="${muted};margin:24px 0 0">If you did not request this, close this page: nothing happens without the confirmation above.</p>`,
+    '</main>',
+    '</body>',
+    '</html>',
+  ].join('');
+}
+
+function sendVerificationFailureRedirect(req: VercelRequest, res: VercelResponse): void {
+  res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
+  redirect(res, '/automation-intake?intakeEmailVerified=0', 303);
 }
 
 async function handleStart(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'POST')) return;
+  if (rejectOversizedBody(req, res, MAX_BODY_BYTES)) return;
 
-  if (bodyIsTooLarge(req)) {
-    return res.status(413).json({ error: 'Payload too large' });
-  }
+  const parsedBody = parseJsonBody(req, res);
+  if (!parsedBody.ok) return;
 
-  let body: unknown;
-  try {
-    body = await readJsonBody(req);
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON body' });
-  }
-
-  const parsed = MagicEmailStartRequestSchema.safeParse(body);
+  const parsed = MagicEmailStartRequestSchema.safeParse(parsedBody.body);
   if (!parsed.success) {
     return res.status(400).json({ error: 'Enter a valid email address.' });
   }
@@ -149,9 +193,7 @@ async function handleStart(req: VercelRequest, res: VercelResponse) {
 }
 
 async function handleStatus(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'GET')) return;
 
   const db = initAutomationIntakeFirebase();
   const verified = await getVerifiedIntakeEmail(db, req);
@@ -169,32 +211,50 @@ async function handleStatus(req: VercelRequest, res: VercelResponse) {
   return res.status(200).json(response);
 }
 
+/**
+ * GET from the emailed link: show the confirm page without touching the token.
+ */
 async function handleVerify(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'GET')) return;
 
-  const db = initAutomationIntakeFirebase();
-  if (!db) {
-    res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
-    redirect(res, '/automation-intake?intakeEmailVerified=0');
+  const token = getQueryToken(req);
+  if (!token) {
+    sendVerificationFailureRedirect(req, res);
     return;
   }
 
-  const redeemed = await redeemMagicEmailToken({
-    db,
-    req,
-    token: getToken(req),
-  });
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  return res.status(200).send(renderConfirmPage(token));
+}
+
+/**
+ * POST from the confirm page: redeem the one-time token and set the cookie.
+ */
+async function handleConfirm(req: VercelRequest, res: VercelResponse) {
+  if (requireMethod(req, res, 'POST')) return;
+  if (rejectOversizedBody(req, res, MAX_BODY_BYTES)) return;
+
+  const db = initAutomationIntakeFirebase();
+  if (!db) {
+    sendVerificationFailureRedirect(req, res);
+    return;
+  }
+
+  const token = getBodyToken(req);
+  if (!token) {
+    sendVerificationFailureRedirect(req, res);
+    return;
+  }
+
+  const redeemed = await redeemMagicEmailToken({ db, req, token });
 
   if (!redeemed.ok) {
-    res.setHeader('Set-Cookie', buildClearIntakeEmailCookie(req));
-    redirect(res, '/automation-intake?intakeEmailVerified=0');
+    sendVerificationFailureRedirect(req, res);
     return;
   }
 
   res.setHeader('Set-Cookie', redeemed.cookie);
-  redirect(res, redeemed.redirectTo);
+  redirect(res, redeemed.redirectTo, 303);
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -206,6 +266,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (action === 'start') return handleStart(req, res);
   if (action === 'status') return handleStatus(req, res);
   if (action === 'verify') return handleVerify(req, res);
+  if (action === 'confirm') return handleConfirm(req, res);
 
   return res.status(400).json({ error: 'Invalid email verification action.' });
 }

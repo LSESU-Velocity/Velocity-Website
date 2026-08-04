@@ -2,6 +2,7 @@ import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { z } from 'zod';
 import { createModel, detectProvider, getDefaultModel, structuredOutputOptions } from './model.js';
 import { classifyProviderError, getErrorMessage } from './errors.js';
+import { extractTextContent, sanitizeHtmlDocument } from './html.js';
 import { buildDirectionalMarketSizing, buildFallbackCouncilJudge } from './lab.js';
 import {
   type ArtifactPromptContext,
@@ -14,7 +15,6 @@ import {
   CustomerSegmentSchema,
   DashboardDTOSchema,
   DistributionChannelSchema,
-  IdeaIntakeSchema,
   LabPhaseSchema,
   LabSummarySchema,
   MarketGapSchema,
@@ -63,6 +63,8 @@ export interface WidgetMutationOptions {
   phaseId: LabPhase;
   targetId: WidgetTarget;
   instruction: string;
+  /** Aborts in-flight model calls when the HTTP client disconnects. */
+  signal?: AbortSignal | null;
 }
 
 export interface WidgetMutationResult {
@@ -81,60 +83,6 @@ export interface WidgetMutationError {
 }
 
 export type WidgetMutationOutcome = WidgetMutationResult | WidgetMutationError;
-
-function sanitizeHtmlDocument(rawText: string): string | undefined {
-  let html = rawText.trim();
-
-  if (!html) {
-    return undefined;
-  }
-
-  html = html.replace(/^```html\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-
-  const lower = html.toLowerCase();
-  const doctypeIndex = lower.indexOf('<!doctype');
-  const htmlIndex = lower.indexOf('<html');
-  const startIndex = doctypeIndex >= 0 ? doctypeIndex : htmlIndex;
-
-  if (startIndex > 0) {
-    html = html.slice(startIndex).trim();
-  }
-
-  return html.includes('<html') ? html : undefined;
-}
-
-function extractTextContent(result: unknown): string {
-  if (typeof result === 'string') {
-    return result;
-  }
-
-  if (result && typeof result === 'object' && 'content' in result) {
-    const content = (result as { content: unknown }).content;
-
-    if (typeof content === 'string') {
-      return content;
-    }
-
-    if (Array.isArray(content)) {
-      return content
-        .map((part) => {
-          if (typeof part === 'string') {
-            return part;
-          }
-
-          if (part && typeof part === 'object' && 'text' in part && typeof part.text === 'string') {
-            return part.text;
-          }
-
-          return '';
-        })
-        .filter(Boolean)
-        .join('\n');
-    }
-  }
-
-  return '';
-}
 
 function trimForPrompt(value: string | undefined, maxLength: number): string {
   if (!value) {
@@ -206,12 +154,14 @@ async function runStructuredMutation<TSchema extends z.ZodTypeAny>({
   name,
   system,
   user,
+  signal,
 }: {
   apiKey: string;
   schema: TSchema;
   name: string;
   system: string;
   user: string;
+  signal?: AbortSignal | null;
 }): Promise<z.infer<TSchema>> {
   const model = createModel({
     apiKey,
@@ -224,7 +174,7 @@ async function runStructuredMutation<TSchema extends z.ZodTypeAny>({
   return structured.invoke([
     new SystemMessage(system),
     new HumanMessage(user),
-  ]);
+  ], signal ? { signal } : undefined);
 }
 
 async function mutateValidation(opts: WidgetMutationOptions): Promise<WidgetMutationResult> {
@@ -238,6 +188,7 @@ async function mutateValidation(opts: WidgetMutationOptions): Promise<WidgetMuta
 
   const mutation = await runStructuredMutation({
     apiKey: opts.apiKey,
+    signal: opts.signal,
     schema: ValidationMutationSchema,
     name: 'validation_widget_mutation',
     system: `You update the validation phase of a startup analysis after a founder changes an assumption.
@@ -329,6 +280,7 @@ async function mutateStrategy(opts: WidgetMutationOptions): Promise<WidgetMutati
 
   const mutation = await runStructuredMutation({
     apiKey: opts.apiKey,
+    signal: opts.signal,
     schema: StrategyMutationSchema,
     name: 'strategy_widget_mutation',
     system: `You update strategy widgets for a startup analysis after a founder changes the go-to-market or pricing assumptions.
@@ -392,6 +344,7 @@ Rules:
 async function mutatePromptChain(opts: WidgetMutationOptions): Promise<WidgetMutationResult> {
   const mutation = await runStructuredMutation({
     apiKey: opts.apiKey,
+    signal: opts.signal,
     schema: PromptChainMutationSchema,
     name: 'prompt_chain_mutation',
     system: `You update a 3-step AI coding prompt chain for a startup.
@@ -447,7 +400,7 @@ ${opts.instruction}
 
 ${existingHtml ? `CURRENT HTML TO EVOLVE:
 ${trimForPrompt(existingHtml, kind === 'waitlist' ? 12000 : 16000)}` : 'There is no existing HTML yet. Generate a fresh asset that follows the request.'}`),
-  ]);
+  ], opts.signal ? { signal: opts.signal } : undefined);
 
   const html = sanitizeHtmlDocument(extractTextContent(response));
   if (!html) {

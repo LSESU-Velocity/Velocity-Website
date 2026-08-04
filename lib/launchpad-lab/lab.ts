@@ -92,6 +92,8 @@ export function buildFallbackCouncilJudge({
 
   return {
     verdict,
+    // This judge is synthesized from memo fragments, not a model verdict.
+    degraded: true,
     finalTake: toSentence(finalTake, 'Keep the wedge narrow until the strongest assumption is tested.'),
     bullCase: bullStrengths.length ? bullStrengths : ['There is a plausible wedge if the initial user and workflow stay focused.'],
     bearCase: bearStrengths.length ? bearStrengths : ['Differentiation and repeat usage still need stronger proof.'],

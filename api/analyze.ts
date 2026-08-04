@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { parseJsonBody, requireMethod } from '../lib/apiHelpers.js';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
 import { getLaunchpadInputSafetyIssue, sanitizeUserInput } from '../lib/launchpad-lab/sanitize.js';
@@ -9,10 +10,7 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'POST')) return;
 
   // Get user-supplied provider API key from header. x-gemini-key is still
   // accepted by getLaunchpadProviderKey for older clients.
@@ -23,16 +21,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    let parsedBody: Record<string, unknown>;
-    if (typeof req.body === 'string') {
-      try {
-        parsedBody = JSON.parse(req.body || '{}');
-      } catch {
-        return res.status(400).json({ error: 'Request body must be valid JSON' });
-      }
-    } else {
-      parsedBody = (req.body ?? {}) as Record<string, unknown>;
-    }
+    const parsed = parseJsonBody(req, res);
+    if (!parsed.ok) return;
+    const parsedBody = parsed.body;
 
     const idea = parsedBody?.idea;
     const includeArtifacts = parsedBody?.includeArtifacts === true;
@@ -58,11 +49,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    // Stop billing the user's key when the client disconnects mid-run.
+    const abortController = new AbortController();
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        abortController.abort();
+      }
+    });
+
     const outcome = await runAnalysis({
       apiKey: userApiKey.trim(),
       idea: sanitizedIdea,
       includeArtifacts,
+      signal: abortController.signal,
     });
+
+    if (abortController.signal.aborted) {
+      return res.end();
+    }
 
     if ('interrupted' in outcome && outcome.interrupted) {
       return res.status(422).json({

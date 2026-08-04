@@ -1,4 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { parseJsonBody, requireMethod } from '../lib/apiHelpers.js';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { mutateWidget } from '../lib/launchpad-lab/index.js';
 import { DashboardDTOSchema, LabPhaseSchema, WidgetTargetSchema } from '../lib/launchpad-lab/schemas.js';
@@ -10,10 +11,7 @@ export const config = {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'POST')) return;
 
   const userApiKey = getLaunchpadProviderKey(req);
 
@@ -22,16 +20,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    let parsedBody: Record<string, unknown>;
-    if (typeof req.body === 'string') {
-      try {
-        parsedBody = JSON.parse(req.body || '{}');
-      } catch {
-        return res.status(400).json({ error: 'Request body must be valid JSON' });
-      }
-    } else {
-      parsedBody = (req.body ?? {}) as Record<string, unknown>;
-    }
+    const parsed = parseJsonBody(req, res);
+    if (!parsed.ok) return;
+    const parsedBody = parsed.body;
 
     const idea = parsedBody?.idea;
     const instruction = parsedBody?.instruction;
@@ -73,6 +64,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
 
+    const abortController = new AbortController();
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        abortController.abort();
+      }
+    });
+
     const outcome = await mutateWidget({
       apiKey: userApiKey.trim(),
       idea: sanitizeUserInput(idea.trim()),
@@ -80,7 +78,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       phaseId: phaseResult.data,
       targetId: targetResult.data,
       instruction: sanitizeUserInput(instruction.trim(), 1000),
+      signal: abortController.signal,
     });
+
+    if (abortController.signal.aborted) {
+      return res.end();
+    }
 
     if (!outcome.success) {
       return res.status(outcome.statusCode).json(

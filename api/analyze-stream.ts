@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
+import { parseJsonBody, requireMethod } from '../lib/apiHelpers.js';
 import { enforceLaunchpadRateLimit, getLaunchpadProviderKey, handleCors } from '../lib/serverSecurity.js';
 import { runAnalysis } from '../lib/launchpad-lab/index.js';
 import type { NodeProgress } from '../lib/launchpad-lab/index.js';
@@ -42,10 +43,7 @@ const PresetIntakeSchema = z.object({
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleCors(req, res)) return;
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (requireMethod(req, res, 'POST')) return;
 
   const userApiKey = getLaunchpadProviderKey(req);
 
@@ -53,18 +51,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(401).json({ error: 'An AI provider API key is required.' });
   }
 
-  let parsedBody: Record<string, unknown>;
-  if (typeof req.body === 'string') {
-    try {
-      parsedBody = JSON.parse(req.body || '{}');
-    } catch {
-      return res.status(400).json({ error: 'Request body must be valid JSON' });
-    }
-  } else {
-    parsedBody = (req.body ?? {}) as Record<string, unknown>;
-  }
+  const parsedBody = parseJsonBody(req, res);
+  if (!parsedBody.ok) return;
+  const body = parsedBody.body;
 
-  const idea = parsedBody?.idea;
+  const idea = body?.idea;
 
   if (!idea || typeof idea !== 'string' || idea.trim().length < 3) {
     return res.status(400).json({ error: 'Idea description is required (min 3 characters)' });
@@ -77,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const sanitizedIdea = sanitizeUserInput(idea.trim());
 
-  const rawClarifications = parsedBody?.clarifications;
+  const rawClarifications = body?.clarifications;
   let clarifications: Record<string, string> | null = null;
   if (rawClarifications !== undefined && rawClarifications !== null) {
     const parsedClarifications = ClarificationsSchema.safeParse(rawClarifications);
@@ -92,8 +83,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   // A client resuming after an interrupt can return the intake it received,
   // so the pipeline does not pay for the classify call twice.
   let presetIntake: IdeaIntake | null = null;
-  if (parsedBody?.intake !== undefined && parsedBody?.intake !== null) {
-    const parsedIntake = PresetIntakeSchema.safeParse(parsedBody.intake);
+  if (body?.intake !== undefined && body?.intake !== null) {
+    const parsedIntake = PresetIntakeSchema.safeParse(body.intake);
     if (!parsedIntake.success) {
       return res.status(400).json({ error: 'Intake must match the interrupt payload shape.' });
     }
@@ -115,6 +106,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
+  // A closed connection before the response finished means the client is
+  // gone: abort the in-flight model calls instead of billing a dead run.
+  const abortController = new AbortController();
+  res.on('close', () => {
+    if (!res.writableEnded) {
+      abortController.abort();
+    }
+  });
+
   // Set up SSE headers
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -122,6 +122,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('X-Accel-Buffering', 'no');
 
   function sendEvent(event: string, data: unknown) {
+    if (res.writableEnded || res.destroyed) return;
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   }
 
@@ -137,7 +138,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       onProgress,
       clarifications,
       presetIntake,
+      signal: abortController.signal,
     });
+
+    if (abortController.signal.aborted) {
+      // Nobody is listening; end without spending time serializing events.
+      res.end();
+      return;
+    }
 
     if ('interrupted' in outcome && outcome.interrupted) {
       sendEvent('interrupt', {
@@ -153,8 +161,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Stream analysis error:', msg);
-    sendEvent('error', { error: 'Failed to generate analysis' });
+    if (!abortController.signal.aborted) {
+      console.error('Stream analysis error:', msg);
+      sendEvent('error', { error: 'Failed to generate analysis' });
+    }
   }
 
   res.end();

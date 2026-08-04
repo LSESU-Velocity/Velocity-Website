@@ -1,412 +1,453 @@
-import React, { useEffect, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
-import { BookOpen, Facebook, Linkedin, Share2, Twitter, X } from 'lucide-react';
-import { Breadcrumb } from './ResourceDiscounts';
+import React, { useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { Link, Navigate, useParams } from 'react-router-dom';
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  BookMarked,
+  Check,
+  Linkedin,
+  Link as LinkIcon,
+  Twitter,
+} from 'lucide-react';
+import {
+  blogPosts,
+  getBlogPost,
+  totalReferenceCount,
+  type BlogPost,
+} from '../lib/blogPosts';
+import {
+  Breadcrumb,
+  CornerTicks,
+  Eyebrow,
+  HeaderRule,
+  MetaRow,
+  ResourceFootnote,
+  SectionLabel,
+} from './resourceUi';
 
-interface BlogArticle {
-  id: string;
-  title: string;
-  excerpt: string;
-  author: string;
-  date: string;
-  image?: string;
-  body: string[];
-}
+/** Renders body text, converting inline [n] markers into superscript links to the reference list. */
+const CitedText: React.FC<{ text: string }> = ({ text }) => {
+  const tokens = useMemo(() => text.split(/(\[\d+\])/g), [text]);
 
-const featuredArticle: BlogArticle = {
-  id: 'featured',
-  title: 'The Vibe Coding Playbook: How to Ship Faster Without Burning Out',
-  excerpt:
-    'A practical guide to designing your vibe coding workflow, from idea clarity to weekly shipping rituals.',
-  author: 'Velocity Editorial',
-  date: 'Mar 12, 2026',
-  image:
-    'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=80',
-  body: [
-    'Vibe coding is about creating momentum: short loops, clear prompts, and a stack that reduces friction. The goal is to build "shippable" prototypes quickly without drowning in setup.',
-    'Below is a curated list of AI tools and how to use them effectively in a vibe coding workflow. Pair these tools with a crisp prompt and a lightweight spec, then ship a demo before you polish.',
-    '1) Cursor - Use Cursor for fast codebase edits and multi-file refactors. Start with a prompt that includes your goal, constraints, and data shape. Ask for a thin MVP, then iterate on UI polish.',
-    '2) Lovable - Great for rapid UI scaffolds and landing pages. Provide a brand direction, target user, and one conversion action. Generate the first version, then focus on clarity and layout.',
-    '3) ChatGPT / Claude - Best for reasoning, architecture, and prompt-level logic. Use them to outline flows, data models, and edge cases. Ask for a "happy path" first, then add guardrails.',
-    '4) No-code builders (Glide, Softr, Bubble) - Use AI to draft your schema and screens, then refine in the builder. Focus on the core user journey and automate the rest later.',
-    '5) Notion + Airtable - For quick databases. Ask AI to define a minimal table structure and sample rows. Keep it small and expandable.',
-    'Vibe coding works when you keep the loop tight: prompt -> generate -> test -> refine. Aim for a demo within 60-90 minutes, then polish in daily sprints.',
-  ],
+  return (
+    <>
+      {tokens.map((token, i) => {
+        const match = token.match(/^\[(\d+)\]$/);
+        if (!match) return <React.Fragment key={i}>{token}</React.Fragment>;
+        const n = match[1];
+        return (
+          <sup key={i} className="ml-0.5">
+            <a
+              href={`#ref-${n}`}
+              onClick={(e) => {
+                e.preventDefault();
+                const reduceMotion = window.matchMedia(
+                  '(prefers-reduced-motion: reduce)'
+                ).matches;
+                document.getElementById(`ref-${n}`)?.scrollIntoView({
+                  behavior: reduceMotion ? 'auto' : 'smooth',
+                  block: 'center',
+                });
+              }}
+              className="font-mono text-[0.72em] text-velocity-red transition-colors hover:text-white"
+              aria-label={`Jump to reference ${n}`}
+            >
+              [{n}]
+            </a>
+          </sup>
+        );
+      })}
+    </>
+  );
 };
 
-const sidebarArticles: BlogArticle[] = [
-  {
-    id: 's1',
-    title: 'Why Vibe Coding Works: The Psychology of Momentum',
-    author: 'Rhea Malik',
-    date: 'Feb 28, 2026',
-    excerpt: 'Momentum beats perfection. Learn the psychology behind fast iteration.',
-    body: [
-      'Momentum changes how teams make decisions. When progress is visible, you build confidence and clarity.',
-      'This article breaks down micro-wins, fast feedback loops, and how to design your week for shipping.',
-    ],
-  },
-  {
-    id: 's2',
-    title: 'The 30-Minute MVP: Tight Loops for High Output',
-    author: 'Noah Harper',
-    date: 'Feb 20, 2026',
-    excerpt: 'Build micro-MVPs in 30 minutes and stack learning fast.',
-    body: [
-      'A 30-minute MVP is about ruthless scope: one screen, one action, one insight.',
-      'Use prompts to generate the flow, then validate with a demo or quick user test.',
-    ],
-  },
-  {
-    id: 's3',
-    title: 'Prompt Packs for Product Teams: A New Ritual',
-    author: 'Talia Chen',
-    date: 'Feb 6, 2026',
-    excerpt: 'Create shared prompt packs that align teams and speed up builds.',
-    body: [
-      'Prompt packs are reusable templates for features, flows, and research tasks.',
-      'They reduce decision fatigue and help teams ship consistent experiences.',
-    ],
-  },
-  {
-    id: 's4',
-    title: 'From Idea to Interface: Vibe Coding for Designers',
-    author: 'Elena Park',
-    date: 'Jan 30, 2026',
-    excerpt: 'Designers can drive the loop by prompting for UI variations and flows.',
-    body: [
-      'Vibe coding helps designers test UX faster with quick prototypes and AI-assisted layouts.',
-      'Start with structure and hierarchy, then iterate on polish.',
-    ],
-  },
-  {
-    id: 's5',
-    title: 'Shipping With Friends: The Network Effect of Accountability',
-    author: 'David Kline',
-    date: 'Jan 24, 2026',
-    excerpt: 'Accountability turns ideas into products. Build with your peers.',
-    body: [
-      'Small accountability circles keep timelines tight and feedback frequent.',
-      'Pair up weekly to demo progress and unblock each other.',
-    ],
-  },
-];
+const PostMeta: React.FC<{ post: BlogPost; className?: string }> = ({
+  post,
+  className = '',
+}) => (
+  <div
+    className={`flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500 ${className}`}
+  >
+    <span>{post.author}</span>
+    <span aria-hidden className="text-zinc-700">
+      •
+    </span>
+    <span>{post.date}</span>
+    <span aria-hidden className="text-zinc-700">
+      •
+    </span>
+    <span>{post.readTime}</span>
+  </div>
+);
 
-const gridArticles: BlogArticle[] = [
-  {
-    id: 'g1',
-    title: 'Vibe Coding for Research Projects',
-    excerpt:
-      'Turn messy notes into structured product experiments with lightweight AI workflows.',
-    author: 'Velocity Editorial',
-    date: 'Feb 10, 2026',
-    image:
-      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'Research projects benefit from quick prototypes. Start by summarising the problem and desired outcome.',
-      'Use AI to generate possible flows, then ship a rough demo to validate assumptions.',
-    ],
-  },
-  {
-    id: 'g2',
-    title: 'How to Run a Vibe Coding Sprint',
-    excerpt:
-      'A 5-day sprint template for student teams building real products fast.',
-    author: 'Aliyah Gomez',
-    date: 'Feb 3, 2026',
-    image:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'A five-day sprint can deliver a demo and user feedback in a single week.',
-      'Day 1: prompt and plan. Day 2-3: build. Day 4: test. Day 5: polish and ship.',
-    ],
-  },
-  {
-    id: 'g3',
-    title: 'Vibe Coding Stack: Tools That Keep You Shipping',
-    excerpt:
-      'The lean stack for fast experimentation: prompts, no-code, and lightweight analytics.',
-    author: 'Jonas Reid',
-    date: 'Jan 18, 2026',
-    image:
-      'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'Keep your stack lean: prompts, a no-code builder, and a simple analytics layer.',
-      "Add complexity only after you've validated the core workflow.",
-    ],
-  },
-  {
-    id: 'g4',
-    title: 'How to Turn a Lecture Into an App',
-    excerpt:
-      'Capture a course insight, define the workflow, and ship an MVP in a weekend.',
-    author: 'Velocity Editorial',
-    date: 'Jan 10, 2026',
-    image:
-      'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'Great apps start with real needs. Translate lecture insights into a concrete user problem.',
-      'Build a minimal interface and validate with classmates.',
-    ],
-  },
-  {
-    id: 'g5',
-    title: 'The Vibe Coding Checklist',
-    excerpt: 'Use this checklist to keep your builds focused, fast, and fun.',
-    author: 'Rhea Malik',
-    date: 'Jan 5, 2026',
-    image:
-      'https://images.unsplash.com/photo-1517433456452-f9633a875f6f?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'Use this checklist to keep shipping: define the outcome, choose a stack, build a demo, get feedback, iterate.',
-      'Vibe coding is consistency over perfection.',
-    ],
-  },
-  {
-    id: 'g6',
-    title: 'Make It Real: Demo-First Product Building',
-    excerpt:
-      'Why demos drive clarity, and how to build your next feature around a live walkthrough.',
-    author: 'Noah Harper',
-    date: 'Dec 22, 2025',
-    image:
-      'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=1200&q=80',
-    body: [
-      'Demos clarify product decisions. Build the smallest demo that proves the value.',
-      'Then use the demo to align your team and stakeholders.',
-    ],
-  },
-];
+const ReferenceBadge: React.FC<{ count: number }> = ({ count }) => (
+  <span className="inline-flex items-center gap-1.5 border border-white/10 bg-velocity-black/70 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
+    <BookMarked className="h-3 w-3 text-velocity-red" />
+    {count} sources
+  </span>
+);
 
-export const Blog: React.FC = () => {
-  const [activeArticle, setActiveArticle] = useState<BlogArticle | null>(null);
+const FeaturedCard: React.FC<{ post: BlogPost }> = ({ post }) => (
+  <Link to={`/resources/blog/${post.slug}`} className="group block">
+    <motion.article
+      whileHover={{ y: -2 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+      className="relative overflow-hidden border border-white/10 bg-velocity-black/40 transition-colors duration-300 hover:border-white/25"
+    >
+      <CornerTicks />
+      <div className="grid md:grid-cols-[1.15fr_1fr]">
+        <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-white/10 md:aspect-auto md:min-h-[320px] md:border-b-0 md:border-r">
+          <img
+            src={post.image}
+            alt={post.imageAlt}
+            className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+          <div className="absolute left-4 top-4 flex items-center gap-2">
+            <span className="border border-white/10 bg-velocity-black/80 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-velocity-red">
+              Featured
+            </span>
+          </div>
+        </div>
+        <div className="flex flex-col justify-between p-7 md:p-9">
+          <div>
+            <p className="mb-4 font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+              <span className="text-velocity-red">{post.tag}</span>
+            </p>
+            <h2 className="mb-4 font-sans text-2xl font-bold tracking-tight text-white transition-colors group-hover:text-velocity-red md:text-3xl">
+              {post.title}
+            </h2>
+            <p className="mb-6 font-sans text-sm leading-relaxed text-zinc-500">
+              {post.dek}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <PostMeta post={post} />
+            <ReferenceBadge count={post.references.length} />
+          </div>
+        </div>
+      </div>
+    </motion.article>
+  </Link>
+);
 
+const PostCard: React.FC<{ post: BlogPost; index: number }> = ({ post, index }) => (
+  <Link to={`/resources/blog/${post.slug}`} className="group block h-full">
+    <motion.article
+      whileHover={{ y: -2 }}
+      transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+      className="flex h-full flex-col overflow-hidden border border-white/10 bg-velocity-black/40 transition-colors duration-300 hover:border-white/25"
+    >
+      <div className="relative aspect-[16/9] w-full overflow-hidden border-b border-white/10">
+        <img
+          src={post.image}
+          alt={post.imageAlt}
+          className="h-full w-full object-cover opacity-75 transition-transform duration-500 group-hover:scale-[1.02]"
+        />
+        <span className="absolute left-4 top-4 border border-white/10 bg-velocity-black/80 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
+          {String(index).padStart(2, '0')}
+        </span>
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+          <span className="text-velocity-red">{post.tag}</span>
+        </p>
+        <h3 className="mb-3 font-sans text-lg font-bold tracking-tight text-white transition-colors group-hover:text-velocity-red">
+          {post.title}
+        </h3>
+        <p className="mb-5 flex-1 font-sans text-sm leading-relaxed text-zinc-500">
+          {post.dek}
+        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+            {post.date} · {post.readTime}
+          </div>
+          <ReferenceBadge count={post.references.length} />
+        </div>
+      </div>
+    </motion.article>
+  </Link>
+);
+
+const BlogIndex: React.FC = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
+    document.title = 'Blog | Velocity';
   }, []);
 
-  const openArticle = (article: BlogArticle) => {
-    setActiveArticle(article);
-  };
-
-  const shareUrl = (article: BlogArticle) => {
-    if (typeof window === 'undefined') return '';
-    return `${window.location.origin}/resources/blog#${article.id}`;
-  };
-
-  const shareText = (article: BlogArticle) => `${article.title} - Velocity Blog`;
-
-  const openShare = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  const [featured, ...rest] = blogPosts;
 
   return (
     <section className="relative z-10 min-h-screen bg-velocity-black px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <Breadcrumb current="Blog" />
 
-        <div className="mx-auto mb-14 max-w-3xl md:text-center">
-          <div className="mb-4 inline-flex items-center gap-2 border border-white/10 bg-velocity-black/40 px-3 py-1 font-sans text-xs uppercase tracking-widest text-zinc-400">
-            <BookOpen className="h-3.5 w-3.5 text-velocity-red" />
-            Playbooks from the Velocity community
-          </div>
-          <h1 className="mb-3 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
-            <span className="text-velocity-red">Blog</span>
-          </h1>
-          <p className="font-sans text-sm leading-relaxed text-gray-500 md:text-base">
-            Stories, frameworks, and prompts to help you master vibe coding and ship
-            faster.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.6fr_1fr]">
-          <article
-            className="cursor-pointer overflow-hidden border border-white/10 bg-velocity-black/40 transition-colors duration-300 hover:border-white/20"
-            onClick={() => openArticle(featuredArticle)}
-          >
-            <div className="aspect-[16/9] w-full overflow-hidden">
-              <img
-                src={featuredArticle.image}
-                alt={featuredArticle.title}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="p-6 md:p-8">
-              <h2 className="mb-3 font-sans text-2xl font-bold text-white">
-                {featuredArticle.title}
-              </h2>
-              <p className="mb-4 font-sans text-sm leading-relaxed text-zinc-500">
-                {featuredArticle.excerpt}
+        <header className="mb-14">
+          <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <Eyebrow>The Velocity journal</Eyebrow>
+              <h1 className="mb-5 font-sans text-5xl font-black tracking-tighter text-white md:text-6xl lg:text-7xl">
+                Blog<span className="text-velocity-red">.</span>
+              </h1>
+              <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500 md:text-base">
+                Long-form essays on local AI, agents, and where the interface goes
+                next. Every claim carries an inline citation; every source is listed
+                and linked at the end.
               </p>
-              <div className="flex items-center gap-3 font-sans text-xs uppercase tracking-widest text-zinc-500">
-                <span>{featuredArticle.author}</span>
-                <span className="text-zinc-700">•</span>
-                <span>{featuredArticle.date}</span>
-              </div>
             </div>
-          </article>
+            <div className="hidden w-60 flex-shrink-0 flex-col gap-2.5 pb-1 md:flex">
+              <MetaRow label="Essays" value={String(blogPosts.length).padStart(2, '0')} />
+              <MetaRow label="References" value={String(totalReferenceCount)} />
+              <MetaRow label="Updated" value="Jul 2026" />
+            </div>
+          </div>
+          <HeaderRule />
+        </header>
 
-          <aside className="border border-white/10 bg-velocity-black/40 p-6 md:p-8">
-            <h3 className="mb-5 font-sans font-bold text-white">Featured Posts</h3>
-            <div className="space-y-5">
-              {sidebarArticles.map((item) => (
-                <button
-                  type="button"
-                  onClick={() => openArticle(item)}
-                  key={item.id}
-                  className="w-full border-b border-white/5 pb-4 text-left transition-colors last:border-b-0 last:pb-0 hover:text-white"
-                >
-                  <p className="mb-2 font-sans text-sm text-white">{item.title}</p>
-                  <div className="flex items-center justify-between font-sans text-xs text-zinc-500">
-                    <span>{item.author}</span>
-                    <span>{item.date}</span>
-                  </div>
-                </button>
+        {featured && <FeaturedCard post={featured} />}
+
+        {rest.length > 0 && (
+          <>
+            <SectionLabel className="mb-6 mt-14">All essays</SectionLabel>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {rest.map((post, i) => (
+                <PostCard key={post.slug} post={post} index={i + 2} />
               ))}
             </div>
-          </aside>
-        </div>
-
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {gridArticles.map((article) => (
-            <article
-              key={article.id}
-              className="cursor-pointer overflow-hidden border border-white/10 bg-velocity-black/40 transition-colors duration-300 hover:border-white/20"
-              onClick={() => openArticle(article)}
-            >
-              <div className="aspect-[4/3] w-full overflow-hidden">
-                <img
-                  src={article.image}
-                  alt={article.title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <div className="p-6">
-                <h4 className="mb-2 font-sans font-bold text-white">{article.title}</h4>
-                <p className="mb-4 font-sans text-sm leading-relaxed text-zinc-500">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center justify-between font-sans text-xs uppercase tracking-widest text-zinc-500">
-                  <span>{article.author}</span>
-                  <span>{article.date}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {activeArticle && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 flex items-start justify-center bg-black/80 p-4 pt-28 backdrop-blur-sm"
-            onClick={() => setActiveArticle(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: 8 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: 8 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="max-h-[calc(100vh-8rem)] w-full max-w-3xl overflow-y-auto border border-white/10 bg-velocity-black p-8"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="mb-6 flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="mb-2 font-sans text-2xl font-bold text-white">
-                    {activeArticle.title}
-                  </h2>
-                  <div className="flex items-center gap-3 font-sans text-xs uppercase tracking-widest text-zinc-500">
-                    <span>{activeArticle.author}</span>
-                    <span className="text-zinc-700">•</span>
-                    <span>{activeArticle.date}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveArticle(null)}
-                  className="rounded p-2 text-zinc-500 transition-colors hover:bg-white/10 hover:text-white focus:outline-none"
-                  aria-label="Close"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              {activeArticle.image && (
-                <div className="mb-6 aspect-[16/9] w-full overflow-hidden border border-white/10">
-                  <img
-                    src={activeArticle.image}
-                    alt={activeArticle.title}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              )}
-
-              <div className="space-y-4">
-                {activeArticle.body.map((paragraph, idx) => (
-                  <p key={idx} className="font-sans text-sm leading-relaxed text-zinc-400">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-8 border-t border-white/10 pt-5">
-                <div className="mb-3 flex items-center gap-2 font-sans text-xs uppercase tracking-widest text-zinc-500">
-                  <Share2 className="h-4 w-4" />
-                  Share
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openShare(
-                        `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-                          shareText(activeArticle)
-                        )}&url=${encodeURIComponent(shareUrl(activeArticle))}`
-                      )
-                    }
-                    className="inline-flex items-center gap-2 border border-white/30 px-4 py-2.5 font-sans text-xs uppercase tracking-widest text-zinc-400 transition-colors hover:border-white/50 hover:text-white focus:outline-none"
-                  >
-                    <Twitter className="h-4 w-4" />
-                    X / Twitter
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openShare(
-                        `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-                          shareUrl(activeArticle)
-                        )}`
-                      )
-                    }
-                    className="inline-flex items-center gap-2 border border-white/30 px-4 py-2.5 font-sans text-xs uppercase tracking-widest text-zinc-400 transition-colors hover:border-white/50 hover:text-white focus:outline-none"
-                  >
-                    <Linkedin className="h-4 w-4" />
-                    LinkedIn
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      openShare(
-                        `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                          shareUrl(activeArticle)
-                        )}`
-                      )
-                    }
-                    className="inline-flex items-center gap-2 border border-white/30 px-4 py-2.5 font-sans text-xs uppercase tracking-widest text-zinc-400 transition-colors hover:border-white/50 hover:text-white focus:outline-none"
-                  >
-                    <Facebook className="h-4 w-4" />
-                    Facebook
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+          </>
         )}
-      </AnimatePresence>
+
+        <ResourceFootnote label="Sourcing">
+          Essays are written and fact-checked by the Velocity team. Inline markers
+          like [1] point to the numbered reference list at the end of each essay;
+          all reference links were live and checked against the claims they support
+          as of July 2026. Nothing here is sponsored.
+        </ResourceFootnote>
+      </div>
     </section>
   );
+};
+
+const shareTargets = (post: BlogPost) => {
+  const url = `${window.location.origin}/resources/blog/${post.slug}`;
+  const text = `${post.title} | Velocity Blog`;
+  return {
+    x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    url,
+  };
+};
+
+const BlogArticle: React.FC<{ post: BlogPost }> = ({ post }) => {
+  const [copied, setCopied] = React.useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.title = `${post.title} | Velocity Blog`;
+    setCopied(false);
+    return () => {
+      document.title = 'Velocity';
+    };
+  }, [post.slug, post.title]);
+
+  const others = blogPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareTargets(post).url);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable (e.g. insecure context); ignore.
+    }
+  };
+
+  return (
+    <section className="relative z-10 min-h-screen bg-velocity-black px-6 py-32">
+      <div className="mx-auto max-w-3xl">
+        <Link
+          to="/resources/blog"
+          className="mb-12 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500 transition-colors hover:text-white"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          All essays
+        </Link>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
+        >
+          <header>
+            <div className="mb-5 flex flex-wrap items-center gap-3">
+              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+                <span className="text-velocity-red">{post.tag}</span>
+              </span>
+              <ReferenceBadge count={post.references.length} />
+            </div>
+            <h1 className="mb-5 font-sans text-3xl font-bold tracking-tight text-white md:text-5xl">
+              {post.title}
+            </h1>
+            <p className="mb-6 font-sans text-base leading-relaxed text-zinc-400 md:text-lg">
+              {post.dek}
+            </p>
+            <PostMeta post={post} />
+            <HeaderRule className="mt-8" />
+          </header>
+
+          <div className="relative mt-10 aspect-[16/9] w-full overflow-hidden border border-white/10">
+            <CornerTicks />
+            <img
+              src={post.image}
+              alt={post.imageAlt}
+              className="h-full w-full object-cover opacity-80"
+            />
+          </div>
+
+          <div className="mt-12 space-y-12">
+            {post.sections.map((section, si) => (
+              <section key={si}>
+                <div className="mb-5 flex items-baseline gap-4">
+                  <span className="font-mono text-[11px] tracking-[0.2em] text-velocity-red">
+                    {String(si + 1).padStart(2, '0')}
+                  </span>
+                  <h2 className="font-sans text-xl font-bold tracking-tight text-white md:text-2xl">
+                    {section.heading}
+                  </h2>
+                </div>
+                <div className="space-y-5">
+                  {section.paragraphs.map((paragraph, pi) => (
+                    <p
+                      key={pi}
+                      className="font-sans text-[15px] leading-[1.85] text-zinc-400"
+                    >
+                      <CitedText text={paragraph} />
+                    </p>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <div className="mt-16">
+            <SectionLabel className="mb-6">References</SectionLabel>
+            <ol className="space-y-3">
+              {post.references.map((ref) => (
+                <li
+                  key={ref.n}
+                  id={`ref-${ref.n}`}
+                  className="scroll-mt-28 border border-white/10 bg-velocity-black/40 transition-colors hover:border-white/20"
+                >
+                  <a
+                    href={ref.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-4 p-4"
+                  >
+                    <span className="mt-0.5 flex-shrink-0 font-mono text-[11px] tracking-[0.15em] text-velocity-red">
+                      [{ref.n}]
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-sans text-sm font-medium text-zinc-200 transition-colors group-hover:text-white">
+                        {ref.title}
+                      </span>
+                      <span className="mt-1 block font-sans text-xs text-zinc-500">
+                        {ref.source} · {ref.detail}
+                      </span>
+                      <span className="mt-1 block truncate font-mono text-[11px] text-zinc-600">
+                        {ref.url.replace(/^https?:\/\/(www\.)?/, '')}
+                      </span>
+                    </span>
+                    <ArrowUpRight className="mt-0.5 h-4 w-4 flex-shrink-0 text-zinc-600 transition-colors group-hover:text-velocity-red" />
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mt-12 border-t border-white/10 pt-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <span className="font-mono text-[11px] uppercase tracking-[0.25em] text-zinc-500">
+                Share this essay
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.open(shareTargets(post).x, '_blank', 'noopener,noreferrer')
+                  }
+                  className="inline-flex items-center gap-2 border border-white/15 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:border-white/40 hover:text-white"
+                >
+                  <Twitter className="h-3.5 w-3.5" />
+                  X / Twitter
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    window.open(
+                      shareTargets(post).linkedin,
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }
+                  className="inline-flex items-center gap-2 border border-white/15 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:border-white/40 hover:text-white"
+                >
+                  <Linkedin className="h-3.5 w-3.5" />
+                  LinkedIn
+                </button>
+                <button
+                  type="button"
+                  onClick={copyLink}
+                  className="inline-flex items-center gap-2 border border-white/15 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-400 transition-colors hover:border-white/40 hover:text-white"
+                >
+                  {copied ? (
+                    <Check className="h-3.5 w-3.5 text-velocity-red" />
+                  ) : (
+                    <LinkIcon className="h-3.5 w-3.5" />
+                  )}
+                  {copied ? 'Copied' : 'Copy link'}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {others.length > 0 && (
+            <div className="mt-16">
+              <SectionLabel className="mb-6">Keep reading</SectionLabel>
+              <div className="grid gap-4 md:grid-cols-2">
+                {others.map((other) => (
+                  <Link
+                    key={other.slug}
+                    to={`/resources/blog/${other.slug}`}
+                    className="group border border-white/10 bg-velocity-black/40 p-5 transition-colors hover:border-white/25"
+                  >
+                    <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-500">
+                      <span className="text-velocity-red">{other.tag}</span>
+                    </p>
+                    <p className="mb-3 font-sans text-sm font-bold text-white transition-colors group-hover:text-velocity-red">
+                      {other.title}
+                    </p>
+                    <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+                      {other.date} · {other.readTime}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </section>
+  );
+};
+
+export const Blog: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
+
+  if (!slug) return <BlogIndex />;
+
+  const post = getBlogPost(slug);
+  if (!post) return <Navigate to="/resources/blog" replace />;
+
+  return <BlogArticle post={post} />;
 };

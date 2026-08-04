@@ -25,20 +25,6 @@ export interface ResourceDefinition {
 
 export const resourceCatalog: ResourceDefinition[] = [
   {
-    id: 'blog',
-    title: 'Blog',
-    eyebrow: 'Read',
-    tagline: 'Playbooks from the builder community',
-    description:
-      'Long-form essays on vibe coding, shipping fast, and the psychology of momentum.',
-    navDescription: 'Playbooks and essays from the builder community.',
-    path: '/resources/blog',
-    count: '12 articles',
-    icon: BookOpen,
-    status: 'locked',
-    aliases: ['/blog'],
-  },
-  {
     id: 'tools',
     title: 'Tool Directory',
     eyebrow: 'Explore',
@@ -63,6 +49,20 @@ export const resourceCatalog: ResourceDefinition[] = [
     count: '22 entries',
     icon: Ticket,
     status: 'live',
+  },
+  {
+    id: 'blog',
+    title: 'Blog',
+    eyebrow: 'Read',
+    tagline: 'Referenced essays on local AI, agents, and interfaces',
+    description:
+      'Long-form essays on local LLMs, agent-built software, and where the interface goes next. Every claim cited, every source linked.',
+    navDescription: 'Referenced essays on local AI, agents, and the future of the interface.',
+    path: '/resources/blog',
+    count: '5 essays',
+    icon: BookOpen,
+    status: 'live',
+    aliases: ['/blog'],
   },
   {
     id: 'templates',

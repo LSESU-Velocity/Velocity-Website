@@ -1,12 +1,12 @@
 /**
- * Automation Intake engine — canonical server-side chat advancement.
+ * Automation Intake engine: canonical server-side chat advancement.
  *
  * One entry point: `advanceChatTurn`. Takes the current draft + answer + mode,
  * returns the next draft, assistant message, and metadata for logging.
  *
  * Modes:
- *   - 'deterministic' — heuristic-only path, full rebuild from chatAnswers.
- *   - 'assisted'      — model extraction + step-local follow-ups layered on
+ *   - 'deterministic': heuristic-only path, full rebuild from chatAnswers.
+ *   - 'assisted':      model extraction + step-local follow-ups layered on
  *                       incremental state updates.
  *
  * Editing an earlier answer rebuilds from canonical chatAnswers. Assisted
@@ -14,7 +14,7 @@
  * rebuilds preserve untouched raw turns.
  *
  * AI-specific failures (missing key, timeout, malformed output, unsafe
- * follow-up text) degrade silently to deterministic handling — the client
+ * follow-up text) degrade silently to deterministic handling: the client
  * never sees an "AI enabled/disabled" distinction.
  */
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
@@ -70,7 +70,7 @@ import type { ChatGuard, ChatMode } from './chat-runtime.js';
 export { createInitialDraft, isDraftReadyForReview } from './draft.js';
 
 // ---------- Per-step Zod extraction schemas ----------
-// These are loose — every field optional. Model fills only what it observes.
+// These are loose: every field optional. Model fills only what it observes.
 
 const ackField = z.string().max(240).optional();
 const followUpField = z.string().max(400).optional();
@@ -212,7 +212,7 @@ function schemaForStep(stepId: StepId): z.ZodSchema<{ followUpQuestion?: string 
 
 /**
  * Decides whether the server should advance off `stepId` given the draft state.
- * These rules are the server's call — a model-proposed follow-up is only emitted
+ * These rules are the server's call: a model-proposed follow-up is only emitted
  * when sufficiency is false AND budget remains. Plan §Phase 3.
  */
 export function isStepSufficient(
@@ -233,7 +233,7 @@ const FOLLOW_UP_REJECT_PATTERNS: RegExp[] = [
 ];
 
 const FILLER_OPENER =
-  /^(great|awesome|perfect|amazing|love (it|that)|fantastic|wonderful|got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b(?:\s+that\b)?[!.,:;—–-]*\s*/i;
+  /^(great|awesome|perfect|amazing|love (it|that)|fantastic|wonderful|got it|gotcha|noted|understood|thanks|thank you|received|acknowledged)\b(?:\s+that\b)?[!.,:;\u2014–-]*\s*/i;
 const RECAP_ACK_OPENER =
   /^(you (said|say|mentioned|shared|told me|noted|gave|provided|want|need|use|have|are using|are focusing)|you'(?:re|ve) (using|focusing|shared|mentioned)|you’re (using|focusing|shared|mentioned))\b/i;
 
@@ -245,7 +245,8 @@ const RECAP_ACK_OPENER =
  */
 export function sanitizeFollowUpText(raw: string | undefined | null): string | null {
   if (!raw || typeof raw !== 'string') return null;
-  let text = raw.replace(/[​-‏﻿]/g, '').trim();
+  // Strip zero-width characters (U+200B..U+200F joiners/marks, U+FEFF BOM).
+  let text = raw.replace(/[\u200B-\u200F\uFEFF]/g, '').trim();
   if (!text) return null;
   text = text.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!text) return null;
@@ -314,7 +315,7 @@ export async function advanceChatTurn(
     return wrapDeterministic(result, 'edit');
   }
 
-  // 2. Deterministic mode — flag off, missing key, limits hit, contact step.
+  // 2. Deterministic mode: flag off, missing key, limits hit, contact step.
   if (args.mode === 'deterministic') {
     const result = advanceDeterministicDraftFromAnswer({
       draft: args.draft,
@@ -357,7 +358,7 @@ export async function advanceChatTurn(
     // If we already captured a substantive answer for this step (the user is
     // declining a follow-up with "that's all I know"), treat the opt-out as
     // "move on with what I have": preserve chatAnswers + structured state,
-    // just advance to the next step. Otherwise — no data for this step — fall
+    // just advance to the next step. Otherwise (no data for this step) fall
     // through to deterministic, which marks it as a genuine skip.
     const hasExistingAnswer = Boolean(
       args.draft.chatAnswers[args.draft.currentStep]?.trim(),
@@ -459,7 +460,7 @@ export async function advanceChatTurn(
         working = { ...working, status: 'review' };
         assistantText = withAcknowledgment(
           extraction.acknowledgment,
-          "That's everything I needed — hit 'Review submission' whenever you're ready.",
+          "That's everything I needed. Hit 'Review submission' whenever you're ready.",
         );
       } else {
         assistantText = withAcknowledgment(extraction.acknowledgment, phraseCatchUp(missing, 0));
@@ -511,7 +512,7 @@ function wrapDeterministic(
  * Post-answer opt-out: user has already provided substantive content for this
  * step (captured in `chatAnswers` + structured state) and is declining a
  * follow-up. Preserve everything and advance. We intentionally don't rebuild
- * the draft from chatAnswers here — that would replay heuristic patches and
+ * the draft from chatAnswers here: that would replay heuristic patches and
  * collapse the rich AI-extracted state we're trying to protect.
  */
 function advanceAfterOptOutWithData(
@@ -549,7 +550,7 @@ function advanceAfterOptOutWithData(
     const missing = checkMinimumCompleteness(working);
     if (missing.length === 0) {
       working = { ...working, status: 'review' };
-      assistantText = "That's everything I needed — hit 'Review submission' whenever you're ready.";
+      assistantText = "That's everything I needed. Hit 'Review submission' whenever you're ready.";
     } else {
       assistantText = phraseCatchUp(missing, 0);
     }
@@ -581,7 +582,7 @@ function advanceAfterOptOutWithData(
  * Assisted edit rebuild. Walks every completed step and re-runs AI extraction
  * so rich data (categorized tool stacks, structured business fields) survives
  * the rebuild. Falls back to the heuristic patch per-step when the model call
- * fails or the session budget is exhausted — a single edit can't blow the
+ * fails or the session budget is exhausted: a single edit can't blow the
  * whole session cap, and any step-level failure only degrades that one step.
  */
 async function rebuildEditAssisted(
@@ -698,14 +699,15 @@ function withAcknowledgment(ack: string | undefined, question: string): string {
 
 /**
  * Strict opt-out matcher. Must match the entire message (optionally with
- * trailing punctuation) — a substantive reply like "No, we don't use AI yet
+ * trailing punctuation): a substantive reply like "No, we don't use AI yet
  * because of compliance concerns" starts with "no" but is NOT an opt-out, so
  * anchoring to `$` prevents the prefix match that used to eat real answers.
  */
 const OPT_OUT_PATTERN =
   /^\s*(no+|nope|nah|no+,?\s+that'?s? (it|all)( for now)?|no+,?\s+nothing( else| more| to add)?|stop|skip( (this|it|step))?|done|end|that'?s? all( i know| for now)?|that'?s? it( for now)?|nothing( else| more| to add)?|no more|i'?m (good|done)|pass|leave (it|this)|move on|i don'?t know|idk)\s*[.!?,]*\s*$/i;
 
-function isOptOut(answer: string): boolean {
+/** Exported for unit tests: the anchoring here has regressed before. */
+export function isOptOut(answer: string): boolean {
   if (!answer) return false;
   const trimmed = answer.trim();
   if (trimmed.length === 0 || trimmed.length > 80) return false;
@@ -717,7 +719,7 @@ function isOptOut(answer: string): boolean {
 function phraseCatchUp(missing: string[], retryIndex: number): string {
   const list = formatMissingRequirements(missing);
   const variants = [
-    `Almost there — could you add ${list}? Type 'skip' if you'd rather not.`,
+    `Almost there. Could you add ${list}? Type 'skip' if you'd rather not.`,
     `Still missing ${list}. A short reply is fine, or say 'skip' to stop.`,
     `One last pass on ${list} and you're done. Otherwise type 'skip'.`,
   ];
@@ -892,7 +894,7 @@ function sanitizeAcknowledgment(raw: unknown): string | undefined {
   if (typeof raw !== 'string') return undefined;
   let trimmed = raw.trim();
   if (!trimmed) return undefined;
-  // Plain text only — block smuggled instructions via newlines.
+  // Plain text only: block smuggled instructions via newlines.
   trimmed = trimmed.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (!trimmed) return undefined;
   if (/```/.test(trimmed)) return undefined;
@@ -1014,7 +1016,7 @@ function buildHeuristicFinalBrief(draft: AutomationIntakeDraft): FinalBrief {
         targetWorkflow: workflowName,
         problemSummary:
           primary?.painPoints?.[0] ??
-          'No specific pain point captured — scope with the partner before starting.',
+          'No specific pain point captured: scope with the partner before starting.',
         proposedAutomation:
           'Lightweight integration between the tools currently in the workflow, prioritising manual handoffs.',
         expectedImpact: draft.goals.desiredOutcomes[0] ?? 'Reduce manual effort on recurring work.',

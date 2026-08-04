@@ -1,11 +1,33 @@
 /**
  * Shared error classification for the Launchpad Lab pipeline.
- * Single source of truth for provider error matching — graph nodes,
+ * Single source of truth for provider error matching: graph nodes,
  * the analyze pipeline, mutations, and API handlers all use these.
  */
 
 export function getErrorMessage(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
+}
+
+/** True when the failure came from an AbortSignal (client disconnected). */
+export function isAbortError(err: unknown): boolean {
+  if (err instanceof Error && err.name === 'AbortError') return true;
+  const message = getErrorMessage(err).toLowerCase();
+  return message.includes('abort');
+}
+
+/**
+ * Structured-output failures where the model produced text that did not
+ * satisfy the schema. These are worth one repair attempt with the error
+ * details fed back: unlike auth/quota errors, a regenerated response can fix them.
+ */
+export function isSchemaValidationError(message: string): boolean {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes('failed to parse') ||
+    normalized.includes('could not parse') ||
+    normalized.includes('output_parsing') ||
+    normalized.includes('validation')
+  );
 }
 
 export function isModelUnavailableError(message: string): boolean {
@@ -57,7 +79,7 @@ export function isQuotaError(message: string): boolean {
 }
 
 /**
- * Errors that will hit every downstream model call too — there is no point
+ * Errors that will hit every downstream model call too: there is no point
  * continuing the pipeline once one of these appears.
  */
 export function isFatalProviderError(message: string): boolean {

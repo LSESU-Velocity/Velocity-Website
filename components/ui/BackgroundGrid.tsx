@@ -1,9 +1,23 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { motion, useMotionTemplate, useMotionValue } from 'framer-motion';
 
 export const BackgroundGrid: React.FC = () => {
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
+
+  // Randomize once per mount: Math.random during render made every particle
+  // jump to a new position/duration whenever the component re-rendered.
+  const particles = useMemo(
+    () =>
+      Array.from({ length: 15 }, () => ({
+        x: Math.random() * 100 + 'vw',
+        y: Math.random() * 100 + 'vh',
+        opacity: Math.random() * 0.5 + 0.1,
+        driftY: Math.random() * 100 + 'vh',
+        duration: Math.random() * 20 + 10,
+      })),
+    [],
+  );
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -36,21 +50,21 @@ export const BackgroundGrid: React.FC = () => {
 
       {/* Floating Particles / Stars */}
       <div className="absolute inset-0 overflow-hidden">
-        {[...Array(15)].map((_, i) => (
+        {particles.map((particle, i) => (
           <motion.div
             key={i}
             className="absolute w-[2px] h-[2px] bg-white rounded-full"
             initial={{
-              x: Math.random() * 100 + "vw",
-              y: Math.random() * 100 + "vh",
-              opacity: Math.random() * 0.5 + 0.1,
+              x: particle.x,
+              y: particle.y,
+              opacity: particle.opacity,
             }}
             animate={{
-              y: [null, Math.random() * 100 + "vh"],
+              y: [null, particle.driftY],
               opacity: [0.2, 0.5, 0.2],
             }}
             transition={{
-              duration: Math.random() * 20 + 10,
+              duration: particle.duration,
               repeat: Infinity,
               ease: "linear",
             }}
