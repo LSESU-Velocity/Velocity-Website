@@ -32,9 +32,6 @@ const PERSIST_KEY = 'launchpad_provider_key_persist';
 const LEGACY_SESSION_KEY = 'launchpad_gemini_key';
 const LEGACY_PERSIST_KEY = 'launchpad_gemini_key_persist';
 
-/** The rail printed under the hero, mirroring the homepage pipeline schematic. */
-const STAGE_RAIL = ['Bull', 'Bear', 'Market', 'Position', 'Build'];
-
 function getStoredKey(): string | null {
   if (typeof window === 'undefined') {
     return null;
@@ -597,15 +594,6 @@ export const Launchpad: React.FC = () => {
 
         {/* Hero + command bar */}
         <div className="mx-auto flex w-full max-w-4xl flex-col items-center text-center">
-          <motion.p
-            initial={still ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]"
-          >
-            Launchpad <span className="text-velocity-red">Idea in. Analysis out.</span>
-          </motion.p>
-
           <h1 className="mt-8 flex w-full select-none flex-col items-center leading-[0.85]">
             <AnimatedText
               text="Got an idea?"
@@ -628,23 +616,6 @@ export const Launchpad: React.FC = () => {
             A rough spark goes in. Market, customers, risks, monetization, distribution
             and the next build prompts come out.
           </motion.p>
-
-          {/* Stage rail: the pipeline this console drives */}
-          <motion.div
-            initial={still ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: still ? 0 : 1.5 }}
-            className="mt-8 w-full border-y border-white/10 py-3"
-          >
-            <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 font-mono text-[10px] uppercase tracking-[0.26em] text-zinc-500">
-              {STAGE_RAIL.map((stage, index) => (
-                <React.Fragment key={stage}>
-                  {index > 0 && <span aria-hidden className="h-1 w-1 flex-shrink-0 bg-velocity-red" />}
-                  <span>{stage}</span>
-                </React.Fragment>
-              ))}
-            </p>
-          </motion.div>
 
           {/* Provider status */}
           <motion.div
