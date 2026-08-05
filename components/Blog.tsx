@@ -198,7 +198,7 @@ const BlogIndex: React.FC = () => {
             <div className="hidden w-60 flex-shrink-0 flex-col gap-2.5 pb-1 md:flex">
               <MetaRow label="Essays" value={String(blogPosts.length).padStart(2, '0')} />
               <MetaRow label="References" value={String(totalReferenceCount)} />
-              <MetaRow label="Updated" value="Jul 2026" />
+              <MetaRow label="Updated" value="Aug 2026" />
             </div>
           </div>
           <HeaderRule />
@@ -221,7 +221,7 @@ const BlogIndex: React.FC = () => {
           Essays are written and fact-checked by the Velocity team. Inline markers
           like [1] point to the numbered reference list at the end of each essay;
           all reference links were live and checked against the claims they support
-          as of July 2026. Nothing here is sponsored.
+          as of August 2026. Nothing here is sponsored.
         </ResourceFootnote>
       </div>
     </section>
