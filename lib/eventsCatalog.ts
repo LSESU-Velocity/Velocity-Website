@@ -412,18 +412,18 @@ export const eventsCatalog: VelocityEventPack[] = [
     provisional: true,
     locationShort: 'LSE · London',
     durationShort: 'Mon → Fri · IWD week',
-    eligibilityShort: 'Women students · 4 universities',
+    eligibilityShort: 'Women students · LSE',
     facts: [
       { label: 'Dates', value: '8–12 Mar 2027 · provisional' },
       { label: 'Format', value: 'In-person · week-long' },
       { label: 'Organiser', value: 'LSESU Velocity · hosted at LSE' },
-      { label: 'Universities', value: 'LSE · UCL · KCL · Imperial' },
+      { label: 'University', value: 'LSE' },
       { label: 'Cohort', value: '60 women builders · capped' },
       { label: 'Eligibility', value: 'Women students · no experience required' },
     ],
     about: [
       "SheBuilds is an AI-powered startup competition run exclusively for women, held across International Women's Day week. Over five days, participants form teams, build an AI-powered product or venture, receive mentorship from women in tech and VC, and pitch to a panel of female judges.",
-      'Hosted by LSESU Velocity at LSE with UCL, KCL and Imperial as partner universities, the cohort is capped at 60 to keep mentorship high-touch. No prior tech or business experience is required. AI tools are taught as part of the programme, and both new ideas and early-stage ventures are welcome. Teams of 2–4; solo entrants are matched into teams before kickoff.',
+      'Hosted by LSESU Velocity at LSE, the cohort is capped at 60 to keep mentorship high-touch. No prior tech or business experience is required. AI tools are taught as part of the programme, and both new ideas and early-stage ventures are welcome. Teams of 2–4; solo entrants are matched into teams before kickoff.',
     ],
     scheduleTitle: 'The week',
     schedule: [
@@ -495,7 +495,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       'Career switchers',
     ],
     keyDates: [
-      { when: 'Jan 2027', what: 'Sign-ups open across all four universities' },
+      { when: 'Jan 2027', what: 'Sign-ups open at LSE' },
       { when: 'Feb 2027', what: 'Applications close · teams matched' },
       { when: '8 Mar', what: 'IWD launch night at LSE' },
       { when: '12 Mar', what: 'Pitch finale & awards' },
@@ -505,7 +505,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       lumaUrl: null,
       statusLabel: 'Sign-ups open Jan 2027',
       opensDetail:
-        'Sign-ups open January 2027 across LSE, UCL, KCL and Imperial, and will run right here.',
+        'Sign-ups open January 2027 for LSE students and will run right here.',
     },
   },
 ];
