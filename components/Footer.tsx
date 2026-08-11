@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 export const Footer: React.FC = () => {
   return (
     <footer id="join" className="bg-black border-t border-white/10 py-8 px-6 relative overflow-hidden">
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 relative z-10">
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 items-center gap-6 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
 
-        <div className="flex flex-col items-center md:items-start text-center md:text-left gap-2">
+        <div className="flex flex-col items-center gap-2 text-center md:justify-self-start md:items-start md:text-left">
           <p className="font-sans text-xs text-gray-500 tracking-[0.2em]">EST. 2025 <span className="text-velocity-red">LSE</span></p>
           <a href="mailto:velocity@lsesu.org" className="font-sans text-sm text-gray-400 hover:text-white transition-colors tracking-wide">
             velocity@lsesu.org
@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
           </a>
         </div>
 
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-5 md:justify-self-center">
           <a
             href="https://www.linkedin.com/company/lsesu-velocity"
             target="_blank"
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
           </a>
         </div>
 
-        <div className="text-center md:text-right">
+        <div className="text-center md:justify-self-end md:text-right">
           <p className="font-sans text-[10px] text-gray-600 leading-relaxed tracking-wider">
             DESIGNED FOR BUILDERS.<br />
             &copy; {new Date().getFullYear()} VELOCITY SOCIETY.

@@ -1,12 +1,10 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
-import { ArrowUpRight, Clock, Mail, MapPin, Users, X } from 'lucide-react';
+import { ArrowUpRight, Clock, Instagram, Linkedin, Mail, MapPin, Users, X } from 'lucide-react';
 import {
   eventsCatalog,
   eventsForTerm,
-  seasonLabel,
-  seasonStats,
   seasonTerms,
   weeklyFixture,
   type TermPlaceholder,
@@ -15,6 +13,7 @@ import {
 
 const CONTACT_EMAIL = 'velocity@lsesu.org';
 const INSTAGRAM_URL = 'https://www.instagram.com/lsesu.velocity';
+const LINKEDIN_URL = 'https://www.linkedin.com/company/lsesu-velocity';
 
 const mailto = (subject: string) =>
   `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
@@ -56,15 +55,8 @@ export const EventsPage: React.FC = () => {
     });
   }, [setSearchParams]);
 
-  const stats = [
-    seasonStats.packsAnnounced,
-    seasonStats.universitiesConfirmed,
-    seasonStats.builderPlaces,
-    seasonStats.championsCrowned,
-  ];
-
   return (
-    <section className="relative z-10 min-h-screen bg-velocity-black px-6 py-32">
+    <section className="relative z-10 min-h-screen bg-transparent px-6 py-32">
       <div className="mx-auto max-w-5xl">
         {/* Masthead */}
         <motion.header
@@ -72,79 +64,55 @@ export const EventsPage: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
-          <p className="mb-5 font-mono text-[11px] uppercase tracking-[0.35em] text-zinc-500">
-            Events <span className="text-velocity-red">{seasonLabel}</span>
-          </p>
           <h1 className="max-w-3xl font-sans text-4xl font-bold tracking-tight text-white md:text-6xl">
             The season ahead<span className="text-velocity-red">.</span>
           </h1>
-          <p className="mt-5 max-w-2xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
+          <p className="mt-5 w-full max-w-none font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
             Buildathons, competitions and hands-on workshops across the 2026–27
             academic year, announced here first, from September onwards. Click any
             event to open the full brief.
           </p>
         </motion.header>
 
-        {/* Stat strip */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
-          className="mt-12 grid grid-cols-2 gap-px border border-white/10 bg-white/10 md:grid-cols-4"
-        >
-          {stats.map((stat) => (
-            <div key={stat.label} className="bg-velocity-black px-5 py-5">
-              <p className="font-mono text-2xl text-velocity-red md:text-3xl">{stat.value}</p>
-              <p className="mt-1 font-sans text-[10px] uppercase tracking-[0.22em] text-zinc-500">
-                {stat.label}
-              </p>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* Standing weekly fixture, deliberately quieter than the packs,
-            shown once instead of repeating down the timeline. */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.18, ease: 'easeOut' }}
-          className="mt-4 flex flex-col gap-4 border border-white/10 border-l-2 border-l-velocity-red bg-velocity-black/40 px-6 py-5 md:flex-row md:items-center"
-        >
-          <span className="flex-shrink-0 font-mono text-[10px] uppercase tracking-[0.25em] text-velocity-red">
-            {weeklyFixture.tag}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-sans text-sm font-bold text-white">{weeklyFixture.title}</p>
-            <p className="mt-1 font-sans text-xs leading-relaxed text-zinc-500">
-              {weeklyFixture.copy}
-            </p>
-          </div>
-          <a
-            href={weeklyFixture.linkHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex flex-shrink-0 items-center gap-1.5 font-sans text-[10px] uppercase tracking-[0.24em] text-zinc-400 transition-colors hover:text-white"
-          >
-            {weeklyFixture.linkLabel}
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </a>
-        </motion.div>
-
         {/* Timeline */}
-        <div className="relative mt-20">
+        <div className="relative mt-12">
           {/* Spine */}
           <div
             aria-hidden
             className={`absolute bottom-8 top-0 w-px bg-gradient-to-b from-velocity-red/60 via-white/10 to-transparent ${SPINE_LEFT}`}
           />
 
-          {/* Season origin marker */}
-          <div className={`relative pb-14 ${ROW_GRID} ${ROW_PAD}`}>
-            <SpineNode variant="origin" />
+          {/* Standing weekly fixture, aligned with the event-card column. */}
+          <div className={`relative pb-10 ${ROW_GRID} ${ROW_PAD}`}>
+            <SpineNode variant="event" />
             <div className="hidden md:block" />
-            <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-zinc-500">
-              Season opens <span className="text-zinc-300">· September 2026</span>
-            </p>
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+              className="flex flex-col gap-3 border border-white/10 bg-white/[0.015] px-4 py-3 sm:flex-row sm:items-center md:px-5"
+            >
+              <span className="flex-shrink-0 font-mono text-[9px] uppercase tracking-[0.24em] text-velocity-red">
+                {weeklyFixture.tag}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-sans text-[13px] font-semibold text-white">
+                  {weeklyFixture.title}
+                </p>
+                <p className="mt-0.5 font-sans text-[11px] leading-relaxed text-zinc-400">
+                  {weeklyFixture.copy}
+                </p>
+              </div>
+              <a
+                href={weeklyFixture.linkHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex flex-shrink-0 items-center gap-1.5 font-sans text-[9px] uppercase tracking-[0.22em] text-zinc-500 transition-colors hover:text-white"
+              >
+                {weeklyFixture.linkLabel}
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
+            </motion.div>
           </div>
 
           {seasonTerms.map((term) => {
@@ -232,15 +200,13 @@ export const EventsPage: React.FC = () => {
 
 /* ---------------------------------- Spine ---------------------------------- */
 
-const SpineNode: React.FC<{ variant: 'origin' | 'event' | 'ghost' }> = ({ variant }) => (
+const SpineNode: React.FC<{ variant: 'event' | 'ghost' }> = ({ variant }) => (
   <span
     aria-hidden
     className={`absolute top-[7px] h-2 w-2 -translate-x-1/2 rotate-45 ${SPINE_LEFT} ${
       variant === 'event'
         ? 'bg-velocity-red shadow-[0_0_12px_rgba(255,31,31,0.55)]'
-        : variant === 'origin'
-          ? 'bg-velocity-red'
-          : 'border border-white/25 bg-velocity-black'
+        : 'border border-white/25 bg-velocity-black'
     }`}
   />
 );
@@ -291,18 +257,9 @@ const TimelineEventRow: React.FC<{ event: VelocityEventPack; onOpen: () => void 
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_0%,rgba(255,31,31,0.09),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
       <div className="relative p-7 md:p-9">
-        <div className="mb-6 flex flex-wrap items-center gap-2.5">
-          <span className="inline-flex items-center gap-2 border border-velocity-red/40 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-velocity-red">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-velocity-red" />
-            {event.registration.statusLabel}
-          </span>
-          <span className="inline-flex items-center border border-white/10 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
-            {event.badge}
-          </span>
-          <span className="inline-flex items-center border border-white/10 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400 md:hidden">
-            {event.dateSummary}
-          </span>
-        </div>
+        <span className="mb-6 inline-flex items-center border border-white/10 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400 md:hidden">
+          {event.dateSummary}
+        </span>
 
         <h3 className="font-sans text-3xl font-bold uppercase tracking-tight text-white md:text-[2.6rem] md:leading-none">
           {event.name} <span className="text-velocity-red">{event.year}</span>
@@ -326,10 +283,7 @@ const TimelineEventRow: React.FC<{ event: VelocityEventPack; onOpen: () => void 
           </span>
         </div>
 
-        <div className="mt-7 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-5">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-500">
-            {event.cardStats.join('  ·  ')}
-          </p>
+        <div className="mt-7 flex items-center justify-end border-t border-white/10 pt-5">
           <span className="inline-flex items-center gap-1.5 font-sans text-[11px] uppercase tracking-[0.24em] text-zinc-300 transition-colors group-hover:text-velocity-red">
             View brief
             <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -424,16 +378,6 @@ const EventBrief: React.FC<{ event: VelocityEventPack; onClose: () => void }> = 
 
         {/* Masthead */}
         <div className="border-b border-white/10 bg-[radial-gradient(circle_at_top,rgba(216,45,45,0.16),transparent_58%)] px-6 py-10 md:px-10 md:py-14">
-          <div className="mb-6 flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-2 border border-velocity-red/40 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-velocity-red">
-              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-velocity-red" />
-              {event.registration.statusLabel}
-            </span>
-            <span className="inline-flex items-center border border-white/10 bg-velocity-black/70 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-400">
-              {event.badge}
-            </span>
-          </div>
-
           <p className="mb-3 font-mono text-[11px] uppercase tracking-[0.3em] text-zinc-500">
             {event.kicker}
           </p>
@@ -701,26 +645,40 @@ const RegisterCard: React.FC<{ event: VelocityEventPack }> = ({ event }) => {
       ) : (
         <div className="px-5 py-5">
           <p className="font-sans text-xs leading-relaxed text-zinc-400">{opensDetail}</p>
-          <div className="mt-4 flex flex-col gap-2.5">
+          <p className="mt-4 font-sans text-xs leading-relaxed text-zinc-300">
+            Follow us on LinkedIn and Instagram to stay updated.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
             <a
-              href={mailto(`Notify me: ${event.name} ${event.year}`)}
-              className="inline-flex items-center justify-center gap-2 bg-velocity-red px-4 py-3 font-sans text-[10px] uppercase tracking-[0.24em] text-white transition-colors hover:bg-velocity-red/90"
+              href={LINKEDIN_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-white/15 px-3 py-3 font-sans text-[10px] uppercase tracking-[0.18em] text-zinc-300 transition-colors hover:border-velocity-red/50 hover:bg-velocity-red/[0.06] hover:text-white"
             >
-              <Mail className="h-3.5 w-3.5" />
-              Notify me when live
+              <Linkedin className="h-3.5 w-3.5 text-velocity-red" />
+              LinkedIn
             </a>
-            {lumaUrl && (
-              <a
-                href={lumaUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 border border-white/15 px-4 py-3 font-sans text-[10px] uppercase tracking-[0.24em] text-zinc-300 transition-colors hover:border-white/30 hover:text-white"
-              >
-                View on Luma
-                <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
-            )}
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 border border-white/15 px-3 py-3 font-sans text-[10px] uppercase tracking-[0.18em] text-zinc-300 transition-colors hover:border-velocity-red/50 hover:bg-velocity-red/[0.06] hover:text-white"
+            >
+              <Instagram className="h-3.5 w-3.5 text-velocity-red" />
+              Instagram
+            </a>
           </div>
+          {lumaUrl && (
+            <a
+              href={lumaUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2.5 inline-flex w-full items-center justify-center gap-2 border border-white/15 px-4 py-3 font-sans text-[10px] uppercase tracking-[0.24em] text-zinc-300 transition-colors hover:border-white/30 hover:text-white"
+            >
+              View on Luma
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
+          )}
         </div>
       )}
     </div>

@@ -155,6 +155,19 @@ const tools: Tool[] = [
     signal: 'Niche',
   },
   {
+    id: 'opencode',
+    name: 'OpenCode',
+    category: 'AI Coding',
+    oneLiner: 'Open-source coding agent for the terminal, desktop, and IDE.',
+    verdict:
+      'The model-agnostic CLI pick: connect almost any hosted provider or a local model without changing coding-agent workflows.',
+    bestFor: 'Terminal coding, BYO models',
+    pricing: 'BYO API',
+    url: 'https://opencode.ai',
+    hot: true,
+    signal: 'New',
+  },
+  {
     id: 'amp',
     name: 'Amp',
     category: 'AI Coding',
@@ -226,7 +239,7 @@ const tools: Tool[] = [
     category: 'Local LLM',
     oneLiner: "Google DeepMind's Apache 2.0 open model family for local agents.",
     verdict:
-      'Start here for June 2026 local builds: E2B/E4B for edge, 26B MoE for speed, 31B Dense for quality.',
+      'Start here for current local builds: E2B/E4B for edge, 12B for laptops, and the 26B MoE when you have more memory.',
     bestFor: 'Private assistants, local coding, edge apps',
     pricing: 'Open Weights',
     url: 'https://deepmind.google/models/gemma/',
@@ -259,16 +272,54 @@ const tools: Tool[] = [
     signal: 'Local',
   },
   {
-    id: 'llama-4-scout',
-    name: 'Llama 4 Scout',
+    id: 'qwen3-6-27b',
+    name: 'Qwen3.6 27B',
     category: 'Local LLM',
-    oneLiner: "Meta's open-weight multimodal MoE model with extreme context.",
+    oneLiner: 'Apache 2.0 dense vision-language model tuned for agentic coding.',
     verdict:
-      'Best for long-context experiments and multimodal prototypes. Check Llama licensing before commercial use.',
-    bestFor: 'Long context, multimodal tests',
+      'The stronger laptop-class Qwen pick: use a 4-bit quant on a 32GB unified-memory machine for repo work, vision, and long-context tasks.',
+    bestFor: 'Local coding agents, vision, long context',
     pricing: 'Open Weights',
-    url: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',
-    signal: 'Local',
+    url: 'https://huggingface.co/Qwen/Qwen3.6-27B',
+    hot: true,
+    signal: 'New',
+  },
+  {
+    id: 'qwen3-6-35b-a3b',
+    name: 'Qwen3.6 35B-A3B',
+    category: 'Local LLM',
+    oneLiner: 'Efficient vision-language MoE with 35B total and only 3B active parameters.',
+    verdict:
+      'Choose the MoE variant when generation speed matters and your machine can hold the larger weights; it is the official counterpart to the 27B release.',
+    bestFor: 'Fast local agents, coding, multimodal work',
+    pricing: 'Open Weights',
+    url: 'https://huggingface.co/Qwen/Qwen3.6-35B-A3B',
+    signal: 'New',
+  },
+  {
+    id: 'devstral-small-1-1',
+    name: 'Devstral Small 1.1',
+    category: 'Local LLM',
+    oneLiner: "Mistral's 24B Apache 2.0 coding model for local software agents.",
+    verdict:
+      'A strong code-specialist for a 32GB Mac or single high-end GPU, built for cross-file changes, tests, and PR work.',
+    bestFor: 'Local coding agents, repo work',
+    pricing: 'Open Weights',
+    url: 'https://mistral.ai/news/codestral-25-08/',
+    hot: true,
+    signal: 'New',
+  },
+  {
+    id: 'nemotron-3-nano-omni',
+    name: 'Nemotron 3 Nano Omni',
+    category: 'Local LLM',
+    oneLiner: "NVIDIA's open 30B-A3B model for text, image, video, and audio.",
+    verdict:
+      'The newest 30B-class multimodal pick: only 3B parameters are active per token, making unified perception agents much more practical.',
+    bestFor: 'Multimodal agents, document and media analysis',
+    pricing: 'Open Weights',
+    url: 'https://developer.nvidia.com/blog/nvidia-nemotron-3-nano-omni-powers-multimodal-agent-reasoning-in-a-single-efficient-open-model/',
+    signal: 'New',
   },
   {
     id: 'deepseek-r1-distill',
@@ -276,7 +327,7 @@ const tools: Tool[] = [
     category: 'Local LLM',
     oneLiner: 'Reasoning distills from DeepSeek-R1 on Qwen and Llama bases.',
     verdict:
-      'Use the 7B, 14B, or 32B distills when you want local reasoning without serving the full MoE model.',
+      'Use the 7B or 14B distills when you want local reasoning without serving the full MoE model.',
     bestFor: 'Math, coding, reasoning traces',
     pricing: 'Open Weights',
     url: 'https://github.com/deepseek-ai/DeepSeek-R1',
@@ -318,6 +369,19 @@ const tools: Tool[] = [
     pricing: 'Free',
     url: 'https://lmstudio.ai',
     signal: 'Local',
+  },
+  {
+    id: 'eve',
+    name: 'eve',
+    category: 'Agent Infra',
+    oneLiner: "Vercel's open-source framework for durable production agents.",
+    verdict:
+      'Batteries included for TypeScript agents: sandboxes, approvals, subagents, channels, traces, and evals deploy as a normal Vercel project.',
+    bestFor: 'Production agents on Vercel',
+    pricing: 'Freemium',
+    url: 'https://vercel.com/eve',
+    hot: true,
+    signal: 'New',
   },
   {
     id: 'langgraph',
@@ -391,6 +455,31 @@ const tools: Tool[] = [
     url: 'https://openrouter.ai',
   },
   {
+    id: 'openclaw',
+    name: 'OpenClaw',
+    category: 'AI Assistants',
+    oneLiner: 'Open-source personal agent that works across messages, files, and services.',
+    verdict:
+      'The broadest personal-automation surface here. Treat it like privileged software: isolate it, narrow credentials, and review every skill.',
+    bestFor: 'Always-on personal automation',
+    pricing: 'BYO API',
+    url: 'https://openclaw.ai',
+    hot: true,
+    signal: 'New',
+  },
+  {
+    id: 'hermes-agent',
+    name: 'Hermes Agent',
+    category: 'AI Assistants',
+    oneLiner: "Nous Research's open agent with persistent memory and learned skills.",
+    verdict:
+      'A serious self-hosted assistant for scheduled work, messaging, subagents, and workflows that improve through repeated use.',
+    bestFor: 'Self-hosted assistants, recurring workflows',
+    pricing: 'BYO API',
+    url: 'https://hermes-agent.nousresearch.com',
+    signal: 'New',
+  },
+  {
     id: 'claude',
     name: 'Claude',
     category: 'AI Assistants',
@@ -458,6 +547,19 @@ const tools: Tool[] = [
     url: 'https://gemini.google.com',
   },
   {
+    id: 'gemini-spark',
+    name: 'Gemini Spark',
+    category: 'AI Assistants',
+    oneLiner: "Google's proactive personal agent for desktop, Workspace, and connected apps.",
+    verdict:
+      'Best for always-on workflows if you already live in Google Workspace. It is still a limited beta tied to Google AI Ultra, so check regional availability first.',
+    bestFor: 'Proactive tasks, desktop and Workspace automation',
+    pricing: 'Paid',
+    url: 'https://blog.google/innovation-and-ai/products/gemini-app/gemini-spark-updates-june-2026/',
+    hot: true,
+    signal: 'New',
+  },
+  {
     id: 'figma',
     name: 'Figma',
     category: 'Design',
@@ -467,6 +569,18 @@ const tools: Tool[] = [
     bestFor: 'Product design, handoff',
     pricing: 'Freemium',
     url: 'https://figma.com',
+  },
+  {
+    id: 'remotion',
+    name: 'Remotion',
+    category: 'Design',
+    oneLiner: 'Create videos and motion graphics with React and coding agents.',
+    verdict:
+      'The code-native choice for data-driven video, reusable motion systems, and rendering at scale. Check the company license once a team grows past three people.',
+    bestFor: 'Programmatic video, motion systems',
+    pricing: 'Freemium',
+    url: 'https://www.remotion.dev',
+    signal: 'Niche',
   },
   {
     id: 'rive',
@@ -801,7 +915,7 @@ export const ResourceTools: React.FC = () => {
                 Tool Directory<span className="text-velocity-red">.</span>
               </h1>
               <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500 md:text-base">
-                A June 2026 stack for coding agents, local LLMs, agent infra, design,
+                An August 2026 stack for coding agents, local LLMs, agent infra, design,
                 deployment, automation, and docs. Each entry has a fast verdict so builders
                 can choose without getting lost in launch-week noise.
               </p>
@@ -813,7 +927,7 @@ export const ResourceTools: React.FC = () => {
                 value={String(counts['Local LLM']).padStart(2, '0')}
               />
               <MetaRow label="Niche picks" value={String(nicheCount).padStart(2, '0')} />
-              <MetaRow label="Reviewed" value="Jun 2026" />
+              <MetaRow label="Reviewed" value="Aug 2026" />
             </div>
           </div>
           <HeaderRule className="mt-10" />

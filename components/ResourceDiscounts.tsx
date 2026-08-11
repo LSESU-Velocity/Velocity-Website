@@ -28,7 +28,7 @@ interface Discount {
   howTo: string;
   url: string;
   eligibility: string;
-  badge?: 'Best' | 'Popular' | 'New' | 'Paused';
+  badge?: 'Best' | 'Popular' | 'New';
 }
 
 const discounts: Discount[] = [
@@ -36,7 +36,7 @@ const discounts: Discount[] = [
     id: 'github-pack',
     name: 'GitHub Student Developer Pack',
     category: 'Infrastructure',
-    perk: '80+ developer tools free or discounted',
+    perk: 'Dozens of developer tools free or discounted',
     description:
       'The core student bundle. Unlocks GitHub Pro, cloud credits, domains, coding tools, learning resources, and more.',
     howTo: 'Apply with your school email or enrolment proof through GitHub Education.',
@@ -48,14 +48,14 @@ const discounts: Discount[] = [
     id: 'github-copilot',
     name: 'GitHub Copilot',
     category: 'AI Coding',
-    perk: 'Student plan sign-ups temporarily paused',
+    perk: 'Copilot Student: free',
     description:
-      'Copilot remains in the GitHub Education pack, but the public pack page says new plan sign-ups are currently paused.',
+      'Verified GitHub Education students get free access to Copilot Student and its premium coding features.',
     howTo:
-      'Get verified on GitHub Education and check the Copilot offer page before relying on it for a project.',
-    url: 'https://education.github.com/pack/redeem/copilot-student',
+      'Verify through GitHub Education, then activate Copilot from your Education benefits settings.',
+    url: 'https://docs.github.com/en/copilot/how-tos/copilot-on-github/set-up-copilot/enable-copilot/set-up-for-students',
     eligibility: 'GitHub Education',
-    badge: 'Paused',
+    badge: 'Popular',
   },
   {
     id: 'perplexity',
@@ -73,12 +73,12 @@ const discounts: Discount[] = [
     id: 'notion',
     name: 'Notion',
     category: 'Productivity',
-    perk: 'Education plan + extra AI responses',
+    perk: 'Education Plus plan: free',
     description:
-      'GitHub Pack users can claim the Notion Education plan, which builds on Plus and includes added AI responses.',
-    howTo: 'Verify on GitHub Education, then redeem the Notion offer inside the Student Developer Pack.',
-    url: 'https://education.github.com/pack',
-    eligibility: 'GitHub Pack',
+      'University students get a free one-member Plus workspace with unlimited uploads, 30-day history, and up to 100 guests.',
+    howTo: 'Sign in with your university email and choose Get free education plan in billing.',
+    url: 'https://www.notion.com/help/notion-for-education',
+    eligibility: 'University email',
   },
   {
     id: 'figma',
@@ -86,10 +86,46 @@ const discounts: Discount[] = [
     category: 'Design',
     perk: 'Education plan: free',
     description:
-      'Verified students get access to Figma education teams with professional paid tools, including FigJam and Dev Mode.',
+      'Higher-education students get the Professional plan free, including Figma, FigJam, and Dev Mode, with re-verification when access expires.',
     howTo: 'Create a Figma account, then complete the verification flow on the Education page.',
     url: 'https://www.figma.com/education/',
     eligibility: 'Student verification',
+  },
+  {
+    id: 'miro',
+    name: 'Miro Education',
+    category: 'Design',
+    perk: 'Education plan: free for 2 years',
+    description:
+      'Students get unlimited active and private boards, exports without watermarks, custom templates, voting, and a 10-person team.',
+    howTo: 'Apply with an educational email and proof such as a student ID or institution page.',
+    url: 'https://help.miro.com/hc/en-us/articles/360017730473-Education-plan',
+    eligibility: 'Education email + proof',
+    badge: 'New',
+  },
+  {
+    id: 'adobe-creative-cloud',
+    name: 'Adobe Creative Cloud',
+    category: 'Design',
+    perk: '£16.24/month for the first year',
+    description:
+      'The UK student plan includes Photoshop, Illustrator, Premiere Pro, After Effects, Acrobat Pro, and the rest of Creative Cloud.',
+    howTo: 'Buy the annual student plan and verify with a school email or current education document.',
+    url: 'https://www.adobe.com/uk/creativecloud/buy/students.html',
+    eligibility: 'Student verification',
+    badge: 'New',
+  },
+  {
+    id: 'autodesk',
+    name: 'Autodesk Education',
+    category: 'Design',
+    perk: 'Professional software: free for 1 year',
+    description:
+      'Eligible students get renewable access to AutoCAD, Fusion, Maya, and other Autodesk tools for learning, training, and research.',
+    howTo: 'Verify student status through Autodesk Education and renew annually while eligible.',
+    url: 'https://www.autodesk.com/education/home',
+    eligibility: 'Education verification',
+    badge: 'New',
   },
   {
     id: 'jetbrains',
@@ -125,6 +161,18 @@ const discounts: Discount[] = [
     eligibility: 'GitHub Pack',
   },
   {
+    id: 'camber',
+    name: 'Camber',
+    category: 'AI Models & APIs',
+    perk: '200 CPU hours + 200 LLM messages/month',
+    description:
+      'The free student plan also includes 75GB of storage for scientific computing, simulations, and data analysis.',
+    howTo: 'Verify through GitHub Education and redeem the Camber offer inside the Pack.',
+    url: 'https://education.github.com/pack',
+    eligibility: 'GitHub Pack',
+    badge: 'New',
+  },
+  {
     id: 'microsoft',
     name: 'Microsoft 365',
     category: 'Productivity',
@@ -148,15 +196,40 @@ const discounts: Discount[] = [
     badge: 'Popular',
   },
   {
-    id: 'digitalocean',
-    name: 'DigitalOcean',
+    id: 'datadog',
+    name: 'Datadog',
     category: 'Infrastructure',
-    perk: '$200 in hosting credit',
+    perk: 'Pro account for 10 servers: free for 2 years',
     description:
-      'Run apps, databases, and agent infra. Current credit terms exclude GPU droplets, some inference products, and third-party frontier model pass-through charges.',
-    howTo: 'Redeem via the GitHub Student Developer Pack.',
-    url: 'https://www.digitalocean.com/github-students',
+      'Monitor infrastructure, application errors, logs, and performance with a student-sized Datadog Pro account.',
+    howTo: 'Redeem Datadog through the GitHub Student Developer Pack after verification.',
+    url: 'https://education.github.com/pack',
     eligibility: 'GitHub Pack',
+    badge: 'New',
+  },
+  {
+    id: 'stripe',
+    name: 'Stripe',
+    category: 'Infrastructure',
+    perk: 'Fees waived on the first $1,000 processed',
+    description:
+      'A useful head start for testing real payments in a student startup without losing the first slice of revenue to transaction fees.',
+    howTo: 'Claim the Stripe offer through the GitHub Student Developer Pack before processing payments.',
+    url: 'https://education.github.com/pack',
+    eligibility: 'GitHub Pack',
+    badge: 'New',
+  },
+  {
+    id: 'clerk',
+    name: 'Clerk',
+    category: 'Infrastructure',
+    perk: 'Pro plan: free while you study',
+    description:
+      'Add authentication, user management, organizations, and billing components to student projects with the Pro tier.',
+    howTo: 'Verify with GitHub Education and activate Clerk from the Student Developer Pack.',
+    url: 'https://education.github.com/pack',
+    eligibility: 'GitHub Pack',
+    badge: 'New',
   },
   {
     id: 'mongodb',
@@ -221,7 +294,7 @@ const discounts: Discount[] = [
     category: 'Infrastructure',
     perk: 'Education plan free while you study',
     description:
-      'Get Appwrite Education with 10 projects and Pro-equivalent resource limits for as long as you stay in the GitHub Student Developer Pack.',
+      'Get Appwrite Education with 2 projects and Pro-equivalent resource limits for as long as you stay in the GitHub Student Developer Pack.',
     howTo: 'Redeem the Appwrite offer from the GitHub Student Developer Pack after verification.',
     url: 'https://education.github.com/pack',
     eligibility: 'GitHub Pack',
@@ -295,7 +368,6 @@ const badgeStyle: Record<NonNullable<Discount['badge']>, string> = {
   Best: 'border-velocity-red/40 bg-velocity-red/10 text-velocity-red',
   Popular: 'border-white/20 bg-white/5 text-white',
   New: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
-  Paused: 'border-amber-400/30 bg-amber-400/10 text-amber-200',
 };
 
 export const ResourceDiscounts: React.FC = () => {
@@ -341,9 +413,9 @@ export const ResourceDiscounts: React.FC = () => {
                 Student Discounts<span className="text-velocity-red">.</span>
               </h1>
               <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500 md:text-base">
-                Current AI, dev, design, and infra offers or status notes for UK university
-                students in June 2026, checked against student verification, GitHub
-                Education, and eligible school-account flows.
+                Current AI, dev, design, and infra offers for UK university students in
+                August 2026, checked against student verification, GitHub Education, and
+                eligible school-account flows.
               </p>
             </div>
             <div className="hidden w-60 flex-shrink-0 flex-col gap-2.5 pb-1 md:flex">
@@ -352,7 +424,7 @@ export const ResourceDiscounts: React.FC = () => {
                 label="Categories"
                 value={String(categoryOrder.length).padStart(2, '0')}
               />
-              <MetaRow label="Reviewed" value="Jun 2026" />
+              <MetaRow label="Reviewed" value="Aug 2026" />
               <MetaRow label="Proof" value="Email / ID" />
             </div>
           </div>
@@ -411,7 +483,7 @@ export const ResourceDiscounts: React.FC = () => {
               <p className="max-w-2xl font-sans text-sm leading-relaxed text-zinc-400">
                 <span className="font-bold text-white">Reviewed by Velocity.</span> Every
                 entry links directly to the vendor and was checked against current public
-                eligibility pages in June 2026. We don't earn affiliate revenue: this list
+                eligibility pages in August 2026. We don't earn affiliate revenue: this list
                 exists because builders should build, not hunt for deals.
               </p>
             </div>

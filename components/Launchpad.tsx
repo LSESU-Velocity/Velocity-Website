@@ -611,7 +611,7 @@ export const Launchpad: React.FC = () => {
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: still ? 0 : 1.4, ease: 'easeOut' }}
-            className="mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base"
+            className="mt-6 w-full max-w-none font-sans text-[clamp(0.7rem,3.3vw,0.875rem)] leading-relaxed tracking-[-0.01em] text-zinc-400 md:text-base lg:whitespace-nowrap"
           >
             A rough spark goes in. Market, customers, risks, monetization, distribution
             and the next build prompts come out.
@@ -897,9 +897,9 @@ export const Launchpad: React.FC = () => {
             initial={still ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: still ? 0 : 1.8, ease: 'easeOut' }}
-            className="mx-auto mt-12 w-full max-w-4xl"
+            className="mx-auto mt-20 w-full max-w-6xl pb-20 md:mt-28 md:pb-28"
           >
-            <p className="mb-3 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
+            <p className="mb-5 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
               Live demo <span className="text-velocity-red">Idea to build plan</span>
             </p>
             <div className="border border-white/10 bg-velocity-black">

@@ -47,7 +47,7 @@ export interface EventRegistration {
   lumaEventId: string | null;
   /** Optional public Luma listing URL, used as a fallback link. */
   lumaUrl: string | null;
-  /** Short status shown on cards and in the brief, e.g. 'Applications open Dec 2026'. */
+  /** Short status shown in the registration rail, e.g. 'Applications open Dec 2026'. */
   statusLabel: string;
   /** Longer copy shown in the register rail while registration is not yet live. */
   opensDetail: string;
@@ -61,7 +61,6 @@ export interface VelocityEventPack {
   year: string;
   kicker: string;
   tagline: string;
-  badge: string;
   termId: string;
   /** Date plate on the timeline spine. */
   monthLabel: string;
@@ -73,7 +72,6 @@ export interface VelocityEventPack {
   locationShort: string;
   durationShort: string;
   eligibilityShort: string;
-  cardStats: string[];
   facts: EventFact[];
   about: string[];
   scheduleTitle: string;
@@ -119,9 +117,9 @@ export interface WeeklyFixture {
 }
 
 export const weeklyFixture: WeeklyFixture = {
-  tag: 'Every week · term time',
+  tag: 'Weekly · term time',
   title: 'Open coworking',
-  copy: 'A room at LSE, booked every week of term. Drop in with whatever you’re building: no agenda, no sign-up, just builders working side by side. Day, time and room go out each week.',
+  copy: 'Drop in. Build together. Details weekly.',
   linkLabel: 'Announced weekly',
   linkHref: 'https://www.instagram.com/lsesu.velocity',
 };
@@ -154,16 +152,16 @@ export const seasonTerms: SeasonTerm[] = [
   {
     id: 'michaelmas',
     index: 'Term I',
-    name: 'Michaelmas',
+    name: 'Winter term',
     range: 'Sep – Dec 2026',
     placeholders: [
       {
         id: 'michaelmas-pack',
-        plateTop: 'Michaelmas',
+        plateTop: 'Winter term',
         plateMain: 'TBA',
         plateBottom: '2026',
         dateSummary: 'Sep – Dec 2026',
-        title: 'More Michaelmas packs in production',
+        title: 'More winter term packs in production',
         copy: 'The rest of the opening term is being written now. New packs land here first, announcing soon.',
       },
     ],
@@ -171,7 +169,7 @@ export const seasonTerms: SeasonTerm[] = [
   {
     id: 'lent',
     index: 'Term II',
-    name: 'Lent',
+    name: 'Spring term',
     range: 'Jan – Mar 2027',
   },
   {
@@ -187,7 +185,7 @@ export const seasonTerms: SeasonTerm[] = [
         plateBottom: '2027',
         dateSummary: 'Apr – Jun 2027',
         title: 'Season close-out, to be announced',
-        copy: 'The final pack of the season drops after Lent term. Watch this space.',
+        copy: 'The final pack of the season drops after spring term. Watch this space.',
       },
     ],
   },
@@ -201,36 +199,34 @@ export const eventsCatalog: VelocityEventPack[] = [
     year: '2026',
     kicker: 'Hands-on AI workshop series',
     tagline: 'See it demoed by the people who know it best, then build with it.',
-    badge: 'Michaelmas · Hands-on',
     termId: 'michaelmas',
     monthLabel: 'Sessions',
     dayLabel: 'TBA',
     yearLabel: '2026',
-    dateSummary: 'Michaelmas · dates TBA',
+    dateSummary: 'Winter term · dates TBA',
     provisional: true,
     locationShort: 'LSE campus',
     durationShort: 'Evening sessions',
     eligibilityShort: 'Open to all, no experience needed',
-    cardStats: ['Guest-led demos', 'Build-along format', 'Full line-up TBC'],
     facts: [
-      { label: 'Term', value: 'Michaelmas 2026 · dates TBA' },
+      { label: 'Term', value: 'Winter term 2026 · dates TBA' },
       { label: 'Format', value: 'Live demo → hands-on build' },
       { label: 'Organiser', value: 'LSESU Velocity' },
       { label: 'Venue', value: 'LSE campus · announced per session' },
-      { label: 'Confirmed', value: 'Lovable · n8n · more TBC' },
+      { label: 'Sessions', value: 'Vibe coding · agentic AI · more TBC' },
       { label: 'Eligibility', value: 'Open to all, no experience needed' },
     ],
     about: [
-      'A run of hands-on workshop sessions across Michaelmas term, each built around one tool and one outcome: watch it demoed live, then build with it in the room. First confirmed: a guest from the Lovable team on prompt-to-product building, and an LSE lecturer on n8n and how agentic AI actually works, with a hands-on exercise.',
-      'Sessions are open to everyone, technical or not. No prerequisites, no prep: bring a laptop and leave having actually shipped something. More sessions are being confirmed, and the full line-up lands with the Michaelmas pack.',
+      'A run of hands-on workshop sessions across winter term, each built around one tool and one outcome: watch it demoed live, then build with it in the room. Planned topics include prompt-to-product vibe coding and an accessible look at agentic AI, each followed by a hands-on exercise.',
+      'Sessions are open to everyone, technical or not. No prerequisites, no prep: bring a laptop and leave having actually shipped something. More sessions are being confirmed, and the full line-up lands with the winter term pack.',
     ],
-    scheduleTitle: 'First confirmed sessions',
+    scheduleTitle: 'Planned sessions',
     schedule: [
       {
         day: 'S.01',
-        title: 'Vibe coding with Lovable',
+        title: 'Vibe coding: prompt to product',
         detail:
-          'A guest from the Lovable team demos how to go from prompt to product, then the room builds with it, live. Leave with something deployed.',
+          'A practical prompt-to-product session followed by a live build-along. Bring an idea and leave with something deployed.',
       },
       {
         day: 'S.02',
@@ -242,7 +238,7 @@ export const eventsCatalog: VelocityEventPack[] = [
         day: 'S.03+',
         title: 'More sessions in the works',
         detail:
-          'Further guest demos and build-alongs are being confirmed. The full line-up drops with the Michaelmas pack.',
+          'Further guest demos and build-alongs are being confirmed. The full line-up drops with the winter term pack.',
       },
     ],
     scheduleNote: 'Every session runs demo first, then guided building. Bring a laptop.',
@@ -256,15 +252,15 @@ export const eventsCatalog: VelocityEventPack[] = [
     ],
     keyDates: [
       { when: 'Sep 2026', what: 'Full line-up announced' },
-      { when: 'Term time', what: 'Sessions run across Michaelmas, evenings' },
+      { when: 'Term time', what: 'Sessions run across winter term, evenings' },
       { when: 'Per session', what: 'Registration opens individually, right here' },
     ],
     registration: {
       lumaEventId: null,
       lumaUrl: null,
-      statusLabel: 'Line-up dropping soon',
+      statusLabel: 'Registration opens per session',
       opensDetail:
-        'Each session opens for registration individually once its date is locked, right here. Drop us a line to hear first.',
+        'Each session opens for registration individually once its date is locked, right here.',
     },
   },
   {
@@ -274,7 +270,6 @@ export const eventsCatalog: VelocityEventPack[] = [
     year: '2027',
     kicker: 'Multi-campus AI venture buildathon',
     tagline: 'Where the next generation of AI builders launch.',
-    badge: 'Flagship · Multi-campus',
     termId: 'lent',
     monthLabel: 'Feb',
     dayLabel: '26–28',
@@ -284,7 +279,6 @@ export const eventsCatalog: VelocityEventPack[] = [
     locationShort: 'London · Berlin · Paris',
     durationShort: 'Fri eve → Sun eve',
     eligibilityShort: 'Open to all students',
-    cardStats: ['3 core campuses', '650–1K builders at full scale', '1 global champion'],
     facts: [
       { label: 'Dates', value: '26–28 Feb 2027 · provisional' },
       { label: 'Format', value: 'In-person · multi-campus' },
@@ -294,7 +288,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       { label: 'Eligibility', value: 'Technical & non-technical students' },
     ],
     about: [
-      'Global Build is a multi-campus AI venture buildathon hosted across leading universities, organised by LSESU Velocity with ESMT Berlin and HEC Paris as confirmed core campuses, and potential expansion to Yale, Cornell, Bocconi and the Stockholm School of Economics. Over one weekend, students form teams, identify real problems, build AI-powered prototypes, receive mentorship and pitch to local judging panels before competing for an overall global title.',
+      'Global Build is a multi-campus AI venture buildathon hosted across leading universities, organised by LSESU Velocity with ESMT Berlin and HEC Paris as confirmed core campuses. Over one weekend, students form teams, identify real problems, build AI-powered prototypes, receive mentorship and pitch to local judging panels before competing for an overall global title.',
       'The event sits between a hackathon, a startup weekend and an AI product challenge. It is open to technical and non-technical students interested in AI, entrepreneurship, product, strategy, consulting, finance, design and venture-building. Every campus crowns its own champion, and one team leaves as the overall Global Build Champion.',
     ],
     scheduleTitle: 'The weekend',
@@ -400,7 +394,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       lumaUrl: null,
       statusLabel: 'Applications open Dec 2026',
       opensDetail:
-        'Applications open December 2026 and will run right here. Follow the announcement or drop us a line to be first in.',
+        'Applications open December 2026 and will run right here.',
     },
   },
   {
@@ -410,7 +404,6 @@ export const eventsCatalog: VelocityEventPack[] = [
     year: '2027',
     kicker: 'AI startup competition for women',
     tagline: "Where women build what's next.",
-    badge: 'IWD Week · Women students',
     termId: 'lent',
     monthLabel: 'Mar',
     dayLabel: '08–12',
@@ -420,7 +413,6 @@ export const eventsCatalog: VelocityEventPack[] = [
     locationShort: 'LSE · London',
     durationShort: 'Mon → Fri · IWD week',
     eligibilityShort: 'Women students · 4 universities',
-    cardStats: ['60 places, capped', '4 London universities', '1 SheBuilds champion'],
     facts: [
       { label: 'Dates', value: '8–12 Mar 2027 · provisional' },
       { label: 'Format', value: 'In-person · week-long' },
@@ -513,7 +505,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       lumaUrl: null,
       statusLabel: 'Sign-ups open Jan 2027',
       opensDetail:
-        'Sign-ups open January 2027 across LSE, UCL, KCL and Imperial, and will run right here. Drop us a line to be first in.',
+        'Sign-ups open January 2027 across LSE, UCL, KCL and Imperial, and will run right here.',
     },
   },
 ];

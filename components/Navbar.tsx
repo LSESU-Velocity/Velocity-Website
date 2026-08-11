@@ -20,6 +20,7 @@ interface SubNavItem {
 
 interface NavItem {
   label: string;
+  mobileLabel?: string;
   path: string;
   isSection: boolean;
   children?: SubNavItem[];
@@ -35,7 +36,6 @@ const resourceNavItems: SubNavItem[] = liveResourceCatalog.map((resource) => ({
 const navItems: NavItem[] = [
   { label: 'Overview', path: '/', isSection: false },
   { label: 'Launchpad', path: '/launchpad', isSection: false },
-  { label: 'Student Projects', path: '/automation-intake', isSection: false },
   { label: 'Events', path: '/events', isSection: false },
   {
     label: 'Resources',
@@ -43,16 +43,20 @@ const navItems: NavItem[] = [
     isSection: false,
     children: resourceNavItems,
   },
+  { label: 'Student Projects', mobileLabel: 'Projects', path: '/automation-intake', isSection: false },
 ];
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches,
+  );
   const [activeSection, setActiveSection] = useState('');
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const closeTimer = useRef<number | null>(null);
 
+  const mobileNavRef = useRef<HTMLDivElement>(null);
   const isPathWithin = (basePath: string) =>
     location.pathname === basePath || location.pathname.startsWith(`${basePath}/`);
 
@@ -61,7 +65,8 @@ export const Navbar: React.FC = () => {
     const handleScrollVisibility = () => {
       // Show navbar after scrolling past the chipscroll animation
       const heroHeight = SCROLL_DISTANCE;
-      const shouldShow = window.scrollY > heroHeight || location.pathname !== '/';
+      const isMobileViewport = window.matchMedia('(max-width: 767px)').matches;
+      const shouldShow = isMobileViewport || window.scrollY > heroHeight || location.pathname !== '/';
       setIsVisible(shouldShow);
     };
 
@@ -69,7 +74,11 @@ export const Navbar: React.FC = () => {
     handleScrollVisibility();
 
     window.addEventListener('scroll', handleScrollVisibility);
-    return () => window.removeEventListener('scroll', handleScrollVisibility);
+    window.addEventListener('resize', handleScrollVisibility);
+    return () => {
+      window.removeEventListener('scroll', handleScrollVisibility);
+      window.removeEventListener('resize', handleScrollVisibility);
+    };
   }, [location.pathname]);
 
   const handleNavClick = (e: React.MouseEvent<HTMLElement>, item: NavItem) => {
@@ -140,6 +149,16 @@ export const Navbar: React.FC = () => {
     setOpenDropdown(null);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const nav = mobileNavRef.current;
+    const activeLink = nav?.querySelector<HTMLElement>('[aria-current="page"]');
+
+    if (!nav || !activeLink) return;
+
+    const targetLeft = activeLink.offsetLeft - (nav.clientWidth - activeLink.clientWidth) / 2;
+    nav.scrollTo({ left: Math.max(0, targetLeft) });
+  }, [location.pathname]);
+
   const scheduleClose = () => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => setOpenDropdown(null), 140);
@@ -160,37 +179,68 @@ export const Navbar: React.FC = () => {
         opacity: isVisible ? 1 : 0
       }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-none" // pointer-events-none allows clicks through wrapper if needed, but we'll add auto to children
+      aria-label="Primary navigation"
+      className="fixed top-0 left-0 right-0 z-50 pointer-events-none max-md:!translate-y-0 max-md:!opacity-100" // pointer-events-none allows clicks through wrapper if needed, but we'll add auto to children
     >
       {/* Background with Mask */}
       <div
-        className="absolute inset-0 h-full w-full backdrop-blur-xl pointer-events-auto"
+        className="absolute inset-x-0 top-0 h-[76px] w-full backdrop-blur-xl pointer-events-auto md:h-[100px]"
         style={{
           background: 'rgba(0, 0, 0, 0.7)',
           maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
-          height: '100px', // Explicit height for the background panel
         }}
       />
 
       {/* Content Container - Unmasked */}
-      <div className="relative z-10 flex items-center justify-between px-8 py-5 md:px-12 pointer-events-auto">
+      <div className="relative z-20 flex h-[72px] items-center justify-start px-3 pointer-events-auto md:h-auto md:justify-between md:px-12 md:py-5">
         {/* Left: Logo */}
-        <div
-          className="flex items-center gap-3 cursor-pointer group min-w-[160px]"
+        <button
+          type="button"
+          className="group flex flex-none items-center gap-2.5 text-left cursor-pointer md:min-w-[160px] md:gap-3"
           onClick={handleLogoClick}
+          aria-label="Velocity home"
         >
-          <div className="w-10 h-10 flex items-center justify-center overflow-hidden rounded-lg bg-white/10">
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg bg-white/10 md:h-10 md:w-10">
             <img
               src={LOGO_URL}
               alt="Velocity Logo"
               className="w-full h-full object-contain opacity-90 group-hover:opacity-100 transition-opacity"
             />
           </div>
-          <span className="font-sans font-medium text-lg tracking-tight text-white/90 group-hover:text-white transition-colors">
+          <span className="hidden font-sans font-medium text-lg tracking-tight text-white/90 group-hover:text-white transition-colors md:inline">
             Velocity
           </span>
+        </button>
+
+        {/* Mobile: compact, horizontally scrollable page links */}
+        <div
+          ref={mobileNavRef}
+          className="ml-3 flex h-full min-w-0 flex-1 snap-x snap-mandatory items-center overflow-x-auto scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:hidden"
+        >
+          {navItems.map((item) => {
+            const active = isActive(item);
+
+            return (
+              <Link
+                key={item.label}
+                to={item.path}
+                onClick={(event) => handleNavClick(event, item)}
+                aria-label={item.label}
+                aria-current={active ? 'page' : undefined}
+                className={`relative flex h-full flex-none snap-start items-center px-1 font-sans text-xs font-medium transition-colors ${
+                  active ? 'text-white' : 'text-white/55 hover:text-white/85'
+                }`}
+              >
+                {item.mobileLabel ?? item.label}
+                {active && (
+                  <span className="absolute inset-x-1 bottom-0 h-0.5 bg-velocity-red" aria-hidden />
+                )}
+              </Link>
+            );
+          })}
         </div>
+
 
         {/* Center: Navigation Links */}
         <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
@@ -286,7 +336,7 @@ export const Navbar: React.FC = () => {
         </div>
 
         {/* Right: Icons */}
-        <div className="flex items-center gap-3 min-w-[160px] justify-end">
+        <div className="hidden items-center justify-end gap-1 md:flex md:min-w-[160px] md:gap-3">
 
           {/* Dynamic Actions Portal Target */}
           <div id="navbar-actions" className="flex items-center gap-3" />
@@ -297,8 +347,9 @@ export const Navbar: React.FC = () => {
             href="https://www.lsesu.com/communities/societies/group/Velocity/"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
             aria-label="Join Society"
+            title="Join Society"
           >
             <ExternalLink className="w-5 h-5" />
           </a>
@@ -306,9 +357,11 @@ export const Navbar: React.FC = () => {
 
         </div>
       </div>
+
     </motion.nav>
   );
 };
+
 
 interface DropdownPanelProps {
   children: SubNavItem[];

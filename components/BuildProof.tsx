@@ -36,21 +36,18 @@ export const BuildProof: React.FC = () => {
   const still = Boolean(prefersReducedMotion);
 
   return (
-    <section className="relative px-6 pb-28 md:pb-36">
-      <div className="mx-auto max-w-5xl">
+    <section className="relative flex min-h-[100svh] items-center px-6 py-32 md:py-44 lg:py-48">
+      <div className="mx-auto w-full max-w-5xl text-center">
         <motion.header
           initial={still ? false : { opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            Built by Velocity
-          </p>
-          <h2 className="mt-6 max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="mx-auto max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
             We build our own tools<span className="text-velocity-red">.</span>
           </h2>
-          <p className="mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
+          <p className="mx-auto mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
             Launchpad turns a rough idea into a full startup analysis, built in-house.
           </p>
         </motion.header>
@@ -80,10 +77,10 @@ export const BuildProof: React.FC = () => {
                 <Link
                   key={resource.id}
                   to={resource.path}
-                  className="group flex items-start gap-3 bg-velocity-black p-5 transition-colors duration-300 hover:bg-white/[0.03]"
+                  className="group flex items-center justify-center gap-3 bg-velocity-black p-5 text-center transition-colors duration-300 hover:bg-white/[0.03]"
                 >
                   <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-zinc-500 transition-colors group-hover:text-velocity-red" />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0">
                     <p className="font-sans text-sm font-bold text-white">{resource.title}</p>
                     <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-400">
                       {resource.count}
@@ -107,7 +104,7 @@ const Plate: React.FC<{ kind: string; name: string; className?: string }> = ({
   name,
   className,
 }) => (
-  <div className={`border border-white/15 bg-velocity-black px-4 py-3 ${className ?? ''}`}>
+  <div className={`border border-white/15 bg-velocity-black px-4 py-3 text-center ${className ?? ''}`}>
     <p className="font-mono text-[9px] uppercase tracking-[0.24em] text-zinc-600">{kind}</p>
     <p className="mt-1 font-sans text-xs font-bold leading-tight text-white">{name}</p>
   </div>
@@ -123,7 +120,7 @@ const StageChip: React.FC<{ stage: Stage; index: number; still: boolean }> = ({
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true, margin: '-60px' }}
     transition={{ duration: 0.45, delay: still ? 0 : index * 0.09, ease: 'easeOut' }}
-    className="bg-velocity-black px-4 py-4"
+    className="bg-velocity-black px-4 py-4 text-center"
   >
     <p className="font-mono text-[9px] uppercase tracking-[0.26em] text-zinc-600">{stage.no}</p>
     <p className="mt-1.5 font-sans text-[13px] font-bold leading-snug text-white">

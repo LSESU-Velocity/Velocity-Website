@@ -1,7 +1,6 @@
 import React from 'react';
 import { ChipScroll } from './ChipScroll';
 import { VelocityExplainer } from './VelocityExplainer';
-import { SeasonStats } from './SeasonStats';
 import { SeasonProgramme } from './SeasonProgramme';
 import { BuildProof } from './BuildProof';
 import { PartnersJoin } from './PartnersJoin';
@@ -13,7 +12,6 @@ export const Home: React.FC = () => {
       <ChipScroll />
 
       <VelocityExplainer />
-      <SeasonStats />
       <SeasonProgramme />
       <BuildProof />
       <PartnersJoin />

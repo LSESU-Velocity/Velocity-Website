@@ -48,9 +48,16 @@ export const VelocityExplainer: React.FC = () => {
     target: graphicRef,
     offset: ['start 85%', 'end 55%'],
   });
+  // Let the sequence play across the section's approach, but finish before the
+  // centered composition begins to leave the viewport.
+  const railProgress = useTransform(scrollYProgress, [0.05, 0.68], [0, 1]);
+  const cardProgress = useTransform(scrollYProgress, [0.05, 0.75], [0, 1]);
 
   return (
-    <section id="about" className="relative px-6 py-28 md:py-36">
+    <section
+      id="about"
+      className="relative flex min-h-[100svh] items-center px-6 py-32 md:py-44 lg:py-48"
+    >
       {/* Dissolves the hard seam where ChipScroll's opaque black ends and the
          ambient BackgroundGrid shows through. The wrapper below needs
          `relative` so content keeps painting above this overlay. */}
@@ -59,50 +66,36 @@ export const VelocityExplainer: React.FC = () => {
         className="pointer-events-none absolute inset-x-0 top-0 h-56 bg-gradient-to-b from-black via-black/60 to-transparent md:h-72"
       />
 
-      <div className="relative mx-auto max-w-5xl">
+      <div className="relative mx-auto w-full max-w-5xl">
         <motion.header
           initial={still ? false : { opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="text-center"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            What is Velocity <span className="text-velocity-red">Est. 2025</span>
-          </p>
-          <h2 className="mt-6 max-w-3xl font-sans text-[2.15rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
+          <h2 className="mx-auto max-w-3xl font-sans text-[2.15rem] font-bold leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl">
             LSE&rsquo;s AI builders&rsquo; society<span className="text-velocity-red">.</span>
           </h2>
-          <p className="mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
-            We exist so students ship real products, not just essays about them.
-          </p>
-          <p className="mt-7 font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
-            Born at LSE <span className="text-velocity-red/70">2025</span>
+          <p className="mx-auto mt-6 max-w-xl font-sans text-sm leading-relaxed text-zinc-400 md:text-base">
+            We exist so students ship real products.
           </p>
         </motion.header>
 
         <div ref={graphicRef} className="mt-16 md:mt-20">
-          <div className="mb-7 flex items-baseline justify-between gap-4">
-            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500">
-              How it runs
-            </p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-600">
-              04 formats
-            </p>
-          </div>
-
           {/* Desktop rail: traced left to right above the cells */}
           <div aria-hidden className="relative mb-10 hidden h-px md:block">
             <div className="absolute inset-0 bg-white/10" />
             <motion.div
               className="absolute inset-0 origin-left bg-velocity-red"
-              style={{ scaleX: still ? 1 : scrollYProgress }}
+              style={{ scaleX: still ? 1 : railProgress }}
             />
             {FORMATS.map((format, index) => (
               <IgnitionNode
                 key={format.no}
                 onRail
                 index={index}
-                progress={scrollYProgress}
+                progress={railProgress}
                 still={still}
               />
             ))}
@@ -116,7 +109,7 @@ export const VelocityExplainer: React.FC = () => {
             >
               <motion.div
                 className="h-full w-full origin-top bg-velocity-red"
-                style={{ scaleY: still ? 1 : scrollYProgress }}
+                style={{ scaleY: still ? 1 : railProgress }}
               />
             </div>
 
@@ -126,7 +119,7 @@ export const VelocityExplainer: React.FC = () => {
                   key={format.no}
                   format={format}
                   index={index}
-                  progress={scrollYProgress}
+                  progress={cardProgress}
                   still={still}
                 />
               ))}
@@ -184,7 +177,7 @@ const FormatCell: React.FC<FormatCellProps> = ({ format, index, progress, still 
 
   return (
     <motion.div
-      className="relative bg-velocity-black p-6"
+      className="relative bg-velocity-black p-6 text-center"
       style={still ? undefined : { opacity, y }}
     >
       <IgnitionNode index={index} progress={progress} still={still} />

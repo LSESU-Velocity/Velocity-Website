@@ -19,7 +19,6 @@ import {
 import {
   Breadcrumb,
   CornerTicks,
-  Eyebrow,
   HeaderRule,
   MetaRow,
   ResourceFootnote,
@@ -185,14 +184,13 @@ const BlogIndex: React.FC = () => {
         <header className="mb-14">
           <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
             <div className="max-w-2xl">
-              <Eyebrow>The Velocity journal</Eyebrow>
               <h1 className="mb-5 font-sans text-5xl font-black tracking-tighter text-white md:text-6xl lg:text-7xl">
                 Blog<span className="text-velocity-red">.</span>
               </h1>
               <p className="max-w-xl font-sans text-sm leading-relaxed text-zinc-500 md:text-base">
                 Long-form essays on local AI, agents, and where the interface goes
                 next. Every claim carries an inline citation; every source is listed
-                and linked at the end.
+                and linked at the end, so you can read more about the topic.
               </p>
             </div>
             <div className="hidden w-60 flex-shrink-0 flex-col gap-2.5 pb-1 md:flex">
@@ -218,10 +216,7 @@ const BlogIndex: React.FC = () => {
         )}
 
         <ResourceFootnote label="Sourcing">
-          Essays are written and fact-checked by the Velocity team. Inline markers
-          like [1] point to the numbered reference list at the end of each essay;
-          all reference links were live and checked against the claims they support
-          as of August 2026. Nothing here is sponsored.
+          Nothing here is sponsored
         </ResourceFootnote>
       </div>
     </section>

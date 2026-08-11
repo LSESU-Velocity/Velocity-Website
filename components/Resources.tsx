@@ -9,7 +9,6 @@ import {
 } from '../lib/resourceCatalog';
 import {
   CornerTicks,
-  Eyebrow,
   HeaderRule,
   MetaRow,
   ResourceFootnote,
@@ -32,7 +31,6 @@ export const Resources: React.FC = () => {
         <header className="mb-14">
           <div className="flex flex-col justify-between gap-10 md:flex-row md:items-end">
             <div className="max-w-2xl">
-              <Eyebrow>The Velocity library</Eyebrow>
               <h1 className="mb-5 font-sans text-5xl font-black tracking-tighter text-white md:text-6xl lg:text-7xl">
                 Resources<span className="text-velocity-red">.</span>
               </h1>

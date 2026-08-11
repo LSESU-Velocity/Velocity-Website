@@ -42,8 +42,11 @@ export const PartnersJoin: React.FC = () => {
   const still = Boolean(prefersReducedMotion);
 
   return (
-    <section id="get-involved" className="relative px-6 pb-28 md:pb-36">
-      <div className="relative mx-auto max-w-5xl">
+    <section
+      id="get-involved"
+      className="relative flex min-h-[100svh] items-center px-6 py-32 md:py-44 lg:py-48"
+    >
+      <div className="relative mx-auto w-full max-w-5xl">
         <motion.header
           initial={still ? false : { opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -51,10 +54,7 @@ export const PartnersJoin: React.FC = () => {
           transition={{ duration: 0.55, ease: 'easeOut' }}
           className="text-center"
         >
-          <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-zinc-500 md:text-[11px]">
-            Get involved <span className="text-velocity-red">Two ways in</span>
-          </p>
-          <h2 className="mx-auto mt-6 max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
+          <h2 className="mx-auto max-w-2xl font-sans text-[2rem] font-bold leading-[1.05] tracking-tight text-white sm:text-4xl md:text-5xl">
             Pick your side of the room<span className="text-velocity-red">.</span>
           </h2>
         </motion.header>
@@ -144,7 +144,7 @@ export const PartnersJoin: React.FC = () => {
           </svg>
         </div>
 
-        <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-px border border-white/10 bg-white/10 text-center md:grid-cols-2">
           {/* Students door */}
           <div className="bg-velocity-black p-8 md:p-10">
             <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
@@ -167,7 +167,7 @@ export const PartnersJoin: React.FC = () => {
               <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:transform-none" />
             </a>
 
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <SocialLink href={INSTAGRAM_URL} label="Instagram" icon={Instagram} />
               <SocialLink href={LINKEDIN_URL} label="LinkedIn" icon={Linkedin} />
             </div>
@@ -273,7 +273,7 @@ const PastPartners: React.FC<{ still: boolean }> = ({ still }) => {
 
   return (
     <div className="mt-9 border-t border-white/10 pt-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
         <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-zinc-400">
           Past sponsors &amp; partners
         </p>
