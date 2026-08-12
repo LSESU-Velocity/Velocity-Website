@@ -97,7 +97,7 @@ export const ResourceFootnote: React.FC<ResourceFootnoteProps> = ({
   <div className="mt-16 border-t border-white/10 pt-6">
     <div className="flex items-start gap-3">
       <ShieldAlert className="mt-0.5 h-3.5 w-3.5 flex-shrink-0 text-zinc-600" />
-      <p className="w-full max-w-none font-sans text-xs leading-relaxed text-zinc-600 xl:whitespace-nowrap">
+      <p className="min-w-0 flex-1 font-sans text-xs leading-relaxed text-zinc-600">
         <span className="mr-3 font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-500">
           {label}
         </span>
