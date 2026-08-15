@@ -10,6 +10,7 @@ import {
   type TermPlaceholder,
   type VelocityEventPack,
 } from '../lib/eventsCatalog';
+import { useInterestModal } from './FlagshipInterest';
 
 const CONTACT_EMAIL = 'velocity@lsesu.org';
 const INSTAGRAM_URL = 'https://www.instagram.com/lsesu.velocity';
@@ -508,26 +509,28 @@ const EventBrief: React.FC<{ event: VelocityEventPack; onClose: () => void }> = 
               </BriefSection>
             )}
 
-            {event.prizes && (
+            {(event.prizes || event.prizesNote) && (
               <BriefSection title="Prizes">
-                <div className="space-y-px border border-white/10 bg-white/10">
-                  {event.prizes.map((prize) => (
-                    <div
-                      key={prize.title}
-                      className="grid grid-cols-[4.5rem_1fr] gap-4 bg-velocity-black px-5 py-4 md:grid-cols-[5.5rem_1fr]"
-                    >
-                      <span className="pt-0.5 font-mono text-[11px] uppercase tracking-[0.2em] text-velocity-red">
-                        {prize.tag}
-                      </span>
-                      <div>
-                        <p className="font-sans text-sm font-bold text-white">{prize.title}</p>
-                        <p className="mt-1 font-sans text-[13px] leading-relaxed text-zinc-500">
-                          {prize.detail}
-                        </p>
+                {event.prizes && (
+                  <div className="space-y-px border border-white/10 bg-white/10">
+                    {event.prizes.map((prize) => (
+                      <div
+                        key={prize.title}
+                        className="grid grid-cols-[4.5rem_1fr] gap-4 bg-velocity-black px-5 py-4 md:grid-cols-[5.5rem_1fr]"
+                      >
+                        <span className="pt-0.5 font-mono text-[11px] uppercase tracking-[0.2em] text-velocity-red">
+                          {prize.tag}
+                        </span>
+                        <div>
+                          <p className="font-sans text-sm font-bold text-white">{prize.title}</p>
+                          <p className="mt-1 font-sans text-[13px] leading-relaxed text-zinc-500">
+                            {prize.detail}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
                 {event.prizesNote && <FootNote>{event.prizesNote}</FootNote>}
               </BriefSection>
             )}
@@ -616,7 +619,8 @@ const FootNote: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 /* ------------------------------ Luma registration --------------------------- */
 
 const RegisterCard: React.FC<{ event: VelocityEventPack }> = ({ event }) => {
-  const { lumaEventId, lumaUrl, statusLabel, opensDetail } = event.registration;
+  const { lumaEventId, lumaUrl, statusLabel, opensDetail, interestFormUrl } = event.registration;
+  const { open: openInterestModal } = useInterestModal();
 
   return (
     <div className="border border-velocity-red/30 bg-velocity-black/60">
@@ -645,6 +649,21 @@ const RegisterCard: React.FC<{ event: VelocityEventPack }> = ({ event }) => {
       ) : (
         <div className="px-5 py-5">
           <p className="font-sans text-xs leading-relaxed text-zinc-400">{opensDetail}</p>
+          {interestFormUrl && (
+            <>
+              <button
+                type="button"
+                onClick={openInterestModal}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 border border-velocity-red/60 bg-velocity-red/10 px-4 py-3.5 font-sans text-[11px] font-bold uppercase tracking-[0.24em] text-white transition-colors hover:border-velocity-red hover:bg-velocity-red/20"
+              >
+                Register interest
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </button>
+              <p className="mt-2 font-sans text-[11px] leading-relaxed text-zinc-600">
+                Non-binding expression of interest · not event registration.
+              </p>
+            </>
+          )}
           <p className="mt-4 font-sans text-xs leading-relaxed text-zinc-300">
             Follow us on LinkedIn and Instagram to stay updated.
           </p>

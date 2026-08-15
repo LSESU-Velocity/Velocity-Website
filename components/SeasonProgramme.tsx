@@ -3,6 +3,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { eventsCatalog, weeklyFixture, type VelocityEventPack } from '../lib/eventsCatalog';
+import { useInterestModal } from './FlagshipInterest';
 
 export const SeasonProgramme: React.FC = () => {
   const prefersReducedMotion = useReducedMotion();
@@ -74,7 +75,10 @@ interface ProgrammeCardProps {
   still: boolean;
 }
 
-const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ event, index, still }) => (
+const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ event, index, still }) => {
+  const { open: openInterestModal } = useInterestModal();
+
+  return (
   <motion.div
     initial={{ opacity: still ? 1 : 0, y: still ? 0 : 22 }}
     whileInView={{ opacity: 1, y: 0 }}
@@ -82,8 +86,10 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ event, index, still }) =>
     transition={{ duration: 0.55, delay: still ? 0 : index * 0.1, ease: 'easeOut' }}
     className="relative"
   >
-    <Link
-      to={`/events?event=${event.id}`}
+    {/* Stretched-link card: the "View brief" link covers the card via ::after,
+        so the interest button can sit inside without nesting a button in an
+        anchor (invalid, and it would fire both actions). */}
+    <div
       className="group relative flex h-full flex-col overflow-hidden bg-velocity-black p-7 text-center transition-colors duration-300 hover:bg-white/[0.02]"
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_0%,rgba(255,31,31,0.1),transparent_60%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -120,11 +126,25 @@ const ProgrammeCard: React.FC<ProgrammeCardProps> = ({ event, index, still }) =>
           </span>
         )}
 
-        <span className="mt-7 inline-flex items-center justify-center gap-1.5 border-t border-white/10 pt-5 font-mono text-[9px] uppercase tracking-[0.26em] text-zinc-500 transition-colors group-hover:text-velocity-red">
+        {event.registration.interestFormUrl && (
+          <button
+            type="button"
+            onClick={openInterestModal}
+            className="relative z-10 mt-3 self-center border border-velocity-red/50 bg-velocity-red/10 px-3 py-1.5 font-mono text-[8px] uppercase tracking-[0.24em] text-white transition-colors hover:border-velocity-red hover:bg-velocity-red/25"
+          >
+            Register interest
+          </button>
+        )}
+
+        <Link
+          to={`/events?event=${event.id}`}
+          className="mt-7 inline-flex items-center justify-center gap-1.5 border-t border-white/10 pt-5 font-mono text-[9px] uppercase tracking-[0.26em] text-zinc-500 transition-colors after:absolute after:inset-0 group-hover:text-velocity-red"
+        >
           View brief
           <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none motion-reduce:transform-none" />
-        </span>
+        </Link>
       </div>
-    </Link>
+    </div>
   </motion.div>
-);
+  );
+};

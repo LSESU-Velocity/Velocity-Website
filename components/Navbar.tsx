@@ -173,14 +173,15 @@ export const Navbar: React.FC = () => {
 
   return (
     <motion.nav
-      initial={{ y: -100, opacity: 0 }}
+      initial={{ y: -140, opacity: 0 }}
       animate={{
-        y: isVisible ? 0 : -100,
+        y: isVisible ? 0 : -140,
         opacity: isVisible ? 1 : 0
       }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
       aria-label="Primary navigation"
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-none max-md:!translate-y-0 max-md:!opacity-100" // pointer-events-none allows clicks through wrapper if needed, but we'll add auto to children
+      // top-8 leaves room for the fixed flagship-interest banner above
+      className="fixed top-8 left-0 right-0 z-50 pointer-events-none max-md:!translate-y-0 max-md:!opacity-100" // pointer-events-none allows clicks through wrapper if needed, but we'll add auto to children
     >
       {/* Background with Mask */}
       <div
@@ -225,6 +226,8 @@ export const Navbar: React.FC = () => {
               <Link
                 key={item.label}
                 to={item.path}
+                // Returning to Overview skips the scroll intro on the homepage
+                state={item.path === '/' ? { skipIntro: true } : undefined}
                 onClick={(event) => handleNavClick(event, item)}
                 aria-label={item.label}
                 aria-current={active ? 'page' : undefined}
@@ -316,6 +319,8 @@ export const Navbar: React.FC = () => {
               <Link
                 key={item.label}
                 to={item.path}
+                // Returning to Overview skips the scroll intro on the homepage
+                state={item.path === '/' ? { skipIntro: true } : undefined}
                 className={`relative px-4 py-2 font-sans text-sm transition-colors ${
                   isActive(item)
                     ? 'text-white'

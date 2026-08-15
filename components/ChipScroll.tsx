@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Rocket, ChevronDown } from 'lucide-react';
 import { Button } from './ui/Button';
 
@@ -27,6 +27,10 @@ const PHASE_PIXELS = {
     ctaFull: 1350,           // CTA fully visible by 1350px
     // Remaining 1650px (from 1350 to 3000) is pure visibility buffer
 };
+
+// Scroll offset where the finale ("Velocity is Here." + CTA buttons) is fully
+// revealed: the landing point when a navbar click asks to skip the intro.
+const INTRO_SKIP_Y = PHASE_PIXELS.ctaFull + 250;
 
 // Blueprint "V" drawn during loading: foreshadows the V the cheetah assembles into.
 // Vertex order matches the path direction so the nodes ignite along the stroke.
@@ -242,6 +246,21 @@ export const ChipScroll: React.FC = () => {
             root.style.overflow = previousOverflow;
         };
     }, [ready]);
+
+    // Navbar links to Overview pass { skipIntro: true }: land on the finale
+    // instead of replaying the scroll journey. Waits for `ready` because the
+    // scroll lock above clamps scrollY to 0 until frames are loaded.
+    const location = useLocation();
+    const navigate = useNavigate();
+    const skipIntro = Boolean((location.state as { skipIntro?: boolean } | null)?.skipIntro);
+    useEffect(() => {
+        if (!skipIntro || !ready) return;
+        // 'instant' overrides the page's smooth scroll-behavior: land on the
+        // finale instead of fast-forwarding through the whole journey
+        window.scrollTo({ top: INTRO_SKIP_Y, behavior: 'instant' });
+        // Clear the flag so refreshing (or revisiting history) replays normally
+        navigate(`${location.pathname}${location.search}`, { replace: true, state: {} });
+    }, [skipIntro, ready, navigate, location.pathname, location.search]);
 
     // Draw the current frame letterboxed into the cached canvas size
     const drawFrame = useCallback((index: number) => {

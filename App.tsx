@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import { FlagshipInterestBanner, FlagshipInterestModal } from './components/FlagshipInterest';
 import { Footer } from './components/Footer';
 import { BackgroundGrid } from './components/ui/BackgroundGrid';
 import { Home } from './components/Home';
@@ -62,6 +63,8 @@ const App: React.FC = () => {
         <BackgroundGrid />
 
         <div className="relative z-10 flex flex-col">
+          <FlagshipInterestBanner />
+          <FlagshipInterestModal />
           <Navbar />
           <main>
             <Suspense fallback={<RouteFallback />}>

@@ -9,6 +9,18 @@
  * link to the public Luma listing.
  */
 
+/**
+ * Single interest form covering all flagship events (Global Build London,
+ * SheBuilds) with a multi-select question for which events the respondent
+ * cares about. Embedded in the site-wide interest modal.
+ *
+ * Canonical docs.google.com URL, not the forms.gle short link: the site CSP
+ * only allows frames from docs.google.com, and `?embedded=true` is appended
+ * at render time.
+ */
+export const FLAGSHIP_INTEREST_FORM_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSf_gqjueNEen3LIvLrHwvxFdyF7Vrn4FG-zfJeaZE2Xdm2tTQ/viewform';
+
 export interface EventFact {
   label: string;
   value: string;
@@ -51,6 +63,12 @@ export interface EventRegistration {
   statusLabel: string;
   /** Longer copy shown in the register rail while registration is not yet live. */
   opensDetail: string;
+  /**
+   * When set, the register rail shows a "Register interest" button that opens
+   * the site-wide interest modal (which embeds this form). Omit or leave null
+   * to hide the button.
+   */
+  interestFormUrl?: string | null;
 }
 
 export interface VelocityEventPack {
@@ -392,9 +410,10 @@ export const eventsCatalog: VelocityEventPack[] = [
     registration: {
       lumaEventId: null,
       lumaUrl: null,
-      statusLabel: 'Applications open Dec 2026',
+      statusLabel: 'Interest open · applications Dec 2026',
       opensDetail:
-        'Applications open December 2026 and will run right here.',
+        'Applications open December 2026 and will run right here. Until then, register your interest for Global Build London below.',
+      interestFormUrl: FLAGSHIP_INTEREST_FORM_URL,
     },
   },
   {
@@ -412,18 +431,17 @@ export const eventsCatalog: VelocityEventPack[] = [
     provisional: true,
     locationShort: 'LSE · London',
     durationShort: 'Mon → Fri · IWD week',
-    eligibilityShort: 'Women students · LSE',
+    eligibilityShort: 'Women students',
     facts: [
       { label: 'Dates', value: '8–12 Mar 2027 · provisional' },
       { label: 'Format', value: 'In-person · week-long' },
       { label: 'Organiser', value: 'LSESU Velocity · hosted at LSE' },
-      { label: 'University', value: 'LSE' },
-      { label: 'Cohort', value: '60 women builders · capped' },
+      { label: 'Host campus', value: 'LSE · London' },
       { label: 'Eligibility', value: 'Women students · no experience required' },
     ],
     about: [
       "SheBuilds is an AI-powered startup competition run exclusively for women, held across International Women's Day week. Over five days, participants form teams, build an AI-powered product or venture, receive mentorship from women in tech and VC, and pitch to a panel of female judges.",
-      'Hosted by LSESU Velocity at LSE, the cohort is capped at 60 to keep mentorship high-touch. No prior tech or business experience is required. AI tools are taught as part of the programme, and both new ideas and early-stage ventures are welcome. Teams of 2–4; solo entrants are matched into teams before kickoff.',
+      'Hosted by LSESU Velocity at LSE, the week is built around high-touch mentorship. No prior tech or business experience is required. AI tools are taught as part of the programme, and both new ideas and early-stage ventures are welcome. Teams of 2–4; solo entrants are matched into teams before kickoff.',
     ],
     scheduleTitle: 'The week',
     schedule: [
@@ -465,25 +483,8 @@ export const eventsCatalog: VelocityEventPack[] = [
       "Progress is judged relative to each team's starting point and skill mix: non-technical teams aren't penalised. Most Impactful Idea is awarded outside the score, purely on social and community impact.",
     deliverables:
       'Each team submits a working prototype or demo (app, agent, dashboard, automation or no-code product) plus a short pitch deck (3–5 slides), a 150–300 word product description and the tools and AI models used.',
-    prizes: [
-      {
-        tag: '1st',
-        title: '£500 · VC access',
-        detail: 'A call with a VC, plus a female mentor for three months.',
-      },
-      {
-        tag: '2nd',
-        title: '£200 · mentorship',
-        detail: 'A female mentor (from a VC or AI startup) for one month.',
-      },
-      {
-        tag: '3rd',
-        title: '£100 · mentor call',
-        detail: 'A one-off mentor call with a woman from a VC or startup.',
-      },
-    ],
     prizesNote:
-      'Most Impactful Idea is a special award judged outside the leaderboard. Every participant receives a LinkedIn spotlight and a certificate of participation.',
+      'Prizes are provisional: expect cash awards, mentorship from women in tech and VC, and a spotlight for every participant. Confirmed closer to launch.',
     audience: [
       'Aspiring founders',
       'Business & econ students',
@@ -495,7 +496,7 @@ export const eventsCatalog: VelocityEventPack[] = [
       'Career switchers',
     ],
     keyDates: [
-      { when: 'Jan 2027', what: 'Sign-ups open at LSE' },
+      { when: 'Jan 2027', what: 'Sign-ups open' },
       { when: 'Feb 2027', what: 'Applications close · teams matched' },
       { when: '8 Mar', what: 'IWD launch night at LSE' },
       { when: '12 Mar', what: 'Pitch finale & awards' },
@@ -503,9 +504,10 @@ export const eventsCatalog: VelocityEventPack[] = [
     registration: {
       lumaEventId: null,
       lumaUrl: null,
-      statusLabel: 'Sign-ups open Jan 2027',
+      statusLabel: 'Interest open · sign-ups Jan 2027',
       opensDetail:
-        'Sign-ups open January 2027 for LSE students and will run right here.',
+        'Sign-ups open January 2027 and will run right here. Until then, register your interest below.',
+      interestFormUrl: FLAGSHIP_INTEREST_FORM_URL,
     },
   },
 ];
