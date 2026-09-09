@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Rocket, ChevronDown } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowRight, ChevronDown } from 'lucide-react';
 import { Button } from './ui/Button';
 
 const TOTAL_FRAMES = 210;
@@ -596,14 +596,6 @@ export const ChipScroll: React.FC = () => {
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </Button>
 
-                                <Link
-                                    to="/launchpad"
-                                    className="relative px-8 py-4 font-sans font-medium text-sm uppercase tracking-widest transition-all duration-300 transform border-2 focus:outline-none inline-flex items-center justify-center overflow-hidden bg-transparent border-white/30 text-white hover:border-white hover:bg-white/5 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)] gap-3"
-                                    style={{ borderRadius: '0px' }}
-                                >
-                                    <Rocket className="w-5 h-5" />
-                                    Launchpad
-                                </Link>
                             </motion.div>
                         </div>
                     </motion.div>
