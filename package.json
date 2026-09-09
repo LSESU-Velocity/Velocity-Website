@@ -12,6 +12,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:browser": "playwright test",
     "preview": "vite preview",
     "decrypt:intake": "tsx scripts/decrypt-intake.ts",
     "compress:webp": "tsx scripts/compress-webp-sequence.ts"
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.63.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/react": "^18.3.3",

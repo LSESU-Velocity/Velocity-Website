@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Explicit vh fallback for older webviews; dvh follows mobile browser chrome.
+   The header and recovery links stay outside iframe scrolling. */
+.interest-modal { display: none; }
+.interest-modal[open] { display: flex; }
+.interest-modal::backdrop { background: transparent; }
+.interest-modal-panel { height: min(56rem, calc(100vh - 1.5rem)); }
+
+@supports (height: 100dvh) {
+  .interest-modal { height: 100dvh; }
+  .interest-modal-panel { height: min(56rem, calc(100dvh - 1.5rem)); }
+}
+
+@media (max-height: 500px) {
+  .interest-modal { overflow-y: auto; align-items: flex-start; }
+  .interest-modal-panel { height: auto; min-height: calc(100vh - 1.5rem); overflow: visible; }
+  .interest-modal-panel iframe { flex: none; height: 60vh; min-height: 16rem; }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

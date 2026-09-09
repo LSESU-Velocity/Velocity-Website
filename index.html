@@ -32,7 +32,16 @@
 </head>
 
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <!-- Available if JavaScript is disabled, unsupported, or the app bundle fails.
+         Keep this responder URL in sync with FLAGSHIP_INTEREST_FORM_URL. -->
+    <main class="flex min-h-screen flex-col items-center justify-center gap-4 bg-black px-6 text-center text-white">
+      <h1 class="text-2xl font-bold">Velocity | LSE</h1>
+      <p>Register your interest in Global Build London and SheBuilds.</p>
+      <a class="text-white underline underline-offset-4" href="https://docs.google.com/forms/d/e/1FAIpQLSf_gqjueNEen3LIvLrHwvxFdyF7Vrn4FG-zfJeaZE2Xdm2tTQ/viewform">Open interest form</a>
+      <noscript><p>Enable JavaScript to explore the full site, or use the form link above.</p></noscript>
+    </main>
+  </div>
   <script type="module" src="/index.tsx"></script>
 </body>
 

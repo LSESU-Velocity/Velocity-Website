@@ -1,19 +1,7 @@
 import React from 'react';
-import { motion, Variants } from 'framer-motion';
+import { GoogleInterestForm } from './GoogleInterestForm';
 
 export const InterestForm: React.FC = () => {
-    const sectionVariants: Variants = {
-        hidden: { opacity: 0, y: 30 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.6,
-                ease: [0.21, 0.47, 0.32, 0.98]
-            }
-        }
-    };
-
     return (
         <section className="py-48 px-6 bg-velocity-black relative z-10">
             {/* Top gradient separator */}
@@ -29,24 +17,14 @@ export const InterestForm: React.FC = () => {
                     </p>
                 </div>
 
-                <motion.div
-                    variants={sectionVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true, margin: "-100px" }}
-                    className="group relative border border-white/5 overflow-hidden hover:border-velocity-red/30 transition-colors duration-500"
+                <div
+                    className="relative flex h-[800px] flex-col overflow-hidden border border-white/10"
                 >
-                    <iframe
-                        src="https://docs.google.com/forms/d/e/1FAIpQLScH0kmYkrgIXmTtPfT49iTAILEFfO2R_dfolsinRq_-8VqEzA/viewform?embedded=true"
-                        width="100%"
-                        height="800"
-                        className="block w-full"
-                        style={{ filter: 'invert(1) hue-rotate(180deg)' }}
+                    <GoogleInterestForm
+                        url="https://docs.google.com/forms/d/e/1FAIpQLScH0kmYkrgIXmTtPfT49iTAILEFfO2R_dfolsinRq_-8VqEzA/viewform"
                         title="Express Interest Form"
-                    >
-                        Loading...
-                    </iframe>
-                </motion.div>
+                    />
+                </div>
             </div>
         </section>
     );

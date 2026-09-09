@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'react-router-dom';
 import { ArrowUpRight, Clock, Instagram, Linkedin, Mail, MapPin, Users, X } from 'lucide-react';
@@ -11,6 +12,7 @@ import {
   type VelocityEventPack,
 } from '../lib/eventsCatalog';
 import { useInterestModal } from './FlagshipInterest';
+import { lockBodyScroll } from '../lib/bodyScrollLock';
 
 const CONTACT_EMAIL = 'velocity@lsesu.org';
 const INSTAGRAM_URL = 'https://www.instagram.com/lsesu.velocity';
@@ -334,25 +336,27 @@ const EventBrief: React.FC<{ event: VelocityEventPack; onClose: () => void }> = 
   event,
   onClose,
 }) => {
+  const { isOpen: interestOpen } = useInterestModal();
+
+  useEffect(() => lockBodyScroll(), []);
+
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !e.defaultPrevented && !interestOpen) onClose();
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, interestOpen]);
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.2 }}
       className="fixed inset-0 z-[70] overflow-y-auto bg-black/85 backdrop-blur-sm"
+      aria-hidden={interestOpen || undefined}
       onClick={onClose}
     >
       <motion.div
@@ -593,7 +597,8 @@ const EventBrief: React.FC<{ event: VelocityEventPack; onClose: () => void }> = 
           </aside>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 };
 

@@ -95,6 +95,41 @@ npm run build       # Production bundle
 
 CI runs all four on every push and pull request (`.github/workflows/ci.yml`).
 
+### Interest form browser checks
+
+```bash
+npx playwright install chromium firefox webkit
+npm run test:browser
+```
+
+The browser suite builds the site and serves it with the production security
+headers from `vercel.json`. It covers Chromium, Firefox, WebKit, and Android/iPhone
+viewport emulation. Google Form responses are intercepted locally: these tests
+never create real registrations. They cover blocked and slow embeds, manual retry,
+offline recovery, iframe validation/submission, URL/history preservation, nested
+event dialogs, keyboard focus, small screens, and the JavaScript-free fallback.
+CI runs these checks too. On Windows with Edge installed, set
+`PLAYWRIGHT_EDGE=1` to include the installed Edge browser.
+To run the optional live, signed-out Google access checks, set
+`INTEREST_FORM_LIVE=1` and run `npm run test:browser -- interest-form.live.spec.ts`.
+These also block the response endpoint and submit no registrations.
+
+The site cannot inspect a cross-origin Google Form to determine whether its
+contents rendered successfully: even a blocked frame can emit `load`
+([iframe event behavior](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe#error_and_load_event_behavior)).
+Recovery links therefore remain visible, including a same-tab option for browsers
+that restrict new tabs. Timeouts and connection changes never reload answers;
+retry is an explicit user action. If Google is unavailable altogether, the modal
+also provides the society's contact address.
+
+Before an event launch, check the live form in a signed-out/private browser and
+on a physical iPhone/Android device. Confirm responder access is **Anyone with
+the link**, responses are still accepted, and sign-in requirements are intentional
+([Google responder settings](https://support.google.com/docs/answer/2839588)).
+The app cannot override Google-side access or availability. Keep the fallback
+link in `index.html` synchronized with `FLAGSHIP_INTEREST_FORM_URL` in
+`lib/eventsCatalog.ts`; the browser suite checks that they match.
+
 ## Project Structure
 
 ```
